@@ -100,28 +100,28 @@
           "name": "Group List UI",
           "description": "Display all groups in a list",
           "test_method": "Playwright: list renders",
-          "passes": false
+          "passes": true
         },
         {
           "id": "3.2",
           "name": "Group Create",
           "description": "Create new group",
           "test_method": "Playwright: create successfully",
-          "passes": false
+          "passes": true
         },
         {
           "id": "3.3",
           "name": "Group Edit",
           "description": "Edit group name/color",
           "test_method": "Playwright: edit successfully",
-          "passes": false
+          "passes": true
         },
         {
           "id": "3.4",
           "name": "Group Delete",
           "description": "Delete group (with confirmation)",
           "test_method": "Playwright: delete successfully",
-          "passes": false
+          "passes": true
         },
         {
           "id": "3.5",
@@ -135,7 +135,7 @@
           "name": "Group Sidebar",
           "description": "Left fixed sidebar layout",
           "test_method": "Playwright: layout correct",
-          "passes": false
+          "passes": true
         }
       ]
     },

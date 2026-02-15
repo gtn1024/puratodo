@@ -38,7 +38,7 @@ Supports groups, lists, and infinitely nested tasks.
   - Created server client (src/lib/supabase/server.ts)
   - Created database type definitions (src/lib/supabase/database.types.ts)
 
-#### Next: Phase 2 - Authentication System
+#### Completed: Phase 2 - Authentication System
 - [x] Feature 2.1: Login Page UI
   - Created /login route with centered card layout
   - Email and password input fields
@@ -67,6 +67,25 @@ Supports groups, lists, and infinitely nested tasks.
   - Dashboard page checks auth server-side
   - Redirects to /login if not authenticated
   - Home page redirects based on auth state
+
+#### In Progress: Phase 3 - Group Module
+- [x] Feature 3.1: Group List UI
+  - Created Sidebar component with group list
+  - Groups display with color indicator and folder icon
+- [x] Feature 3.2: Group Create
+  - Create dialog with name and color picker
+  - Server action for creating groups
+- [x] Feature 3.3: Group Edit
+  - Edit dialog for updating group name/color
+  - Server action for updating groups
+- [x] Feature 3.4: Group Delete
+  - Delete confirmation dialog
+  - Server action for deleting groups
+- [ ] Feature 3.5: Group Sort
+- [x] Feature 3.6: Group Sidebar
+  - Left fixed sidebar with PuraToDo branding
+  - Group list with dropdown menu for actions
+  - Responsive layout with main content area
 
 ## Data Model
 
