@@ -59,35 +59,35 @@
           "name": "Registration",
           "description": "Email/password registration",
           "test_method": "Playwright: user can register",
-          "passes": false
+          "passes": true
         },
         {
           "id": "2.3",
           "name": "Login",
           "description": "Email/password login",
           "test_method": "Playwright: user can login",
-          "passes": false
+          "passes": true
         },
         {
           "id": "2.4",
           "name": "Logout",
           "description": "User logout",
           "test_method": "Playwright: user can logout",
-          "passes": false
+          "passes": true
         },
         {
           "id": "2.5",
           "name": "Session Persistence",
           "description": "Maintain login state after page refresh",
           "test_method": "Playwright: still logged in after refresh",
-          "passes": false
+          "passes": true
         },
         {
           "id": "2.6",
           "name": "Route Protection",
           "description": "Redirect unauthenticated users to login page",
           "test_method": "Playwright: unauthenticated redirect",
-          "passes": false
+          "passes": true
         }
       ]
     },

@@ -46,11 +46,27 @@ Supports groups, lists, and infinitely nested tasks.
   - Link to register page
   - Subtle animated background with organic shapes
   - Stone/warm color palette with dark mode support
-- [ ] Feature 2.2: Registration
-- [ ] Feature 2.3: Login
-- [ ] Feature 2.4: Logout
-- [ ] Feature 2.5: Session Persistence
-- [ ] Feature 2.6: Route Protection
+- [x] Feature 2.2: Registration
+  - Created /register route with matching design
+  - Email, password, confirm password fields
+  - Client-side validation (password match, min length)
+  - Supabase signUp integration
+  - Success screen with email confirmation prompt
+- [x] Feature 2.3: Login
+  - Supabase signInWithPassword integration
+  - Error handling and display
+  - Redirect to /dashboard on success
+- [x] Feature 2.4: Logout
+  - Created LogoutButton component
+  - Supabase signOut integration
+  - Redirect to /login on logout
+- [x] Feature 2.5: Session Persistence
+  - Supabase SSR handles session via cookies
+  - Automatic session refresh
+- [x] Feature 2.6: Route Protection
+  - Dashboard page checks auth server-side
+  - Redirects to /login if not authenticated
+  - Home page redirects based on auth state
 
 ## Data Model
 

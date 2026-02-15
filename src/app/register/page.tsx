@@ -6,24 +6,35 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       const supabase = createClient();
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
       });
@@ -31,8 +42,7 @@ export default function LoginPage() {
       if (error) {
         setError(error.message);
       } else {
-        router.push("/dashboard");
-        router.refresh();
+        setSuccess(true);
       }
     } catch {
       setError("An unexpected error occurred");
@@ -40,6 +50,87 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
+
+  if (success) {
+    return (
+      <main className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-stone-50 via-stone-100 to-stone-50 dark:from-stone-950 dark:via-stone-900 dark:to-stone-950">
+        {/* Background shapes */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div
+            className="absolute -top-1/2 -left-1/2 w-full h-full opacity-30 dark:opacity-20"
+            style={{
+              background:
+                "radial-gradient(circle, oklch(0.7 0.02 85) 0%, transparent 50%)",
+              animation: "float 20s ease-in-out infinite",
+            }}
+          />
+          <div
+            className="absolute -bottom-1/2 -right-1/2 w-full h-full opacity-30 dark:opacity-20"
+            style={{
+              background:
+                "radial-gradient(circle, oklch(0.7 0.03 180) 0%, transparent 50%)",
+              animation: "float 25s ease-in-out infinite reverse",
+            }}
+          />
+        </div>
+
+        <Card
+          className="w-full max-w-md relative z-10 border-stone-200/60 dark:border-stone-800/60 shadow-2xl shadow-stone-900/5 dark:shadow-stone-900/30 bg-white/80 dark:bg-stone-900/80 backdrop-blur-xl"
+          style={{
+            animation: "slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+          }}
+        >
+          <CardContent className="pt-8 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+              <svg
+                className="w-8 h-8 text-emerald-600 dark:text-emerald-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+            <h2 className="text-xl font-semibold text-stone-900 dark:text-stone-100 mb-2">
+              Check your email
+            </h2>
+            <p className="text-stone-500 dark:text-stone-400 mb-6">
+              We&apos;ve sent a confirmation link to{" "}
+              <span className="font-medium text-stone-700 dark:text-stone-300">
+                {email}
+              </span>
+            </p>
+            <Link
+              href="/login"
+              className="text-sm text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
+            >
+              Back to login
+            </Link>
+          </CardContent>
+        </Card>
+
+        <style jsx global>{`
+          @keyframes float {
+            0%,
+            100% {
+              transform: translate(0, 0) rotate(0deg);
+            }
+            33% {
+              transform: translate(30px, -30px) rotate(5deg);
+            }
+            66% {
+              transform: translate(-20px, 20px) rotate(-5deg);
+            }
+          }
+        `}</style>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-stone-50 via-stone-100 to-stone-50 dark:from-stone-950 dark:via-stone-900 dark:to-stone-950">
@@ -70,7 +161,7 @@ export default function LoginPage() {
         />
       </div>
 
-      {/* Login Card */}
+      {/* Register Card */}
       <Card
         className="w-full max-w-md relative z-10 border-stone-200/60 dark:border-stone-800/60 shadow-2xl shadow-stone-900/5 dark:shadow-stone-900/30 bg-white/80 dark:bg-stone-900/80 backdrop-blur-xl"
         style={{
@@ -106,20 +197,20 @@ export default function LoginPage() {
             className="text-2xl font-semibold tracking-tight text-center text-stone-900 dark:text-stone-100"
             style={{ animation: "fadeIn 0.8s ease-out 0.3s both" }}
           >
-            Welcome back
+            Create account
           </h1>
           <p
             className="text-sm text-stone-500 dark:text-stone-400 text-center"
             style={{ animation: "fadeIn 0.8s ease-out 0.4s both" }}
           >
-            Sign in to your PuraToDo account
+            Get started with PuraToDo
           </p>
         </CardHeader>
 
         <CardContent>
           <form
             onSubmit={handleSubmit}
-            className="space-y-5"
+            className="space-y-4"
             style={{ animation: "fadeIn 0.8s ease-out 0.5s both" }}
           >
             {error && (
@@ -148,20 +239,12 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label
-                  htmlFor="password"
-                  className="text-stone-700 dark:text-stone-300"
-                >
-                  Password
-                </Label>
-                <Link
-                  href="/forgot-password"
-                  className="text-xs text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200 transition-colors"
-                >
-                  Forgot password?
-                </Link>
-              </div>
+              <Label
+                htmlFor="password"
+                className="text-stone-700 dark:text-stone-300"
+              >
+                Password
+              </Label>
               <Input
                 id="password"
                 type="password"
@@ -169,7 +252,26 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                autoComplete="current-password"
+                autoComplete="new-password"
+                className="bg-stone-50/50 dark:bg-stone-800/50 border-stone-200 dark:border-stone-700 focus-visible:ring-stone-400"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label
+                htmlFor="confirmPassword"
+                className="text-stone-700 dark:text-stone-300"
+              >
+                Confirm Password
+              </Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                autoComplete="new-password"
                 className="bg-stone-50/50 dark:bg-stone-800/50 border-stone-200 dark:border-stone-700 focus-visible:ring-stone-400"
               />
             </div>
@@ -200,10 +302,10 @@ export default function LoginPage() {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  Signing in...
+                  Creating account...
                 </span>
               ) : (
-                "Sign in"
+                "Create account"
               )}
             </Button>
           </form>
@@ -212,12 +314,12 @@ export default function LoginPage() {
             className="mt-6 text-center text-sm text-stone-500 dark:text-stone-400"
             style={{ animation: "fadeIn 0.8s ease-out 0.6s both" }}
           >
-            Don&apos;t have an account?{" "}
+            Already have an account?{" "}
             <Link
-              href="/register"
+              href="/login"
               className="font-medium text-stone-900 hover:text-stone-700 dark:text-stone-100 dark:hover:text-stone-200 transition-colors underline-offset-4 hover:underline"
             >
-              Create one
+              Sign in
             </Link>
           </div>
         </CardContent>
