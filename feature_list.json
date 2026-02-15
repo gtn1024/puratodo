@@ -25,21 +25,21 @@
           "name": "Supabase Project Creation",
           "description": "Create project in Supabase, get environment variables",
           "test_method": "Connection test successful",
-          "passes": false
+          "passes": true
         },
         {
           "id": "1.4",
           "name": "Database Schema",
           "description": "Create groups, lists, tasks tables and RLS policies",
           "test_method": "Supabase tables created successfully",
-          "passes": false
+          "passes": true
         },
         {
           "id": "1.5",
           "name": "Supabase Client",
           "description": "Configure Supabase client, create type definitions",
           "test_method": "TypeScript types are correct",
-          "passes": false
+          "passes": true
         }
       ]
     },
