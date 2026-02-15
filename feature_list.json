@@ -225,7 +225,7 @@
         "Verify list shows icon and name",
         "Test with groups that have no lists"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 18,

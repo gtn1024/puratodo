@@ -9,47 +9,91 @@ import type { Group } from "@/actions/groups";
 
 interface DashboardContentProps {
   initialGroups: Group[];
+  allLists: List[];
 }
 
-export function DashboardContent({ initialGroups }: DashboardContentProps) {
+export function DashboardContent({ initialGroups, allLists }: DashboardContentProps) {
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(
     initialGroups.length > 0 ? initialGroups[0].id : null
   );
-  const [lists, setLists] = useState<List[]>([]);
+  const [selectedListId, setSelectedListId] = useState<string | null>(null);
+  const [lists, setLists] = useState<List[]>(allLists);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const selectedGroup = initialGroups.find((g) => g.id === selectedGroupId) || null;
+  const selectedList = lists.find((l) => l.id === selectedListId) || null;
+
+  // Filter lists for the selected group
+  const groupLists = selectedGroupId
+    ? lists.filter((l) => l.group_id === selectedGroupId)
+    : [];
 
   useEffect(() => {
     async function loadLists() {
-      if (selectedGroupId) {
-        const data = await getLists(selectedGroupId);
-        setLists(data);
-      } else {
-        setLists([]);
-      }
+      const data = await getLists();
+      setLists(data);
     }
-    loadLists();
-  }, [selectedGroupId, refreshKey]);
+    if (refreshKey > 0) {
+      loadLists();
+    }
+  }, [refreshKey]);
 
   const handleListsChange = () => {
     setRefreshKey((k) => k + 1);
+  };
+
+  const handleListSelect = (listId: string | null, groupId: string) => {
+    setSelectedGroupId(groupId);
+    setSelectedListId(listId);
+  };
+
+  const handleGroupSelect = (groupId: string | null) => {
+    setSelectedGroupId(groupId);
+    // When selecting a group, deselect the list
+    if (groupId !== selectedGroupId) {
+      setSelectedListId(null);
+    }
   };
 
   return (
     <div className="flex h-screen bg-stone-50 dark:bg-stone-950">
       <Sidebar
         initialGroups={initialGroups}
+        initialLists={lists}
         selectedGroupId={selectedGroupId}
-        onGroupSelect={setSelectedGroupId}
+        selectedListId={selectedListId}
+        onGroupSelect={handleGroupSelect}
+        onListSelect={handleListSelect}
+        onDataChange={handleListsChange}
       />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="border-b border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 px-6 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-              {selectedGroup ? selectedGroup.name : "Dashboard"}
-            </h1>
+            <div className="flex items-center gap-2">
+              {selectedList ? (
+                <>
+                  <span className="text-xl">{selectedList.icon || "📋"}</span>
+                  <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
+                    {selectedList.name}
+                  </h1>
+                </>
+              ) : selectedGroup ? (
+                <>
+                  <div
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: selectedGroup.color || "#6b7280" }}
+                  />
+                  <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
+                    {selectedGroup.name}
+                  </h1>
+                </>
+              ) : (
+                <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
+                  Dashboard
+                </h1>
+              )}
+            </div>
             <LogoutButton />
           </div>
         </header>
@@ -58,7 +102,7 @@ export function DashboardContent({ initialGroups }: DashboardContentProps) {
           <div className="max-w-4xl mx-auto">
             <ListPanel
               group={selectedGroup}
-              lists={lists}
+              lists={groupLists}
               onListsChange={handleListsChange}
             />
           </div>

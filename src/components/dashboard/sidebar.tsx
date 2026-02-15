@@ -18,7 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createGroup, updateGroup, deleteGroup, reorderGroups, type Group } from "@/actions/groups";
-import { MoreHorizontal, Plus, Folder, GripVertical } from "lucide-react";
+import { MoreHorizontal, Plus, Folder, GripVertical, ChevronRight, ChevronDown, ListTodo } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -36,11 +36,16 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import type { List } from "@/actions/lists";
 
 interface SidebarProps {
   initialGroups: Group[];
+  initialLists: List[];
   selectedGroupId: string | null;
+  selectedListId: string | null;
   onGroupSelect: (groupId: string | null) => void;
+  onListSelect: (listId: string | null, groupId: string) => void;
+  onDataChange: () => void;
 }
 
 const PRESET_COLORS = [
@@ -57,13 +62,31 @@ const PRESET_COLORS = [
 
 interface SortableGroupItemProps {
   group: Group;
+  lists: List[];
+  isExpanded: boolean;
+  onToggleExpand: () => void;
   onEdit: (group: Group) => void;
   onDelete: (group: Group) => void;
   isSelected: boolean;
   onSelect: (groupId: string) => void;
+  selectedListId: string | null;
+  onListSelect: (listId: string, groupId: string) => void;
+  onAddList: (groupId: string) => void;
 }
 
-function SortableGroupItem({ group, onEdit, onDelete, isSelected, onSelect }: SortableGroupItemProps) {
+function SortableGroupItem({
+  group,
+  lists,
+  isExpanded,
+  onToggleExpand,
+  onEdit,
+  onDelete,
+  isSelected,
+  onSelect,
+  selectedListId,
+  onListSelect,
+  onAddList,
+}: SortableGroupItemProps) {
   const {
     attributes,
     listeners,
@@ -80,24 +103,45 @@ function SortableGroupItem({ group, onEdit, onDelete, isSelected, onSelect }: So
   };
 
   const handleClick = (e: React.MouseEvent) => {
-    // Prevent click when interacting with dropdown or drag handle
     const target = e.target as HTMLElement;
     if (target.closest('[data-radix-collection-item]') || target.closest('button[data-state]')) {
       return;
     }
+    // Toggle expand instead of just selecting
+    onToggleExpand();
     onSelect(group.id);
   };
 
   return (
     <li ref={setNodeRef} style={style}>
       <div
-        className={`flex items-center gap-2 px-2 py-1.5 rounded-md group cursor-pointer ${
-          isSelected
+        className={`flex items-center gap-1 px-2 py-1.5 rounded-md group cursor-pointer ${
+          isSelected && !selectedListId
             ? "bg-stone-100 dark:bg-stone-800"
             : "hover:bg-stone-100 dark:hover:bg-stone-800"
         }`}
         onClick={handleClick}
       >
+        {/* Expand/Collapse Chevron */}
+        <button
+          className="p-0.5 rounded hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleExpand();
+          }}
+        >
+          {lists.length > 0 ? (
+            isExpanded ? (
+              <ChevronDown className="h-3.5 w-3.5 text-stone-500" />
+            ) : (
+              <ChevronRight className="h-3.5 w-3.5 text-stone-500" />
+            )
+          ) : (
+            <div className="h-3.5 w-3.5" />
+          )}
+        </button>
+
+        {/* Drag Handle */}
         <button
           {...attributes}
           {...listeners}
@@ -105,16 +149,29 @@ function SortableGroupItem({ group, onEdit, onDelete, isSelected, onSelect }: So
         >
           <GripVertical className="h-3.5 w-3.5" />
         </button>
+
+        {/* Color Dot */}
         <div
           className="w-3 h-3 rounded-full flex-shrink-0"
-          style={{
-            backgroundColor: group.color || "#6b7280",
-          }}
+          style={{ backgroundColor: group.color || "#6b7280" }}
         />
+
+        {/* Folder Icon */}
         <Folder className="h-4 w-4 text-stone-400 flex-shrink-0" />
+
+        {/* Group Name */}
         <span className="flex-1 text-sm text-stone-700 dark:text-stone-300 truncate">
           {group.name}
         </span>
+
+        {/* List Count Badge */}
+        {lists.length > 0 && (
+          <span className="text-xs text-stone-400 mr-1">
+            {lists.length}
+          </span>
+        )}
+
+        {/* Dropdown Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -126,6 +183,9 @@ function SortableGroupItem({ group, onEdit, onDelete, isSelected, onSelect }: So
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-32">
+            <DropdownMenuItem onClick={() => onAddList(group.id)}>
+              Add List
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onEdit(group)}>
               Edit
             </DropdownMenuItem>
@@ -138,12 +198,62 @@ function SortableGroupItem({ group, onEdit, onDelete, isSelected, onSelect }: So
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Child Lists */}
+      {isExpanded && lists.length > 0 && (
+        <ul className="ml-6 mt-0.5 space-y-0.5">
+          {lists.map((list) => (
+            <li
+              key={list.id}
+              className={`flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer group ${
+                selectedListId === list.id
+                  ? "bg-stone-100 dark:bg-stone-800"
+                  : "hover:bg-stone-100 dark:hover:bg-stone-800"
+              }`}
+              onClick={() => onListSelect(list.id, group.id)}
+            >
+              <span className="text-base">{list.icon || "📋"}</span>
+              <span className="flex-1 text-sm text-stone-600 dark:text-stone-400 truncate">
+                {list.name}
+              </span>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    className="h-5 w-5 opacity-0 group-hover:opacity-100"
+                  >
+                    <MoreHorizontal className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-24">
+                  <DropdownMenuItem>Edit</DropdownMenuItem>
+                  <DropdownMenuItem className="text-red-600 dark:text-red-400">
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </li>
+          ))}
+        </ul>
+      )}
     </li>
   );
 }
 
-export function Sidebar({ initialGroups, selectedGroupId, onGroupSelect }: SidebarProps) {
+export function Sidebar({
+  initialGroups,
+  initialLists,
+  selectedGroupId,
+  selectedListId,
+  onGroupSelect,
+  onListSelect,
+  onDataChange,
+}: SidebarProps) {
   const [groups, setGroups] = useState(initialGroups);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
+    new Set(initialGroups.map((g) => g.id)) // Start with all expanded
+  );
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -154,26 +264,32 @@ export function Sidebar({ initialGroups, selectedGroupId, onGroupSelect }: Sideb
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 5,
-      },
+      activationConstraint: { distance: 5 },
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
 
+  const toggleExpand = (groupId: string) => {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(groupId)) {
+        next.delete(groupId);
+      } else {
+        next.add(groupId);
+      }
+      return next;
+    });
+  };
+
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
-
     if (over && active.id !== over.id) {
       const oldIndex = groups.findIndex((g) => g.id === active.id);
       const newIndex = groups.findIndex((g) => g.id === over.id);
-
       const newGroups = arrayMove(groups, oldIndex, newIndex);
       setGroups(newGroups);
-
-      // Persist order to database
       const orderedIds = newGroups.map((g) => g.id);
       await reorderGroups(orderedIds);
     }
@@ -187,8 +303,7 @@ export function Sidebar({ initialGroups, selectedGroupId, onGroupSelect }: Sideb
       setIsCreateOpen(false);
       setName("");
       setColor(null);
-      // Refresh groups
-      window.location.reload();
+      onDataChange();
     }
     setIsLoading(false);
   };
@@ -205,7 +320,7 @@ export function Sidebar({ initialGroups, selectedGroupId, onGroupSelect }: Sideb
       setSelectedGroup(null);
       setName("");
       setColor(null);
-      window.location.reload();
+      onDataChange();
     }
     setIsLoading(false);
   };
@@ -217,7 +332,7 @@ export function Sidebar({ initialGroups, selectedGroupId, onGroupSelect }: Sideb
     if (result.success) {
       setIsDeleteOpen(false);
       setSelectedGroup(null);
-      window.location.reload();
+      onDataChange();
     }
     setIsLoading(false);
   };
@@ -232,6 +347,12 @@ export function Sidebar({ initialGroups, selectedGroupId, onGroupSelect }: Sideb
   const openDeleteDialog = (group: Group) => {
     setSelectedGroup(group);
     setIsDeleteOpen(true);
+  };
+
+  const handleAddList = (groupId: string) => {
+    onGroupSelect(groupId);
+    onListSelect(null, groupId);
+    // This will be handled by parent component to open create list dialog
   };
 
   return (
@@ -305,16 +426,27 @@ export function Sidebar({ initialGroups, selectedGroupId, onGroupSelect }: Sideb
                 strategy={verticalListSortingStrategy}
               >
                 <ul className="space-y-0.5">
-                  {groups.map((group) => (
-                    <SortableGroupItem
-                      key={group.id}
-                      group={group}
-                      onEdit={openEditDialog}
-                      onDelete={openDeleteDialog}
-                      isSelected={selectedGroupId === group.id}
-                      onSelect={onGroupSelect}
-                    />
-                  ))}
+                  {groups.map((group) => {
+                    const groupLists = initialLists.filter(
+                      (l) => l.group_id === group.id
+                    );
+                    return (
+                      <SortableGroupItem
+                        key={group.id}
+                        group={group}
+                        lists={groupLists}
+                        isExpanded={expandedGroups.has(group.id)}
+                        onToggleExpand={() => toggleExpand(group.id)}
+                        onEdit={openEditDialog}
+                        onDelete={openDeleteDialog}
+                        isSelected={selectedGroupId === group.id}
+                        onSelect={onGroupSelect}
+                        selectedListId={selectedListId}
+                        onListSelect={onListSelect}
+                        onAddList={handleAddList}
+                      />
+                    );
+                  })}
                 </ul>
               </SortableContext>
             </DndContext>
@@ -322,7 +454,7 @@ export function Sidebar({ initialGroups, selectedGroupId, onGroupSelect }: Sideb
         </div>
       </aside>
 
-      {/* Create Dialog */}
+      {/* Create Group Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -368,7 +500,7 @@ export function Sidebar({ initialGroups, selectedGroupId, onGroupSelect }: Sideb
         </DialogContent>
       </Dialog>
 
-      {/* Edit Dialog */}
+      {/* Edit Group Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -421,9 +553,9 @@ export function Sidebar({ initialGroups, selectedGroupId, onGroupSelect }: Sideb
             <DialogTitle>Delete Group</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-stone-500 dark:text-stone-400">
-            Are you sure you want to delete &ldquo;{selectedGroup?.name}&rdquo;? This will
-            also delete all lists and tasks within this group. This action cannot
-            be undone.
+            Are you sure you want to delete &ldquo;{selectedGroup?.name}&rdquo;?
+            This will also delete all lists and tasks within this group. This
+            action cannot be undone.
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>

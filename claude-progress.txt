@@ -36,6 +36,13 @@ All tables include user_id for RLS policies and query optimization.
   - 已在 ListPanel 中实现创建对话框
   - 支持名称和 12 种 emoji 图标选择
   - 测试通过
+- Feature #17.5: Sidebar Tree - 侧边栏树形结构
+  - 重构 Sidebar 组件支持在分组下方显示子列表
+  - 添加展开/收起功能（ChevronRight/ChevronDown 图标）
+  - 显示列表数量徽章
+  - 点击列表更新主区域标题
+  - 点击分组菜单可添加列表
+  - 测试通过
 
 #### 下一步
 - 实现 Feature #20: List Edit - 编辑列表

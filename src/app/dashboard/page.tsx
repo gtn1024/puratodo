@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { getGroups, type Group } from "@/actions/groups";
+import { getGroups } from "@/actions/groups";
+import { getLists } from "@/actions/lists";
 import { DashboardContent } from "./dashboard-content";
 
 export default async function DashboardPage() {
@@ -14,6 +15,7 @@ export default async function DashboardPage() {
   }
 
   const groups = await getGroups();
+  const allLists = await getLists();
 
-  return <DashboardContent initialGroups={groups} />;
+  return <DashboardContent initialGroups={groups} allLists={allLists} />;
 }
