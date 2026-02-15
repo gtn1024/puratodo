@@ -22,6 +22,28 @@ All tables include user_id for RLS policies and query optimization.
 
 ---
 
+### 2026-02-16
+
+#### 完成
+- Feature #18: List UI - 显示列表
+  - 创建 src/actions/lists.ts server action（getLists, createList, updateList, deleteList, reorderLists, moveListToGroup）
+  - 创建 src/components/dashboard/list-panel.tsx 列表面板组件
+  - 更新 Sidebar 组件支持分组选择（selectedGroupId, onGroupSelect）
+  - 重构 Dashboard 页面，分离 DashboardContent 客户端组件
+  - 列表显示名称和 emoji 图标
+  - 修复分组切换后列表不更新的问题（改进点击事件处理）
+- Feature #19: List Create - 创建列表
+  - 已在 ListPanel 中实现创建对话框
+  - 支持名称和 12 种 emoji 图标选择
+  - 测试通过
+
+#### 下一步
+- 实现 Feature #20: List Edit - 编辑列表
+- 实现 Feature #21: List Delete - 删除列表
+- 继续实现 Feature #22-23: List Sort/Move
+
+---
+
 ### 2026-02-15
 
 #### 完成
