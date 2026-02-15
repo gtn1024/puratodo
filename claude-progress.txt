@@ -33,9 +33,18 @@ All tables include user_id for RLS policies and query optimization.
   - 添加 reorderGroups server action 批量更新 sort_order
   - 更新 Sidebar 组件支持拖拽排序（SortableGroupItem 组件）
   - 添加 GripVertical 拖拽手柄，hover 时显示
+- Feature #18: List UI - 显示列表
+  - 创建 src/actions/lists.ts server action（getLists, createList, updateList, deleteList, reorderLists, moveListToGroup）
+  - 创建 src/components/dashboard/list-panel.tsx 列表面板组件
+  - 更新 Sidebar 组件支持分组选择（selectedGroupId, onGroupSelect）
+  - 重构 Dashboard 页面，分离 DashboardContent 客户端组件
+  - 列表显示名称和 emoji 图标
 
 #### 下一步
-- 实现 Feature #18: List UI - 显示列表
+- 实现 Feature #19: List Create - 创建列表（已在测试中实现）
+- 实现 Feature #20: List Edit - 编辑列表（已在测试中实现）
+- 实现 Feature #21: List Delete - 删除列表（已在测试中实现）
+- 继续实现 Feature #22-23: List Sort/Move
 
 ---
 

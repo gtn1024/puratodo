@@ -223,7 +223,7 @@
         "Verify lists appear in main content area",
         "Check each list shows name and icon"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 19,
@@ -237,7 +237,7 @@
         "Click Create button",
         "Verify new list appears"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 20,

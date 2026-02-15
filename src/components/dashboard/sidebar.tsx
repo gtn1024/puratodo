@@ -39,6 +39,8 @@ import { CSS } from "@dnd-kit/utilities";
 
 interface SidebarProps {
   initialGroups: Group[];
+  selectedGroupId: string | null;
+  onGroupSelect: (groupId: string | null) => void;
 }
 
 const PRESET_COLORS = [
@@ -57,9 +59,11 @@ interface SortableGroupItemProps {
   group: Group;
   onEdit: (group: Group) => void;
   onDelete: (group: Group) => void;
+  isSelected: boolean;
+  onSelect: (groupId: string) => void;
 }
 
-function SortableGroupItem({ group, onEdit, onDelete }: SortableGroupItemProps) {
+function SortableGroupItem({ group, onEdit, onDelete, isSelected, onSelect }: SortableGroupItemProps) {
   const {
     attributes,
     listeners,
@@ -75,9 +79,25 @@ function SortableGroupItem({ group, onEdit, onDelete }: SortableGroupItemProps) 
     opacity: isDragging ? 0.5 : 1,
   };
 
+  const handleClick = (e: React.MouseEvent) => {
+    // Prevent click when interacting with dropdown or drag handle
+    const target = e.target as HTMLElement;
+    if (target.closest('[data-radix-collection-item]') || target.closest('button[data-state]')) {
+      return;
+    }
+    onSelect(group.id);
+  };
+
   return (
     <li ref={setNodeRef} style={style}>
-      <div className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-stone-100 dark:hover:bg-stone-800 group cursor-pointer">
+      <div
+        className={`flex items-center gap-2 px-2 py-1.5 rounded-md group cursor-pointer ${
+          isSelected
+            ? "bg-stone-100 dark:bg-stone-800"
+            : "hover:bg-stone-100 dark:hover:bg-stone-800"
+        }`}
+        onClick={handleClick}
+      >
         <button
           {...attributes}
           {...listeners}
@@ -122,7 +142,7 @@ function SortableGroupItem({ group, onEdit, onDelete }: SortableGroupItemProps) 
   );
 }
 
-export function Sidebar({ initialGroups }: SidebarProps) {
+export function Sidebar({ initialGroups, selectedGroupId, onGroupSelect }: SidebarProps) {
   const [groups, setGroups] = useState(initialGroups);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -291,6 +311,8 @@ export function Sidebar({ initialGroups }: SidebarProps) {
                       group={group}
                       onEdit={openEditDialog}
                       onDelete={openDeleteDialog}
+                      isSelected={selectedGroupId === group.id}
+                      onSelect={onGroupSelect}
                     />
                   ))}
                 </ul>
