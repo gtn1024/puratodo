@@ -1,0 +1,47 @@
+# PuraToDo Development Progress
+
+## Project Overview
+A modern todo application built with Next.js 14+, Supabase, and Tailwind CSS.
+Supports groups, lists, and infinitely nested tasks.
+
+## Tech Stack
+- Frontend: Next.js 14+ (App Router) + TypeScript + Tailwind CSS + shadcn/ui
+- Backend: Supabase (PostgreSQL + Auth + Realtime + RLS)
+- Testing: Playwright MCP (E2E)
+
+## Progress Log
+
+### 2026-02-15 - Project Initialization
+
+#### Completed
+- [x] Feature 1.1: Project Scaffold
+  - Created Next.js project with TypeScript, Tailwind CSS, ESLint
+  - Project structure: src/app (App Router), Tailwind v4, Next.js 16.1.6
+
+#### In Progress
+- [ ] Feature 1.2: Install shadcn/ui
+- [ ] Feature 1.3: Supabase Project Creation
+- [ ] Feature 1.4: Database Schema
+- [ ] Feature 1.5: Supabase Client
+
+#### Next Steps
+1. Initialize shadcn/ui and install base components
+2. Create Supabase project and configure environment
+3. Create database schema (groups, lists, tasks tables)
+4. Configure Supabase client with type definitions
+
+## Data Model
+
+```
+users (Supabase Auth)
+    └── groups (1:N)
+            └── lists (1:N)
+                    └── tasks (1:N, self-referencing for subtasks)
+```
+
+All tables include user_id for RLS policies and query optimization.
+
+## Notes
+- Using Tailwind CSS v4 (latest)
+- Next.js 16.1.6 with App Router
+- All features will be tested with Playwright MCP

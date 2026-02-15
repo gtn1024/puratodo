@@ -1,0 +1,425 @@
+{
+  "project": "PuraToDo",
+  "description": "A modern todo application with groups, lists, and nested tasks",
+  "phases": [
+    {
+      "id": 1,
+      "name": "Project Initialization",
+      "features": [
+        {
+          "id": "1.1",
+          "name": "Project Scaffold",
+          "description": "Create Next.js project, configure TypeScript, Tailwind, ESLint",
+          "test_method": "npm run dev starts successfully",
+          "passes": true
+        },
+        {
+          "id": "1.2",
+          "name": "Install shadcn/ui",
+          "description": "Initialize shadcn/ui, install base components",
+          "test_method": "Button component renders correctly",
+          "passes": false
+        },
+        {
+          "id": "1.3",
+          "name": "Supabase Project Creation",
+          "description": "Create project in Supabase, get environment variables",
+          "test_method": "Connection test successful",
+          "passes": false
+        },
+        {
+          "id": "1.4",
+          "name": "Database Schema",
+          "description": "Create groups, lists, tasks tables and RLS policies",
+          "test_method": "Supabase tables created successfully",
+          "passes": false
+        },
+        {
+          "id": "1.5",
+          "name": "Supabase Client",
+          "description": "Configure Supabase client, create type definitions",
+          "test_method": "TypeScript types are correct",
+          "passes": false
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Authentication System",
+      "features": [
+        {
+          "id": "2.1",
+          "name": "Login Page UI",
+          "description": "Create login page layout and form",
+          "test_method": "Playwright: page renders correctly",
+          "passes": false
+        },
+        {
+          "id": "2.2",
+          "name": "Registration",
+          "description": "Email/password registration",
+          "test_method": "Playwright: user can register",
+          "passes": false
+        },
+        {
+          "id": "2.3",
+          "name": "Login",
+          "description": "Email/password login",
+          "test_method": "Playwright: user can login",
+          "passes": false
+        },
+        {
+          "id": "2.4",
+          "name": "Logout",
+          "description": "User logout",
+          "test_method": "Playwright: user can logout",
+          "passes": false
+        },
+        {
+          "id": "2.5",
+          "name": "Session Persistence",
+          "description": "Maintain login state after page refresh",
+          "test_method": "Playwright: still logged in after refresh",
+          "passes": false
+        },
+        {
+          "id": "2.6",
+          "name": "Route Protection",
+          "description": "Redirect unauthenticated users to login page",
+          "test_method": "Playwright: unauthenticated redirect",
+          "passes": false
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Group Module",
+      "features": [
+        {
+          "id": "3.1",
+          "name": "Group List UI",
+          "description": "Display all groups in a list",
+          "test_method": "Playwright: list renders",
+          "passes": false
+        },
+        {
+          "id": "3.2",
+          "name": "Group Create",
+          "description": "Create new group",
+          "test_method": "Playwright: create successfully",
+          "passes": false
+        },
+        {
+          "id": "3.3",
+          "name": "Group Edit",
+          "description": "Edit group name/color",
+          "test_method": "Playwright: edit successfully",
+          "passes": false
+        },
+        {
+          "id": "3.4",
+          "name": "Group Delete",
+          "description": "Delete group (with confirmation)",
+          "test_method": "Playwright: delete successfully",
+          "passes": false
+        },
+        {
+          "id": "3.5",
+          "name": "Group Sort",
+          "description": "Drag to sort groups",
+          "test_method": "Playwright: sort works",
+          "passes": false
+        },
+        {
+          "id": "3.6",
+          "name": "Group Sidebar",
+          "description": "Left fixed sidebar layout",
+          "test_method": "Playwright: layout correct",
+          "passes": false
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "List Module",
+      "features": [
+        {
+          "id": "4.1",
+          "name": "List UI",
+          "description": "Display lists under group",
+          "test_method": "Playwright: list renders",
+          "passes": false
+        },
+        {
+          "id": "4.2",
+          "name": "List Create",
+          "description": "Create new list",
+          "test_method": "Playwright: create successfully",
+          "passes": false
+        },
+        {
+          "id": "4.3",
+          "name": "List Edit",
+          "description": "Edit list name/icon",
+          "test_method": "Playwright: edit successfully",
+          "passes": false
+        },
+        {
+          "id": "4.4",
+          "name": "List Delete",
+          "description": "Delete list (with confirmation)",
+          "test_method": "Playwright: delete successfully",
+          "passes": false
+        },
+        {
+          "id": "4.5",
+          "name": "List Sort",
+          "description": "Drag to sort lists",
+          "test_method": "Playwright: sort works",
+          "passes": false
+        },
+        {
+          "id": "4.6",
+          "name": "List Move",
+          "description": "Move list to another group",
+          "test_method": "Playwright: move successfully",
+          "passes": false
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Task Basics",
+      "features": [
+        {
+          "id": "5.1",
+          "name": "Task List UI",
+          "description": "Display all tasks under list",
+          "test_method": "Playwright: list renders",
+          "passes": false
+        },
+        {
+          "id": "5.2",
+          "name": "Task Create",
+          "description": "Create new task (basic fields)",
+          "test_method": "Playwright: create successfully",
+          "passes": false
+        },
+        {
+          "id": "5.3",
+          "name": "Task Complete",
+          "description": "Mark task as complete/incomplete",
+          "test_method": "Playwright: status toggle",
+          "passes": false
+        },
+        {
+          "id": "5.4",
+          "name": "Task Edit",
+          "description": "Edit task name",
+          "test_method": "Playwright: edit successfully",
+          "passes": false
+        },
+        {
+          "id": "5.5",
+          "name": "Task Delete",
+          "description": "Delete task",
+          "test_method": "Playwright: delete successfully",
+          "passes": false
+        },
+        {
+          "id": "5.6",
+          "name": "Task Sort",
+          "description": "Drag to sort tasks",
+          "test_method": "Playwright: sort works",
+          "passes": false
+        },
+        {
+          "id": "5.7",
+          "name": "Task Star",
+          "description": "Star/unstar task",
+          "test_method": "Playwright: star toggle",
+          "passes": false
+        },
+        {
+          "id": "5.8",
+          "name": "Task Detail Panel",
+          "description": "Right side/modal for task details",
+          "test_method": "Playwright: panel shows",
+          "passes": false
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Task Advanced",
+      "features": [
+        {
+          "id": "6.1",
+          "name": "Task Due Date",
+          "description": "Set/edit due_date",
+          "test_method": "Playwright: date set",
+          "passes": false
+        },
+        {
+          "id": "6.2",
+          "name": "Task Plan Date",
+          "description": "Set/edit plan_date",
+          "test_method": "Playwright: date set",
+          "passes": false
+        },
+        {
+          "id": "6.3",
+          "name": "Task Comment",
+          "description": "Add/edit comment",
+          "test_method": "Playwright: comment edit",
+          "passes": false
+        },
+        {
+          "id": "6.4",
+          "name": "Task Duration",
+          "description": "Set duration_minutes",
+          "test_method": "Playwright: duration set",
+          "passes": false
+        },
+        {
+          "id": "6.5",
+          "name": "Task Subtask",
+          "description": "Create subtask (1 level)",
+          "test_method": "Playwright: subtask create",
+          "passes": false
+        },
+        {
+          "id": "6.6",
+          "name": "Task Infinite Nesting",
+          "description": "Support unlimited subtask levels",
+          "test_method": "Playwright: multi-level nesting",
+          "passes": false
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "UI/UX Optimization",
+      "features": [
+        {
+          "id": "7.1",
+          "name": "Dark Mode",
+          "description": "Support light/dark theme toggle",
+          "test_method": "Playwright: theme toggle",
+          "passes": false
+        },
+        {
+          "id": "7.2",
+          "name": "Responsive Layout",
+          "description": "Mobile adaptation",
+          "test_method": "Playwright: multi-size test",
+          "passes": false
+        },
+        {
+          "id": "7.3",
+          "name": "Keyboard Shortcuts",
+          "description": "Common operation shortcuts",
+          "test_method": "Playwright: shortcut test",
+          "passes": false
+        },
+        {
+          "id": "7.4",
+          "name": "Loading States",
+          "description": "Skeleton screens/loading indicators",
+          "test_method": "Playwright: loading shows",
+          "passes": false
+        },
+        {
+          "id": "7.5",
+          "name": "Empty States",
+          "description": "Friendly prompts when no data",
+          "test_method": "Playwright: empty state shows",
+          "passes": false
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Advanced Features",
+      "features": [
+        {
+          "id": "8.1",
+          "name": "Search",
+          "description": "Global task search",
+          "test_method": "Playwright: search results",
+          "passes": false
+        },
+        {
+          "id": "8.2",
+          "name": "Filter",
+          "description": "Filter by status/date/star",
+          "test_method": "Playwright: filter results",
+          "passes": false
+        },
+        {
+          "id": "8.3",
+          "name": "Today View",
+          "description": "Show tasks with plan_date = today",
+          "test_method": "Playwright: today view",
+          "passes": false
+        },
+        {
+          "id": "8.4",
+          "name": "Realtime Sync",
+          "description": "Multi-device realtime sync (Supabase Realtime)",
+          "test_method": "Playwright: multi-tab sync",
+          "passes": false
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "CalDAV Integration",
+      "description": "Future extension - CalDAV protocol support for Apple Reminders etc.",
+      "features": [
+        {
+          "id": "9.1",
+          "name": "CalDAV Auth",
+          "description": "CalDAV Basic Auth authentication layer",
+          "test_method": "curl: auth test",
+          "passes": false
+        },
+        {
+          "id": "9.2",
+          "name": "WebDAV Basics",
+          "description": "PROPFIND/PROPPATCH basic methods",
+          "test_method": "curl: WebDAV operations",
+          "passes": false
+        },
+        {
+          "id": "9.3",
+          "name": "Calendar Discovery",
+          "description": "CalDAV calendar-home-set discovery",
+          "test_method": "curl: calendar discovery",
+          "passes": false
+        },
+        {
+          "id": "9.4",
+          "name": "VTODO Read",
+          "description": "Get task list (iCalendar format)",
+          "test_method": "curl: VTODO output",
+          "passes": false
+        },
+        {
+          "id": "9.5",
+          "name": "VTODO Write",
+          "description": "Create/update/delete task",
+          "test_method": "curl: VTODO operations",
+          "passes": false
+        },
+        {
+          "id": "9.6",
+          "name": "Subtask Sync",
+          "description": "RELATED-TO;RELTYPE=PARENT support",
+          "test_method": "Apple Reminders: subtask sync",
+          "passes": false
+        }
+      ]
+    }
+  ]
+}
