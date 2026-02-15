@@ -127,3 +127,35 @@ export async function deleteGroup(
   revalidatePath("/dashboard");
   return { success: true };
 }
+
+export async function reorderGroups(
+  orderedIds: string[]
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  // Update sort_order for each group
+  const updates = orderedIds.map((id, index) =>
+    supabase
+      .from("groups")
+      .update({ sort_order: index })
+      .eq("id", id)
+      .eq("user_id", user.id)
+  );
+
+  const results = await Promise.all(updates);
+  const errors = results.filter((r) => r.error);
+
+  if (errors.length > 0) {
+    return { success: false, error: errors[0].error?.message };
+  }
+
+  revalidatePath("/dashboard");
+  return { success: true };
+}

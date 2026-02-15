@@ -17,8 +17,25 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { createGroup, updateGroup, deleteGroup, type Group } from "@/actions/groups";
-import { MoreHorizontal, Plus, Folder } from "lucide-react";
+import { createGroup, updateGroup, deleteGroup, reorderGroups, type Group } from "@/actions/groups";
+import { MoreHorizontal, Plus, Folder, GripVertical } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface SidebarProps {
   initialGroups: Group[];
@@ -36,6 +53,75 @@ const PRESET_COLORS = [
   "#6b7280", // gray
 ];
 
+interface SortableGroupItemProps {
+  group: Group;
+  onEdit: (group: Group) => void;
+  onDelete: (group: Group) => void;
+}
+
+function SortableGroupItem({ group, onEdit, onDelete }: SortableGroupItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: group.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <li ref={setNodeRef} style={style}>
+      <div className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-stone-100 dark:hover:bg-stone-800 group cursor-pointer">
+        <button
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <GripVertical className="h-3.5 w-3.5" />
+        </button>
+        <div
+          className="w-3 h-3 rounded-full flex-shrink-0"
+          style={{
+            backgroundColor: group.color || "#6b7280",
+          }}
+        />
+        <Folder className="h-4 w-4 text-stone-400 flex-shrink-0" />
+        <span className="flex-1 text-sm text-stone-700 dark:text-stone-300 truncate">
+          {group.name}
+        </span>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              className="h-6 w-6 opacity-0 group-hover:opacity-100"
+            >
+              <MoreHorizontal className="h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-32">
+            <DropdownMenuItem onClick={() => onEdit(group)}>
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => onDelete(group)}
+              className="text-red-600 dark:text-red-400"
+            >
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </li>
+  );
+}
+
 export function Sidebar({ initialGroups }: SidebarProps) {
   const [groups, setGroups] = useState(initialGroups);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -45,6 +131,33 @@ export function Sidebar({ initialGroups }: SidebarProps) {
   const [name, setName] = useState("");
   const [color, setColor] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = groups.findIndex((g) => g.id === active.id);
+      const newIndex = groups.findIndex((g) => g.id === over.id);
+
+      const newGroups = arrayMove(groups, oldIndex, newIndex);
+      setGroups(newGroups);
+
+      // Persist order to database
+      const orderedIds = newGroups.map((g) => g.id);
+      await reorderGroups(orderedIds);
+    }
+  };
 
   const handleCreate = async () => {
     if (!name.trim()) return;
@@ -162,46 +275,27 @@ export function Sidebar({ initialGroups }: SidebarProps) {
               </Button>
             </div>
           ) : (
-            <ul className="space-y-0.5">
-              {groups.map((group) => (
-                <li key={group.id}>
-                  <div className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-stone-100 dark:hover:bg-stone-800 group cursor-pointer">
-                    <div
-                      className="w-3 h-3 rounded-full flex-shrink-0"
-                      style={{
-                        backgroundColor: group.color || "#6b7280",
-                      }}
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={groups.map((g) => g.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <ul className="space-y-0.5">
+                  {groups.map((group) => (
+                    <SortableGroupItem
+                      key={group.id}
+                      group={group}
+                      onEdit={openEditDialog}
+                      onDelete={openDeleteDialog}
                     />
-                    <Folder className="h-4 w-4 text-stone-400 flex-shrink-0" />
-                    <span className="flex-1 text-sm text-stone-700 dark:text-stone-300 truncate">
-                      {group.name}
-                    </span>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          className="h-6 w-6 opacity-0 group-hover:opacity-100"
-                        >
-                          <MoreHorizontal className="h-3 w-3" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-32">
-                        <DropdownMenuItem onClick={() => openEditDialog(group)}>
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => openDeleteDialog(group)}
-                          className="text-red-600 dark:text-red-400"
-                        >
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                  ))}
+                </ul>
+              </SortableContext>
+            </DndContext>
           )}
         </div>
       </aside>
@@ -305,7 +399,7 @@ export function Sidebar({ initialGroups }: SidebarProps) {
             <DialogTitle>Delete Group</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-stone-500 dark:text-stone-400">
-            Are you sure you want to delete "{selectedGroup?.name}"? This will
+            Are you sure you want to delete &ldquo;{selectedGroup?.name}&rdquo;? This will
             also delete all lists and tasks within this group. This action cannot
             be undone.
           </p>

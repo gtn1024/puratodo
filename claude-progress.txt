@@ -28,10 +28,14 @@ All tables include user_id for RLS policies and query optimization.
 - 重构 feature_list.json：从 phase 嵌套结构改为扁平数字编号 (1-52)
 - 为每个 feature 添加 steps 字段，指导 Playwright 测试步骤
 - 更新 claude-progress.txt 适配新格式
+- Feature #16: Group Sort - 拖拽排序分组
+  - 安装 @dnd-kit/core, @dnd-kit/sortable, @dnd-kit/utilities
+  - 添加 reorderGroups server action 批量更新 sort_order
+  - 更新 Sidebar 组件支持拖拽排序（SortableGroupItem 组件）
+  - 添加 GripVertical 拖拽手柄，hover 时显示
 
 #### 下一步
-- 实现 Feature #16: Group Sort - 拖拽排序分组
-- 或跳过实现 Feature #18: List UI - 显示列表
+- 实现 Feature #18: List UI - 显示列表
 
 ---
 
