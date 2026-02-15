@@ -52,7 +52,7 @@
           "name": "Login Page UI",
           "description": "Create login page layout and form",
           "test_method": "Playwright: page renders correctly",
-          "passes": false
+          "passes": true
         },
         {
           "id": "2.2",
