@@ -63,6 +63,7 @@ All tables include user_id for RLS policies and query optimization.
   - 列表显示名称和 emoji 图标
 
 #### 下一步
+- **Feature #17.5: Sidebar Tree - 侧边栏树形结构显示列表（新增）**
 - 实现 Feature #19: List Create - 创建列表（已在测试中实现）
 - 实现 Feature #20: List Edit - 编辑列表（已在测试中实现）
 - 实现 Feature #21: List Delete - 删除列表（已在测试中实现）
