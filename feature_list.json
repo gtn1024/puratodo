@@ -18,7 +18,7 @@
           "name": "Install shadcn/ui",
           "description": "Initialize shadcn/ui, install base components",
           "test_method": "Button component renders correctly",
-          "passes": false
+          "passes": true
         },
         {
           "id": "1.3",

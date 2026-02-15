@@ -1,11 +1,11 @@
 # PuraToDo Development Progress
 
 ## Project Overview
-A modern todo application built with Next.js 14+, Supabase, and Tailwind CSS.
+A modern todo application built with Next.js 16+, Supabase, and Tailwind CSS.
 Supports groups, lists, and infinitely nested tasks.
 
 ## Tech Stack
-- Frontend: Next.js 14+ (App Router) + TypeScript + Tailwind CSS + shadcn/ui
+- Frontend: Next.js 16+ (App Router) + TypeScript + Tailwind CSS v4 + shadcn/ui
 - Backend: Supabase (PostgreSQL + Auth + Realtime + RLS)
 - Testing: Playwright MCP (E2E)
 
@@ -18,17 +18,22 @@ Supports groups, lists, and infinitely nested tasks.
   - Created Next.js project with TypeScript, Tailwind CSS, ESLint
   - Project structure: src/app (App Router), Tailwind v4, Next.js 16.1.6
 
+- [x] Feature 1.2: Install shadcn/ui
+  - Initialized shadcn/ui with new-york style, neutral base color
+  - Installed Button component
+  - Created src/lib/utils.ts with cn helper
+  - Created src/components/ui/button.tsx
+  - Updated globals.css with shadcn CSS variables
+
 #### In Progress
-- [ ] Feature 1.2: Install shadcn/ui
 - [ ] Feature 1.3: Supabase Project Creation
 - [ ] Feature 1.4: Database Schema
 - [ ] Feature 1.5: Supabase Client
 
 #### Next Steps
-1. Initialize shadcn/ui and install base components
-2. Create Supabase project and configure environment
-3. Create database schema (groups, lists, tasks tables)
-4. Configure Supabase client with type definitions
+1. Create Supabase project and configure environment variables
+2. Create database schema (groups, lists, tasks tables)
+3. Configure Supabase client with type definitions
 
 ## Data Model
 
@@ -44,4 +49,5 @@ All tables include user_id for RLS policies and query optimization.
 ## Notes
 - Using Tailwind CSS v4 (latest)
 - Next.js 16.1.6 with App Router
+- shadcn/ui with new-york style, neutral color scheme
 - All features will be tested with Playwright MCP
