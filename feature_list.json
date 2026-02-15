@@ -215,6 +215,19 @@
       "passes": true
     },
     {
+      "id": 17.5,
+      "category": "Sidebar Tree",
+      "description": "Display lists under their parent group in sidebar (tree structure)",
+      "steps": [
+        "View sidebar with groups",
+        "Verify each group shows its child lists indented below",
+        "Click list in sidebar to view tasks in main area",
+        "Verify list shows icon and name",
+        "Test with groups that have no lists"
+      ],
+      "passes": false
+    },
+    {
       "id": 18,
       "category": "List Module",
       "description": "Display all lists under a selected group",
