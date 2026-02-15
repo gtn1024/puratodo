@@ -1,425 +1,642 @@
 {
   "project": "PuraToDo",
   "description": "A modern todo application with groups, lists, and nested tasks",
-  "phases": [
+  "features": [
     {
       "id": 1,
-      "name": "Project Initialization",
-      "features": [
-        {
-          "id": "1.1",
-          "name": "Project Scaffold",
-          "description": "Create Next.js project, configure TypeScript, Tailwind, ESLint",
-          "test_method": "npm run dev starts successfully",
-          "passes": true
-        },
-        {
-          "id": "1.2",
-          "name": "Install shadcn/ui",
-          "description": "Initialize shadcn/ui, install base components",
-          "test_method": "Button component renders correctly",
-          "passes": true
-        },
-        {
-          "id": "1.3",
-          "name": "Supabase Project Creation",
-          "description": "Create project in Supabase, get environment variables",
-          "test_method": "Connection test successful",
-          "passes": true
-        },
-        {
-          "id": "1.4",
-          "name": "Database Schema",
-          "description": "Create groups, lists, tasks tables and RLS policies",
-          "test_method": "Supabase tables created successfully",
-          "passes": true
-        },
-        {
-          "id": "1.5",
-          "name": "Supabase Client",
-          "description": "Configure Supabase client, create type definitions",
-          "test_method": "TypeScript types are correct",
-          "passes": true
-        }
-      ]
+      "category": "Project Initialization",
+      "description": "Create Next.js project scaffold with TypeScript, Tailwind CSS, ESLint",
+      "steps": [
+        "Run npx create-next-app@latest",
+        "Verify project structure created",
+        "Check TypeScript compiles without errors",
+        "Confirm Tailwind CSS configured correctly",
+        "Run npm run dev, verify localhost:3000 loads"
+      ],
+      "passes": true
     },
     {
       "id": 2,
-      "name": "Authentication System",
-      "features": [
-        {
-          "id": "2.1",
-          "name": "Login Page UI",
-          "description": "Create login page layout and form",
-          "test_method": "Playwright: page renders correctly",
-          "passes": true
-        },
-        {
-          "id": "2.2",
-          "name": "Registration",
-          "description": "Email/password registration",
-          "test_method": "Playwright: user can register",
-          "passes": true
-        },
-        {
-          "id": "2.3",
-          "name": "Login",
-          "description": "Email/password login",
-          "test_method": "Playwright: user can login",
-          "passes": true
-        },
-        {
-          "id": "2.4",
-          "name": "Logout",
-          "description": "User logout",
-          "test_method": "Playwright: user can logout",
-          "passes": true
-        },
-        {
-          "id": "2.5",
-          "name": "Session Persistence",
-          "description": "Maintain login state after page refresh",
-          "test_method": "Playwright: still logged in after refresh",
-          "passes": true
-        },
-        {
-          "id": "2.6",
-          "name": "Route Protection",
-          "description": "Redirect unauthenticated users to login page",
-          "test_method": "Playwright: unauthenticated redirect",
-          "passes": true
-        }
-      ]
+      "category": "Project Initialization",
+      "description": "Install and configure shadcn/ui with base components",
+      "steps": [
+        "Run npx shadcn@latest init",
+        "Select new-york style, neutral base color",
+        "Install Button component",
+        "Verify Button component renders correctly",
+        "Test Button with different variants"
+      ],
+      "passes": true
     },
     {
       "id": 3,
-      "name": "Group Module",
-      "features": [
-        {
-          "id": "3.1",
-          "name": "Group List UI",
-          "description": "Display all groups in a list",
-          "test_method": "Playwright: list renders",
-          "passes": true
-        },
-        {
-          "id": "3.2",
-          "name": "Group Create",
-          "description": "Create new group",
-          "test_method": "Playwright: create successfully",
-          "passes": true
-        },
-        {
-          "id": "3.3",
-          "name": "Group Edit",
-          "description": "Edit group name/color",
-          "test_method": "Playwright: edit successfully",
-          "passes": true
-        },
-        {
-          "id": "3.4",
-          "name": "Group Delete",
-          "description": "Delete group (with confirmation)",
-          "test_method": "Playwright: delete successfully",
-          "passes": true
-        },
-        {
-          "id": "3.5",
-          "name": "Group Sort",
-          "description": "Drag to sort groups",
-          "test_method": "Playwright: sort works",
-          "passes": false
-        },
-        {
-          "id": "3.6",
-          "name": "Group Sidebar",
-          "description": "Left fixed sidebar layout",
-          "test_method": "Playwright: layout correct",
-          "passes": true
-        }
-      ]
+      "category": "Project Initialization",
+      "description": "Create Supabase project and configure environment",
+      "steps": [
+        "Create new project in Supabase dashboard",
+        "Get anon key and project URL",
+        "Add environment variables to .env.local",
+        "Verify Supabase client connects"
+      ],
+      "passes": true
     },
     {
       "id": 4,
-      "name": "List Module",
-      "features": [
-        {
-          "id": "4.1",
-          "name": "List UI",
-          "description": "Display lists under group",
-          "test_method": "Playwright: list renders",
-          "passes": false
-        },
-        {
-          "id": "4.2",
-          "name": "List Create",
-          "description": "Create new list",
-          "test_method": "Playwright: create successfully",
-          "passes": false
-        },
-        {
-          "id": "4.3",
-          "name": "List Edit",
-          "description": "Edit list name/icon",
-          "test_method": "Playwright: edit successfully",
-          "passes": false
-        },
-        {
-          "id": "4.4",
-          "name": "List Delete",
-          "description": "Delete list (with confirmation)",
-          "test_method": "Playwright: delete successfully",
-          "passes": false
-        },
-        {
-          "id": "4.5",
-          "name": "List Sort",
-          "description": "Drag to sort lists",
-          "test_method": "Playwright: sort works",
-          "passes": false
-        },
-        {
-          "id": "4.6",
-          "name": "List Move",
-          "description": "Move list to another group",
-          "test_method": "Playwright: move successfully",
-          "passes": false
-        }
-      ]
+      "category": "Project Initialization",
+      "description": "Create database schema with groups, lists, tasks tables and RLS policies",
+      "steps": [
+        "Create groups table with user_id, name, color, sort_order",
+        "Create lists table with user_id, group_id, name, icon, sort_order",
+        "Create tasks table with user_id, list_id, name, parent_id for nesting",
+        "Add RLS policies for user data isolation",
+        "Create indexes on user_id and foreign keys"
+      ],
+      "passes": true
     },
     {
       "id": 5,
-      "name": "Task Basics",
-      "features": [
-        {
-          "id": "5.1",
-          "name": "Task List UI",
-          "description": "Display all tasks under list",
-          "test_method": "Playwright: list renders",
-          "passes": false
-        },
-        {
-          "id": "5.2",
-          "name": "Task Create",
-          "description": "Create new task (basic fields)",
-          "test_method": "Playwright: create successfully",
-          "passes": false
-        },
-        {
-          "id": "5.3",
-          "name": "Task Complete",
-          "description": "Mark task as complete/incomplete",
-          "test_method": "Playwright: status toggle",
-          "passes": false
-        },
-        {
-          "id": "5.4",
-          "name": "Task Edit",
-          "description": "Edit task name",
-          "test_method": "Playwright: edit successfully",
-          "passes": false
-        },
-        {
-          "id": "5.5",
-          "name": "Task Delete",
-          "description": "Delete task",
-          "test_method": "Playwright: delete successfully",
-          "passes": false
-        },
-        {
-          "id": "5.6",
-          "name": "Task Sort",
-          "description": "Drag to sort tasks",
-          "test_method": "Playwright: sort works",
-          "passes": false
-        },
-        {
-          "id": "5.7",
-          "name": "Task Star",
-          "description": "Star/unstar task",
-          "test_method": "Playwright: star toggle",
-          "passes": false
-        },
-        {
-          "id": "5.8",
-          "name": "Task Detail Panel",
-          "description": "Right side/modal for task details",
-          "test_method": "Playwright: panel shows",
-          "passes": false
-        }
-      ]
+      "category": "Project Initialization",
+      "description": "Configure Supabase client and create type definitions",
+      "steps": [
+        "Create browser client (src/lib/supabase/client.ts)",
+        "Create server client (src/lib/supabase/server.ts)",
+        "Generate database type definitions",
+        "Verify TypeScript types are correct"
+      ],
+      "passes": true
     },
     {
       "id": 6,
-      "name": "Task Advanced",
-      "features": [
-        {
-          "id": "6.1",
-          "name": "Task Due Date",
-          "description": "Set/edit due_date",
-          "test_method": "Playwright: date set",
-          "passes": false
-        },
-        {
-          "id": "6.2",
-          "name": "Task Plan Date",
-          "description": "Set/edit plan_date",
-          "test_method": "Playwright: date set",
-          "passes": false
-        },
-        {
-          "id": "6.3",
-          "name": "Task Comment",
-          "description": "Add/edit comment",
-          "test_method": "Playwright: comment edit",
-          "passes": false
-        },
-        {
-          "id": "6.4",
-          "name": "Task Duration",
-          "description": "Set duration_minutes",
-          "test_method": "Playwright: duration set",
-          "passes": false
-        },
-        {
-          "id": "6.5",
-          "name": "Task Subtask",
-          "description": "Create subtask (1 level)",
-          "test_method": "Playwright: subtask create",
-          "passes": false
-        },
-        {
-          "id": "6.6",
-          "name": "Task Infinite Nesting",
-          "description": "Support unlimited subtask levels",
-          "test_method": "Playwright: multi-level nesting",
-          "passes": false
-        }
-      ]
+      "category": "Authentication",
+      "description": "Create login page UI with form components",
+      "steps": [
+        "Navigate to /login route",
+        "Verify email input field exists",
+        "Verify password input field exists",
+        "Check Sign in button is present",
+        "Confirm link to register page works"
+      ],
+      "passes": true
     },
     {
       "id": 7,
-      "name": "UI/UX Optimization",
-      "features": [
-        {
-          "id": "7.1",
-          "name": "Dark Mode",
-          "description": "Support light/dark theme toggle",
-          "test_method": "Playwright: theme toggle",
-          "passes": false
-        },
-        {
-          "id": "7.2",
-          "name": "Responsive Layout",
-          "description": "Mobile adaptation",
-          "test_method": "Playwright: multi-size test",
-          "passes": false
-        },
-        {
-          "id": "7.3",
-          "name": "Keyboard Shortcuts",
-          "description": "Common operation shortcuts",
-          "test_method": "Playwright: shortcut test",
-          "passes": false
-        },
-        {
-          "id": "7.4",
-          "name": "Loading States",
-          "description": "Skeleton screens/loading indicators",
-          "test_method": "Playwright: loading shows",
-          "passes": false
-        },
-        {
-          "id": "7.5",
-          "name": "Empty States",
-          "description": "Friendly prompts when no data",
-          "test_method": "Playwright: empty state shows",
-          "passes": false
-        }
-      ]
+      "category": "Authentication",
+      "description": "Email/password user registration",
+      "steps": [
+        "Navigate to /register route",
+        "Fill email, password, confirm password fields",
+        "Submit registration form",
+        "Verify success message or email confirmation prompt",
+        "Check user appears in Supabase Auth"
+      ],
+      "passes": true
     },
     {
       "id": 8,
-      "name": "Advanced Features",
-      "features": [
-        {
-          "id": "8.1",
-          "name": "Search",
-          "description": "Global task search",
-          "test_method": "Playwright: search results",
-          "passes": false
-        },
-        {
-          "id": "8.2",
-          "name": "Filter",
-          "description": "Filter by status/date/star",
-          "test_method": "Playwright: filter results",
-          "passes": false
-        },
-        {
-          "id": "8.3",
-          "name": "Today View",
-          "description": "Show tasks with plan_date = today",
-          "test_method": "Playwright: today view",
-          "passes": false
-        },
-        {
-          "id": "8.4",
-          "name": "Realtime Sync",
-          "description": "Multi-device realtime sync (Supabase Realtime)",
-          "test_method": "Playwright: multi-tab sync",
-          "passes": false
-        }
-      ]
+      "category": "Authentication",
+      "description": "Email/password user login",
+      "steps": [
+        "Navigate to /login route",
+        "Enter registered email and password",
+        "Click Sign in button",
+        "Verify redirect to /dashboard",
+        "Check user session is established"
+      ],
+      "passes": true
     },
     {
       "id": 9,
-      "name": "CalDAV Integration",
-      "description": "Future extension - CalDAV protocol support for Apple Reminders etc.",
-      "features": [
-        {
-          "id": "9.1",
-          "name": "CalDAV Auth",
-          "description": "CalDAV Basic Auth authentication layer",
-          "test_method": "curl: auth test",
-          "passes": false
-        },
-        {
-          "id": "9.2",
-          "name": "WebDAV Basics",
-          "description": "PROPFIND/PROPPATCH basic methods",
-          "test_method": "curl: WebDAV operations",
-          "passes": false
-        },
-        {
-          "id": "9.3",
-          "name": "Calendar Discovery",
-          "description": "CalDAV calendar-home-set discovery",
-          "test_method": "curl: calendar discovery",
-          "passes": false
-        },
-        {
-          "id": "9.4",
-          "name": "VTODO Read",
-          "description": "Get task list (iCalendar format)",
-          "test_method": "curl: VTODO output",
-          "passes": false
-        },
-        {
-          "id": "9.5",
-          "name": "VTODO Write",
-          "description": "Create/update/delete task",
-          "test_method": "curl: VTODO operations",
-          "passes": false
-        },
-        {
-          "id": "9.6",
-          "name": "Subtask Sync",
-          "description": "RELATED-TO;RELTYPE=PARENT support",
-          "test_method": "Apple Reminders: subtask sync",
-          "passes": false
-        }
-      ]
+      "category": "Authentication",
+      "description": "User logout functionality",
+      "steps": [
+        "Click logout button",
+        "Verify user is signed out",
+        "Confirm redirect to /login",
+        "Verify session is cleared"
+      ],
+      "passes": true
+    },
+    {
+      "id": 10,
+      "category": "Authentication",
+      "description": "Maintain login state after page refresh",
+      "steps": [
+        "Log in as user",
+        "Refresh browser page",
+        "Verify user is still logged in",
+        "Check session persists across page loads"
+      ],
+      "passes": true
+    },
+    {
+      "id": 11,
+      "category": "Authentication",
+      "description": "Protect routes, redirect unauthenticated users to login",
+      "steps": [
+        "Without being logged in, navigate to /dashboard",
+        "Verify redirect to /login occurs",
+        "After login, verify redirect back to intended page"
+      ],
+      "passes": true
+    },
+    {
+      "id": 12,
+      "category": "Group Module",
+      "description": "Display all groups in a sidebar list",
+      "steps": [
+        "Log in as user",
+        "Navigate to /dashboard",
+        "Verify groups list appears in sidebar",
+        "Check each group shows name and color indicator"
+      ],
+      "passes": true
+    },
+    {
+      "id": 13,
+      "category": "Group Module",
+      "description": "Create new group with name and color",
+      "steps": [
+        "Click Add Group button",
+        "Enter group name in dialog",
+        "Select group color",
+        "Click Create button",
+        "Verify new group appears in sidebar"
+      ],
+      "passes": true
+    },
+    {
+      "id": 14,
+      "category": "Group Module",
+      "description": "Edit group name and color",
+      "steps": [
+        "Click on group menu (three dots)",
+        "Select Edit option",
+        "Modify group name and/or color",
+        "Click Save button",
+        "Verify changes reflect in sidebar"
+      ],
+      "passes": true
+    },
+    {
+      "id": 15,
+      "category": "Group Module",
+      "description": "Delete group with confirmation dialog",
+      "steps": [
+        "Click on group menu (three dots)",
+        "Select Delete option",
+        "Confirm deletion in dialog",
+        "Verify group is removed from sidebar",
+        "Verify associated lists/tasks are deleted"
+      ],
+      "passes": true
+    },
+    {
+      "id": 16,
+      "category": "Group Module",
+      "description": "Drag to reorder groups in sidebar",
+      "steps": [
+        "Have multiple groups in sidebar",
+        "Drag one group to a different position",
+        "Verify group order updates",
+        "Verify sort_order persists after refresh"
+      ],
+      "passes": false
+    },
+    {
+      "id": 17,
+      "category": "Group Module",
+      "description": "Left fixed sidebar layout with branding",
+      "steps": [
+        "Verify sidebar is fixed on left side",
+        "Check PuraToDo branding is visible",
+        "Verify sidebar stays visible on scroll",
+        "Confirm responsive behavior on smaller screens"
+      ],
+      "passes": true
+    },
+    {
+      "id": 18,
+      "category": "List Module",
+      "description": "Display all lists under a selected group",
+      "steps": [
+        "Select a group in sidebar",
+        "Verify lists appear in main content area",
+        "Check each list shows name and icon"
+      ],
+      "passes": false
+    },
+    {
+      "id": 19,
+      "category": "List Module",
+      "description": "Create new list with name and icon",
+      "steps": [
+        "Select a group",
+        "Click Add List button",
+        "Enter list name",
+        "Select icon for list",
+        "Click Create button",
+        "Verify new list appears"
+      ],
+      "passes": false
+    },
+    {
+      "id": 20,
+      "category": "List Module",
+      "description": "Edit list name and icon",
+      "steps": [
+        "Click on list menu",
+        "Select Edit option",
+        "Modify list name and/or icon",
+        "Click Save button",
+        "Verify changes reflect"
+      ],
+      "passes": false
+    },
+    {
+      "id": 21,
+      "category": "List Module",
+      "description": "Delete list with confirmation",
+      "steps": [
+        "Click on list menu",
+        "Select Delete option",
+        "Confirm deletion in dialog",
+        "Verify list is removed",
+        "Verify associated tasks are deleted"
+      ],
+      "passes": false
+    },
+    {
+      "id": 22,
+      "category": "List Module",
+      "description": "Drag to reorder lists",
+      "steps": [
+        "Have multiple lists under a group",
+        "Drag one list to a different position",
+        "Verify list order updates",
+        "Verify sort_order persists after refresh"
+      ],
+      "passes": false
+    },
+    {
+      "id": 23,
+      "category": "List Module",
+      "description": "Move list to another group",
+      "steps": [
+        "Click on list menu",
+        "Select Move option",
+        "Choose target group",
+        "Verify list moves to new group",
+        "Verify list no longer appears in original group"
+      ],
+      "passes": false
+    },
+    {
+      "id": 24,
+      "category": "Task Basics",
+      "description": "Display all tasks under a selected list",
+      "steps": [
+        "Select a list",
+        "Verify tasks appear in main area",
+        "Check tasks show name and completion status"
+      ],
+      "passes": false
+    },
+    {
+      "id": 25,
+      "category": "Task Basics",
+      "description": "Create new task with basic fields",
+      "steps": [
+        "Select a list",
+        "Click Add Task button or use inline input",
+        "Enter task name",
+        "Click Create or press Enter",
+        "Verify new task appears in list"
+      ],
+      "passes": false
+    },
+    {
+      "id": 26,
+      "category": "Task Basics",
+      "description": "Mark task as complete or incomplete",
+      "steps": [
+        "Click checkbox on task",
+        "Verify task shows completed state",
+        "Click again to toggle",
+        "Verify status changes correctly"
+      ],
+      "passes": false
+    },
+    {
+      "id": 27,
+      "category": "Task Basics",
+      "description": "Edit task name",
+      "steps": [
+        "Click on task name to edit",
+        "Modify task name",
+        "Save changes",
+        "Verify new name displays"
+      ],
+      "passes": false
+    },
+    {
+      "id": 28,
+      "category": "Task Basics",
+      "description": "Delete task",
+      "steps": [
+        "Click on task menu",
+        "Select Delete option",
+        "Verify task is removed from list"
+      ],
+      "passes": false
+    },
+    {
+      "id": 29,
+      "category": "Task Basics",
+      "description": "Drag to reorder tasks",
+      "steps": [
+        "Have multiple tasks in a list",
+        "Drag one task to a different position",
+        "Verify task order updates",
+        "Verify sort_order persists after refresh"
+      ],
+      "passes": false
+    },
+    {
+      "id": 30,
+      "category": "Task Basics",
+      "description": "Star or unstar a task",
+      "steps": [
+        "Click star icon on task",
+        "Verify task shows starred state",
+        "Click again to unstar",
+        "Verify star status toggles correctly"
+      ],
+      "passes": false
+    },
+    {
+      "id": 31,
+      "category": "Task Basics",
+      "description": "Task detail panel/modal for editing",
+      "steps": [
+        "Click on task to open detail panel",
+        "Verify panel shows with full task details",
+        "Check all editable fields are available",
+        "Close panel and verify it dismisses"
+      ],
+      "passes": false
+    },
+    {
+      "id": 32,
+      "category": "Task Advanced",
+      "description": "Set and edit task due date",
+      "steps": [
+        "Open task detail panel",
+        "Set due date using date picker",
+        "Save task",
+        "Verify due date displays on task",
+        "Edit due date and verify update"
+      ],
+      "passes": false
+    },
+    {
+      "id": 33,
+      "category": "Task Advanced",
+      "description": "Set and edit task plan date",
+      "steps": [
+        "Open task detail panel",
+        "Set plan date using date picker",
+        "Save task",
+        "Verify plan date displays on task",
+        "Edit plan date and verify update"
+      ],
+      "passes": false
+    },
+    {
+      "id": 34,
+      "category": "Task Advanced",
+      "description": "Add and edit comment on task",
+      "steps": [
+        "Open task detail panel",
+        "Add comment text",
+        "Save task",
+        "Verify comment displays",
+        "Edit comment and verify update"
+      ],
+      "passes": false
+    },
+    {
+      "id": 35,
+      "category": "Task Advanced",
+      "description": "Set task duration in minutes",
+      "steps": [
+        "Open task detail panel",
+        "Set duration using input",
+        "Save task",
+        "Verify duration displays on task"
+      ],
+      "passes": false
+    },
+    {
+      "id": 36,
+      "category": "Task Advanced",
+      "description": "Create subtask under a task",
+      "steps": [
+        "Select a task",
+        "Click Add Subtask option",
+        "Enter subtask name",
+        "Verify subtask appears under parent",
+        "Verify subtask can be completed independently"
+      ],
+      "passes": false
+    },
+    {
+      "id": 37,
+      "category": "Task Advanced",
+      "description": "Support unlimited subtask nesting levels",
+      "steps": [
+        "Create a subtask under a subtask",
+        "Create another level deeper",
+        "Verify all levels display correctly",
+        "Verify completion status cascades appropriately",
+        "Test at least 3+ levels of nesting"
+      ],
+      "passes": false
+    },
+    {
+      "id": 38,
+      "category": "UI/UX Optimization",
+      "description": "Light/dark theme toggle support",
+      "steps": [
+        "Click theme toggle button",
+        "Verify theme switches from light to dark",
+        "Refresh page and verify theme persists",
+        "Toggle back and verify"
+      ],
+      "passes": false
+    },
+    {
+      "id": 39,
+      "category": "UI/UX Optimization",
+      "description": "Responsive layout for mobile devices",
+      "steps": [
+        "Resize browser to mobile width",
+        "Verify sidebar collapses to hamburger menu",
+        "Verify content adjusts appropriately",
+        "Test touch interactions work"
+      ],
+      "passes": false
+    },
+    {
+      "id": 40,
+      "category": "UI/UX Optimization",
+      "description": "Keyboard shortcuts for common operations",
+      "steps": [
+        "Press keyboard shortcut for new task",
+        "Verify new task input appears",
+        "Test other defined shortcuts",
+        "Verify shortcuts work as documented"
+      ],
+      "passes": false
+    },
+    {
+      "id": 41,
+      "category": "UI/UX Optimization",
+      "description": "Loading states with skeleton screens",
+      "steps": [
+        "Navigate to a page with data",
+        "Verify skeleton loaders appear while loading",
+        "Verify content replaces skeletons when loaded"
+      ],
+      "passes": false
+    },
+    {
+      "id": 42,
+      "category": "UI/UX Optimization",
+      "description": "Empty state prompts when no data exists",
+      "steps": [
+        "Create a new group with no lists",
+        "Verify friendly empty message shows",
+        "Create a new list with no tasks",
+        "Verify empty state shows for tasks"
+      ],
+      "passes": false
+    },
+    {
+      "id": 43,
+      "category": "Advanced Features",
+      "description": "Global search across all tasks",
+      "steps": [
+        "Click search icon or press shortcut",
+        "Type search query",
+        "Verify search results appear",
+        "Click result and verify navigation"
+      ],
+      "passes": false
+    },
+    {
+      "id": 44,
+      "category": "Advanced Features",
+      "description": "Filter tasks by status, date, star",
+      "steps": [
+        "Apply status filter (completed/incomplete)",
+        "Verify tasks filter correctly",
+        "Apply date filter",
+        "Apply star filter",
+        "Verify filters work in combination"
+      ],
+      "passes": false
+    },
+    {
+      "id": 45,
+      "category": "Advanced Features",
+      "description": "Today view showing tasks with plan_date = today",
+      "steps": [
+        "Navigate to Today view",
+        "Verify only tasks with today's plan_date show",
+        "Verify tasks without plan_date are hidden",
+        "Test with tasks set to different dates"
+      ],
+      "passes": false
+    },
+    {
+      "id": 46,
+      "category": "Advanced Features",
+      "description": "Realtime sync across multiple devices",
+      "steps": [
+        "Open app in two browser tabs",
+        "Create/update/delete task in one tab",
+        "Verify changes appear in other tab automatically",
+        "Test with different operations"
+      ],
+      "passes": false
+    },
+    {
+      "id": 47,
+      "category": "CalDAV Integration",
+      "description": "CalDAV Basic Auth authentication layer",
+      "steps": [
+        "Configure CalDAV client with credentials",
+        "Test authentication endpoint",
+        "Verify user can authenticate successfully"
+      ],
+      "passes": false
+    },
+    {
+      "id": 48,
+      "category": "CalDAV Integration",
+      "description": "WebDAV PROPFIND/PROPPATCH basic methods",
+      "steps": [
+        "Send PROPFIND request",
+        "Verify proper response format",
+        "Test PROPPATCH to update properties"
+      ],
+      "passes": false
+    },
+    {
+      "id": 49,
+      "category": "CalDAV Integration",
+      "description": "CalDAV calendar-home-set discovery",
+      "steps": [
+        "Send request to principal URL",
+        "Verify calendar-home-set is returned",
+        "Verify calendars are discoverable"
+      ],
+      "passes": false
+    },
+    {
+      "id": 50,
+      "category": "CalDAV Integration",
+      "description": "Read task list in iCalendar VTODO format",
+      "steps": [
+        "Query tasks via CalDAV",
+        "Verify VTODO format in response",
+        "Verify all task properties are included"
+      ],
+      "passes": false
+    },
+    {
+      "id": 51,
+      "category": "CalDAV Integration",
+      "description": "Create/update/delete tasks via CalDAV",
+      "steps": [
+        "Create task using PUT request",
+        "Verify task appears in app",
+        "Update task via CalDAV",
+        "Delete task via CalDAV"
+      ],
+      "passes": false
+    },
+    {
+      "id": 52,
+      "category": "CalDAV Integration",
+      "description": "Sync subtasks with RELATED-TO property",
+      "steps": [
+        "Create parent task and subtask in app",
+        "Export via CalDAV",
+        "Verify RELATED-TO property is set",
+        "Import and verify hierarchy"
+      ],
+      "passes": false
     }
   ]
 }

@@ -9,84 +9,6 @@ Supports groups, lists, and infinitely nested tasks.
 - Backend: Supabase (PostgreSQL + Auth + Realtime + RLS)
 - Testing: Playwright MCP (E2E)
 
-## Progress Log
-
-### 2026-02-15 - Phase 1 Complete
-
-#### Completed
-- [x] Feature 1.1: Project Scaffold
-  - Created Next.js project with TypeScript, Tailwind CSS, ESLint
-  - Project structure: src/app (App Router), Tailwind v4, Next.js 16.1.6
-
-- [x] Feature 1.2: Install shadcn/ui
-  - Initialized shadcn/ui with new-york style, neutral base color
-  - Installed Button component
-  - Created src/lib/utils.ts with cn helper
-
-- [x] Feature 1.3: Supabase Project Creation
-  - Created Supabase project
-  - Configured environment variables in .env.local
-
-- [x] Feature 1.4: Database Schema
-  - Created groups, lists, tasks tables
-  - Added RLS policies for user data isolation
-  - Created indexes for performance
-  - Added updated_at triggers
-
-- [x] Feature 1.5: Supabase Client
-  - Created browser client (src/lib/supabase/client.ts)
-  - Created server client (src/lib/supabase/server.ts)
-  - Created database type definitions (src/lib/supabase/database.types.ts)
-
-#### Completed: Phase 2 - Authentication System
-- [x] Feature 2.1: Login Page UI
-  - Created /login route with centered card layout
-  - Email and password input fields
-  - Sign in button with loading state
-  - Link to register page
-  - Subtle animated background with organic shapes
-  - Stone/warm color palette with dark mode support
-- [x] Feature 2.2: Registration
-  - Created /register route with matching design
-  - Email, password, confirm password fields
-  - Client-side validation (password match, min length)
-  - Supabase signUp integration
-  - Success screen with email confirmation prompt
-- [x] Feature 2.3: Login
-  - Supabase signInWithPassword integration
-  - Error handling and display
-  - Redirect to /dashboard on success
-- [x] Feature 2.4: Logout
-  - Created LogoutButton component
-  - Supabase signOut integration
-  - Redirect to /login on logout
-- [x] Feature 2.5: Session Persistence
-  - Supabase SSR handles session via cookies
-  - Automatic session refresh
-- [x] Feature 2.6: Route Protection
-  - Dashboard page checks auth server-side
-  - Redirects to /login if not authenticated
-  - Home page redirects based on auth state
-
-#### In Progress: Phase 3 - Group Module
-- [x] Feature 3.1: Group List UI
-  - Created Sidebar component with group list
-  - Groups display with color indicator and folder icon
-- [x] Feature 3.2: Group Create
-  - Create dialog with name and color picker
-  - Server action for creating groups
-- [x] Feature 3.3: Group Edit
-  - Edit dialog for updating group name/color
-  - Server action for updating groups
-- [x] Feature 3.4: Group Delete
-  - Delete confirmation dialog
-  - Server action for deleting groups
-- [ ] Feature 3.5: Group Sort
-- [x] Feature 3.6: Group Sidebar
-  - Left fixed sidebar with PuraToDo branding
-  - Group list with dropdown menu for actions
-  - Responsive layout with main content area
-
 ## Data Model
 
 ```
@@ -98,27 +20,65 @@ users (Supabase Auth)
 
 All tables include user_id for RLS policies and query optimization.
 
-## File Structure
+---
 
-```
-src/
-├── app/
-│   ├── api/test-supabase/route.ts
-│   ├── globals.css
-│   ├── layout.tsx
-│   └── page.tsx
-├── components/ui/
-│   └── button.tsx
-└── lib/
-    ├── supabase/
-    │   ├── client.ts
-    │   ├── server.ts
-    │   ├── index.ts
-    │   └── database.types.ts
-    └── utils.ts
-supabase/
-└── schema.sql
-```
+### 2026-02-15
+
+#### 完成
+- 重构 feature_list.json：从 phase 嵌套结构改为扁平数字编号 (1-52)
+- 为每个 feature 添加 steps 字段，指导 Playwright 测试步骤
+- 更新 claude-progress.txt 适配新格式
+
+#### 下一步
+- 实现 Feature #16: Group Sort - 拖拽排序分组
+- 或跳过实现 Feature #18: List UI - 显示列表
+
+---
+
+### 2026-02-14
+
+#### 完成
+- Feature #12: Group List UI - 侧边栏显示分组列表
+- Feature #13: Group Create - 创建分组（名称+颜色选择器）
+- Feature #14: Group Edit - 编辑分组名称和颜色
+- Feature #15: Group Delete - 删除分组（带确认对话框）
+- Feature #17: Group Sidebar - 左侧固定侧边栏布局
+
+#### 下一步
+- 实现 Feature #16: Group Sort 或继续 List Module
+
+---
+
+### 2026-02-13
+
+#### 完成
+- Feature #6-11: 完整认证系统
+  - #6: 登录页面 UI
+  - #7: 用户注册
+  - #8: 用户登录
+  - #9: 用户登出
+  - #10: Session 持久化
+  - #11: 路由保护
+
+#### 下一步
+- Group Module 功能实现
+
+---
+
+### 2026-02-12
+
+#### 完成
+- Feature #1-5: 项目初始化
+  - #1: Next.js 项目脚手架
+  - #2: shadcn/ui 安装配置
+  - #3: Supabase 项目创建
+  - #4: 数据库 Schema
+  - #5: Supabase Client 配置
+
+#### 下一步
+- 认证系统实现
+
+---
 
 ## Notes
 - Using Tailwind CSS v4 (latest)
