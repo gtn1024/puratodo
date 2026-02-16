@@ -585,6 +585,58 @@
     },
     {
       "id": 47,
+      "category": "i18n",
+      "description": "Install and configure next-intl for internationalization",
+      "steps": [
+        "Install next-intl package",
+        "Create src/i18n/request.ts for request configuration",
+        "Create src/i18n/navigation.ts for routing helpers",
+        "Update next.config.* to support i18n",
+        "Verify i18n middleware works"
+      ],
+      "passes": false
+    },
+    {
+      "id": 48,
+      "category": "i18n",
+      "description": "Create translation files for English and Chinese",
+      "steps": [
+        "Create src/messages/en.json with English translations",
+        "Create src/messages/zh.json with Chinese translations",
+        "Add translations for all UI strings (sidebar, lists, tasks, dialogs, etc.)",
+        "Verify JSON structure is valid"
+      ],
+      "passes": false
+    },
+    {
+      "id": 49,
+      "category": "i18n",
+      "description": "Create language switcher component and integrate into app",
+      "steps": [
+        "Create src/components/language-switcher.tsx component",
+        "Add dropdown to select language (EN/中文)",
+        "Update layout.tsx to provide locale and translations",
+        "Update middleware to detect user locale preference",
+        "Persist language preference in localStorage"
+      ],
+      "passes": false
+    },
+    {
+      "id": 50,
+      "category": "i18n",
+      "description": "Update all UI components to use translation keys",
+      "steps": [
+        "Update Sidebar component with t() function",
+        "Update ListPanel component with translations",
+        "Update TaskPanel component with translations",
+        "Update all dialogs (create/edit/delete) with translations",
+        "Update empty states and error messages",
+        "Update authentication pages (login, register)"
+      ],
+      "passes": false
+    },
+    {
+      "id": 52,
       "category": "CalDAV Integration",
       "description": "CalDAV Basic Auth authentication layer",
       "steps": [
@@ -595,7 +647,7 @@
       "passes": false
     },
     {
-      "id": 48,
+      "id": 53,
       "category": "CalDAV Integration",
       "description": "WebDAV PROPFIND/PROPPATCH basic methods",
       "steps": [
@@ -606,7 +658,7 @@
       "passes": false
     },
     {
-      "id": 49,
+      "id": 54,
       "category": "CalDAV Integration",
       "description": "CalDAV calendar-home-set discovery",
       "steps": [
@@ -617,7 +669,7 @@
       "passes": false
     },
     {
-      "id": 50,
+      "id": 55,
       "category": "CalDAV Integration",
       "description": "Read task list in iCalendar VTODO format",
       "steps": [
@@ -628,7 +680,7 @@
       "passes": false
     },
     {
-      "id": 51,
+      "id": 56,
       "category": "CalDAV Integration",
       "description": "Create/update/delete tasks via CalDAV",
       "steps": [
@@ -640,7 +692,7 @@
       "passes": false
     },
     {
-      "id": 52,
+      "id": 57,
       "category": "CalDAV Integration",
       "description": "Sync subtasks with RELATED-TO property",
       "steps": [
