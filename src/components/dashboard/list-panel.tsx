@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
+import { useI18n } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -146,6 +147,7 @@ function SortableListItem({ list, onEdit, onDelete, onMove }: SortableListItemPr
 
 export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
   function ListPanel({ group, lists, allGroups, onListsChange }, ref) {
+  const { t } = useI18n();
   const [localLists, setLocalLists] = useState(lists);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -320,7 +322,7 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
             }}
           >
             <Plus className="h-4 w-4 mr-1" />
-            Add List
+            {t("listPanel.addList")}
           </Button>
         </div>
 
@@ -332,7 +334,7 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
                 <ListTodo className="h-6 w-6 text-stone-400" />
               </div>
               <p className="text-stone-500 dark:text-stone-400 mb-4">
-                No lists in this group yet
+                {t("listPanel.noLists")}
               </p>
               <Button
                 variant="outline"
@@ -340,7 +342,7 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
                 onClick={() => setIsCreateOpen(true)}
               >
                 <Plus className="h-4 w-4 mr-1" />
-                Create your first list
+                {t("listPanel.createFirstList")}
               </Button>
             </div>
           ) : (
@@ -374,7 +376,7 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Create List</DialogTitle>
+            <DialogTitle>{t("common.create")} {t("listPanel.lists").toLowerCase()}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -383,12 +385,12 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
                 id="create-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="List name"
+                placeholder={t("listPanel.listName")}
                 autoFocus
               />
             </div>
             <div className="space-y-2">
-              <Label>Icon</Label>
+              <Label>{t("listPanel.selectIcon")}</Label>
               <div className="flex gap-2 flex-wrap">
                 {LIST_ICONS.map((emoji) => (
                   <button
@@ -409,10 +411,10 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleCreate} disabled={isLoading || !name.trim()}>
-              Create
+              {t("common.create")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -422,7 +424,7 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit List</DialogTitle>
+            <DialogTitle>{t("common.edit")} {t("listPanel.lists").toLowerCase()}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -431,11 +433,11 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
                 id="edit-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="List name"
+                placeholder={t("listPanel.listName")}
               />
             </div>
             <div className="space-y-2">
-              <Label>Icon</Label>
+              <Label>{t("listPanel.selectIcon")}</Label>
               <div className="flex gap-2 flex-wrap">
                 {LIST_ICONS.map((emoji) => (
                   <button
@@ -456,10 +458,10 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditOpen(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleEdit} disabled={isLoading || !name.trim()}>
-              Save
+              {t("common.save")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -469,23 +471,21 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Delete List</DialogTitle>
+            <DialogTitle>{t("common.delete")} {t("listPanel.lists").toLowerCase()}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-stone-500 dark:text-stone-400">
-            Are you sure you want to delete &ldquo;{selectedList?.name}&rdquo;?
-            This will also delete all tasks within this list. This action cannot
-            be undone.
+            {t("common.confirm")} &ldquo;{selectedList?.name}&rdquo;?
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={isLoading}
             >
-              Delete
+              {t("common.delete")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -495,7 +495,7 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
       <Dialog open={isMoveOpen} onOpenChange={setIsMoveOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Move List</DialogTitle>
+            <DialogTitle>{t("listPanel.lists")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-stone-500 dark:text-stone-400">
@@ -533,10 +533,10 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsMoveOpen(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleMove} disabled={isLoading || !targetGroupId}>
-              Move
+              {t("common.save")}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,0 +1,92 @@
+{
+  "common": {
+    "appName": "PuraToDo",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "confirm": "Confirm",
+    "close": "Close",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
+  "auth": {
+    "login": "Sign In",
+    "register": "Sign Up",
+    "logout": "Log Out",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "signUp": "Sign Up",
+    "signIn": "Sign In"
+  },
+  "sidebar": {
+    "groups": "Groups",
+    "today": "Today",
+    "addGroup": "Add Group",
+    "noGroups": "No groups yet",
+    "createFirstGroup": "Create your first group"
+  },
+  "listPanel": {
+    "lists": "Lists",
+    "addList": "Add List",
+    "noLists": "No lists in this group yet",
+    "createFirstList": "Create your first list",
+    "listName": "List name",
+    "selectIcon": "Select an icon"
+  },
+  "taskPanel": {
+    "tasks": "Tasks",
+    "addTask": "Add Task",
+    "noTasks": "No tasks in this list yet",
+    "createFirstTask": "Create your first task",
+    "taskName": "Task name",
+    "addSubtask": "Add subtask",
+    "noTasksMatchFilters": "No tasks match your filters",
+    "clearFilters": "Clear filters"
+  },
+  "taskDetail": {
+    "taskDetails": "Task Details",
+    "dueDate": "Due Date",
+    "planDate": "Plan Date",
+    "comment": "Comment",
+    "duration": "Duration (minutes)",
+    "clear": "Clear"
+  },
+  "filter": {
+    "all": "All",
+    "completed": "Completed",
+    "incomplete": "Incomplete",
+    "starred": "Starred",
+    "unstarred": "Unstarred",
+    "overdue": "Overdue",
+    "today": "Today",
+    "upcoming": "Upcoming",
+    "noDueDate": "No Due Date"
+  },
+  "search": {
+    "search": "Search",
+    "searchPlaceholder": "Search tasks...",
+    "noResults": "No results found"
+  },
+  "shortcuts": {
+    "title": "Keyboard Shortcuts",
+    "newTask": "New task",
+    "newList": "New list",
+    "search": "Search",
+    "help": "Show help",
+    "close": "Close"
+  },
+  "empty": {
+    "noResults": "No results"
+  },
+  "language": {
+    "language": "Language",
+    "english": "English",
+    "chinese": "中文"
+  }
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, forwardRef, useImperativeHandle, useRef } from "react";
+import { useI18n } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -255,6 +256,7 @@ export interface TaskPanelRef {
 
 export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
   function TaskPanel({ list }, ref) {
+  const { t } = useI18n();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskName, setNewTaskName] = useState("");
   const [isAdding, setIsAdding] = useState(false);
@@ -630,77 +632,77 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
                 onClick={() => setFilters(f => ({ ...f, status: "all" }))}
                 className={filters.status === "all" ? "bg-stone-100 dark:bg-stone-800" : ""}
               >
-                All Tasks
+                {t("filter.all")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setFilters(f => ({ ...f, status: "incomplete" }))}
                 className={filters.status === "incomplete" ? "bg-stone-100 dark:bg-stone-800" : ""}
               >
-                Incomplete
+                {t("filter.incomplete")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setFilters(f => ({ ...f, status: "completed" }))}
                 className={filters.status === "completed" ? "bg-stone-100 dark:bg-stone-800" : ""}
               >
-                Completed
+                {t("filter.completed")}
               </DropdownMenuItem>
 
               {/* Star Filter */}
               <div className="px-2 py-1.5 text-xs font-semibold text-stone-500 dark:text-stone-400 mt-1">
-                Starred
+                {t("filter.starred")}
               </div>
               <DropdownMenuItem
                 onClick={() => setFilters(f => ({ ...f, star: "all" }))}
                 className={filters.star === "all" ? "bg-stone-100 dark:bg-stone-800" : ""}
               >
-                All
+                {t("filter.all")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setFilters(f => ({ ...f, star: "starred" }))}
                 className={filters.star === "starred" ? "bg-stone-100 dark:bg-stone-800" : ""}
               >
-                Starred
+                {t("filter.starred")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setFilters(f => ({ ...f, star: "unstarred" }))}
                 className={filters.star === "unstarred" ? "bg-stone-100 dark:bg-stone-800" : ""}
               >
-                Unstarred
+                {t("filter.unstarred")}
               </DropdownMenuItem>
 
               {/* Date Filter */}
               <div className="px-2 py-1.5 text-xs font-semibold text-stone-500 dark:text-stone-400 mt-1">
-                Due Date
+                {t("taskDetail.dueDate")}
               </div>
               <DropdownMenuItem
                 onClick={() => setFilters(f => ({ ...f, date: "all" }))}
                 className={filters.date === "all" ? "bg-stone-100 dark:bg-stone-800" : ""}
               >
-                All
+                {t("filter.all")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setFilters(f => ({ ...f, date: "overdue" }))}
                 className={filters.date === "overdue" ? "bg-stone-100 dark:bg-stone-800" : ""}
               >
-                Overdue
+                {t("filter.overdue")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setFilters(f => ({ ...f, date: "today" }))}
                 className={filters.date === "today" ? "bg-stone-100 dark:bg-stone-800" : ""}
               >
-                Today
+                {t("filter.today")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setFilters(f => ({ ...f, date: "upcoming" }))}
                 className={filters.date === "upcoming" ? "bg-stone-100 dark:bg-stone-800" : ""}
               >
-                Upcoming
+                {t("filter.upcoming")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setFilters(f => ({ ...f, date: "nodate" }))}
                 className={filters.date === "nodate" ? "bg-stone-100 dark:bg-stone-800" : ""}
               >
-                No Due Date
+                {t("filter.noDueDate")}
               </DropdownMenuItem>
 
               {/* Clear Filters */}
@@ -711,7 +713,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
                       onClick={() => setFilters({ status: "all", star: "all", date: "all" })}
                       className="text-red-600 dark:text-red-400"
                     >
-                      Clear All Filters
+                      {t("taskPanel.clearFilters")}
                     </DropdownMenuItem>
                   </div>
                 </>
@@ -726,7 +728,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
             disabled={isAdding}
           >
             <Plus className="h-4 w-4 mr-1" />
-            Add Task
+            {t("taskPanel.addTask")}
           </Button>
         </div>
       </div>
@@ -809,7 +811,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
               <CheckCircle className="h-6 w-6 text-stone-400" />
             </div>
             <p className="text-stone-500 dark:text-stone-400 mb-4">
-              No tasks in this list yet
+              {t("taskPanel.noTasks")}
             </p>
             <Button
               variant="outline"
@@ -817,7 +819,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
               onClick={() => setIsAdding(true)}
             >
               <Plus className="h-4 w-4 mr-1" />
-              Create your first task
+              {t("taskPanel.createFirstTask")}
             </Button>
           </div>
         ) : filteredTasks.length === 0 && !isAdding ? (
@@ -826,14 +828,14 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
               <Filter className="h-6 w-6 text-stone-400" />
             </div>
             <p className="text-stone-500 dark:text-stone-400 mb-4">
-              No tasks match your filters
+              {t("taskPanel.noTasksMatchFilters")}
             </p>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setFilters({ status: "all", star: "all", date: "all" })}
             >
-              Clear Filters
+              {t("taskPanel.clearFilters")}
             </Button>
           </div>
         ) : (

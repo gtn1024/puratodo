@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useI18n } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -21,6 +22,7 @@ import { createGroup, updateGroup, deleteGroup, reorderGroups, type Group } from
 import { reorderLists, type List } from "@/actions/lists";
 import { MoreHorizontal, Plus, Folder, GripVertical, ChevronRight, ChevronDown, ListTodo, Sun } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import {
   DndContext,
   closestCenter,
@@ -345,6 +347,7 @@ export function Sidebar({
   onTodaySelect,
   onDataChange,
 }: SidebarProps) {
+  const { t } = useI18n();
   const [groups, setGroups] = useState(initialGroups);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
     new Set(initialGroups.map((g) => g.id)) // Start with all expanded
@@ -481,6 +484,7 @@ export function Sidebar({
               </span>
             </div>
             <ThemeToggle />
+            <LanguageSwitcher />
           </div>
         </div>
 
@@ -495,7 +499,7 @@ export function Sidebar({
             }`}
           >
             <Sun className={`h-4 w-4 ${showTodayView ? "text-amber-500" : ""}`} />
-            <span className="text-sm font-medium">Today</span>
+            <span className="text-sm font-medium">{t("sidebar.today")}</span>
           </button>
         </div>
 
@@ -503,11 +507,12 @@ export function Sidebar({
         <div className="flex-1 overflow-y-auto p-2">
           <div className="flex items-center justify-between px-2 py-1.5 mb-1">
             <span className="text-xs font-medium text-stone-500 dark:text-stone-400 uppercase tracking-wider">
-              Groups
+              {t("sidebar.groups")}
             </span>
             <Button
               variant="ghost"
               size="icon-xs"
+              title={t("sidebar.addGroup")}
               onClick={() => {
                 setName("");
                 setColor(null);
@@ -522,7 +527,7 @@ export function Sidebar({
           {groups.length === 0 ? (
             <div className="px-2 py-4 text-center">
               <p className="text-sm text-stone-500 dark:text-stone-400">
-                No groups yet
+                {t("sidebar.noGroups")}
               </p>
               <Button
                 variant="ghost"
@@ -530,7 +535,7 @@ export function Sidebar({
                 className="mt-2 text-xs"
                 onClick={() => setIsCreateOpen(true)}
               >
-                Create your first group
+                {t("sidebar.createFirstGroup")}
               </Button>
             </div>
           ) : (
@@ -577,16 +582,16 @@ export function Sidebar({
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Create Group</DialogTitle>
+            <DialogTitle>{t("common.create")} {t("sidebar.groups").toLowerCase()}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="create-name">Name</Label>
+              <Label htmlFor="create-name">{t("sidebar.groups")}</Label>
               <Input
                 id="create-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Group name"
+                placeholder={t("sidebar.groups")}
               />
             </div>
             <div className="space-y-2">
@@ -610,10 +615,10 @@ export function Sidebar({
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleCreate} disabled={isLoading || !name.trim()}>
-              Create
+              {t("common.create")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -623,16 +628,16 @@ export function Sidebar({
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Group</DialogTitle>
+            <DialogTitle>{t("common.edit")} {t("sidebar.groups").toLowerCase()}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-name">Name</Label>
+              <Label htmlFor="edit-name">{t("sidebar.groups")}</Label>
               <Input
                 id="edit-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Group name"
+                placeholder={t("sidebar.groups")}
               />
             </div>
             <div className="space-y-2">
@@ -656,10 +661,10 @@ export function Sidebar({
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditOpen(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleEdit} disabled={isLoading || !name.trim()}>
-              Save
+              {t("common.save")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -669,23 +674,21 @@ export function Sidebar({
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Delete Group</DialogTitle>
+            <DialogTitle>{t("common.delete")} {t("sidebar.groups").toLowerCase()}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-stone-500 dark:text-stone-400">
-            Are you sure you want to delete &ldquo;{selectedGroup?.name}&rdquo;?
-            This will also delete all lists and tasks within this group. This
-            action cannot be undone.
+            {t("common.confirm")} &ldquo;{selectedGroup?.name}&rdquo;?
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={isLoading}
             >
-              Delete
+              {t("common.delete")}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,0 +1,92 @@
+{
+  "common": {
+    "appName": "PuraToDo",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "create": "创建",
+    "confirm": "确认",
+    "close": "关闭",
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功"
+  },
+  "auth": {
+    "login": "登录",
+    "register": "注册",
+    "logout": "退出登录",
+    "email": "邮箱",
+    "password": "密码",
+    "confirmPassword": "确认密码",
+    "noAccount": "还没有账号？",
+    "hasAccount": "已有账号？",
+    "signUp": "注册",
+    "signIn": "登录"
+  },
+  "sidebar": {
+    "groups": "分组",
+    "today": "今天",
+    "addGroup": "添加分组",
+    "noGroups": "暂无分组",
+    "createFirstGroup": "创建你的第一个分组"
+  },
+  "listPanel": {
+    "lists": "列表",
+    "addList": "添加列表",
+    "noLists": "该分组下暂无列表",
+    "createFirstList": "创建你的第一个列表",
+    "listName": "列表名称",
+    "selectIcon": "选择一个图标"
+  },
+  "taskPanel": {
+    "tasks": "任务",
+    "addTask": "添加任务",
+    "noTasks": "该列表下暂无任务",
+    "createFirstTask": "创建你的第一个任务",
+    "taskName": "任务名称",
+    "addSubtask": "添加子任务",
+    "noTasksMatchFilters": "没有符合筛选条件的任务",
+    "clearFilters": "清除筛选"
+  },
+  "taskDetail": {
+    "taskDetails": "任务详情",
+    "dueDate": "截止日期",
+    "planDate": "计划日期",
+    "comment": "备注",
+    "duration": "时长（分钟）",
+    "clear": "清除"
+  },
+  "filter": {
+    "all": "全部",
+    "completed": "已完成",
+    "incomplete": "未完成",
+    "starred": "已星标",
+    "unstarred": "未星标",
+    "overdue": "已过期",
+    "today": "今天",
+    "upcoming": "即将到来",
+    "noDueDate": "无截止日期"
+  },
+  "search": {
+    "search": "搜索",
+    "searchPlaceholder": "搜索任务...",
+    "noResults": "未找到结果"
+  },
+  "shortcuts": {
+    "title": "键盘快捷键",
+    "newTask": "新任务",
+    "newList": "新列表",
+    "search": "搜索",
+    "help": "显示帮助",
+    "close": "关闭"
+  },
+  "empty": {
+    "noResults": "无结果"
+  },
+  "language": {
+    "language": "语言",
+    "english": "English",
+    "chinese": "中文"
+  }
+}

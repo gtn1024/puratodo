@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useI18n } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,6 +36,7 @@ export function TaskDetailSheet({
   onOpenChange,
   onTaskUpdated,
 }: TaskDetailSheetProps) {
+  const { t } = useI18n();
   const [name, setName] = useState("");
   const [dueDate, setDueDate] = useState<Date | undefined>();
   const [planDate, setPlanDate] = useState<Date | undefined>();
@@ -82,7 +84,7 @@ export function TaskDetailSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Task Details</SheetTitle>
+          <SheetTitle>{t("taskDetail.taskDetails")}</SheetTitle>
           <SheetDescription>
             View and edit task information
           </SheetDescription>
@@ -105,7 +107,7 @@ export function TaskDetailSheet({
             <div className="flex items-center justify-between">
               <Label className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
                 <CalendarIcon className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-                Due Date
+                {t("taskDetail.dueDate")}
               </Label>
               {dueDate && (
                 <Button
@@ -115,7 +117,7 @@ export function TaskDetailSheet({
                   className="h-6 px-2 text-stone-500"
                 >
                   <X className="h-3 w-3 mr-1" />
-                  Clear
+                  {t("taskDetail.clear")}
                 </Button>
               )}
             </div>
@@ -147,7 +149,7 @@ export function TaskDetailSheet({
             <div className="flex items-center justify-between">
               <Label className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
                 <CalendarIcon className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-                Plan Date
+                {t("taskDetail.planDate")}
               </Label>
               {planDate && (
                 <Button
@@ -157,7 +159,7 @@ export function TaskDetailSheet({
                   className="h-6 px-2 text-stone-500"
                 >
                   <X className="h-3 w-3 mr-1" />
-                  Clear
+                  {t("taskDetail.clear")}
                 </Button>
               )}
             </div>
@@ -188,7 +190,7 @@ export function TaskDetailSheet({
           <div className="space-y-2">
             <Label htmlFor="duration" className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
               <Clock className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-              Duration (minutes)
+              {t("taskDetail.duration")}
             </Label>
             <Input
               id="duration"
@@ -204,7 +206,7 @@ export function TaskDetailSheet({
           <div className="space-y-2">
             <Label htmlFor="comment" className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
               <FileText className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-              Comment
+              {t("taskDetail.comment")}
             </Label>
             <Textarea
               id="comment"
@@ -222,7 +224,7 @@ export function TaskDetailSheet({
               onClick={handleSave}
               disabled={isSaving || !name.trim()}
             >
-              {isSaving ? "Saving..." : "Save Changes"}
+              {isSaving ? t("common.loading") : t("common.save")}
             </Button>
             <Button
               variant="outline"

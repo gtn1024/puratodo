@@ -25,6 +25,15 @@ All tables include user_id for RLS policies and query optimization.
 ### 2026-02-16
 
 #### 完成
+- Feature #47-50: i18n 国际化功能
+  - 安装 next-intl 包（但最终使用 React Context 方案）
+  - 创建 src/i18n/index.tsx 国际化上下文和 hook
+  - 创建 src/messages/en.json 英文翻译
+  - 创建 src/messages/zh.json 中文翻译
+  - 创建 src/components/language-switcher.tsx 语言切换器
+  - 更新 Sidebar、ListPanel、TaskPanel、TaskDetailSheet 组件使用翻译
+  - 语言偏好保存在 localStorage
+  - 测试通过：语言切换、刷新页面持久化
 - Feature #18: List UI - 显示列表
   - 创建 src/actions/lists.ts server action（getLists, createList, updateList, deleteList, reorderLists, moveListToGroup）
   - 创建 src/components/dashboard/list-panel.tsx 列表面板组件

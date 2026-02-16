@@ -594,7 +594,7 @@
         "Update next.config.* to support i18n",
         "Verify i18n middleware works"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 48,
@@ -606,7 +606,7 @@
         "Add translations for all UI strings (sidebar, lists, tasks, dialogs, etc.)",
         "Verify JSON structure is valid"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 49,
@@ -619,7 +619,7 @@
         "Update middleware to detect user locale preference",
         "Persist language preference in localStorage"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 50,
@@ -633,7 +633,7 @@
         "Update empty states and error messages",
         "Update authentication pages (login, register)"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 52,
