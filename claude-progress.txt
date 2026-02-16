@@ -25,15 +25,26 @@ All tables include user_id for RLS policies and query optimization.
 ### 2026-02-16 (continued)
 
 #### 完成
+- Feature #55: Tasks CRUD API
+  - 创建 src/app/api/v1/tasks/route.ts - GET (支持 ?list_id, ?completed, ?starred, ?parent_id 筛选) + POST
+  - 创建 src/app/api/v1/tasks/[id]/route.ts - GET (含递归子任务) + PATCH + DELETE
+  - 创建 src/app/api/v1/tasks/reorder/route.ts - PATCH (重排序)
+  - 创建 src/app/api/v1/tasks/today/route.ts - GET (获取今日计划任务)
+  - 创建 src/app/api/v1/tasks/starred/route.ts - GET (获取星标任务)
+  - 测试通过：所有 CRUD 操作、子任务、筛选、重排序功能
+
+#### 下一步
+- Feature #56: Search API
+
+---
+
+#### 完成
 - Feature #54: Lists CRUD API
   - 创建 src/app/api/v1/lists/route.ts - GET (支持 ?group_id 筛选) + POST (创建)
   - 创建 src/app/api/v1/lists/[id]/route.ts - GET + PATCH + DELETE
   - 创建 src/app/api/v1/lists/[id]/move/route.ts - PATCH (移动到其他分组)
   - 创建 src/app/api/v1/lists/reorder/route.ts - PATCH (组内重排序)
   - 测试通过：所有 CRUD 操作、移动、重排序功能
-
-#### 下一步
-- Feature #55: Tasks CRUD API
 
 ---
 

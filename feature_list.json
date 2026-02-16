@@ -733,7 +733,7 @@
         "15. Create src/app/api/v1/tasks/starred/route.ts - GET handler that filters tasks where starred = true",
         "16. Test: GET /api/v1/tasks/starred, verify returns only starred tasks"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 56,
