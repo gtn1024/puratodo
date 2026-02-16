@@ -747,7 +747,7 @@
         "5. Ensure response includes { data: [], total: number, page: number, limit: number } format",
         "6. Test: Search with no results, verify returns empty array with count 0"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 57,
