@@ -687,7 +687,7 @@
         "11. Create src/app/api/v1/groups/reorder/route.ts - PATCH handler that accepts { groupIds: string[] }, calls reorderGroups() from actions",
         "12. Test: Send reorder request with new order, verify order persists after GET"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 54,

@@ -55,6 +55,11 @@ This project follows a "long-running agent" methodology with daily progress logg
 8. Update `claude-progress.txt` (append new log for current session, what has done, what does not work, next steps)
 9. Git commit
 
+**NOTE:**
+
+1. Always keep `claude-progress.txt` and `feature_list.json` up to date. These are critical for tracking progress and guiding future development.
+2. ALWAYS get ONLY ONE task from `feature_list.json` at a time. This ensures focused development and accurate progress tracking. If you find a task that is too large, let me know!
+
 ## Architecture
 
 - **App Router**: Routes in `src/app/`, use folder-based routing

@@ -25,6 +25,19 @@ All tables include user_id for RLS policies and query optimization.
 ### 2026-02-16 (continued)
 
 #### 完成
+- Feature #53: Groups CRUD API
+  - 更新 src/lib/api/auth.ts - 添加 getAuthenticatedUser 函数返回带用户 token 的 Supabase client
+  - 创建 src/app/api/v1/groups/route.ts - GET (获取所有分组) + POST (创建分组)
+  - 创建 src/app/api/v1/groups/[id]/route.ts - GET (获取单个) + PATCH (更新) + DELETE (删除)
+  - 创建 src/app/api/v1/groups/reorder/route.ts - PATCH (重排序)
+  - 测试通过：所有 CRUD 操作和重排序功能
+
+#### 下一步
+- Feature #54: Lists CRUD API
+
+---
+
+#### 完成
 - Feature #51: REST API 基础架构
   - 创建 src/lib/api/auth.ts - JWT token 验证函数 (verifyToken)
   - 创建 src/lib/api/response.ts - API 响应帮助函数 (successResponse, errorResponse, etc.)
@@ -38,9 +51,6 @@ All tables include user_id for RLS policies and query optimization.
   - /api/v1/auth/logout - POST 登出
   - /api/v1/auth/me - GET 获取当前用户信息
   - 测试通过：登录返回 token，/me 无 token 返回 401，有 token 返回用户信息
-
-#### 下一步
-- Feature #53: Groups CRUD API
 
 ---
 
