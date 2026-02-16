@@ -22,7 +22,18 @@ All tables include user_id for RLS policies and query optimization.
 
 ---
 
-### 2026-02-16
+### 2026-02-16 (continued)
+
+#### 完成
+- REST API 规划：为多平台客户端（iOS/Android/HarmonyOS/macOS/Windows/Linux）规划REST API
+  - 分析现有代码：项目目前只有Server Actions，没有对外REST API
+  - 在 feature_list.json 中添加 Feature #51-57 (REST API) 和 #58-63 (CalDAV)
+  - 将每个feature的steps拆解为详细的子步骤，每步包含具体操作和测试方法
+
+#### 下一步
+- 开始实现 Feature #51: REST API 基础架构
+
+---
 
 #### 完成
 - Feature #47-50: i18n 国际化功能

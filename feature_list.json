@@ -636,70 +636,215 @@
       "passes": true
     },
     {
-      "id": 52,
-      "category": "CalDAV Integration",
-      "description": "CalDAV Basic Auth authentication layer",
+      "id": 51,
+      "category": "REST API",
+      "description": "Create RESTful API for multi-platform client support (iOS/Android/HarmonyOS/macOS/Windows/Linux)",
       "steps": [
-        "Configure CalDAV client with credentials",
-        "Test authentication endpoint",
-        "Verify user can authenticate successfully"
+        "1. Create src/lib/api/auth.ts - Extract authentication logic from Server Actions, add verifyToken function that validates Supabase JWT from Authorization header",
+        "2. Test: Call verifyToken with valid/invalid tokens, verify it returns correct user or null",
+        "3. Create src/lib/api/response.ts - Add apiResponse<T> helper function that returns { success: boolean, data?: T, error?: string } format",
+        "4. Test: Verify helper returns correct JSON structure with status codes",
+        "5. Create src/middleware.ts - Add Next.js middleware to handle /api/v1/* routes, validate JWT token, reject requests without valid token",
+        "6. Test: Send request to /api/v1/groups without token, verify 401 response; send with valid token, verify passes through",
+        "7. Create src/app/api/v1/auth/route.ts - Add OPTIONS handler for CORS preflight requests",
+        "8. Test: Send OPTIONS request, verify CORS headers are returned"
+      ],
+      "passes": false
+    },
+    {
+      "id": 52,
+      "category": "REST API - Auth",
+      "description": "Implement authentication API endpoints",
+      "steps": [
+        "1. Create src/app/api/v1/auth/login/route.ts - POST endpoint that accepts { email, password }, calls supabase.auth.signInWithPassword, returns { access_token, refresh_token, user }",
+        "2. Test: POST to /api/v1/auth/login with correct credentials, verify returns tokens; test with wrong password, verify returns error",
+        "3. Create src/app/api/v1/auth/register/route.ts - POST endpoint that accepts { email, password }, calls supabase.auth.signUp, returns { access_token, refresh_token, user } or error",
+        "4. Test: POST to /api/v1/auth/register with new email, verify user created; test with existing email, verify error returned",
+        "5. Create src/app/api/v1/auth/refresh/route.ts - POST endpoint that accepts { refresh_token }, calls supabase.auth.refreshSession, returns new tokens",
+        "6. Test: Use refresh_token from login to get new access_token, verify works",
+        "7. Create src/app/api/v1/auth/logout/route.ts - POST endpoint that accepts { refresh_token }, calls supabase.auth.signOut",
+        "8. Test: Call logout with token, verify session is invalidated",
+        "9. Create src/app/api/v1/auth/me/route.ts - GET endpoint that returns current user info from JWT (no DB call needed for basic info)",
+        "10. Test: GET /api/v1/auth/me with valid token, verify user data returned; without token, verify 401"
       ],
       "passes": false
     },
     {
       "id": 53,
-      "category": "CalDAV Integration",
-      "description": "WebDAV PROPFIND/PROPPATCH basic methods",
+      "category": "REST API - Groups",
+      "description": "Implement Groups CRUD API",
       "steps": [
-        "Send PROPFIND request",
-        "Verify proper response format",
-        "Test PROPPATCH to update properties"
+        "1. Create src/app/api/v1/groups/route.ts - GET handler that calls getGroups() from actions, returns apiResponse with groups array",
+        "2. Test: GET /api/v1/groups with valid token, verify returns user's groups",
+        "3. Add POST handler to src/app/api/v1/groups/route.ts - Accepts { name, color }, calls createGroup() from actions, returns created group",
+        "4. Test: POST to /api/v1/groups with { name: 'Test' }, verify group created and returned",
+        "5. Create src/app/api/v1/groups/[id]/route.ts - GET handler that fetches single group by id, returns group or 404",
+        "6. Test: GET /api/v1/groups/[valid-id], verify returns group; GET /api/v1/groups/[invalid-id], verify 404",
+        "7. Add PATCH handler to src/app/api/v1/groups/[id]/route.ts - Accepts { name, color }, calls updateGroup() from actions",
+        "8. Test: PATCH /api/v1/groups/[id] with { name: 'New Name' }, verify group updated",
+        "9. Add DELETE handler to src/app/api/v1/groups/[id]/route.ts - Calls deleteGroup() from actions, returns success",
+        "10. Test: DELETE /api/v1/groups/[id], verify group deleted; try to fetch again, verify 404",
+        "11. Create src/app/api/v1/groups/reorder/route.ts - PATCH handler that accepts { groupIds: string[] }, calls reorderGroups() from actions",
+        "12. Test: Send reorder request with new order, verify order persists after GET"
       ],
       "passes": false
     },
     {
       "id": 54,
-      "category": "CalDAV Integration",
-      "description": "CalDAV calendar-home-set discovery",
+      "category": "REST API - Lists",
+      "description": "Implement Lists CRUD API",
       "steps": [
-        "Send request to principal URL",
-        "Verify calendar-home-set is returned",
-        "Verify calendars are discoverable"
+        "1. Create src/app/api/v1/lists/route.ts - GET handler that accepts optional ?group_id param, calls getLists() from actions, returns lists array",
+        "2. Test: GET /api/v1/lists, verify returns all lists; GET /api/v1/lists?group_id=xxx, verify filtered by group",
+        "3. Add POST handler to src/app/api/v1/lists/route.ts - Accepts { group_id, name, icon }, calls createList() from actions",
+        "4. Test: POST with { group_id, name: 'Shopping' }, verify list created under correct group",
+        "5. Create src/app/api/v1/lists/[id]/route.ts - GET handler that fetches single list by id, returns list or 404",
+        "6. Test: GET /api/v1/lists/[valid-id], verify returns list",
+        "7. Add PATCH handler to src/app/api/v1/lists/[id]/route.ts - Accepts { name, icon }, calls updateList() from actions",
+        "8. Test: PATCH with { icon: '🛒' }, verify icon updated",
+        "9. Add DELETE handler to src/app/api/v1/lists/[id]/route.ts - Calls deleteList() from actions",
+        "10. Test: DELETE list, verify deleted and associated tasks are deleted",
+        "11. Create src/app/api/v1/lists/[id]/move/route.ts - PATCH handler that accepts { group_id }, calls moveList() from actions",
+        "12. Test: Move list to different group, verify list appears under new group",
+        "13. Create src/app/api/v1/lists/reorder/route.ts - PATCH handler that accepts { listIds: string[] } and optional group_id",
+        "14. Test: Reorder lists within a group, verify order persists"
       ],
       "passes": false
     },
     {
       "id": 55,
-      "category": "CalDAV Integration",
-      "description": "Read task list in iCalendar VTODO format",
+      "category": "REST API - Tasks",
+      "description": "Implement Tasks CRUD API",
       "steps": [
-        "Query tasks via CalDAV",
-        "Verify VTODO format in response",
-        "Verify all task properties are included"
+        "1. Create src/app/api/v1/tasks/route.ts - GET handler that accepts optional ?list_id, ?completed, ?starred params, calls getTasks() from actions",
+        "2. Test: GET /api/v1/tasks?list_id=xxx, verify returns tasks; GET /api/v1/tasks?completed=true, verify filters work",
+        "3. Add POST handler to src/app/api/v1/tasks/route.ts - Accepts { list_id, name, parent_id? }, calls createTask() from actions",
+        "4. Test: POST with { list_id, name: 'Buy milk' }, verify task created; POST with parent_id, verify subtask created",
+        "5. Create src/app/api/v1/tasks/[id]/route.ts - GET handler that fetches task with subtasks using getTasksWithSubtasks()",
+        "6. Test: GET /api/v1/tasks/[id], verify returns task with nested subtasks",
+        "7. Add PATCH handler to src/app/api/v1/tasks/[id]/route.ts - Accepts { name, completed, starred, due_date, plan_date, comment, duration_minutes }, calls updateTask()",
+        "8. Test: PATCH with { completed: true }, verify task marked complete; PATCH with { due_date: '2024-01-01' }, verify date set",
+        "9. Add DELETE handler to src/app/api/v1/tasks/[id]/route.ts - Calls deleteTask() from actions",
+        "10. Test: DELETE task, verify deleted; verify subtasks also deleted",
+        "11. Create src/app/api/v1/tasks/reorder/route.ts - PATCH handler that accepts { taskIds: string[], list_id, parent_id? }",
+        "12. Test: Reorder tasks, verify new order persists after GET",
+        "13. Create src/app/api/v1/tasks/today/route.ts - GET handler that calls getTodayTasks() from actions",
+        "14. Test: GET /api/v1/tasks/today, verify returns only tasks with plan_date = today",
+        "15. Create src/app/api/v1/tasks/starred/route.ts - GET handler that filters tasks where starred = true",
+        "16. Test: GET /api/v1/tasks/starred, verify returns only starred tasks"
       ],
       "passes": false
     },
     {
       "id": 56,
-      "category": "CalDAV Integration",
-      "description": "Create/update/delete tasks via CalDAV",
+      "category": "REST API - Search",
+      "description": "Implement search API endpoint",
       "steps": [
-        "Create task using PUT request",
-        "Verify task appears in app",
-        "Update task via CalDAV",
-        "Delete task via CalDAV"
+        "1. Create src/app/api/v1/search/tasks/route.ts - GET handler that accepts ?q= query param, calls searchTasks() from actions",
+        "2. Test: GET /api/v1/search/tasks?q=buy, verify returns tasks matching 'buy' in name",
+        "3. Add pagination: Accept ?page= and ?limit= params, implement pagination in the response",
+        "4. Test: Request page 1 with limit 10, verify returns 10 items; request page 2, verify different items",
+        "5. Ensure response includes { data: [], total: number, page: number, limit: number } format",
+        "6. Test: Search with no results, verify returns empty array with count 0"
       ],
       "passes": false
     },
     {
       "id": 57,
+      "category": "REST API - Docs",
+      "description": "Generate API documentation",
+      "steps": [
+        "1. Install swagger-ui-react or create custom /api-docs page using @swagger-api/apidom",
+        "2. Create src/app/api-docs/page.tsx - Add Swagger UI component pointing to /api/openapi.json",
+        "3. Create src/app/api/openapi/route.ts - GET endpoint that returns OpenAPI 3.0 specification in JSON format",
+        "4. Test: GET /api/openapi, verify valid OpenAPI JSON returned; verify /api-docs renders Swagger UI",
+        "5. Document each endpoint: paths, methods, requestBody schema, response 200/400/401/500 schemas",
+        "6. Test: Verify all 5 auth endpoints, 6 group endpoints, 7 list endpoints, 8 task endpoints, 1 search endpoint are documented",
+        "7. Add authentication section: Explain Bearer token usage, show example curl request",
+        "8. Test: Use 'Try it out' in Swagger UI to make real API calls"
+      ],
+      "passes": false
+    },
+    {
+      "id": 58,
+      "category": "CalDAV Integration",
+      "description": "CalDAV Basic Auth authentication layer",
+      "steps": [
+        "1. Install caldav-ts or @proton/api-interfaces for CalDAV client types",
+        "2. Create src/lib/caldav/client.ts - Initialize CalDAV client with base URL (e.g., https://puratodo.com/caldav)",
+        "3. Implement authenticate(email, password) method using Basic Auth header encoding",
+        "4. Test: Create user in app, use credentials to authenticate via CalDAV client, verify returns principal URL",
+        "5. Store authenticated client instance in server session or pass credentials with each request",
+        "6. Test: Authenticate with wrong password, verify returns 401 error"
+      ],
+      "passes": false
+    },
+    {
+      "id": 59,
+      "category": "CalDAV Integration",
+      "description": "WebDAV PROPFIND/PROPPATCH basic methods",
+      "steps": [
+        "1. Create src/lib/caldav/methods.ts - Add propfind() method that sends HTTP PROPFIND request",
+        "2. Test: Send PROPFIND to /caldav/ with Depth: 1 header, verify returns multistatus XML response",
+        "3. Add proppatch() method that sends HTTP PROPPATCH request with XML body",
+        "4. Test: Send PROPPATCH to update displayname property, verify 200 response",
+        "5. Create XML parser utility to parse WebDAV multistatus responses to JSON",
+        "6. Test: Parse sample PROPFIND response, verify correct JSON structure"
+      ],
+      "passes": false
+    },
+    {
+      "id": 60,
+      "category": "CalDAV Integration",
+      "description": "CalDAV calendar-home-set discovery",
+      "steps": [
+        "1. Create src/lib/caldav/discovery.ts - Add discoverCalendars() that sends PROPFIND to principal URL",
+        "2. Extract calendar-home-set from principal response",
+        "3. Test: After authentication, discover calendars, verify returns user's calendar collection URL",
+        "4. List calendar objects using REPORT method with filter for VTODO",
+        "5. Test: Get all task containers, verify returns calendar URLs"
+      ],
+      "passes": false
+    },
+    {
+      "id": 61,
+      "category": "CalDAV Integration",
+      "description": "Read task list in iCalendar VTODO format",
+      "steps": [
+        "1. Create src/lib/caldav/parser.ts - Add parseVTODO(icalString) that parses iCalendar VTODO to task object",
+        "2. Map: UID->id, SUMMARY->name, STATUS->completed, DTSTART->due_date, DESCRIPTION->comment, PRIORITY->starred",
+        "3. Test: Parse sample VTODO string, verify all fields extracted correctly",
+        "4. Create src/lib/caldav/export.ts - Add fetchTasks(calendarUrl) that sends GET/CALDAV:query request",
+        "5. Test: Fetch tasks from calendar, verify returns array of tasks in VTODO format",
+        "6. Test: Verify due_date, plan_date, comment, duration_minutes are included in VTODO"
+      ],
+      "passes": false
+    },
+    {
+      "id": 62,
+      "category": "CalDAV Integration",
+      "description": "Create/update/delete tasks via CalDAV",
+      "steps": [
+        "1. Create src/lib/caldav/write.ts - Add createTask(task) that converts task to VTODO string and sends PUT to calendar URL",
+        "2. Generate VTODO: UID=task.id, SUMMARY=task.name, STATUS=COMPLETED/NEEDS-ACTION, DTSTART=due_date",
+        "3. Test: Create task in app, sync via CalDAV, verify appears in Apple Reminders/other CalDAV client",
+        "4. Add updateTask(task) method that sends PUT request to existing calendar resource URL",
+        "5. Test: Update task name in external CalDAV client, verify app shows updated name",
+        "6. Add deleteTask(uid) method that sends DELETE request to /calendar/tasks/{uid}.ics",
+        "7. Test: Delete task in external client, verify task removed from app"
+      ],
+      "passes": false
+    },
+    {
+      "id": 63,
       "category": "CalDAV Integration",
       "description": "Sync subtasks with RELATED-TO property",
       "steps": [
-        "Create parent task and subtask in app",
-        "Export via CalDAV",
-        "Verify RELATED-TO property is set",
-        "Import and verify hierarchy"
+        "1. Update src/lib/caldav/export.ts - In VTODO generation, add RELATED-TO: {parent_uid} when task.parent_id is not null",
+        "2. Test: Create parent task 'Buy groceries' and subtask 'Buy milk', export via CalDAV, verify 'Buy milk' VTODO has RELATED-TO pointing to parent UID",
+        "3. Update src/lib/caldav/parser.ts - In parseVTODO, extract RELATED-TO field and map to parent_id",
+        "4. Test: Import tasks from Apple Reminders with subtasks, verify hierarchy preserved in app",
+        "5. Test: Move subtask to different parent in external app, verify parent_id updated after sync"
       ],
       "passes": false
     }
