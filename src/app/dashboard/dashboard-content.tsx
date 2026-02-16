@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { ListPanel } from "@/components/dashboard/list-panel";
+import { TaskPanel } from "@/components/dashboard/task-panel";
 import { LogoutButton } from "./logout-button";
 import { getLists, type List } from "@/actions/lists";
 import type { Group } from "@/actions/groups";
@@ -100,12 +101,16 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
 
         <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-4xl mx-auto">
-            <ListPanel
-              group={selectedGroup}
-              lists={groupLists}
-              allGroups={initialGroups}
-              onListsChange={handleListsChange}
-            />
+            {selectedList ? (
+              <TaskPanel list={selectedList} />
+            ) : (
+              <ListPanel
+                group={selectedGroup}
+                lists={groupLists}
+                allGroups={initialGroups}
+                onListsChange={handleListsChange}
+              />
+            )}
           </div>
         </main>
       </div>

@@ -312,7 +312,7 @@
         "Verify tasks appear in main area",
         "Check tasks show name and completion status"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 25,
@@ -325,7 +325,7 @@
         "Click Create or press Enter",
         "Verify new task appears in list"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 26,
@@ -337,7 +337,7 @@
         "Click again to toggle",
         "Verify status changes correctly"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 27,
@@ -384,7 +384,7 @@
         "Click again to unstar",
         "Verify star status toggles correctly"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 31,

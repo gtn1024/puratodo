@@ -68,9 +68,28 @@ All tables include user_id for RLS policies and query optimization.
   - 在每个分组内添加独立的 DndContext 处理列表排序
   - 侧边栏和主面板列表排序同步更新
   - 测试通过
+- Feature #24: Task UI - 显示任务
+  - 创建 src/actions/tasks.ts server action（getTasks, createTask, updateTask, deleteTask, reorderTasks）
+  - 创建 src/components/dashboard/task-panel.tsx 任务面板组件
+  - 安装 shadcn/ui Checkbox 组件
+  - 更新 dashboard-content.tsx 根据 selectedListId 显示任务面板
+  - 测试通过
+- Feature #25: Task Create - 创建任务
+  - TaskPanel 中添加内联输入创建任务
+  - 支持 Enter 快捷键提交
+  - 测试通过
+- Feature #26: Task Complete - 标记完成
+  - 使用 Checkbox 组件切换完成状态
+  - 完成任务显示删除线样式
+  - 测试通过
+- Feature #30: Task Star - 星标任务
+  - 点击星标图标切换 starred 状态
+  - 测试通过
 
 #### 下一步
-- 开始 Feature #24+: Task Module
+- 实现 Feature #27: Task Edit - 编辑任务名称
+- 实现 Feature #28: Task Delete - 删除任务
+- 实现 Feature #29: Task Sort - 拖拽排序任务
 
 ---
 
