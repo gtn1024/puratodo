@@ -1,7 +1,8 @@
 import * as React from "react";
-import { Mail, Lock, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Mail, Lock, ArrowRight, CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hooks/useAuth";
 
 // Floating geometric shapes component
 function FloatingShapes() {
@@ -66,15 +67,17 @@ function FeatureItem({ children }: { children: React.ReactNode }) {
 export function LoginPage() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [isLoading, setIsLoading] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
+  const { login, isLoading, error, clearError } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    // Simulate login - will be replaced with actual API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsLoading(false);
+    clearError();
+    const result = await login({ email, password });
+    if (result.success) {
+      // Navigation will be handled by the auth state change
+      console.log("Login successful");
+    }
   };
 
   return (
@@ -154,6 +157,16 @@ export function LoginPage() {
             </p>
           </div>
 
+          {/* Error message */}
+          {error && (
+            <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="h-5 w-5 text-red-500 dark:text-red-400 flex-shrink-0" />
+                <p className="text-sm text-red-600 dark:text-red-300">{error}</p>
+              </div>
+            </div>
+          )}
+
           {/* Login form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
@@ -171,6 +184,7 @@ export function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 icon={<Mail className="h-5 w-5" />}
                 required
+                disabled={isLoading}
               />
             </div>
 
@@ -185,6 +199,7 @@ export function LoginPage() {
                 <a
                   href="#"
                   className="text-sm text-violet-600 hover:text-violet-500 dark:text-violet-400 dark:hover:text-violet-300 transition-colors"
+                  onClick={(e) => e.preventDefault()}
                 >
                   Forgot password?
                 </a>
@@ -197,6 +212,7 @@ export function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 icon={<Lock className="h-5 w-5" />}
                 required
+                disabled={isLoading}
               />
             </div>
 
@@ -205,6 +221,7 @@ export function LoginPage() {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
+                disabled={isLoading}
               >
                 {showPassword ? "Hide" : "Show"} password
               </button>
@@ -246,6 +263,7 @@ export function LoginPage() {
             <a
               href="#"
               className="inline-flex items-center gap-2 text-violet-600 hover:text-violet-500 dark:text-violet-400 dark:hover:text-violet-300 font-medium transition-colors"
+              onClick={(e) => e.preventDefault()}
             >
               <span>Create an account</span>
               <ArrowRight className="w-4 h-4" />
