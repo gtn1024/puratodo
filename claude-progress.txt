@@ -175,8 +175,42 @@ All tables include user_id for RLS policies and query optimization.
   - ListPanel: "No lists in this group yet" + "Create your first list" 按钮
   - TaskPanel: "No tasks in this list yet" + "Create your first task" 按钮
   - 测试通过：分组、列表、任务的空状态均正确显示
+- Feature #43: Global search across all tasks - 全局搜索
+  - 添加 searchTasks server action 在 src/actions/tasks.ts
+  - 创建 src/components/search-dialog.tsx 搜索对话框组件
+  - 支持 Ctrl/Cmd+K 快捷键打开搜索
+  - 搜索结果显示任务名称、状态、星标、截止日期、所属列表和分组
+  - 点击结果导航到对应列表
+  - 更新键盘快捷键帮助文档
+  - 测试通过：搜索、点击结果导航
+- Feature #44: Filter tasks by status, date, star - 任务筛选
+  - 在 TaskPanel 添加筛选下拉菜单
+  - 支持按状态筛选（All/Completed/Incomplete）
+  - 支持按星标筛选（All/Starred/Unstarred）
+  - 支持按日期筛选（All/Overdue/Today/Upcoming/No Due Date）
+  - 支持组合筛选
+  - 显示筛选后的任务数量（如 "0 of 3 tasks"）
+  - 空状态提示"No tasks match your filters"和清除筛选按钮
+  - 测试通过：Completed 筛选、Clear Filters
+- Feature #45: Today view showing tasks with plan_date = today - 今日视图
+  - 添加 getTodayTasks server action 在 src/actions/tasks.ts
+  - 创建 src/components/dashboard/today-panel.tsx 今日面板组件
+  - 在 Sidebar 添加 "Today" 快捷入口（太阳图标）
+  - 显示今天的日期和计划任务
+  - 任务按列表分组显示
+  - 空状态提示设置 plan_date 的说明
+  - 测试通过：Today 视图导航、日期显示
+- Feature #46: Realtime sync across multiple devices - 实时同步
+  - 创建 src/hooks/use-realtime.ts 自定义 Hook
+  - 订阅 Supabase Postgres Changes
+  - TaskPanel 订阅任务表变化
+  - DashboardContent 订阅分组和列表表变化
+  - TodayPanel 订阅任务表变化
+  - 测试通过：两个浏览器标签同步任务创建
 
 ---
+
+### 2026-02-15
 
 ### 2026-02-15
 

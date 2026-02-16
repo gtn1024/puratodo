@@ -4,10 +4,11 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { ListPanel } from "@/components/dashboard/list-panel";
 import { TaskPanel } from "@/components/dashboard/task-panel";
+import { TodayPanel } from "@/components/dashboard/today-panel";
 import { LogoutButton } from "./logout-button";
 import { getLists, type List } from "@/actions/lists";
 import type { Group } from "@/actions/groups";
-import { Menu } from "lucide-react";
+import { Menu, Search, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -20,7 +21,9 @@ import {
   KeyboardShortcutsDialog,
   KeyboardShortcutsButton,
 } from "@/components/keyboard-shortcuts-dialog";
+import { SearchDialog } from "@/components/search-dialog";
 import { useKeyboardShortcuts, type KeyboardShortcut } from "@/hooks/use-keyboard-shortcuts";
+import { useRealtime } from "@/hooks/use-realtime";
 
 interface DashboardContentProps {
   initialGroups: Group[];
@@ -36,6 +39,8 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
   const [refreshKey, setRefreshKey] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [shortcutsDialogOpen, setShortcutsDialogOpen] = useState(false);
+  const [searchDialogOpen, setSearchDialogOpen] = useState(false);
+  const [showTodayView, setShowTodayView] = useState(false);
 
   // Refs for triggering creation in child components
   const listPanelRef = useRef<{ triggerCreateList: () => void }>(null);
@@ -66,6 +71,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
   const handleListSelect = (listId: string | null, groupId: string) => {
     setSelectedGroupId(groupId);
     setSelectedListId(listId);
+    setShowTodayView(false); // Exit today view when selecting list
     setMobileMenuOpen(false); // Close mobile menu on selection
   };
 
@@ -75,8 +81,26 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     if (groupId !== selectedGroupId) {
       setSelectedListId(null);
     }
+    setShowTodayView(false); // Exit today view when selecting group
     setMobileMenuOpen(false); // Close mobile menu on selection
   };
+
+  const handleTodaySelect = () => {
+    setShowTodayView(true);
+    setSelectedGroupId(null);
+    setSelectedListId(null);
+    setMobileMenuOpen(false);
+  };
+
+  // Handle task selection from search
+  const handleTaskSelect = useCallback((taskId: string, listId: string, _groupId: string) => {
+    const list = lists.find((l) => l.id === listId);
+    if (list) {
+      setSelectedGroupId(list.group_id);
+      setSelectedListId(listId);
+      setShowTodayView(false);
+    }
+  }, [lists]);
 
   // Keyboard shortcuts
   const shortcuts: KeyboardShortcut[] = [
@@ -110,17 +134,53 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     {
       key: "Escape",
       action: useCallback(() => {
-        if (mobileMenuOpen) {
+        if (searchDialogOpen) {
+          setSearchDialogOpen(false);
+        } else if (mobileMenuOpen) {
           setMobileMenuOpen(false);
         } else if (shortcutsDialogOpen) {
           setShortcutsDialogOpen(false);
         }
-      }, [mobileMenuOpen, shortcutsDialogOpen]),
+      }, [searchDialogOpen, mobileMenuOpen, shortcutsDialogOpen]),
       description: "Close dialog",
     },
   ];
 
+  // Ctrl/Cmd + K for search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchDialogOpen(true);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   useKeyboardShortcuts({ shortcuts });
+
+  // Realtime subscriptions
+  const handleRealtimeChange = useCallback(() => {
+    setRefreshKey((k) => k + 1);
+  }, []);
+
+  useRealtime({
+    channel: "groups-realtime",
+    table: "groups",
+    onInsert: handleRealtimeChange,
+    onUpdate: handleRealtimeChange,
+    onDelete: handleRealtimeChange,
+  });
+
+  useRealtime({
+    channel: "lists-realtime",
+    table: "lists",
+    onInsert: handleRealtimeChange,
+    onUpdate: handleRealtimeChange,
+    onDelete: handleRealtimeChange,
+  });
 
   return (
     <div className="flex h-screen bg-stone-50 dark:bg-stone-950">
@@ -131,8 +191,10 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
           initialLists={lists}
           selectedGroupId={selectedGroupId}
           selectedListId={selectedListId}
+          showTodayView={showTodayView}
           onGroupSelect={handleGroupSelect}
           onListSelect={handleListSelect}
+          onTodaySelect={handleTodaySelect}
           onDataChange={handleListsChange}
         />
       </div>
@@ -149,8 +211,10 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
             initialLists={lists}
             selectedGroupId={selectedGroupId}
             selectedListId={selectedListId}
+            showTodayView={showTodayView}
             onGroupSelect={handleGroupSelect}
             onListSelect={handleListSelect}
+            onTodaySelect={handleTodaySelect}
             onDataChange={handleListsChange}
           />
         </SheetContent>
@@ -171,7 +235,16 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                 <span className="sr-only">Open menu</span>
               </Button>
 
-              {selectedList ? (
+              {showTodayView ? (
+                <>
+                  <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                    <Sun className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
+                    Today
+                  </h1>
+                </>
+              ) : selectedList ? (
                 <>
                   <span className="text-xl">{selectedList.icon || "📋"}</span>
                   <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
@@ -195,6 +268,18 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
               )}
             </div>
             <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSearchDialogOpen(true)}
+                className="h-7 px-2 text-stone-500 hover:text-stone-700 dark:hover:text-stone-300"
+              >
+                <Search className="h-3.5 w-3.5 mr-1.5" />
+                <span className="hidden sm:inline text-xs">Search</span>
+                <kbd className="hidden sm:inline ml-1.5 px-1.5 py-0.5 text-[10px] bg-stone-100 dark:bg-stone-800 rounded">
+                  {typeof navigator !== "undefined" && navigator.platform.includes("Mac") ? "⌘" : "Ctrl"}K
+                </kbd>
+              </Button>
               <KeyboardShortcutsButton onClick={() => setShortcutsDialogOpen(true)} />
               <LogoutButton />
             </div>
@@ -203,7 +288,9 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
 
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <div className="max-w-4xl mx-auto">
-            {selectedList ? (
+            {showTodayView ? (
+              <TodayPanel />
+            ) : selectedList ? (
               <TaskPanel ref={taskPanelRef} list={selectedList} />
             ) : (
               <ListPanel
@@ -222,6 +309,13 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
       <KeyboardShortcutsDialog
         open={shortcutsDialogOpen}
         onOpenChange={setShortcutsDialogOpen}
+      />
+
+      {/* Search Dialog */}
+      <SearchDialog
+        open={searchDialogOpen}
+        onOpenChange={setSearchDialogOpen}
+        onTaskSelect={handleTaskSelect}
       />
     </div>
   );

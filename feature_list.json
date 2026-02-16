@@ -544,7 +544,7 @@
         "Verify search results appear",
         "Click result and verify navigation"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 44,
@@ -557,7 +557,7 @@
         "Apply star filter",
         "Verify filters work in combination"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 45,
@@ -569,7 +569,7 @@
         "Verify tasks without plan_date are hidden",
         "Test with tasks set to different dates"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 46,
@@ -581,7 +581,7 @@
         "Verify changes appear in other tab automatically",
         "Test with different operations"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 47,

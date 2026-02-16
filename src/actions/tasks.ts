@@ -281,3 +281,118 @@ export async function getTasksWithSubtasks(listId?: string): Promise<Task[]> {
 
   return fetchSubtasksRecursively(data || []);
 }
+
+export type TaskSearchResult = Task & {
+  list_name: string;
+  list_icon: string;
+  group_name: string;
+  group_color: string;
+};
+
+export async function searchTasks(query: string): Promise<TaskSearchResult[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user || !query.trim()) {
+    return [];
+  }
+
+  // Search tasks by name (case-insensitive)
+  const { data: tasks, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .eq("user_id", user.id)
+    .ilike("name", `%${query.trim()}%`)
+    .order("updated_at", { ascending: false })
+    .limit(50);
+
+  if (error || !tasks) {
+    console.error("Error searching tasks:", error);
+    return [];
+  }
+
+  // Get all list and group info for the results
+  const listIds = [...new Set(tasks.map((t) => t.list_id))];
+  const { data: lists } = await supabase
+    .from("lists")
+    .select("id, name, icon, group_id")
+    .in("id", listIds);
+
+  const groupIds = [...new Set(lists?.map((l) => l.group_id) || [])];
+  const { data: groups } = await supabase
+    .from("groups")
+    .select("id, name, color")
+    .in("id", groupIds);
+
+  // Combine data
+  const results: TaskSearchResult[] = tasks.map((task) => {
+    const list = lists?.find((l) => l.id === task.list_id);
+    const group = groups?.find((g) => g.id === list?.group_id);
+    return {
+      ...task,
+      list_name: list?.name || "Unknown List",
+      list_icon: list?.icon || "📋",
+      group_name: group?.name || "Unknown Group",
+      group_color: group?.color || "#6b7280",
+    };
+  });
+
+  return results;
+}
+
+export async function getTodayTasks(): Promise<TaskSearchResult[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return [];
+  }
+
+  // Get today's date in YYYY-MM-DD format
+  const today = new Date().toISOString().split("T")[0];
+
+  // Get tasks with plan_date = today
+  const { data: tasks, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .eq("user_id", user.id)
+    .eq("plan_date", today)
+    .order("sort_order", { ascending: true });
+
+  if (error || !tasks) {
+    console.error("Error fetching today's tasks:", error);
+    return [];
+  }
+
+  // Get all list and group info for the results
+  const listIds = [...new Set(tasks.map((t) => t.list_id))];
+  const { data: lists } = await supabase
+    .from("lists")
+    .select("id, name, icon, group_id")
+    .in("id", listIds);
+
+  const groupIds = [...new Set(lists?.map((l) => l.group_id) || [])];
+  const { data: groups } = await supabase
+    .from("groups")
+    .select("id, name, color")
+    .in("id", groupIds);
+
+  // Combine data
+  const results: TaskSearchResult[] = tasks.map((task) => {
+    const list = lists?.find((l) => l.id === task.list_id);
+    const group = groups?.find((g) => g.id === list?.group_id);
+    return {
+      ...task,
+      list_name: list?.name || "Unknown List",
+      list_icon: list?.icon || "📋",
+      group_name: group?.name || "Unknown Group",
+      group_color: group?.color || "#6b7280",
+    };
+  });
+
+  return results;
+}

@@ -18,7 +18,7 @@ interface ShortcutItem {
 const SHORTCUTS_LIST: ShortcutItem[] = [
   { keys: ["N"], description: "Create new task" },
   { keys: ["L"], description: "Create new list" },
-  { keys: ["/"], description: "Focus search (coming soon)" },
+  { keys: ["Ctrl", "K"], description: "Search tasks" },
   { keys: ["?"], description: "Show this help" },
   { keys: ["Esc"], description: "Close dialog / menu" },
 ];

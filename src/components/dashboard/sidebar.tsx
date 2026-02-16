@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createGroup, updateGroup, deleteGroup, reorderGroups, type Group } from "@/actions/groups";
 import { reorderLists, type List } from "@/actions/lists";
-import { MoreHorizontal, Plus, Folder, GripVertical, ChevronRight, ChevronDown, ListTodo } from "lucide-react";
+import { MoreHorizontal, Plus, Folder, GripVertical, ChevronRight, ChevronDown, ListTodo, Sun } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
   DndContext,
@@ -44,8 +44,10 @@ interface SidebarProps {
   initialLists: List[];
   selectedGroupId: string | null;
   selectedListId: string | null;
+  showTodayView: boolean;
   onGroupSelect: (groupId: string | null) => void;
   onListSelect: (listId: string | null, groupId: string) => void;
+  onTodaySelect: () => void;
   onDataChange: () => void;
 }
 
@@ -337,8 +339,10 @@ export function Sidebar({
   initialLists,
   selectedGroupId,
   selectedListId,
+  showTodayView,
   onGroupSelect,
   onListSelect,
+  onTodaySelect,
   onDataChange,
 }: SidebarProps) {
   const [groups, setGroups] = useState(initialGroups);
@@ -478,6 +482,21 @@ export function Sidebar({
             </div>
             <ThemeToggle />
           </div>
+        </div>
+
+        {/* Today View Shortcut */}
+        <div className="px-2 py-1">
+          <button
+            onClick={onTodaySelect}
+            className={`w-full flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
+              showTodayView
+                ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300"
+                : "hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300"
+            }`}
+          >
+            <Sun className={`h-4 w-4 ${showTodayView ? "text-amber-500" : ""}`} />
+            <span className="text-sm font-medium">Today</span>
+          </button>
         </div>
 
         {/* Groups Section */}
