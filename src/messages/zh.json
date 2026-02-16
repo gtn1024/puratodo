@@ -22,7 +22,31 @@
     "noAccount": "还没有账号？",
     "hasAccount": "已有账号？",
     "signUp": "注册",
-    "signIn": "登录"
+    "signIn": "登录",
+    "welcomeBack": "欢迎回来",
+    "signInToAccount": "登录到您的 PuraToDo 账号",
+    "signingIn": "登录中...",
+    "dontHaveAccount": "还没有账号？",
+    "createOne": "创建一个",
+    "createAccount": "创建账号",
+    "getStarted": "开始使用 PuraToDo",
+    "creatingAccount": "创建账号中...",
+    "alreadyHaveAccount": "已有账号？",
+    "forgotPassword": "忘记密码",
+    "resetPassword": "重置密码",
+    "enterEmailReset": "输入您的邮箱，我们将发送重置链接",
+    "sending": "发送中...",
+    "sendResetLink": "发送重置链接",
+    "checkEmail": "检查邮箱",
+    "resetLinkSent": "我们已经发送密码重置链接到",
+    "confirmationSent": "我们已经发送确认链接到",
+    "rememberPassword": "记得密码？",
+    "backToLogin": "返回登录",
+    "passwordsDoNotMatch": "密码不匹配",
+    "passwordTooShort": "密码至少需要6个字符",
+    "registrationDisabled": "注册已禁用",
+    "contactAdmin": "新账号注册目前已禁用。如需访问，请联系管理员。",
+    "unexpectedError": "发生意外错误"
   },
   "sidebar": {
     "groups": "分组",
@@ -55,7 +79,9 @@
     "planDate": "计划日期",
     "comment": "备注",
     "duration": "时长（分钟）",
-    "clear": "清除"
+    "clear": "清除",
+    "selectDueDate": "选择截止日期",
+    "selectPlanDate": "选择计划日期"
   },
   "filter": {
     "all": "全部",

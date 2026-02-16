@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { useI18n } from "@/i18n";
 
 export default function ForgotPasswordPage() {
+  const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +33,7 @@ export default function ForgotPasswordPage() {
         setSuccess(true);
       }
     } catch {
-      setError("An unexpected error occurred");
+      setError(t("auth.unexpectedError"));
     } finally {
       setIsLoading(false);
     }
@@ -48,17 +50,16 @@ export default function ForgotPasswordPage() {
               </svg>
             </div>
             <h2 className="text-xl font-semibold text-stone-900 dark:text-stone-100 mb-2">
-              Check Your Email
+              {t("auth.checkEmail")}
             </h2>
             <p className="text-stone-500 dark:text-stone-400 mb-6">
-              We&apos;ve sent a password reset link to{" "}
-              <span className="font-medium text-stone-700 dark:text-stone-300">{email}</span>
+              {t("auth.resetLinkSent")} <span className="font-medium text-stone-700 dark:text-stone-300">{email}</span>
             </p>
             <Link
               href="/login"
               className="text-sm text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
             >
-              Back to login
+              {t("auth.backToLogin")}
             </Link>
           </CardContent>
         </Card>
@@ -79,10 +80,10 @@ export default function ForgotPasswordPage() {
             </div>
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-center text-stone-900 dark:text-stone-100">
-            Forgot Password
+            {t("auth.forgotPassword")}
           </h1>
           <p className="text-sm text-stone-500 dark:text-stone-400 text-center">
-            Enter your email and we&apos;ll send you a reset link
+            {t("auth.enterEmailReset")}
           </p>
         </CardHeader>
 
@@ -96,7 +97,7 @@ export default function ForgotPasswordPage() {
 
             <div className="space-y-2">
               <Label htmlFor="email" className="text-stone-700 dark:text-stone-300">
-                Email
+                {t("auth.email")}
               </Label>
               <Input
                 id="email"
@@ -121,21 +122,21 @@ export default function ForgotPasswordPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                  Sending...
+                  {t("auth.sending")}
                 </span>
               ) : (
-                "Send Reset Link"
+                t("auth.sendResetLink")
               )}
             </Button>
           </form>
 
           <div className="mt-6 text-center text-sm text-stone-500 dark:text-stone-400">
-            Remember your password?{" "}
+            {t("auth.rememberPassword")}{" "}
             <Link
               href="/login"
               className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors underline-offset-4 hover:underline"
             >
-              Sign in
+              {t("auth.signIn")}
             </Link>
           </div>
         </CardContent>

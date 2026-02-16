@@ -7,10 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { useI18n } from "@/i18n";
 
 const ENABLE_REGISTRATION = process.env.NEXT_PUBLIC_ENABLE_REGISTRATION !== "false";
 
 export default function RegisterPage() {
+  const { t } = useI18n();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -64,16 +66,16 @@ export default function RegisterPage() {
               </svg>
             </div>
             <h2 className="text-xl font-semibold text-stone-900 dark:text-stone-100 mb-2">
-              Registration Disabled
+              {t("auth.registrationDisabled")}
             </h2>
             <p className="text-stone-500 dark:text-stone-400 mb-6">
-              New account registration is currently disabled. Please contact the administrator if you need access.
+              {t("auth.contactAdmin")}
             </p>
             <Link
               href="/login"
               className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200 px-4 py-2"
             >
-              Back to login
+              {t("auth.backToLogin")}
             </Link>
           </CardContent>
         </Card>
@@ -111,12 +113,12 @@ export default function RegisterPage() {
     setError(null);
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError(t("auth.passwordsDoNotMatch"));
       return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+      setError(t("auth.passwordTooShort"));
       return;
     }
 
@@ -135,7 +137,7 @@ export default function RegisterPage() {
         setSuccess(true);
       }
     } catch {
-      setError("An unexpected error occurred");
+      setError(t("auth.unexpectedError"));
     } finally {
       setIsLoading(false);
     }
@@ -187,19 +189,15 @@ export default function RegisterPage() {
               </svg>
             </div>
             <h2 className="text-xl font-semibold text-stone-900 dark:text-stone-100 mb-2">
-              Check your email
+              {t("auth.checkEmail")}
             </h2>
             <p className="text-stone-500 dark:text-stone-400 mb-6">
-              We&apos;ve sent a confirmation link to{" "}
-              <span className="font-medium text-stone-700 dark:text-stone-300">
-                {email}
-              </span>
-            </p>
+              {t("auth.confirmationSent")} <span className="font-medium text-stone-700 dark:text-stone-300">{email}</span></p>
             <Link
               href="/login"
               className="text-sm text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
             >
-              Back to login
+              {t("auth.backToLogin")}
             </Link>
           </CardContent>
         </Card>
@@ -287,13 +285,13 @@ export default function RegisterPage() {
             className="text-2xl font-semibold tracking-tight text-center text-stone-900 dark:text-stone-100"
             style={{ animation: "fadeIn 0.8s ease-out 0.3s both" }}
           >
-            Create account
+            {t("auth.createAccount")}
           </h1>
           <p
             className="text-sm text-stone-500 dark:text-stone-400 text-center"
             style={{ animation: "fadeIn 0.8s ease-out 0.4s both" }}
           >
-            Get started with PuraToDo
+            {t("auth.getStarted")}
           </p>
         </CardHeader>
 
@@ -314,7 +312,7 @@ export default function RegisterPage() {
                 htmlFor="email"
                 className="text-stone-700 dark:text-stone-300"
               >
-                Email
+                {t("auth.email")}
               </Label>
               <Input
                 id="email"
@@ -333,7 +331,7 @@ export default function RegisterPage() {
                 htmlFor="password"
                 className="text-stone-700 dark:text-stone-300"
               >
-                Password
+                {t("auth.password")}
               </Label>
               <Input
                 id="password"
@@ -352,7 +350,7 @@ export default function RegisterPage() {
                 htmlFor="confirmPassword"
                 className="text-stone-700 dark:text-stone-300"
               >
-                Confirm Password
+                {t("auth.confirmPassword")}
               </Label>
               <Input
                 id="confirmPassword"
@@ -392,10 +390,10 @@ export default function RegisterPage() {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  Creating account...
+                  {t("auth.creatingAccount")}
                 </span>
               ) : (
-                "Create account"
+                t("auth.createAccount")
               )}
             </Button>
           </form>
@@ -404,12 +402,12 @@ export default function RegisterPage() {
             className="mt-6 text-center text-sm text-stone-500 dark:text-stone-400"
             style={{ animation: "fadeIn 0.8s ease-out 0.6s both" }}
           >
-            Already have an account?{" "}
+            {t("auth.alreadyHaveAccount")}{" "}
             <Link
               href="/login"
               className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors underline-offset-4 hover:underline"
             >
-              Sign in
+              {t("auth.signIn")}
             </Link>
           </div>
         </CardContent>

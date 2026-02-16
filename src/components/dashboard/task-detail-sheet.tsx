@@ -130,7 +130,7 @@ export function TaskDetailSheet({
                   }`}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dueDate ? format(dueDate, "PPP") : "Select due date"}
+                  {dueDate ? format(dueDate, "PPP") : t("taskDetail.selectDueDate")}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -172,7 +172,7 @@ export function TaskDetailSheet({
                   }`}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {planDate ? format(planDate, "PPP") : "Select plan date"}
+                  {planDate ? format(planDate, "PPP") : t("taskDetail.selectPlanDate")}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">

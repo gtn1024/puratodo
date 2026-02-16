@@ -22,7 +22,31 @@
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
     "signUp": "Sign Up",
-    "signIn": "Sign In"
+    "signIn": "Sign In",
+    "welcomeBack": "Welcome back",
+    "signInToAccount": "Sign in to your PuraToDo account",
+    "signingIn": "Signing in...",
+    "dontHaveAccount": "Don't have an account?",
+    "createOne": "Create one",
+    "createAccount": "Create account",
+    "getStarted": "Get started with PuraToDo",
+    "creatingAccount": "Creating account...",
+    "alreadyHaveAccount": "Already have an account?",
+    "forgotPassword": "Forgot Password",
+    "resetPassword": "Reset Password",
+    "enterEmailReset": "Enter your email and we'll send you a reset link",
+    "sending": "Sending...",
+    "sendResetLink": "Send Reset Link",
+    "checkEmail": "Check Your Email",
+    "resetLinkSent": "We've sent a password reset link to",
+    "confirmationSent": "We've sent a confirmation link to",
+    "rememberPassword": "Remember your password?",
+    "backToLogin": "Back to login",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "registrationDisabled": "Registration Disabled",
+    "contactAdmin": "New account registration is currently disabled. Please contact the administrator if you need access.",
+    "unexpectedError": "An unexpected error occurred"
   },
   "sidebar": {
     "groups": "Groups",
@@ -55,7 +79,9 @@
     "planDate": "Plan Date",
     "comment": "Comment",
     "duration": "Duration (minutes)",
-    "clear": "Clear"
+    "clear": "Clear",
+    "selectDueDate": "Select due date",
+    "selectPlanDate": "Select plan date"
   },
   "filter": {
     "all": "All",

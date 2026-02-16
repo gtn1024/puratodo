@@ -8,10 +8,12 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useI18n } from "@/i18n";
 
 const ENABLE_REGISTRATION = process.env.NEXT_PUBLIC_ENABLE_REGISTRATION !== "false";
 
 export default function LoginPage() {
+  const { t } = useI18n();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,7 +39,7 @@ export default function LoginPage() {
         router.refresh();
       }
     } catch {
-      setError("An unexpected error occurred");
+      setError(t("auth.unexpectedError"));
     } finally {
       setIsLoading(false);
     }
@@ -108,13 +110,13 @@ export default function LoginPage() {
             className="text-2xl font-semibold tracking-tight text-center text-stone-900 dark:text-stone-100"
             style={{ animation: "fadeIn 0.8s ease-out 0.3s both" }}
           >
-            Welcome back
+            {t("auth.welcomeBack")}
           </h1>
           <p
             className="text-sm text-stone-500 dark:text-stone-400 text-center"
             style={{ animation: "fadeIn 0.8s ease-out 0.4s both" }}
           >
-            Sign in to your PuraToDo account
+            {t("auth.signInToAccount")}
           </p>
         </CardHeader>
 
@@ -135,7 +137,7 @@ export default function LoginPage() {
                 htmlFor="email"
                 className="text-stone-700 dark:text-stone-300"
               >
-                Email
+                {t("auth.email")}
               </Label>
               <Input
                 id="email"
@@ -155,13 +157,13 @@ export default function LoginPage() {
                   htmlFor="password"
                   className="text-stone-700 dark:text-stone-300"
                 >
-                  Password
+                  {t("auth.password")}
                 </Label>
                 <Link
                   href="/auth/forgot-password"
                   className="text-xs text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200 transition-colors"
                 >
-                  Forgot password?
+                  {t("auth.forgotPassword")}?
                 </Link>
               </div>
               <Input
@@ -202,10 +204,10 @@ export default function LoginPage() {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  Signing in...
+                  {t("auth.signingIn")}
                 </span>
               ) : (
-                "Sign in"
+                t("auth.signIn")
               )}
             </Button>
           </form>
@@ -215,12 +217,12 @@ export default function LoginPage() {
               className="mt-6 text-center text-sm text-stone-500 dark:text-stone-400"
               style={{ animation: "fadeIn 0.8s ease-out 0.6s both" }}
             >
-              Don&apos;t have an account?{" "}
+              {t("auth.dontHaveAccount")}{" "}
               <Link
                 href="/register"
                 className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors underline-offset-4 hover:underline"
               >
-                Create one
+                {t("auth.createOne")}
               </Link>
             </div>
           )}
