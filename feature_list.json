@@ -763,7 +763,7 @@
         "7. Add authentication section: Explain Bearer token usage, show example curl request",
         "8. Test: Use 'Try it out' in Swagger UI to make real API calls"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 58,
