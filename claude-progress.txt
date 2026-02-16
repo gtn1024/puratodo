@@ -136,9 +136,15 @@ All tables include user_id for RLS policies and query optimization.
   - 每层子任务有独立的展开/收起功能
   - 测试通过 3 层嵌套
   - 刷新后数据持久化正常
-
-#### 下一步
-- 实现 Feature #38-42: UI/UX 优化（主题切换、响应式、快捷键、加载状态、空状态）
+- Feature #38: Light/dark theme toggle support - 主题切换
+  - 安装 next-themes 包
+  - 创建 src/components/theme-provider.tsx 主题提供者组件
+  - 创建 src/components/theme-toggle.tsx 主题切换按钮组件
+  - 更新 layout.tsx 添加 ThemeProvider 和 suppressHydrationWarning
+  - 在 Sidebar header 添加主题切换按钮
+  - 支持 Light、Dark、System 三种模式
+  - 主题持久化到 localStorage
+  - 测试通过：切换主题、刷新页面持久化、切换回原主题
 
 ---
 

@@ -46,7 +46,7 @@ Key fields:
 This project follows a "long-running agent" methodology with daily progress logging:
 
 1. Read `claude-progress.txt` - check current status and next steps
-2. Read `feature_list.json` - get feature details and test steps
+2. Read `feature_list.json` - get feature details and test steps. Note that one step MUST do one task, unless it's very small or closely related to another step. If a step is too big, break it down into smaller steps.
 3. Run `./init.sh` to start dev environment
 4. Implement the feature
 5. Test with Playwright MCP (the credentials of accounts in `.credentials.local`)

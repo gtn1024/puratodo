@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { createGroup, updateGroup, deleteGroup, reorderGroups, type Group } from "@/actions/groups";
 import { reorderLists, type List } from "@/actions/lists";
 import { MoreHorizontal, Plus, Folder, GripVertical, ChevronRight, ChevronDown, ListTodo } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 import {
   DndContext,
   closestCenter,
@@ -455,24 +456,27 @@ export function Sidebar({
       <aside className="w-64 h-screen bg-white dark:bg-stone-900 border-r border-stone-200 dark:border-stone-800 flex flex-col">
         {/* Header */}
         <div className="p-4 border-b border-stone-200 dark:border-stone-800">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-stone-800 to-stone-600 dark:from-stone-100 dark:to-stone-300 flex items-center justify-center">
-              <svg
-                viewBox="0 0 24 24"
-                className="w-4 h-4 text-white dark:text-stone-900"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M9 11l3 3L22 4" />
-                <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
-              </svg>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-stone-800 to-stone-600 dark:from-stone-100 dark:to-stone-300 flex items-center justify-center">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="w-4 h-4 text-white dark:text-stone-900"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M9 11l3 3L22 4" />
+                  <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+                </svg>
+              </div>
+              <span className="font-semibold text-stone-900 dark:text-stone-100">
+                PuraToDo
+              </span>
             </div>
-            <span className="font-semibold text-stone-900 dark:text-stone-100">
-              PuraToDo
-            </span>
+            <ThemeToggle />
           </div>
         </div>
 
