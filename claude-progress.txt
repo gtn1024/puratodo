@@ -63,6 +63,11 @@ All tables include user_id for RLS policies and query optimization.
   - 使用 moveListToGroup server action 更新 group_id
   - 添加 FolderInput 图标到 Move 菜单项
   - 测试通过：列表成功移动到其他分组并持久化
+- 侧边栏列表拖拽排序
+  - 添加 SortableSidebarListItem 组件
+  - 在每个分组内添加独立的 DndContext 处理列表排序
+  - 侧边栏和主面板列表排序同步更新
+  - 测试通过
 
 #### 下一步
 - 开始 Feature #24+: Task Module

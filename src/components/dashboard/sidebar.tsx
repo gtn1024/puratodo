@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createGroup, updateGroup, deleteGroup, reorderGroups, type Group } from "@/actions/groups";
+import { reorderLists, type List } from "@/actions/lists";
 import { MoreHorizontal, Plus, Folder, GripVertical, ChevronRight, ChevronDown, ListTodo } from "lucide-react";
 import {
   DndContext,
@@ -36,7 +37,6 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { List } from "@/actions/lists";
 
 interface SidebarProps {
   initialGroups: Group[];
@@ -72,6 +72,80 @@ interface SortableGroupItemProps {
   selectedListId: string | null;
   onListSelect: (listId: string, groupId: string) => void;
   onAddList: (groupId: string) => void;
+  onReorderLists: (groupId: string, orderedIds: string[]) => void;
+}
+
+// Sortable list item for sidebar
+interface SortableSidebarListItemProps {
+  list: List;
+  groupId: string;
+  isSelected: boolean;
+  onSelect: (listId: string, groupId: string) => void;
+}
+
+function SortableSidebarListItem({
+  list,
+  groupId,
+  isSelected,
+  onSelect,
+}: SortableSidebarListItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: list.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-1 px-2 py-1.5 rounded-md cursor-pointer group ${
+        isSelected
+          ? "bg-stone-100 dark:bg-stone-800"
+          : "hover:bg-stone-100 dark:hover:bg-stone-800"
+      }`}
+      onClick={() => onSelect(list.id, groupId)}
+    >
+      {/* Drag Handle */}
+      <button
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <GripVertical className="h-3 w-3" />
+      </button>
+      <span className="text-base">{list.icon || "📋"}</span>
+      <span className="flex-1 text-sm text-stone-600 dark:text-stone-400 truncate">
+        {list.name}
+      </span>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            className="h-5 w-5 opacity-0 group-hover:opacity-100"
+          >
+            <MoreHorizontal className="h-3 w-3" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-24">
+          <DropdownMenuItem>Edit</DropdownMenuItem>
+          <DropdownMenuItem className="text-red-600 dark:text-red-400">
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </li>
+  );
 }
 
 function SortableGroupItem({
@@ -86,7 +160,15 @@ function SortableGroupItem({
   selectedListId,
   onListSelect,
   onAddList,
+  onReorderLists,
 }: SortableGroupItemProps) {
+  const [localLists, setLocalLists] = useState(lists);
+
+  // Sync local lists when props change
+  useEffect(() => {
+    setLocalLists(lists);
+  }, [lists]);
+
   const {
     attributes,
     listeners,
@@ -95,6 +177,27 @@ function SortableGroupItem({
     transition,
     isDragging,
   } = useSortable({ id: group.id });
+
+  const listSensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleListDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = localLists.findIndex((l) => l.id === active.id);
+      const newIndex = localLists.findIndex((l) => l.id === over.id);
+      const newLists = arrayMove(localLists, oldIndex, newIndex);
+      setLocalLists(newLists);
+      const orderedIds = newLists.map((l) => l.id);
+      onReorderLists(group.id, orderedIds);
+    }
+  };
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -200,42 +303,29 @@ function SortableGroupItem({
       </div>
 
       {/* Child Lists */}
-      {isExpanded && lists.length > 0 && (
-        <ul className="ml-6 mt-0.5 space-y-0.5">
-          {lists.map((list) => (
-            <li
-              key={list.id}
-              className={`flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer group ${
-                selectedListId === list.id
-                  ? "bg-stone-100 dark:bg-stone-800"
-                  : "hover:bg-stone-100 dark:hover:bg-stone-800"
-              }`}
-              onClick={() => onListSelect(list.id, group.id)}
-            >
-              <span className="text-base">{list.icon || "📋"}</span>
-              <span className="flex-1 text-sm text-stone-600 dark:text-stone-400 truncate">
-                {list.name}
-              </span>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    className="h-5 w-5 opacity-0 group-hover:opacity-100"
-                  >
-                    <MoreHorizontal className="h-3 w-3" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-24">
-                  <DropdownMenuItem>Edit</DropdownMenuItem>
-                  <DropdownMenuItem className="text-red-600 dark:text-red-400">
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </li>
-          ))}
-        </ul>
+      {isExpanded && localLists.length > 0 && (
+        <DndContext
+          sensors={listSensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleListDragEnd}
+        >
+          <SortableContext
+            items={localLists.map((l) => l.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <ul className="ml-6 mt-0.5 space-y-0.5">
+              {localLists.map((list) => (
+                <SortableSidebarListItem
+                  key={list.id}
+                  list={list}
+                  groupId={group.id}
+                  isSelected={selectedListId === list.id}
+                  onSelect={onListSelect}
+                />
+              ))}
+            </ul>
+          </SortableContext>
+        </DndContext>
       )}
     </li>
   );
@@ -355,6 +445,11 @@ export function Sidebar({
     // This will be handled by parent component to open create list dialog
   };
 
+  const handleReorderLists = async (groupId: string, orderedIds: string[]) => {
+    await reorderLists(groupId, orderedIds);
+    onDataChange();
+  };
+
   return (
     <>
       <aside className="w-64 h-screen bg-white dark:bg-stone-900 border-r border-stone-200 dark:border-stone-800 flex flex-col">
@@ -444,6 +539,7 @@ export function Sidebar({
                         selectedListId={selectedListId}
                         onListSelect={onListSelect}
                         onAddList={handleAddList}
+                        onReorderLists={handleReorderLists}
                       />
                     );
                   })}
