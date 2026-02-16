@@ -1,5 +1,73 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 4: Groups & Lists Integration
+**Date:** 2026-02-16
+**Agent:** Claude Code
+
+### Completed
+- Created Groups API client (src/lib/api/groups.ts):
+  - list(), create(), update(), delete() methods
+  - TypeScript interfaces for Group, CreateGroupInput, UpdateGroupInput
+- Created Lists API client (src/lib/api/lists.ts):
+  - list(), create(), update(), delete() methods
+  - TypeScript interfaces for List, CreateListInput, UpdateListInput
+- Created Data Store (src/stores/dataStore.ts):
+  - Zustand store for groups and lists
+  - Combined fetchAll() method
+  - CRUD operations for both groups and lists
+- Updated DashboardPage with real data:
+  - Fetches groups and lists from API on mount
+  - Displays groups in sidebar with color indicators
+  - Expandable groups show lists underneath
+  - Create new group UI with name and color picker
+  - Delete group button on hover
+  - List selection updates main header
+  - Loading and error states
+- Set up i18n infrastructure:
+  - Installed react-i18next, i18next, i18next-browser-languagedetector
+  - Created language files for English (en) and Chinese (zh)
+  - Configured i18n with language detection
+- Tested login with provided credentials (foo@example.com)
+
+### Current Status
+- 10/209 test cases passing
+- Groups/Lists API clients ready
+- Sidebar UI with real data integration
+- i18n infrastructure set up
+- CORS issue when testing in browser (works in Tauri webview)
+
+### Tests Now Passing
+- Test #4: User can log in with valid credentials ✓
+- Test #14: Session persists after app restart ✓
+
+### Tests Implemented (pending verification with API)
+- Test #15: Sidebar displays user's groups
+- Test #16: User can create a new group
+- Test #18: User can delete a group
+- Test #20: Lists are displayed under their parent group
+- Test #26: Clicking a list shows its tasks in main area
+
+### Files Created/Modified
+- src/lib/api/groups.ts (new)
+- src/lib/api/lists.ts (new)
+- src/stores/dataStore.ts (new)
+- src/pages/DashboardPage.tsx (major update - real data)
+- src/i18n/index.ts (new)
+- src/i18n/locales/en.json (new)
+- src/i18n/locales/zh.json (new)
+- src/main.tsx (added i18n import)
+- CLAUDE.md (added test credentials and i18n docs)
+
+### Next Steps
+1. Configure Vite proxy to fix CORS in dev mode
+2. Test groups/lists features in Tauri app
+3. Implement group edit functionality (Test #17)
+4. Implement list CRUD UI (Tests #21-25)
+5. Implement drag and drop reordering (Tests #19, #25)
+6. Add API server configuration UI (Test #8, #9)
+
+---
+
 ## Session 3: Register Page & Auth Integration
 **Date:** 2026-02-16
 **Agent:** Claude Code

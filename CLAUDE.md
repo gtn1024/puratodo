@@ -82,6 +82,15 @@ npm run tauri build    # Build for production
 - **Styling**: Tailwind CSS 4 + shadcn/ui
 - **Backend**: Connects to PuraToDo API
 - **Auth**: PuraToDo authentication
+- **i18n**: react-i18next (internationalization)
+
+## Test Credentials
+
+Test account credentials are available in `.credentials.local`:
+- Email: `foo@example.com`
+- Password: `123456`
+
+Use these credentials for manual testing and E2E tests.
 
 ## Tauri Commands
 
@@ -176,3 +185,23 @@ Key fields:
 3. **Keep progress updated** - claude-progress.txt is critical for context
 4. **Commit often** - Descriptive commits help future sessions
 5. **Platform testing** - Test on target platforms when possible
+6. **i18n from the start** - All user-facing strings should use i18n from the beginning
+
+## i18n (Internationalization)
+
+This app supports multiple languages using react-i18next.
+
+### Setup
+- All user-facing text must be wrapped in `t('key')` calls
+- Language files are stored in `src/i18n/locales/`
+- Supported languages: English (en), Chinese (zh)
+
+### Usage
+```tsx
+import { useTranslation } from 'react-i18next';
+
+function Component() {
+  const { t } = useTranslation();
+  return <h1>{t('welcome')}</h1>;
+}
+```

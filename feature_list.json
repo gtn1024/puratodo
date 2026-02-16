@@ -50,7 +50,7 @@
       "Verify user is redirected to dashboard",
       "Verify user session is persisted"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 5,
@@ -189,7 +189,7 @@
       "Verify user is still logged in",
       "Verify dashboard is displayed"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 15,
