@@ -40,6 +40,23 @@ https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agent
 
 ## Development Workflow
 
+This project follows a "long-running agent" methodology with daily progress logging:
+
+1. **Read `claude-progress.txt`** - Check current status and next steps
+2. **Read `feature_list.json`** - Get feature details and test steps. Note that one step MUST do one task, unless it's very small or closely related to another step. If a step is too big, break it down into smaller steps.
+3. **Run `./init.sh`** to start dev environment
+4. **Implement the feature**
+5. **Test with Playwright MCP** (use credentials from `.credentials.local`)
+6. **Make sure project can be built** successfully (`npm run build`)
+7. **Update `feature_list.json`** (set `passes: true` for completed feature)
+8. **Update `claude-progress.txt`** (append new log for current session, what has done, what does not work, next steps)
+9. **Git commit**
+
+### Important Notes
+
+1. Always keep `claude-progress.txt` and `feature_list.json` up to date. These are critical for tracking progress and guiding future development.
+2. **ALWAYS get ONLY ONE task** from `feature_list.json` at a time. This ensures focused development and accurate progress tracking. If you find a task that is too large, let me know!
+
 ### Starting a New Session
 
 ```bash
