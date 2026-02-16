@@ -85,11 +85,24 @@ All tables include user_id for RLS policies and query optimization.
 - Feature #30: Task Star - 星标任务
   - 点击星标图标切换 starred 状态
   - 测试通过
+- Feature #27: Task Edit - 编辑任务名称
+  - 添加 SortableTaskItem 组件支持内联编辑
+  - 点击 Edit 菜单项进入编辑模式
+  - Enter 保存，Escape 取消
+  - 测试通过
+- Feature #28: Task Delete - 删除任务
+  - 添加删除确认对话框
+  - 点击 Delete 确认后删除任务
+  - 测试通过
+- Feature #29: Task Sort - 拖拽排序任务
+  - 使用 @dnd-kit 添加拖拽排序功能
+  - 添加 GripVertical 拖拽手柄
+  - 调用 reorderTasks server action 持久化排序
+  - 测试通过：拖拽排序后刷新页面顺序持久化
 
 #### 下一步
-- 实现 Feature #27: Task Edit - 编辑任务名称
-- 实现 Feature #28: Task Delete - 删除任务
-- 实现 Feature #29: Task Sort - 拖拽排序任务
+- 实现 Feature #31: Task Detail Panel - 任务详情面板
+- 实现 Feature #32-35: Task Advanced Features
 
 ---
 

@@ -10,14 +10,174 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
   getTasks,
   createTask,
   updateTask,
   deleteTask,
+  reorderTasks,
   type Task,
 } from "@/actions/tasks";
-import { MoreHorizontal, Plus, Circle, CheckCircle, Star } from "lucide-react";
+import { MoreHorizontal, Plus, Circle, CheckCircle, Star, GripVertical } from "lucide-react";
 import type { List } from "@/actions/lists";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+interface SortableTaskItemProps {
+  task: Task;
+  onToggleComplete: (task: Task) => void;
+  onToggleStar: (task: Task) => void;
+  onEdit: (task: Task) => void;
+  onDelete: (task: Task) => void;
+  editingTaskId: string | null;
+  editName: string;
+  onEditNameChange: (name: string) => void;
+  onSaveEdit: () => void;
+  onCancelEdit: () => void;
+}
+
+function SortableTaskItem({
+  task,
+  onToggleComplete,
+  onToggleStar,
+  onEdit,
+  onDelete,
+  editingTaskId,
+  editName,
+  onEditNameChange,
+  onSaveEdit,
+  onCancelEdit,
+}: SortableTaskItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: task.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const isEditing = editingTaskId === task.id;
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      onSaveEdit();
+    } else if (e.key === "Escape") {
+      onCancelEdit();
+    }
+  };
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors group"
+    >
+      {/* Drag Handle */}
+      <button
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <GripVertical className="h-4 w-4" />
+      </button>
+
+      {/* Checkbox */}
+      <Checkbox
+        checked={task.completed}
+        onCheckedChange={() => onToggleComplete(task)}
+        className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
+      />
+
+      {/* Task Name or Edit Input */}
+      {isEditing ? (
+        <input
+          type="text"
+          value={editName}
+          onChange={(e) => onEditNameChange(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="flex-1 bg-transparent outline-none border-b border-stone-300 dark:border-stone-600 text-stone-900 dark:text-stone-100"
+          autoFocus
+        />
+      ) : (
+        <span
+          className={`flex-1 ${
+            task.completed
+              ? "text-stone-400 dark:text-stone-500 line-through"
+              : "text-stone-900 dark:text-stone-100"
+          }`}
+        >
+          {task.name}
+        </span>
+      )}
+
+      {/* Star Button */}
+      <button
+        onClick={() => onToggleStar(task)}
+        className={`opacity-0 group-hover:opacity-100 transition-opacity ${
+          task.starred
+            ? "opacity-100 text-yellow-500"
+            : "text-stone-400 hover:text-yellow-500"
+        }`}
+      >
+        <Star
+          className={`h-4 w-4 ${task.starred ? "fill-yellow-500" : ""}`}
+        />
+      </button>
+
+      {/* Menu */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            className="h-7 w-7 opacity-0 group-hover:opacity-100"
+          >
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-32">
+          <DropdownMenuItem onClick={() => onEdit(task)}>
+            Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => onDelete(task)}
+            className="text-red-600 dark:text-red-400"
+          >
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </li>
+  );
+}
 
 interface TaskPanelProps {
   list: List | null;
@@ -28,6 +188,19 @@ export function TaskPanel({ list }: TaskPanelProps) {
   const [newTaskName, setNewTaskName] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     async function loadTasks() {
@@ -41,6 +214,13 @@ export function TaskPanel({ list }: TaskPanelProps) {
     loadTasks();
   }, [list]);
 
+  const reloadTasks = async () => {
+    if (list) {
+      const data = await getTasks(list.id);
+      setTasks(data);
+    }
+  };
+
   const handleAddTask = async () => {
     if (!list || !newTaskName.trim()) return;
     setIsLoading(true);
@@ -48,29 +228,64 @@ export function TaskPanel({ list }: TaskPanelProps) {
     if (result.success) {
       setNewTaskName("");
       setIsAdding(false);
-      // Reload tasks
-      const data = await getTasks(list.id);
-      setTasks(data);
+      await reloadTasks();
     }
     setIsLoading(false);
   };
 
   const handleToggleComplete = async (task: Task) => {
     await updateTask(task.id, { completed: !task.completed });
-    const data = await getTasks(list!.id);
-    setTasks(data);
+    await reloadTasks();
   };
 
   const handleToggleStar = async (task: Task) => {
     await updateTask(task.id, { starred: !task.starred });
-    const data = await getTasks(list!.id);
-    setTasks(data);
+    await reloadTasks();
   };
 
-  const handleDelete = async (task: Task) => {
-    await deleteTask(task.id);
-    const data = await getTasks(list!.id);
-    setTasks(data);
+  const handleEdit = (task: Task) => {
+    setEditingTaskId(task.id);
+    setEditName(task.name);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingTaskId || !editName.trim()) return;
+    await updateTask(editingTaskId, { name: editName.trim() });
+    setEditingTaskId(null);
+    setEditName("");
+    await reloadTasks();
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTaskId(null);
+    setEditName("");
+  };
+
+  const openDeleteDialog = (task: Task) => {
+    setDeleteTaskId(task.id);
+    setIsDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTaskId) return;
+    setIsLoading(true);
+    await deleteTask(deleteTaskId);
+    setIsDeleteOpen(false);
+    setDeleteTaskId(null);
+    await reloadTasks();
+    setIsLoading(false);
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id && list) {
+      const oldIndex = tasks.findIndex((t) => t.id === active.id);
+      const newIndex = tasks.findIndex((t) => t.id === over.id);
+      const newTasks = arrayMove(tasks, oldIndex, newIndex);
+      setTasks(newTasks);
+      const orderedIds = newTasks.map((t) => t.id);
+      await reorderTasks(list.id, orderedIds);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -189,70 +404,60 @@ export function TaskPanel({ list }: TaskPanelProps) {
             </Button>
           </div>
         ) : (
-          <ul className="space-y-1">
-            {tasks.map((task) => (
-              <li
-                key={task.id}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors group"
-              >
-                {/* Checkbox */}
-                <Checkbox
-                  checked={task.completed}
-                  onCheckedChange={() => handleToggleComplete(task)}
-                  className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
-                />
-
-                {/* Task Name */}
-                <span
-                  className={`flex-1 ${
-                    task.completed
-                      ? "text-stone-400 dark:text-stone-500 line-through"
-                      : "text-stone-900 dark:text-stone-100"
-                  }`}
-                >
-                  {task.name}
-                </span>
-
-                {/* Star Button */}
-                <button
-                  onClick={() => handleToggleStar(task)}
-                  className={`opacity-0 group-hover:opacity-100 transition-opacity ${
-                    task.starred
-                      ? "opacity-100 text-yellow-500"
-                      : "text-stone-400 hover:text-yellow-500"
-                  }`}
-                >
-                  <Star
-                    className={`h-4 w-4 ${task.starred ? "fill-yellow-500" : ""}`}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={tasks.map((t) => t.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <ul className="space-y-1">
+                {tasks.map((task) => (
+                  <SortableTaskItem
+                    key={task.id}
+                    task={task}
+                    onToggleComplete={handleToggleComplete}
+                    onToggleStar={handleToggleStar}
+                    onEdit={handleEdit}
+                    onDelete={openDeleteDialog}
+                    editingTaskId={editingTaskId}
+                    editName={editName}
+                    onEditNameChange={setEditName}
+                    onSaveEdit={handleSaveEdit}
+                    onCancelEdit={handleCancelEdit}
                   />
-                </button>
-
-                {/* Menu */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon-xs"
-                      className="h-7 w-7 opacity-0 group-hover:opacity-100"
-                    >
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-32">
-                    <DropdownMenuItem>Edit</DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => handleDelete(task)}
-                      className="text-red-600 dark:text-red-400"
-                    >
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </li>
-            ))}
-          </ul>
+                ))}
+              </ul>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Delete Task</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-stone-500 dark:text-stone-400">
+            Are you sure you want to delete this task? This action cannot be undone.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              disabled={isLoading}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
