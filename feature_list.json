@@ -532,7 +532,7 @@
         "Create a new list with no tasks",
         "Verify empty state shows for tasks"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 43,

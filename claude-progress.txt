@@ -169,6 +169,12 @@ All tables include user_id for RLS policies and query optimization.
   - 创建 src/app/dashboard/loading.tsx 页面加载骨架屏
   - 更新 TaskPanel 添加 isLoadingTasks 状态，加载时显示骨架屏
   - 测试通过：页面加载和任务列表切换时骨架屏显示
+- Feature #42: Empty state prompts when no data exists - 空状态提示
+  - 已在先前功能中实现，验证测试通过
+  - Sidebar: "No groups yet" + "Create your first group" 按钮
+  - ListPanel: "No lists in this group yet" + "Create your first list" 按钮
+  - TaskPanel: "No tasks in this list yet" + "Create your first task" 按钮
+  - 测试通过：分组、列表、任务的空状态均正确显示
 
 ---
 
