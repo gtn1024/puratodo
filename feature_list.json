@@ -1,0 +1,2458 @@
+[
+  {
+    "category": "functional",
+    "description": "Tauri app launches without errors on desktop",
+    "steps": [
+      "Run npm run tauri dev",
+      "Wait for app window to appear",
+      "Verify no console errors",
+      "Verify window is visible and interactive"
+    ],
+    "passes": false,
+    "id": 1
+  },
+  {
+    "category": "functional",
+    "description": "App window can be minimized, maximized, and closed",
+    "steps": [
+      "Click minimize button",
+      "Verify window minimizes to taskbar",
+      "Click maximize button",
+      "Verify window maximizes to full screen",
+      "Click close button",
+      "Verify app closes cleanly"
+    ],
+    "passes": false,
+    "id": 2
+  },
+  {
+    "category": "functional",
+    "description": "Login page displays correctly with email and password fields",
+    "steps": [
+      "Launch app without being logged in",
+      "Verify login form is visible",
+      "Verify email input field exists",
+      "Verify password input field exists",
+      "Verify login button exists"
+    ],
+    "passes": false,
+    "id": 3
+  },
+  {
+    "category": "functional",
+    "description": "User can log in with valid credentials",
+    "steps": [
+      "Enter valid email in email field",
+      "Enter valid password in password field",
+      "Click login button",
+      "Wait for login to complete",
+      "Verify user is redirected to dashboard",
+      "Verify user session is persisted"
+    ],
+    "passes": false,
+    "id": 4
+  },
+  {
+    "category": "functional",
+    "description": "User cannot log in with invalid credentials",
+    "steps": [
+      "Enter invalid email in email field",
+      "Enter invalid password in password field",
+      "Click login button",
+      "Verify error message is displayed",
+      "Verify user stays on login page"
+    ],
+    "passes": false,
+    "id": 5
+  },
+  {
+    "category": "functional",
+    "description": "User can register a new account",
+    "steps": [
+      "Navigate to register page",
+      "Enter valid email",
+      "Enter valid password",
+      "Confirm password",
+      "Click register button",
+      "Verify account is created",
+      "Verify user is logged in"
+    ],
+    "passes": false,
+    "id": 6
+  },
+  {
+    "category": "functional",
+    "description": "User can log out",
+    "steps": [
+      "Verify user is logged in",
+      "Click logout button",
+      "Confirm logout",
+      "Verify user is redirected to login page",
+      "Verify session is cleared"
+    ],
+    "passes": false,
+    "id": 7
+  },
+  {
+    "category": "functional",
+    "description": "Session persists after app restart",
+    "steps": [
+      "Log in with valid credentials",
+      "Close the app",
+      "Reopen the app",
+      "Verify user is still logged in",
+      "Verify dashboard is displayed"
+    ],
+    "passes": false,
+    "id": 8
+  },
+  {
+    "category": "functional",
+    "description": "Sidebar displays user's groups",
+    "steps": [
+      "Log in as a user with groups",
+      "Verify sidebar is visible",
+      "Verify groups are listed in sidebar",
+      "Verify each group shows its name"
+    ],
+    "passes": false,
+    "id": 9
+  },
+  {
+    "category": "functional",
+    "description": "User can create a new group",
+    "steps": [
+      "Click add group button",
+      "Enter group name",
+      "Select group color (optional)",
+      "Click save/create button",
+      "Verify new group appears in sidebar",
+      "Verify group is created in backend"
+    ],
+    "passes": false,
+    "id": 10
+  },
+  {
+    "category": "functional",
+    "description": "User can edit a group",
+    "steps": [
+      "Right-click on a group",
+      "Click edit option",
+      "Modify group name",
+      "Change group color",
+      "Click save button",
+      "Verify changes are reflected in sidebar"
+    ],
+    "passes": false,
+    "id": 11
+  },
+  {
+    "category": "functional",
+    "description": "User can delete a group",
+    "steps": [
+      "Right-click on a group",
+      "Click delete option",
+      "Confirm deletion in dialog",
+      "Verify group is removed from sidebar",
+      "Verify group is deleted from backend"
+    ],
+    "passes": false,
+    "id": 12
+  },
+  {
+    "category": "functional",
+    "description": "User can reorder groups via drag and drop",
+    "steps": [
+      "Drag a group",
+      "Drop it in a new position",
+      "Verify group order is updated",
+      "Verify new order persists after app restart"
+    ],
+    "passes": false,
+    "id": 13
+  },
+  {
+    "category": "functional",
+    "description": "Lists are displayed under their parent group",
+    "steps": [
+      "Expand a group in sidebar",
+      "Verify lists are visible under the group",
+      "Verify each list shows its name and icon"
+    ],
+    "passes": false,
+    "id": 14
+  },
+  {
+    "category": "functional",
+    "description": "User can create a new list",
+    "steps": [
+      "Click add list button within a group",
+      "Enter list name",
+      "Select list icon (optional)",
+      "Click save button",
+      "Verify new list appears under the group"
+    ],
+    "passes": false,
+    "id": 15
+  },
+  {
+    "category": "functional",
+    "description": "User can edit a list",
+    "steps": [
+      "Right-click on a list",
+      "Click edit option",
+      "Modify list name",
+      "Change list icon",
+      "Click save button",
+      "Verify changes are reflected in sidebar"
+    ],
+    "passes": false,
+    "id": 16
+  },
+  {
+    "category": "functional",
+    "description": "User can delete a list",
+    "steps": [
+      "Right-click on a list",
+      "Click delete option",
+      "Confirm deletion in dialog",
+      "Verify list is removed from sidebar",
+      "Verify all tasks in list are also deleted"
+    ],
+    "passes": false,
+    "id": 17
+  },
+  {
+    "category": "functional",
+    "description": "User can move a list to a different group",
+    "steps": [
+      "Right-click on a list",
+      "Click move option",
+      "Select target group",
+      "Verify list moves to new group",
+      "Verify list order is correct in new group"
+    ],
+    "passes": false,
+    "id": 18
+  },
+  {
+    "category": "functional",
+    "description": "User can reorder lists via drag and drop",
+    "steps": [
+      "Drag a list",
+      "Drop it in a new position within the same group",
+      "Verify list order is updated",
+      "Verify new order persists"
+    ],
+    "passes": false,
+    "id": 19
+  },
+  {
+    "category": "functional",
+    "description": "Clicking a list shows its tasks in main area",
+    "steps": [
+      "Click on a list in sidebar",
+      "Verify main area shows list name as header",
+      "Verify tasks are displayed in the list"
+    ],
+    "passes": false,
+    "id": 20
+  },
+  {
+    "category": "functional",
+    "description": "User can create a new task",
+    "steps": [
+      "Click add task button or use quick add input",
+      "Enter task name",
+      "Click save or press Enter",
+      "Verify new task appears in list",
+      "Verify task is created in backend"
+    ],
+    "passes": false,
+    "id": 21
+  },
+  {
+    "category": "functional",
+    "description": "User can edit a task",
+    "steps": [
+      "Click on a task to open detail panel",
+      "Modify task name",
+      "Click save or click away",
+      "Verify task name is updated",
+      "Verify changes are saved to backend"
+    ],
+    "passes": false,
+    "id": 22
+  },
+  {
+    "category": "functional",
+    "description": "User can delete a task",
+    "steps": [
+      "Right-click on a task or open detail panel",
+      "Click delete option",
+      "Confirm deletion if prompted",
+      "Verify task is removed from list",
+      "Verify task is deleted from backend"
+    ],
+    "passes": false,
+    "id": 23
+  },
+  {
+    "category": "functional",
+    "description": "User can mark a task as complete",
+    "steps": [
+      "Click checkbox next to a task",
+      "Verify checkbox is checked",
+      "Verify task is marked as completed (strikethrough or visual indicator)",
+      "Verify completion status is saved to backend"
+    ],
+    "passes": false,
+    "id": 24
+  },
+  {
+    "category": "functional",
+    "description": "User can mark a completed task as incomplete",
+    "steps": [
+      "Click checkbox of a completed task",
+      "Verify checkbox is unchecked",
+      "Verify task is marked as incomplete",
+      "Verify status is updated in backend"
+    ],
+    "passes": false,
+    "id": 25
+  },
+  {
+    "category": "functional",
+    "description": "User can star/unstar a task",
+    "steps": [
+      "Click star icon on a task",
+      "Verify star is filled/highlighted",
+      "Click star again",
+      "Verify star is unfilled",
+      "Verify star status is saved to backend"
+    ],
+    "passes": false,
+    "id": 26
+  },
+  {
+    "category": "functional",
+    "description": "User can set a due date on a task",
+    "steps": [
+      "Open task detail panel",
+      "Click on due date field",
+      "Select a date",
+      "Verify due date is displayed on task",
+      "Verify due date is saved to backend"
+    ],
+    "passes": false,
+    "id": 27
+  },
+  {
+    "category": "functional",
+    "description": "User can set a planned date on a task",
+    "steps": [
+      "Open task detail panel",
+      "Click on planned date field",
+      "Select a date",
+      "Verify planned date is displayed on task",
+      "Verify planned date is saved to backend"
+    ],
+    "passes": false,
+    "id": 28
+  },
+  {
+    "category": "functional",
+    "description": "User can add comments/notes to a task",
+    "steps": [
+      "Open task detail panel",
+      "Find comments/notes section",
+      "Enter comment text",
+      "Click save or press Enter",
+      "Verify comment is displayed",
+      "Verify comment is saved to backend"
+    ],
+    "passes": false,
+    "id": 29
+  },
+  {
+    "category": "functional",
+    "description": "User can set task duration",
+    "steps": [
+      "Open task detail panel",
+      "Find duration field",
+      "Enter duration in minutes",
+      "Verify duration is displayed on task",
+      "Verify duration is saved to backend"
+    ],
+    "passes": false,
+    "id": 30
+  },
+  {
+    "category": "functional",
+    "description": "User can create a subtask",
+    "steps": [
+      "Open a task detail panel",
+      "Click add subtask button",
+      "Enter subtask name",
+      "Click save or press Enter",
+      "Verify subtask appears under parent task",
+      "Verify subtask is indented under parent"
+    ],
+    "passes": false,
+    "id": 31
+  },
+  {
+    "category": "functional",
+    "description": "Subtasks support infinite nesting",
+    "steps": [
+      "Create a task with subtasks",
+      "Create a subtask under that subtask",
+      "Create another level of nesting",
+      "Verify all levels are displayed correctly",
+      "Verify indentation is correct for each level"
+    ],
+    "passes": false,
+    "id": 32
+  },
+  {
+    "category": "functional",
+    "description": "User can complete/uncomplete subtasks",
+    "steps": [
+      "Create a task with subtasks",
+      "Click checkbox on a subtask",
+      "Verify subtask is marked complete",
+      "Click checkbox again",
+      "Verify subtask is marked incomplete",
+      "Verify parent task completion status reflects subtasks"
+    ],
+    "passes": false,
+    "id": 33
+  },
+  {
+    "category": "functional",
+    "description": "User can reorder tasks via drag and drop",
+    "steps": [
+      "Drag a task",
+      "Drop it in a new position",
+      "Verify task order is updated",
+      "Verify new order persists after page refresh"
+    ],
+    "passes": false,
+    "id": 34
+  },
+  {
+    "category": "functional",
+    "description": "User can move a task to a different list",
+    "steps": [
+      "Drag a task",
+      "Drop it onto a different list in sidebar",
+      "Verify task moves to new list",
+      "Verify task appears in correct list"
+    ],
+    "passes": false,
+    "id": 35
+  },
+  {
+    "category": "functional",
+    "description": "User can reorder subtasks via drag and drop",
+    "steps": [
+      "Expand a task to show subtasks",
+      "Drag a subtask",
+      "Drop it in a new position",
+      "Verify subtask order is updated"
+    ],
+    "passes": false,
+    "id": 36
+  },
+  {
+    "category": "functional",
+    "description": "Search functionality finds tasks by name",
+    "steps": [
+      "Click search icon or press Ctrl+K / Cmd+K",
+      "Enter search query",
+      "Verify search results appear",
+      "Verify matching tasks are displayed",
+      "Verify non-matching tasks are hidden"
+    ],
+    "passes": false,
+    "id": 37
+  },
+  {
+    "category": "functional",
+    "description": "Search works across all lists",
+    "steps": [
+      "Create tasks in different lists with unique names",
+      "Open search",
+      "Search for one of the unique names",
+      "Verify task is found regardless of which list it's in"
+    ],
+    "passes": false,
+    "id": 38
+  },
+  {
+    "category": "functional",
+    "description": "Today view shows tasks due today",
+    "steps": [
+      "Navigate to Today view",
+      "Verify tasks with due date = today are displayed",
+      "Verify tasks with due date != today are not displayed"
+    ],
+    "passes": false,
+    "id": 39
+  },
+  {
+    "category": "functional",
+    "description": "Today view shows tasks with planned date today",
+    "steps": [
+      "Set planned date = today for some tasks",
+      "Navigate to Today view",
+      "Verify tasks with planned date = today are displayed"
+    ],
+    "passes": false,
+    "id": 40
+  },
+  {
+    "category": "functional",
+    "description": "Starred tasks view shows all starred tasks",
+    "steps": [
+      "Star multiple tasks across different lists",
+      "Navigate to Starred view",
+      "Verify all starred tasks are displayed",
+      "Verify unstarred tasks are not displayed"
+    ],
+    "passes": false,
+    "id": 41
+  },
+  {
+    "category": "functional",
+    "description": "Theme toggle switches between light and dark mode",
+    "steps": [
+      "Click theme toggle button",
+      "Verify theme changes from light to dark",
+      "Click theme toggle again",
+      "Verify theme changes from dark to light"
+    ],
+    "passes": false,
+    "id": 42
+  },
+  {
+    "category": "functional",
+    "description": "Dark mode applies correct colors throughout the app",
+    "steps": [
+      "Switch to dark mode",
+      "Verify background is dark",
+      "Verify text is light/visible",
+      "Verify interactive elements are visible",
+      "Verify no white flashes on navigation"
+    ],
+    "passes": false,
+    "id": 43
+  },
+  {
+    "category": "functional",
+    "description": "System theme preference is respected",
+    "steps": [
+      "Set OS to dark mode",
+      "Open app",
+      "Verify app is in dark mode",
+      "Set OS to light mode",
+      "Verify app is in light mode"
+    ],
+    "passes": false,
+    "id": 44
+  },
+  {
+    "category": "functional",
+    "description": "Keyboard shortcut Ctrl+K / Cmd+K opens search",
+    "steps": [
+      "Press Ctrl+K (Windows/Linux) or Cmd+K (macOS)",
+      "Verify search dialog opens",
+      "Type search query",
+      "Verify search works",
+      "Press Escape to close"
+    ],
+    "passes": false,
+    "id": 45
+  },
+  {
+    "category": "functional",
+    "description": "Keyboard shortcut Ctrl+N / Cmd+N creates new task",
+    "steps": [
+      "Press Ctrl+N or Cmd+N",
+      "Verify new task input appears",
+      "Enter task name",
+      "Press Enter",
+      "Verify task is created"
+    ],
+    "passes": false,
+    "id": 46
+  },
+  {
+    "category": "functional",
+    "description": "Keyboard shortcut Escape closes dialogs",
+    "steps": [
+      "Open any dialog (search, task detail, etc.)",
+      "Press Escape",
+      "Verify dialog is closed"
+    ],
+    "passes": false,
+    "id": 47
+  },
+  {
+    "category": "functional",
+    "description": "Loading skeletons display while data is loading",
+    "steps": [
+      "Refresh the page or navigate to a new view",
+      "Verify skeleton loaders appear",
+      "Verify skeletons match the content layout",
+      "Verify skeletons are replaced with content when loaded"
+    ],
+    "passes": false,
+    "id": 48
+  },
+  {
+    "category": "functional",
+    "description": "Empty states display when there are no items",
+    "steps": [
+      "Create a new list with no tasks",
+      "Verify empty state message is displayed",
+      "Verify empty state has helpful text or call to action"
+    ],
+    "passes": false,
+    "id": 49
+  },
+  {
+    "category": "functional",
+    "description": "App is responsive on tablet screen sizes",
+    "steps": [
+      "Resize app window to tablet width (768px)",
+      "Verify layout adjusts appropriately",
+      "Verify sidebar can be collapsed",
+      "Verify content is readable"
+    ],
+    "passes": false,
+    "id": 50
+  },
+  {
+    "category": "functional",
+    "description": "App is responsive on mobile screen sizes",
+    "steps": [
+      "Resize app window to mobile width (375px)",
+      "Verify single column layout",
+      "Verify navigation is accessible",
+      "Verify touch targets are large enough"
+    ],
+    "passes": false,
+    "id": 51
+  },
+  {
+    "category": "functional",
+    "description": "Task detail panel slides in from right on desktop",
+    "steps": [
+      "Click on a task",
+      "Verify detail panel slides in from right",
+      "Verify panel shows full task details",
+      "Verify clicking outside or X closes panel"
+    ],
+    "passes": false,
+    "id": 52
+  },
+  {
+    "category": "functional",
+    "description": "Real-time sync updates tasks when data changes",
+    "steps": [
+      "Open app in two windows/devices",
+      "Mark a task as complete in one window",
+      "Verify task is marked complete in other window within seconds"
+    ],
+    "passes": false,
+    "id": 53
+  },
+  {
+    "category": "functional",
+    "description": "Offline mode caches current data",
+    "steps": [
+      "Go offline (disable network)",
+      "Verify app still displays cached data",
+      "Verify user can navigate between lists",
+      "Verify user can view task details"
+    ],
+    "passes": false,
+    "id": 54
+  },
+  {
+    "category": "functional",
+    "description": "Offline changes sync when back online",
+    "steps": [
+      "Go offline",
+      "Make changes to tasks (create, edit, complete)",
+      "Verify changes are queued locally",
+      "Go back online",
+      "Verify changes sync to backend"
+    ],
+    "passes": false,
+    "id": 55
+  },
+  {
+    "category": "functional",
+    "description": "Context menu appears on right-click for groups",
+    "steps": [
+      "Right-click on a group in sidebar",
+      "Verify context menu appears",
+      "Verify options include: Edit, Delete, Add List"
+    ],
+    "passes": false,
+    "id": 56
+  },
+  {
+    "category": "functional",
+    "description": "Context menu appears on right-click for lists",
+    "steps": [
+      "Right-click on a list in sidebar",
+      "Verify context menu appears",
+      "Verify options include: Edit, Delete, Move"
+    ],
+    "passes": false,
+    "id": 57
+  },
+  {
+    "category": "functional",
+    "description": "Context menu appears on right-click for tasks",
+    "steps": [
+      "Right-click on a task",
+      "Verify context menu appears",
+      "Verify options include: Edit, Delete, Star, Move"
+    ],
+    "passes": false,
+    "id": 58
+  },
+  {
+    "category": "functional",
+    "description": "Confirm dialog appears before destructive actions",
+    "steps": [
+      "Attempt to delete a group with tasks",
+      "Verify confirmation dialog appears",
+      "Verify dialog warns about deleting tasks",
+      "Cancel deletion",
+      "Verify group is not deleted"
+    ],
+    "passes": false,
+    "id": 59
+  },
+  {
+    "category": "functional",
+    "description": "API client is configured with correct base URL",
+    "steps": [
+      "Check API client configuration",
+      "Verify base URL points to correct API endpoint",
+      "Verify timeout is set appropriately"
+    ],
+    "passes": false,
+    "id": 60
+  },
+  {
+    "category": "functional",
+    "description": "API client includes authentication headers",
+    "steps": [
+      "Log in and capture auth token",
+      "Make an authenticated API request",
+      "Verify request includes Authorization header",
+      "Verify token is sent correctly"
+    ],
+    "passes": false,
+    "id": 61
+  },
+  {
+    "category": "functional",
+    "description": "API errors are handled gracefully",
+    "steps": [
+      "Trigger an API error (e.g., network offline)",
+      "Verify error message is displayed to user",
+      "Verify app doesn't crash",
+      "Verify user can retry the action"
+    ],
+    "passes": false,
+    "id": 62
+  },
+  {
+    "category": "style",
+    "description": "Login page matches web app design",
+    "steps": [
+      "Take screenshot of login page",
+      "Compare with web app login page",
+      "Verify similar layout and styling"
+    ],
+    "passes": false,
+    "id": 63
+  },
+  {
+    "category": "style",
+    "description": "Sidebar styling matches web app",
+    "steps": [
+      "Take screenshot of sidebar",
+      "Compare with web app sidebar",
+      "Verify similar colors, fonts, spacing"
+    ],
+    "passes": false,
+    "id": 64
+  },
+  {
+    "category": "style",
+    "description": "Task list styling matches web app",
+    "steps": [
+      "Take screenshot of task list",
+      "Compare with web app task list",
+      "Verify similar appearance"
+    ],
+    "passes": false,
+    "id": 65
+  },
+  {
+    "category": "style",
+    "description": "Task detail panel styling matches web app",
+    "steps": [
+      "Open task detail panel",
+      "Take screenshot",
+      "Compare with web app task detail",
+      "Verify similar styling"
+    ],
+    "passes": false,
+    "id": 66
+  },
+  {
+    "category": "style",
+    "description": "Dark mode colors match web app dark theme",
+    "steps": [
+      "Switch to dark mode",
+      "Take screenshot",
+      "Compare with web app dark mode",
+      "Verify consistent color scheme"
+    ],
+    "passes": false,
+    "id": 67
+  },
+  {
+    "category": "style",
+    "description": "Animations are smooth and not jarring",
+    "steps": [
+      "Open and close task detail panel",
+      "Verify smooth slide animation",
+      "Navigate between lists",
+      "Verify smooth transitions"
+    ],
+    "passes": false,
+    "id": 68
+  },
+  {
+    "category": "style",
+    "description": "Completed task has clear visual indicator",
+    "steps": [
+      "Complete a task",
+      "Verify strikethrough or dimmed text",
+      "Verify checkbox is checked",
+      "Verify visual change is clear but not distracting"
+    ],
+    "passes": false,
+    "id": 69
+  },
+  {
+    "category": "style",
+    "description": "Starred task has clear visual indicator",
+    "steps": [
+      "Star a task",
+      "Verify star icon is highlighted/filled",
+      "Verify star is visible in both list and detail view"
+    ],
+    "passes": false,
+    "id": 70
+  },
+  {
+    "category": "style",
+    "description": "Due date indicator is visually clear",
+    "steps": [
+      "Set a due date on a task",
+      "Verify due date is displayed with icon",
+      "Verify overdue tasks have different color",
+      "Verify today's tasks have different color"
+    ],
+    "passes": false,
+    "id": 71
+  },
+  {
+    "category": "desktop",
+    "description": "App can be minimized to system tray on Windows",
+    "steps": [
+      "Click minimize button",
+      "Verify app minimizes to taskbar",
+      "Click taskbar icon",
+      "Verify app restores"
+    ],
+    "passes": false,
+    "id": 72
+  },
+  {
+    "category": "desktop",
+    "description": "App respects system dark/light mode on Windows",
+    "steps": [
+      "Set Windows to dark mode",
+      "Open app",
+      "Verify app uses dark theme",
+      "Switch Windows to light mode",
+      "Verify app uses light theme"
+    ],
+    "passes": false,
+    "id": 73
+  },
+  {
+    "category": "desktop",
+    "description": "App can be minimized to system tray on macOS",
+    "steps": [
+      "Click minimize button",
+      "Verify app minimizes to Dock",
+      "Click Dock icon",
+      "Verify app restores"
+    ],
+    "passes": false,
+    "id": 74
+  },
+  {
+    "category": "desktop",
+    "description": "App respects system dark/light mode on macOS",
+    "steps": [
+      "Set macOS to dark mode",
+      "Open app",
+      "Verify app uses dark theme",
+      "Switch macOS to light mode",
+      "Verify app uses light theme"
+    ],
+    "passes": false,
+    "id": 75
+  },
+  {
+    "category": "desktop",
+    "description": "App menu bar works on macOS",
+    "steps": [
+      "Click on app menu in menu bar",
+      "Verify menu options are available",
+      "Verify standard menu items (About, Quit, etc.)"
+    ],
+    "passes": false,
+    "id": 76
+  },
+  {
+    "category": "desktop",
+    "description": "App appears in system app list on Linux",
+    "steps": [
+      "Install app on Linux",
+      "Verify app appears in app launcher",
+      "Verify app can be pinned to favorites"
+    ],
+    "passes": false,
+    "id": 77
+  },
+  {
+    "category": "desktop",
+    "description": "Native window controls work on Windows",
+    "steps": [
+      "Verify minimize, maximize, close buttons are visible",
+      "Click each button",
+      "Verify correct behavior"
+    ],
+    "passes": false,
+    "id": 78
+  },
+  {
+    "category": "desktop",
+    "description": "Native window controls work on macOS",
+    "steps": [
+      "Verify traffic light buttons are visible",
+      "Verify red button closes app",
+      "Verify yellow button minimizes",
+      "Verify green button maximizes"
+    ],
+    "passes": false,
+    "id": 79
+  },
+  {
+    "category": "desktop",
+    "description": "Native window controls work on Linux",
+    "steps": [
+      "Verify window buttons are visible",
+      "Test minimize, maximize, close",
+      "Verify correct behavior"
+    ],
+    "passes": false,
+    "id": 80
+  },
+  {
+    "category": "desktop",
+    "description": "App window can be resized",
+    "steps": [
+      "Drag window edge or corner",
+      "Verify window resizes",
+      "Verify content adjusts to new size",
+      "Verify minimum size is respected"
+    ],
+    "passes": false,
+    "id": 81
+  },
+  {
+    "category": "desktop",
+    "description": "App window has minimum size",
+    "steps": [
+      "Try to resize window below minimum",
+      "Verify window stops at minimum size",
+      "Verify content doesn't overflow"
+    ],
+    "passes": false,
+    "id": 82
+  },
+  {
+    "category": "desktop",
+    "description": "App remembers window size and position",
+    "steps": [
+      "Resize and move window",
+      "Close app",
+      "Reopen app",
+      "Verify window is in same position and size"
+    ],
+    "passes": false,
+    "id": 83
+  },
+  {
+    "category": "desktop",
+    "description": "Global keyboard shortcut works to bring app to front",
+    "steps": [
+      "Minimize app",
+      "Use global shortcut (if configured)",
+      "Verify app comes to foreground"
+    ],
+    "passes": false,
+    "id": 84
+  },
+  {
+    "category": "mobile",
+    "description": "App displays correctly on iOS",
+    "steps": [
+      "Build for iOS simulator",
+      "Launch on iPhone simulator",
+      "Verify app launches without crash",
+      "Verify UI is readable"
+    ],
+    "passes": false,
+    "id": 85
+  },
+  {
+    "category": "mobile",
+    "description": "App displays correctly on Android",
+    "steps": [
+      "Build for Android emulator",
+      "Launch on Android emulator",
+      "Verify app launches without crash",
+      "Verify UI is readable"
+    ],
+    "passes": false,
+    "id": 86
+  },
+  {
+    "category": "mobile",
+    "description": "Swipe right on task marks it complete on mobile",
+    "steps": [
+      "On mobile/touch device",
+      "Swipe right on a task",
+      "Verify task is marked complete",
+      "Verify visual feedback"
+    ],
+    "passes": false,
+    "id": 87
+  },
+  {
+    "category": "mobile",
+    "description": "Swipe left on task shows delete option on mobile",
+    "steps": [
+      "On mobile/touch device",
+      "Swipe left on a task",
+      "Verify delete button appears",
+      "Tap delete",
+      "Verify task is deleted"
+    ],
+    "passes": false,
+    "id": 88
+  },
+  {
+    "category": "mobile",
+    "description": "Pull to refresh works on mobile",
+    "steps": [
+      "On mobile/touch device",
+      "Pull down on task list",
+      "Verify refresh indicator appears",
+      "Verify data is refreshed"
+    ],
+    "passes": false,
+    "id": 89
+  },
+  {
+    "category": "mobile",
+    "description": "Bottom navigation works on mobile",
+    "steps": [
+      "On mobile/touch device",
+      "Verify bottom navigation is visible",
+      "Tap navigation items",
+      "Verify correct view is shown"
+    ],
+    "passes": false,
+    "id": 90
+  },
+  {
+    "category": "mobile",
+    "description": "Touch targets are large enough on mobile",
+    "steps": [
+      "On mobile/touch device",
+      "Verify all buttons and inputs are tappable",
+      "Verify 44px minimum touch target size"
+    ],
+    "passes": false,
+    "id": 91
+  },
+  {
+    "category": "mobile",
+    "description": "Keyboard doesn't hide content on mobile",
+    "steps": [
+      "On mobile/touch device",
+      "Tap on task name input",
+      "Verify keyboard appears",
+      "Verify content is still visible"
+    ],
+    "passes": false,
+    "id": 92
+  },
+  {
+    "category": "integration",
+    "description": "Deep links can open specific views",
+    "steps": [
+      "Configure deep link scheme",
+      "Open deep link URL (e.g., puratodo://today)",
+      "Verify app opens",
+      "Verify correct view is displayed"
+    ],
+    "passes": false,
+    "id": 93
+  },
+  {
+    "category": "integration",
+    "description": "Local notifications work for task reminders",
+    "steps": [
+      "Set a due date with reminder on a task",
+      "Wait for reminder time",
+      "Verify notification appears",
+      "Verify tapping notification opens app"
+    ],
+    "passes": false,
+    "id": 94
+  },
+  {
+    "category": "integration",
+    "description": "Secure storage stores auth token",
+    "steps": [
+      "Log in",
+      "Verify auth token is stored securely",
+      "Check system keychain/keystore",
+      "Verify token is encrypted"
+    ],
+    "passes": false,
+    "id": 95
+  },
+  {
+    "category": "integration",
+    "description": "App builds successfully for Windows",
+    "steps": [
+      "Run npm run tauri build -- --target x86_64-pc-windows-msvc",
+      "Verify build completes without error",
+      "Verify .exe file is generated"
+    ],
+    "passes": false,
+    "id": 96
+  },
+  {
+    "category": "integration",
+    "description": "App builds successfully for macOS",
+    "steps": [
+      "Run npm run tauri build -- --target x86_64-apple-darwin",
+      "Verify build completes without error",
+      "Verify .app bundle is generated"
+    ],
+    "passes": false,
+    "id": 97
+  },
+  {
+    "category": "integration",
+    "description": "App builds successfully for macOS Apple Silicon",
+    "steps": [
+      "Run npm run tauri build -- --target aarch64-apple-darwin",
+      "Verify build completes without error",
+      "Verify .app bundle is generated"
+    ],
+    "passes": false,
+    "id": 98
+  },
+  {
+    "category": "integration",
+    "description": "App builds successfully for Linux",
+    "steps": [
+      "Run npm run tauri build",
+      "Verify build completes without error",
+      "Verify AppImage or .deb is generated"
+    ],
+    "passes": false,
+    "id": 99
+  },
+  {
+    "category": "functional",
+    "description": "User can filter tasks by completed status",
+    "steps": [
+      "Create completed and incomplete tasks",
+      "Open filter options",
+      "Select 'Completed' only",
+      "Verify only completed tasks are shown",
+      "Select 'Incomplete' only",
+      "Verify only incomplete tasks are shown"
+    ],
+    "passes": false,
+    "id": 100
+  },
+  {
+    "category": "functional",
+    "description": "User can sort tasks by different criteria",
+    "steps": [
+      "Open sort options",
+      "Sort by due date",
+      "Verify tasks are ordered by due date",
+      "Sort by name",
+      "Verify tasks are ordered alphabetically",
+      "Sort by created date",
+      "Verify tasks are ordered by creation time"
+    ],
+    "passes": false,
+    "id": 101
+  },
+  {
+    "category": "functional",
+    "description": "Expand/collapse group shows/hides lists",
+    "steps": [
+      "Click on group to expand",
+      "Verify lists are visible",
+      "Click again to collapse",
+      "Verify lists are hidden"
+    ],
+    "passes": false,
+    "id": 102
+  },
+  {
+    "category": "functional",
+    "description": "Expand/collapse task shows/hides subtasks",
+    "steps": [
+      "Click on task with subtasks",
+      "Verify subtasks are visible",
+      "Click again to collapse",
+      "Verify subtasks are hidden"
+    ],
+    "passes": false,
+    "id": 103
+  },
+  {
+    "category": "functional",
+    "description": "API requests are retried on network failure",
+    "steps": [
+      "Simulate network failure",
+      "Make an API request",
+      "Verify request is retried",
+      "Verify user is notified after max retries"
+    ],
+    "passes": false,
+    "id": 104
+  },
+  {
+    "category": "functional",
+    "description": "Concurrent edits are handled correctly",
+    "steps": [
+      "Open same task in two windows",
+      "Edit task in first window",
+      "Edit same task in second window",
+      "Save in both",
+      "Verify no data is lost",
+      "Verify last save is preserved"
+    ],
+    "passes": false,
+    "id": 105
+  },
+  {
+    "category": "functional",
+    "description": "Large task lists load performance is acceptable",
+    "steps": [
+      "Create 100+ tasks in a list",
+      "Navigate to that list",
+      "Verify tasks load within 2 seconds",
+      "Verify scrolling is smooth"
+    ],
+    "passes": false,
+    "id": 106
+  },
+  {
+    "category": "functional",
+    "description": "Deep nested subtasks load correctly",
+    "steps": [
+      "Create task with 5+ levels of subtasks",
+      "Verify all levels display correctly",
+      "Verify performance is acceptable",
+      "Verify indentation is correct"
+    ],
+    "passes": false,
+    "id": 107
+  },
+  {
+    "category": "functional",
+    "description": "User can collapse/expand all subtasks at once",
+    "steps": [
+      "Create tasks with subtasks",
+      "Find collapse/expand all option",
+      "Click collapse all",
+      "Verify all subtasks are hidden",
+      "Click expand all",
+      "Verify all subtasks are shown"
+    ],
+    "passes": false,
+    "id": 108
+  },
+  {
+    "category": "functional",
+    "description": "Quick add input is accessible via keyboard",
+    "steps": [
+      "Press Tab to focus quick add input",
+      "Verify input is focused",
+      "Type task name",
+      "Press Enter",
+      "Verify task is created"
+    ],
+    "passes": false,
+    "id": 109
+  },
+  {
+    "category": "functional",
+    "description": "Task count is displayed accurately",
+    "steps": [
+      "View a list with tasks",
+      "Verify task count is shown",
+      "Add a task",
+      "Verify count increases",
+      "Delete a task",
+      "Verify count decreases"
+    ],
+    "passes": false,
+    "id": 110
+  },
+  {
+    "category": "functional",
+    "description": "Group count shows number of lists",
+    "steps": [
+      "View a group with lists",
+      "Verify list count is shown",
+      "Add a list",
+      "Verify count increases"
+    ],
+    "passes": false,
+    "id": 111
+  },
+  {
+    "category": "functional",
+    "description": "Completed tasks can be hidden",
+    "steps": [
+      "Have completed tasks in list",
+      "Open filter",
+      "Select 'Hide completed'",
+      "Verify completed tasks are hidden",
+      "Select 'Show completed'",
+      "Verify completed tasks are visible"
+    ],
+    "passes": false,
+    "id": 112
+  },
+  {
+    "category": "functional",
+    "description": "User can navigate between views using keyboard",
+    "steps": [
+      "Use arrow keys to navigate lists",
+      "Verify focus moves correctly",
+      "Press Enter to select",
+      "Verify selection works"
+    ],
+    "passes": false,
+    "id": 113
+  },
+  {
+    "category": "functional",
+    "description": "Focus management is correct when opening/closing panels",
+    "steps": [
+      "Open task detail panel",
+      "Verify focus is in panel",
+      "Close panel",
+      "Verify focus returns to task list"
+    ],
+    "passes": false,
+    "id": 114
+  },
+  {
+    "category": "functional",
+    "description": "Tab navigation order is logical",
+    "steps": [
+      "Start at top of page",
+      "Press Tab repeatedly",
+      "Verify focus moves in logical order",
+      "Verify all interactive elements are reachable"
+    ],
+    "passes": false,
+    "id": 115
+  },
+  {
+    "category": "functional",
+    "description": "Error states are styled appropriately",
+    "steps": [
+      "Trigger an error (invalid login, network error)",
+      "Verify error message is styled (red color, icon, etc.)",
+      "Verify error is accessible to screen readers"
+    ],
+    "passes": false,
+    "id": 116
+  },
+  {
+    "category": "functional",
+    "description": "Success feedback is shown after actions",
+    "steps": [
+      "Create a task",
+      "Verify success feedback (toast, checkmark, etc.)",
+      "Complete a task",
+      "Verify success feedback"
+    ],
+    "passes": false,
+    "id": 117
+  },
+  {
+    "category": "functional",
+    "description": "Form validation shows inline errors",
+    "steps": [
+      "Try to submit form with invalid data",
+      "Verify inline error messages appear",
+      "Fix errors",
+      "Verify errors disappear"
+    ],
+    "passes": false,
+    "id": 118
+  },
+  {
+    "category": "functional",
+    "description": "Date picker is intuitive to use",
+    "steps": [
+      "Open date picker for due date",
+      "Verify current month is displayed",
+      "Navigate to different month",
+      "Verify navigation works",
+      "Select a date",
+      "Verify date is set correctly"
+    ],
+    "passes": false,
+    "id": 119
+  },
+  {
+    "category": "functional",
+    "description": "Time picker works for task duration",
+    "steps": [
+      "Set task duration",
+      "Enter time in minutes",
+      "Verify duration is saved correctly",
+      "Verify duration displays in readable format"
+    ],
+    "passes": false,
+    "id": 120
+  },
+  {
+    "category": "functional",
+    "description": "Color picker for groups works",
+    "steps": [
+      "Create or edit a group",
+      "Open color picker",
+      "Select a color",
+      "Verify color is applied to group",
+      "Verify color persists"
+    ],
+    "passes": false,
+    "id": 121
+  },
+  {
+    "category": "functional",
+    "description": "Icon picker for lists works",
+    "steps": [
+      "Create or edit a list",
+      "Open icon picker",
+      "Select an icon",
+      "Verify icon is displayed next to list name",
+      "Verify icon persists"
+    ],
+    "passes": false,
+    "id": 122
+  },
+  {
+    "category": "functional",
+    "description": "Bulk select and actions work",
+    "steps": [
+      "Enter bulk select mode",
+      "Select multiple tasks",
+      "Perform action (delete, complete, move)",
+      "Verify action applies to all selected"
+    ],
+    "passes": false,
+    "id": 123
+  },
+  {
+    "category": "functional",
+    "description": "Keyboard shortcuts dialog shows all shortcuts",
+    "steps": [
+      "Open keyboard shortcuts dialog",
+      "Verify all shortcuts are listed",
+      "Verify shortcuts are organized by category"
+    ],
+    "passes": false,
+    "id": 124
+  },
+  {
+    "category": "functional",
+    "description": "App works when API is slow",
+    "steps": [
+      "Throttle network speed",
+      "Perform actions",
+      "Verify loading states are shown",
+      "Verify app remains responsive"
+    ],
+    "passes": false,
+    "id": 125
+  },
+  {
+    "category": "functional",
+    "description": "Tokens are refreshed automatically",
+    "steps": [
+      "Let session approach expiry",
+      "Perform action requiring auth",
+      "Verify token is refreshed",
+      "Verify action completes successfully"
+    ],
+    "passes": false,
+    "id": 126
+  },
+  {
+    "category": "functional",
+    "description": "Logout clears all local data",
+    "steps": [
+      "Log in and use app",
+      "Log out",
+      "Verify auth token is cleared",
+      "Verify cached data is cleared",
+      "Verify no user data is visible"
+    ],
+    "passes": false,
+    "id": 127
+  },
+  {
+    "category": "functional",
+    "description": "App handles missing API gracefully",
+    "steps": [
+      "Configure incorrect API URL",
+      "Try to log in",
+      "Verify appropriate error message",
+      "Verify app doesn't crash"
+    ],
+    "passes": false,
+    "id": 128
+  },
+  {
+    "category": "functional",
+    "description": "Back button navigation works correctly",
+    "steps": [
+      "Navigate to a task detail",
+      "Press back button or swipe back",
+      "Verify returns to task list",
+      "Verify state is preserved"
+    ],
+    "passes": false,
+    "id": 129
+  },
+  {
+    "category": "functional",
+    "description": "App state is preserved during orientation change on mobile",
+    "steps": [
+      "On mobile device",
+      "Use the app",
+      "Change orientation",
+      "Verify state is preserved",
+      "Verify UI adapts correctly"
+    ],
+    "passes": false,
+    "id": 130
+  },
+  {
+    "category": "functional",
+    "description": "App handles interruptions (calls, notifications) on mobile",
+    "steps": [
+      "On mobile device",
+      "Start an action",
+      "Receive a call or notification",
+      "Answer and return to app",
+      "Verify state is preserved"
+    ],
+    "passes": false,
+    "id": 131
+  },
+  {
+    "category": "functional",
+    "description": "Multiple rapid clicks don't cause duplicate actions",
+    "steps": [
+      "Click save button rapidly",
+      "Verify only one action is performed",
+      "Verify no duplicate tasks are created"
+    ],
+    "passes": false,
+    "id": 132
+  },
+  {
+    "category": "functional",
+    "description": "Undo functionality works for recent actions",
+    "steps": [
+      "Delete a task",
+      "Verify undo option appears",
+      "Click undo",
+      "Verify task is restored"
+    ],
+    "passes": false,
+    "id": 133
+  },
+  {
+    "category": "functional",
+    "description": "Spinning loading indicator shows during API calls",
+    "steps": [
+      "Perform action that triggers API call",
+      "Verify loading indicator appears",
+      "Verify indicator disappears after load completes"
+    ],
+    "passes": false,
+    "id": 134
+  },
+  {
+    "category": "functional",
+    "description": "Task can be moved to root level (no parent)",
+    "steps": [
+      "Create a subtask",
+      "Move subtask to root level",
+      "Verify subtask is no longer nested",
+      "Verify task appears in main list"
+    ],
+    "passes": false,
+    "id": 135
+  },
+  {
+    "category": "functional",
+    "description": "Completing parent task doesn't auto-complete subtasks",
+    "steps": [
+      "Create task with uncompleted subtasks",
+      "Complete parent task",
+      "Verify subtasks remain incomplete",
+      "Complete all subtasks manually"
+    ],
+    "passes": false,
+    "id": 136
+  },
+  {
+    "category": "functional",
+    "description": "Deleting parent task deletes all subtasks",
+    "steps": [
+      "Create task with subtasks",
+      "Delete parent task",
+      "Confirm deletion",
+      "Verify parent and all subtasks are deleted"
+    ],
+    "passes": false,
+    "id": 137
+  },
+  {
+    "category": "functional",
+    "description": "Moving parent task moves all subtasks",
+    "steps": [
+      "Create task with subtasks",
+      "Move parent task to different list",
+      "Verify subtasks move with parent",
+      "Verify subtasks are in new list"
+    ],
+    "passes": false,
+    "id": 138
+  },
+  {
+    "category": "functional",
+    "description": "Group color is visible in task list header",
+    "steps": [
+      "Select a list",
+      "Verify group color is shown in header",
+      "Switch to different list with different group color",
+      "Verify color updates"
+    ],
+    "passes": false,
+    "id": 139
+  },
+  {
+    "category": "functional",
+    "description": "List icon is visible in sidebar and header",
+    "steps": [
+      "Create list with icon",
+      "Verify icon appears in sidebar",
+      "Select list",
+      "Verify icon appears in header"
+    ],
+    "passes": false,
+    "id": 140
+  },
+  {
+    "category": "functional",
+    "description": "App caches data for offline use",
+    "steps": [
+      "Use app while online",
+      "Go offline",
+      "Refresh the page",
+      "Verify cached data is displayed"
+    ],
+    "passes": false,
+    "id": 141
+  },
+  {
+    "category": "functional",
+    "description": "Pending changes are shown when offline",
+    "steps": [
+      "Go offline",
+      "Make changes to tasks",
+      "Verify indicator shows pending changes",
+      "Go online",
+      "Verify changes sync"
+    ],
+    "passes": false,
+    "id": 142
+  },
+  {
+    "category": "functional",
+    "description": "Conflict resolution shows UI when conflicts occur",
+    "steps": [
+      "Edit task offline in two places",
+      "Go online",
+      "Verify conflict resolution UI appears",
+      "Verify user can choose which version to keep"
+    ],
+    "passes": false,
+    "id": 143
+  },
+  {
+    "category": "style",
+    "description": "Typography is consistent throughout app",
+    "steps": [
+      "Check all text elements",
+      "Verify consistent font family",
+      "Verify consistent font sizes",
+      "Verify consistent line heights"
+    ],
+    "passes": false,
+    "id": 144
+  },
+  {
+    "category": "style",
+    "description": "Spacing is consistent throughout app",
+    "steps": [
+      "Check margins and padding",
+      "Verify consistent spacing scale",
+      "Verify consistent spacing between elements"
+    ],
+    "passes": false,
+    "id": 145
+  },
+  {
+    "category": "style",
+    "description": "Icons are consistent in style",
+    "steps": [
+      "Check all icons in app",
+      "Verify consistent icon style",
+      "Verify consistent icon sizes"
+    ],
+    "passes": false,
+    "id": 146
+  },
+  {
+    "category": "style",
+    "description": "Color scheme is consistent",
+    "steps": [
+      "Check all colors used in app",
+      "Verify consistent color usage",
+      "Verify semantic colors are used correctly (success=green, error=red)"
+    ],
+    "passes": false,
+    "id": 147
+  },
+  {
+    "category": "style",
+    "description": "Focus states are visible for accessibility",
+    "steps": [
+      "Tab through interactive elements",
+      "Verify focus indicator is visible",
+      "Verify focus indicator has sufficient contrast"
+    ],
+    "passes": false,
+    "id": 148
+  },
+  {
+    "category": "style",
+    "description": "Hover states are visible",
+    "steps": [
+      "Hover over interactive elements",
+      "Verify hover state is visible",
+      "Verify hover state provides feedback"
+    ],
+    "passes": false,
+    "id": 149
+  },
+  {
+    "category": "style",
+    "description": "Active/pressed states are visible",
+    "steps": [
+      "Click and hold on interactive element",
+      "Verify pressed state is visible",
+      "Verify visual feedback"
+    ],
+    "passes": false,
+    "id": 150
+  },
+  {
+    "category": "style",
+    "description": "Disabled states are clearly indicated",
+    "steps": [
+      "Find disabled buttons/inputs",
+      "Verify disabled state is visually distinct",
+      "Verify reduced opacity",
+      "Verify cursor changes to not-allowed"
+    ],
+    "passes": false,
+    "id": 151
+  },
+  {
+    "category": "style",
+    "description": "Scrollbars match theme",
+    "steps": [
+      "Scroll in task list",
+      "Verify scrollbar matches theme (light/dark)",
+      "Verify scrollbar is not obtrusive"
+    ],
+    "passes": false,
+    "id": 152
+  },
+  {
+    "category": "style",
+    "description": "Transitions are smooth (no jank)",
+    "steps": [
+      "Open and close panels rapidly",
+      "Verify no jank or stutter",
+      "Verify consistent 60fps"
+    ],
+    "passes": false,
+    "id": 153
+  },
+  {
+    "category": "style",
+    "description": "No layout shifts during loading",
+    "steps": [
+      "Load a view with multiple elements",
+      "Verify no layout shifts as content loads",
+      "Verify stable layout"
+    ],
+    "passes": false,
+    "id": 154
+  },
+  {
+    "category": "functional",
+    "description": "App works in fullscreen mode on desktop",
+    "steps": [
+      "Enter fullscreen mode",
+      "Verify UI fills screen",
+      "Verify no content is cut off",
+      "Exit fullscreen",
+      "Verify normal layout"
+    ],
+    "passes": false,
+    "id": 155
+  },
+  {
+    "category": "functional",
+    "description": "Split view works on iPad",
+    "steps": [
+      "On iPad",
+      "Use app in split view",
+      "Verify UI adapts correctly",
+      "Verify content is readable"
+    ],
+    "passes": false,
+    "id": 156
+  },
+  {
+    "category": "functional",
+    "description": "Picture-in-picture works for task view on mobile",
+    "steps": [
+      "On Android",
+      "Open task detail",
+      "Activate PiP if supported",
+      "Verify task detail remains visible"
+    ],
+    "passes": false,
+    "id": 157
+  },
+  {
+    "category": "integration",
+    "description": "App can be installed as PWA on desktop",
+    "steps": [
+      "Open app in Chrome/Edge",
+      "Click install icon",
+      "Verify app installs",
+      "Verify app launches from installed location"
+    ],
+    "passes": false,
+    "id": 158
+  },
+  {
+    "category": "integration",
+    "description": "App icon displays correctly on all platforms",
+    "steps": [
+      "Check app icon on Windows taskbar",
+      "Check app icon on macOS Dock",
+      "Check app icon on Linux app launcher",
+      "Verify icons are correct"
+    ],
+    "passes": false,
+    "id": 159
+  },
+  {
+    "category": "integration",
+    "description": "App name displays correctly in system UI",
+    "steps": [
+      "Check app name in Windows taskbar",
+      "Check app name in macOS menu bar",
+      "Check app name in Linux app launcher",
+      "Verify name is 'PuraToDo'"
+    ],
+    "passes": false,
+    "id": 160
+  },
+  {
+    "category": "integration",
+    "description": "Share functionality works on mobile",
+    "steps": [
+      "On mobile",
+      "Select a task",
+      "Tap share button",
+      "Verify native share sheet appears"
+    ],
+    "passes": false,
+    "id": 161
+  },
+  {
+    "category": "integration",
+    "description": "App can receive shared content on mobile",
+    "steps": [
+      "On mobile",
+      "Share text from another app",
+      "Select PuraToDo",
+      "Verify task is created with shared content"
+    ],
+    "passes": false,
+    "id": 162
+  },
+  {
+    "category": "functional",
+    "description": "Data export works",
+    "steps": [
+      "Go to settings",
+      "Find export option",
+      "Export data",
+      "Verify JSON/CSV file is downloaded",
+      "Verify data is complete"
+    ],
+    "passes": false,
+    "id": 163
+  },
+  {
+    "category": "functional",
+    "description": "Data import works",
+    "steps": [
+      "Go to settings",
+      "Find import option",
+      "Select valid import file",
+      "Verify data is imported",
+      "Verify imported tasks appear"
+    ],
+    "passes": false,
+    "id": 164
+  },
+  {
+    "category": "functional",
+    "description": "About section shows app version",
+    "steps": [
+      "Go to settings",
+      "Find about section",
+      "Verify app version is displayed",
+      "Verify version matches package.json"
+    ],
+    "passes": false,
+    "id": 165
+  },
+  {
+    "category": "functional",
+    "description": "Clear data option works",
+    "steps": [
+      "Go to settings",
+      "Find clear data option",
+      "Confirm clearing",
+      "Verify all local data is cleared",
+      "Verify user is logged out"
+    ],
+    "passes": false,
+    "id": 166
+  },
+  {
+    "category": "functional",
+    "description": "Account settings can be accessed",
+    "steps": [
+      "Go to settings",
+      "Find account section",
+      "Verify email is displayed",
+      "Verify account info can be edited"
+    ],
+    "passes": false,
+    "id": 167
+  },
+  {
+    "category": "functional",
+    "description": "Notification settings can be configured",
+    "steps": [
+      "Go to settings",
+      "Find notification section",
+      "Toggle notification settings",
+      "Verify settings are saved"
+    ],
+    "passes": false,
+    "id": 168
+  },
+  {
+    "category": "functional",
+    "description": "Language can be changed",
+    "steps": [
+      "Go to settings",
+      "Find language section",
+      "Change language",
+      "Verify UI text updates to selected language"
+    ],
+    "passes": false,
+    "id": 169
+  },
+  {
+    "category": "functional",
+    "description": "App works correctly in multiple languages",
+    "steps": [
+      "Switch to Chinese",
+      "Verify all UI text is in Chinese",
+      "Switch to English",
+      "Verify all UI text is in English"
+    ],
+    "passes": false,
+    "id": 170
+  },
+  {
+    "category": "functional",
+    "description": "Date format respects locale",
+    "steps": [
+      "Set locale to US",
+      "Verify dates are in MM/DD/YYYY format",
+      "Set locale to EU",
+      "Verify dates are in DD/MM/YYYY format"
+    ],
+    "passes": false,
+    "id": 171
+  },
+  {
+    "category": "functional",
+    "description": "App passes basic accessibility audit",
+    "steps": [
+      "Run accessibility checker",
+      "Verify no critical issues",
+      "Verify color contrast is sufficient",
+      "Verify all images have alt text"
+    ],
+    "passes": false,
+    "id": 172
+  },
+  {
+    "category": "functional",
+    "description": "Screen reader can navigate the app",
+    "steps": [
+      "Enable screen reader",
+      "Navigate through app",
+      "Verify all elements are announced",
+      "Verify navigation order is logical"
+    ],
+    "passes": false,
+    "id": 173
+  },
+  {
+    "category": "functional",
+    "description": "Reduced motion preference is respected",
+    "steps": [
+      "Enable reduced motion in OS",
+      "Open app",
+      "Verify animations are reduced or disabled",
+      "Verify app is still fully functional"
+    ],
+    "passes": false,
+    "id": 174
+  },
+  {
+    "category": "functional",
+    "description": "High contrast mode works",
+    "steps": [
+      "Enable high contrast in OS",
+      "Open app",
+      "Verify sufficient contrast",
+      "Verify all elements are visible"
+    ],
+    "passes": false,
+    "id": 175
+  },
+  {
+    "category": "functional",
+    "description": "App handles very long task names",
+    "steps": [
+      "Create task with very long name",
+      "Verify text is truncated with ellipsis",
+      "Verify full name is visible in detail view",
+      "Verify no layout breaks"
+    ],
+    "passes": false,
+    "id": 176
+  },
+  {
+    "category": "functional",
+    "description": "App handles special characters in task names",
+    "steps": [
+      "Create task with special characters (emoji, symbols, etc.)",
+      "Verify task is created correctly",
+      "Verify task displays correctly",
+      "Verify search finds task"
+    ],
+    "passes": false,
+    "id": 177
+  },
+  {
+    "category": "functional",
+    "description": "App handles Unicode in task names",
+    "steps": [
+      "Create task with Chinese/Japanese/Arabic text",
+      "Verify task is created correctly",
+      "Verify text displays correctly",
+      "Verify search works with Unicode"
+    ],
+    "passes": false,
+    "id": 178
+  },
+  {
+    "category": "functional",
+    "description": "Very deep subtask nesting displays correctly",
+    "steps": [
+      "Create task with 10 levels of nesting",
+      "Verify all levels are visible",
+      "Verify horizontal scroll or smart truncation",
+      "Verify performance is acceptable"
+    ],
+    "passes": false,
+    "id": 179
+  },
+  {
+    "category": "functional",
+    "description": "Large number of groups (50+) works",
+    "steps": [
+      "Create 50+ groups",
+      "Verify sidebar scrolls smoothly",
+      "Verify groups load quickly",
+      "Verify no performance issues"
+    ],
+    "passes": false,
+    "id": 180
+  },
+  {
+    "category": "functional",
+    "description": "Large number of lists (100+) works",
+    "steps": [
+      "Create 100+ lists",
+      "Verify lists load quickly",
+      "Verify scrolling is smooth",
+      "Verify no performance issues"
+    ],
+    "passes": false,
+    "id": 181
+  },
+  {
+    "category": "functional",
+    "description": "Rapid task creation works",
+    "steps": [
+      "Quickly create multiple tasks",
+      "Verify all tasks are created",
+      "Verify no duplicates",
+      "Verify correct order"
+    ],
+    "passes": false,
+    "id": 182
+  },
+  {
+    "category": "functional",
+    "description": "App recovers from API timeout",
+    "steps": [
+      "Trigger API timeout",
+      "Verify error message",
+      "Verify retry option",
+      "Verify app doesn't freeze"
+    ],
+    "passes": false,
+    "id": 183
+  },
+  {
+    "category": "functional",
+    "description": "Session expiry is handled gracefully",
+    "steps": [
+      "Let session expire",
+      "Perform action requiring auth",
+      "Verify redirect to login",
+      "Verify user can log in again"
+    ],
+    "passes": false,
+    "id": 184
+  },
+  {
+    "category": "functional",
+    "description": "Memory usage stays reasonable",
+    "steps": [
+      "Use app for extended period",
+      "Check memory usage",
+      "Verify no memory leaks",
+      "Verify memory doesn't grow unbounded"
+    ],
+    "passes": false,
+    "id": 185
+  },
+  {
+    "category": "functional",
+    "description": "Cold start time is acceptable",
+    "steps": [
+      "Close app completely",
+      "Measure time to launch",
+      "Verify cold start under 3 seconds",
+      "Verify usable quickly"
+    ],
+    "passes": false,
+    "id": 186
+  },
+  {
+    "category": "functional",
+    "description": "User can navigate with arrow keys in task list",
+    "steps": [
+      "Use up/down arrow keys in task list",
+      "Verify focus moves between tasks",
+      "Verify selected task is visually highlighted"
+    ],
+    "passes": false,
+    "id": 187
+  },
+  {
+    "category": "functional",
+    "description": "Space key toggles task completion",
+    "steps": [
+      "Select a task with arrow keys",
+      "Press Space",
+      "Verify task completion toggles",
+      "Verify checkbox updates"
+    ],
+    "passes": false,
+    "id": 188
+  },
+  {
+    "category": "functional",
+    "description": "Enter key opens task detail",
+    "steps": [
+      "Select a task with arrow keys",
+      "Press Enter",
+      "Verify task detail panel opens"
+    ],
+    "passes": false,
+    "id": 189
+  },
+  {
+    "category": "functional",
+    "description": "Delete key deletes selected task",
+    "steps": [
+      "Select a task with arrow keys",
+      "Press Delete",
+      "Verify confirmation dialog appears",
+      "Confirm deletion",
+      "Verify task is deleted"
+    ],
+    "passes": false,
+    "id": 190
+  },
+  {
+    "category": "functional",
+    "description": "App works with mouse only",
+    "steps": [
+      "Use only mouse to navigate",
+      "Complete all common actions",
+      "Verify all features are accessible"
+    ],
+    "passes": false,
+    "id": 191
+  },
+  {
+    "category": "functional",
+    "description": "App works with keyboard only",
+    "steps": [
+      "Use only keyboard to navigate",
+      "Complete all common actions",
+      "Verify all features are accessible"
+    ],
+    "passes": false,
+    "id": 192
+  },
+  {
+    "category": "functional",
+    "description": "Tooltip appears on hover for truncated text",
+    "steps": [
+      "Create task with long name",
+      "Hover over truncated task name",
+      "Verify tooltip shows full text"
+    ],
+    "passes": false,
+    "id": 193
+  },
+  {
+    "category": "functional",
+    "description": "Loading spinner shows during group/list fetch",
+    "steps": [
+      "Navigate to a group with many lists",
+      "Verify loading spinner appears",
+      "Verify spinner disappears after load"
+    ],
+    "passes": false,
+    "id": 194
+  },
+  {
+    "category": "functional",
+    "description": "Progress bar shows during task creation",
+    "steps": [
+      "Create multiple tasks quickly",
+      "Verify progress or loading state"
+    ],
+    "passes": false,
+    "id": 195
+  },
+  {
+    "category": "functional",
+    "description": "Task created notification appears",
+    "steps": [
+      "Create a new task",
+      "Verify toast/notification appears",
+      "Verify notification disappears after timeout"
+    ],
+    "passes": false,
+    "id": 196
+  },
+  {
+    "category": "functional",
+    "description": "Task deleted notification appears",
+    "steps": [
+      "Delete a task",
+      "Verify toast/notification appears",
+      "Verify undo option is available"
+    ],
+    "passes": false,
+    "id": 197
+  },
+  {
+    "category": "functional",
+    "description": "Offline indicator is visible",
+    "steps": [
+      "Go offline",
+      "Verify offline indicator appears",
+      "Verify indicator disappears when online"
+    ],
+    "passes": false,
+    "id": 198
+  },
+  {
+    "category": "functional",
+    "description": "Sync status indicator shows during sync",
+    "steps": [
+      "Make changes that need to sync",
+      "Verify sync indicator appears",
+      "Verify indicator shows completion"
+    ],
+    "passes": false,
+    "id": 199
+  },
+  {
+    "category": "functional",
+    "description": "User can configure default view",
+    "steps": [
+      "Go to settings",
+      "Set default view to 'Today'",
+      "Reopen app",
+      "Verify Today view is displayed by default"
+    ],
+    "passes": false,
+    "id": 200
+  },
+  {
+    "category": "functional",
+    "description": "User can configure default group to open",
+    "steps": [
+      "Go to settings",
+      "Set default group",
+      "Reopen app",
+      "Verify correct group is selected"
+    ],
+    "passes": false,
+    "id": 201
+  },
+  {
+    "category": "functional",
+    "description": "Quick add keyboard shortcut works globally",
+    "steps": [
+      "Press global quick add shortcut",
+      "Verify quick add input appears",
+      "Add task",
+      "Verify task is created in correct list"
+    ],
+    "passes": false,
+    "id": 202
+  },
+  {
+    "category": "functional",
+    "description": "Search shortcut works globally",
+    "steps": [
+      "Press global search shortcut",
+      "Verify search opens",
+      "Search for task"
+    ],
+    "passes": false,
+    "id": 203
+  }
+]
