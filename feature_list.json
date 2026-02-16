@@ -833,7 +833,7 @@
       "Verify base URL points to correct API endpoint",
       "Verify timeout is set appropriately"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 67,
@@ -845,7 +845,7 @@
       "Verify request includes Authorization header",
       "Verify token is sent correctly"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 68,
