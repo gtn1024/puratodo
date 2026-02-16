@@ -25,6 +25,26 @@ All tables include user_id for RLS policies and query optimization.
 ### 2026-02-16 (continued)
 
 #### 完成
+- Feature #51: REST API 基础架构
+  - 创建 src/lib/api/auth.ts - JWT token 验证函数 (verifyToken)
+  - 创建 src/lib/api/response.ts - API 响应帮助函数 (successResponse, errorResponse, etc.)
+  - 创建 src/middleware.ts - Next.js middleware 处理 /api/v1/* 路由认证
+  - 创建 src/app/api/v1/auth/route.ts - CORS preflight 处理
+  - 测试通过：CORS preflight、无 token 返回 401
+- Feature #52: Auth API endpoints
+  - /api/v1/auth/login - POST 登录获取 token
+  - /api/v1/auth/register - POST 注册新用户
+  - /api/v1/auth/refresh - POST 刷新 token
+  - /api/v1/auth/logout - POST 登出
+  - /api/v1/auth/me - GET 获取当前用户信息
+  - 测试通过：登录返回 token，/me 无 token 返回 401，有 token 返回用户信息
+
+#### 下一步
+- Feature #53: Groups CRUD API
+
+---
+
+#### 完成
 - REST API 规划：为多平台客户端（iOS/Android/HarmonyOS/macOS/Windows/Linux）规划REST API
   - 分析现有代码：项目目前只有Server Actions，没有对外REST API
   - 在 feature_list.json 中添加 Feature #51-57 (REST API) 和 #58-63 (CalDAV)

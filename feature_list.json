@@ -649,7 +649,7 @@
         "7. Create src/app/api/v1/auth/route.ts - Add OPTIONS handler for CORS preflight requests",
         "8. Test: Send OPTIONS request, verify CORS headers are returned"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 52,
@@ -667,7 +667,7 @@
         "9. Create src/app/api/v1/auth/me/route.ts - GET endpoint that returns current user info from JWT (no DB call needed for basic info)",
         "10. Test: GET /api/v1/auth/me with valid token, verify user data returned; without token, verify 401"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 53,
