@@ -18,6 +18,7 @@ export type Task = {
   sort_order: number;
   created_at: string;
   updated_at: string;
+  subtasks?: Task[];
 };
 
 export async function getTasks(listId?: string): Promise<Task[]> {
@@ -108,8 +109,8 @@ export async function updateTask(
     starred: boolean;
     due_date: string | null;
     plan_date: string | null;
-    comment: string;
-    duration_minutes: number;
+    comment: string | null;
+    duration_minutes: number | null;
   }>
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient();
@@ -202,4 +203,81 @@ export async function reorderTasks(
 
   revalidatePath("/dashboard");
   return { success: true };
+}
+
+export async function getSubtasks(parentId: string): Promise<Task[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .eq("user_id", user.id)
+    .eq("parent_id", parentId)
+    .order("sort_order", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching subtasks:", error);
+    return [];
+  }
+
+  return data || [];
+}
+
+export async function getTasksWithSubtasks(listId?: string): Promise<Task[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return [];
+  }
+
+  let query = supabase
+    .from("tasks")
+    .select("*")
+    .eq("user_id", user.id)
+    .is("parent_id", null)
+    .order("sort_order", { ascending: true });
+
+  if (listId) {
+    query = query.eq("list_id", listId);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Error fetching tasks:", error);
+    return [];
+  }
+
+  // Recursively fetch subtasks for each task
+  const fetchSubtasksRecursively = async (tasks: Task[]): Promise<Task[]> => {
+    const tasksWithSubtasks = await Promise.all(
+      tasks.map(async (task) => {
+        const { data: subtasks } = await supabase
+          .from("tasks")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("parent_id", task.id)
+          .order("sort_order", { ascending: true });
+
+        if (subtasks && subtasks.length > 0) {
+          const nestedSubtasks = await fetchSubtasksRecursively(subtasks);
+          return { ...task, subtasks: nestedSubtasks };
+        }
+        return { ...task, subtasks: [] };
+      })
+    );
+    return tasksWithSubtasks as Task[];
+  };
+
+  return fetchSubtasksRecursively(data || []);
 }

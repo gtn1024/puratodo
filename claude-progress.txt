@@ -121,10 +121,24 @@ All tables include user_id for RLS policies and query optimization.
   - 使用 Input type="number" 组件
   - 以分钟为单位
   - 测试通过
+- Feature #36: Task Subtask - 创建子任务
+  - 更新 src/actions/tasks.ts 添加 getTasksWithSubtasks 函数（递归获取嵌套子任务）
+  - 更新 Task 类型添加 subtasks 可选字段
+  - 重构 TaskPanel 组件支持递归渲染嵌套任务
+  - 添加 TaskItem 组件处理单个可排序任务项（支持展开/收起子任务）
+  - 添加 ChevronRight/ChevronDown 图标用于展开/收起
+  - 添加 "Add Subtask" 菜单项
+  - 子任务可独立完成
+  - 测试通过
+- Feature #37: Task Nested Subtask - 无限嵌套子任务
+  - 递归渲染支持无限层级
+  - 使用 level 参数控制缩进
+  - 每层子任务有独立的展开/收起功能
+  - 测试通过 3 层嵌套
+  - 刷新后数据持久化正常
 
 #### 下一步
-- 实现 Feature #36-37: Subtask 子任务功能
-- 实现 Feature #38-42: UI/UX 优化
+- 实现 Feature #38-42: UI/UX 优化（主题切换、响应式、快捷键、加载状态、空状态）
 
 ---
 

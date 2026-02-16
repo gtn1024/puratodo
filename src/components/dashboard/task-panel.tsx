@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -17,14 +17,23 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  getTasks,
+  getTasksWithSubtasks,
   createTask,
   updateTask,
   deleteTask,
   reorderTasks,
   type Task,
 } from "@/actions/tasks";
-import { MoreHorizontal, Plus, Circle, CheckCircle, Star, GripVertical } from "lucide-react";
+import {
+  MoreHorizontal,
+  Plus,
+  Circle,
+  CheckCircle,
+  Star,
+  GripVertical,
+  ChevronRight,
+  ChevronDown,
+} from "lucide-react";
 import { TaskDetailSheet } from "./task-detail-sheet";
 import type { List } from "@/actions/lists";
 import {
@@ -45,33 +54,43 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-interface SortableTaskItemProps {
+interface TaskItemProps {
   task: Task;
+  level: number;
+  expandedTasks: Set<string>;
+  onToggleExpand: (taskId: string) => void;
   onToggleComplete: (task: Task) => void;
   onToggleStar: (task: Task) => void;
   onEdit: (task: Task) => void;
   onDelete: (task: Task) => void;
+  onAddSubtask: (task: Task) => void;
   onOpenDetail: (task: Task) => void;
   editingTaskId: string | null;
   editName: string;
   onEditNameChange: (name: string) => void;
   onSaveEdit: () => void;
   onCancelEdit: () => void;
+  renderSubtasks: (task: Task, level: number) => React.ReactNode;
 }
 
-function SortableTaskItem({
+function TaskItem({
   task,
+  level,
+  expandedTasks,
+  onToggleExpand,
   onToggleComplete,
   onToggleStar,
   onEdit,
   onDelete,
+  onAddSubtask,
   onOpenDetail,
   editingTaskId,
   editName,
   onEditNameChange,
   onSaveEdit,
   onCancelEdit,
-}: SortableTaskItemProps) {
+  renderSubtasks,
+}: TaskItemProps) {
   const {
     attributes,
     listeners,
@@ -88,6 +107,8 @@ function SortableTaskItem({
   };
 
   const isEditing = editingTaskId === task.id;
+  const hasSubtasks = task.subtasks && task.subtasks.length > 0;
+  const isExpanded = expandedTasks.has(task.id);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
@@ -97,89 +118,116 @@ function SortableTaskItem({
     }
   };
 
+  const paddingLeft = level * 24;
+
   return (
-    <li
-      ref={setNodeRef}
-      style={style}
-      className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors group"
-    >
-      {/* Drag Handle */}
-      <button
-        {...attributes}
-        {...listeners}
-        className="cursor-grab active:cursor-grabbing text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 opacity-0 group-hover:opacity-100 transition-opacity"
+    <>
+      <li
+        ref={setNodeRef}
+        style={style}
+        className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors group"
       >
-        <GripVertical className="h-4 w-4" />
-      </button>
-
-      {/* Checkbox */}
-      <Checkbox
-        checked={task.completed}
-        onCheckedChange={() => onToggleComplete(task)}
-        className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
-      />
-
-      {/* Task Name or Edit Input */}
-      {isEditing ? (
-        <input
-          type="text"
-          value={editName}
-          onChange={(e) => onEditNameChange(e.target.value)}
-          onKeyDown={handleKeyDown}
-          className="flex-1 bg-transparent outline-none border-b border-stone-300 dark:border-stone-600 text-stone-900 dark:text-stone-100"
-          autoFocus
-        />
-      ) : (
-        <span
-          onClick={() => onOpenDetail(task)}
-          className={`flex-1 cursor-pointer hover:underline ${
-            task.completed
-              ? "text-stone-400 dark:text-stone-500 line-through"
-              : "text-stone-900 dark:text-stone-100"
+        {/* Expand/Collapse Button */}
+        <button
+          onClick={() => onToggleExpand(task.id)}
+          className={`w-4 h-4 flex items-center justify-center ${
+            hasSubtasks ? "opacity-100" : "opacity-0"
           }`}
         >
-          {task.name}
-        </span>
-      )}
+          {hasSubtasks &&
+            (isExpanded ? (
+              <ChevronDown className="h-4 w-4 text-stone-500" />
+            ) : (
+              <ChevronRight className="h-4 w-4 text-stone-500" />
+            ))}
+        </button>
 
-      {/* Star Button */}
-      <button
-        onClick={() => onToggleStar(task)}
-        className={`opacity-0 group-hover:opacity-100 transition-opacity ${
-          task.starred
-            ? "opacity-100 text-yellow-500"
-            : "text-stone-400 hover:text-yellow-500"
-        }`}
-      >
-        <Star
-          className={`h-4 w-4 ${task.starred ? "fill-yellow-500" : ""}`}
+        {/* Drag Handle */}
+        <button
+          {...attributes}
+          {...listeners}
+          style={{ marginLeft: paddingLeft }}
+          className="cursor-grab active:cursor-grabbing text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <GripVertical className="h-4 w-4" />
+        </button>
+
+        {/* Checkbox */}
+        <Checkbox
+          checked={task.completed}
+          onCheckedChange={() => onToggleComplete(task)}
+          className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
         />
-      </button>
 
-      {/* Menu */}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            className="h-7 w-7 opacity-0 group-hover:opacity-100"
+        {/* Task Name or Edit Input */}
+        {isEditing ? (
+          <input
+            type="text"
+            value={editName}
+            onChange={(e) => onEditNameChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="flex-1 bg-transparent outline-none border-b border-stone-300 dark:border-stone-600 text-stone-900 dark:text-stone-100"
+            autoFocus
+          />
+        ) : (
+          <span
+            onClick={() => onOpenDetail(task)}
+            className={`flex-1 cursor-pointer hover:underline ${
+              task.completed
+                ? "text-stone-400 dark:text-stone-500 line-through"
+                : "text-stone-900 dark:text-stone-100"
+            }`}
           >
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem onClick={() => onEdit(task)}>
-            Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => onDelete(task)}
-            className="text-red-600 dark:text-red-400"
-          >
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </li>
+            {task.name}
+          </span>
+        )}
+
+        {/* Star Button */}
+        <button
+          onClick={() => onToggleStar(task)}
+          className={`opacity-0 group-hover:opacity-100 transition-opacity ${
+            task.starred
+              ? "opacity-100 text-yellow-500"
+              : "text-stone-400 hover:text-yellow-500"
+          }`}
+        >
+          <Star
+            className={`h-4 w-4 ${task.starred ? "fill-yellow-500" : ""}`}
+          />
+        </button>
+
+        {/* Menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              className="h-7 w-7 opacity-0 group-hover:opacity-100"
+            >
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-36">
+            <DropdownMenuItem onClick={() => onEdit(task)}>
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAddSubtask(task)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Subtask
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => onDelete(task)}
+              className="text-red-600 dark:text-red-400"
+            >
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </li>
+
+      {/* Subtasks */}
+      {isExpanded && hasSubtasks && renderSubtasks(task, level)}
+    </>
   );
 }
 
@@ -198,6 +246,9 @@ export function TaskPanel({ list }: TaskPanelProps) {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
+  const [addingSubtaskTo, setAddingSubtaskTo] = useState<string | null>(null);
+  const [newSubtaskName, setNewSubtaskName] = useState("");
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -211,7 +262,7 @@ export function TaskPanel({ list }: TaskPanelProps) {
   useEffect(() => {
     async function loadTasks() {
       if (list) {
-        const data = await getTasks(list.id);
+        const data = await getTasksWithSubtasks(list.id);
         setTasks(data);
       } else {
         setTasks([]);
@@ -222,7 +273,7 @@ export function TaskPanel({ list }: TaskPanelProps) {
 
   const reloadTasks = async () => {
     if (list) {
-      const data = await getTasks(list.id);
+      const data = await getTasksWithSubtasks(list.id);
       setTasks(data);
     }
   };
@@ -235,6 +286,20 @@ export function TaskPanel({ list }: TaskPanelProps) {
       setNewTaskName("");
       setIsAdding(false);
       await reloadTasks();
+    }
+    setIsLoading(false);
+  };
+
+  const handleAddSubtask = async (parentId: string) => {
+    if (!list || !newSubtaskName.trim()) return;
+    setIsLoading(true);
+    const result = await createTask(list.id, newSubtaskName.trim(), parentId);
+    if (result.success) {
+      setNewSubtaskName("");
+      setAddingSubtaskTo(null);
+      await reloadTasks();
+      // Expand parent task to show new subtask
+      setExpandedTasks((prev) => new Set(prev).add(parentId));
     }
     setIsLoading(false);
   };
@@ -287,6 +352,18 @@ export function TaskPanel({ list }: TaskPanelProps) {
     setIsLoading(false);
   };
 
+  const handleToggleExpand = (taskId: string) => {
+    setExpandedTasks((prev) => {
+      const next = new Set(prev);
+      if (next.has(taskId)) {
+        next.delete(taskId);
+      } else {
+        next.add(taskId);
+      }
+      return next;
+    });
+  };
+
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id && list) {
@@ -307,6 +384,83 @@ export function TaskPanel({ list }: TaskPanelProps) {
       setIsAdding(false);
     }
   };
+
+  const handleSubtaskKeyDown = (e: React.KeyboardEvent, parentId: string) => {
+    if (e.key === "Enter") {
+      handleAddSubtask(parentId);
+    } else if (e.key === "Escape") {
+      setNewSubtaskName("");
+      setAddingSubtaskTo(null);
+    }
+  };
+
+  const countAllTasks = (taskList: Task[]): number => {
+    return taskList.reduce((count, task) => {
+      return count + 1 + (task.subtasks ? countAllTasks(task.subtasks) : 0);
+    }, 0);
+  };
+
+  const startAddSubtask = (task: Task) => {
+    setAddingSubtaskTo(task.id);
+    setNewSubtaskName("");
+    // Make sure parent is expanded
+    if (!expandedTasks.has(task.id)) {
+      setExpandedTasks((prev) => new Set(prev).add(task.id));
+    }
+  };
+
+  const renderSubtasks = useCallback(
+    (task: Task, level: number): React.ReactNode => {
+      if (!task.subtasks || task.subtasks.length === 0) return null;
+
+      return (
+        <SortableContext
+          items={task.subtasks.map((t) => t.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          {task.subtasks.map((subtask) => (
+            <TaskItem
+              key={subtask.id}
+              task={subtask}
+              level={level + 1}
+              expandedTasks={expandedTasks}
+              onToggleExpand={handleToggleExpand}
+              onToggleComplete={handleToggleComplete}
+              onToggleStar={handleToggleStar}
+              onEdit={handleEdit}
+              onDelete={openDeleteDialog}
+              onAddSubtask={startAddSubtask}
+              onOpenDetail={handleOpenDetail}
+              editingTaskId={editingTaskId}
+              editName={editName}
+              onEditNameChange={setEditName}
+              onSaveEdit={handleSaveEdit}
+              onCancelEdit={handleCancelEdit}
+              renderSubtasks={renderSubtasks}
+            />
+          ))}
+          {/* Add subtask input */}
+          {addingSubtaskTo && task.subtasks.some((s) => s.id === addingSubtaskTo)
+            ? null
+            : null}
+        </SortableContext>
+      );
+    },
+    [
+      expandedTasks,
+      editingTaskId,
+      editName,
+      addingSubtaskTo,
+      handleToggleExpand,
+      handleToggleComplete,
+      handleToggleStar,
+      handleEdit,
+      openDeleteDialog,
+      handleOpenDetail,
+      handleSaveEdit,
+      handleCancelEdit,
+    ]
+  );
 
   if (!list) {
     return (
@@ -336,6 +490,8 @@ export function TaskPanel({ list }: TaskPanelProps) {
     );
   }
 
+  const totalTasks = countAllTasks(tasks);
+
   return (
     <div className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800">
       {/* Header */}
@@ -346,7 +502,7 @@ export function TaskPanel({ list }: TaskPanelProps) {
             {list.name}
           </h2>
           <span className="text-sm text-stone-500 dark:text-stone-400">
-            {tasks.length} {tasks.length === 1 ? "task" : "tasks"}
+            {totalTasks} {totalTasks === 1 ? "task" : "tasks"}
           </span>
         </div>
         <Button
@@ -396,6 +552,40 @@ export function TaskPanel({ list }: TaskPanelProps) {
           </div>
         )}
 
+        {/* Add Subtask Input (appears after parent task) */}
+        {addingSubtaskTo && (
+          <div className="flex items-center gap-3 px-4 py-3 mb-2 ml-6 rounded-lg border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/50">
+            <Circle className="h-5 w-5 text-stone-300" />
+            <input
+              type="text"
+              value={newSubtaskName}
+              onChange={(e) => setNewSubtaskName(e.target.value)}
+              onKeyDown={(e) => handleSubtaskKeyDown(e, addingSubtaskTo)}
+              placeholder="Subtask name..."
+              className="flex-1 bg-transparent outline-none text-stone-900 dark:text-stone-100 placeholder:text-stone-400"
+              autoFocus
+              disabled={isLoading}
+            />
+            <Button
+              size="sm"
+              onClick={() => handleAddSubtask(addingSubtaskTo)}
+              disabled={isLoading || !newSubtaskName.trim()}
+            >
+              Add
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                setNewSubtaskName("");
+                setAddingSubtaskTo(null);
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
+        )}
+
         {/* Task Items */}
         {tasks.length === 0 && !isAdding ? (
           <div className="py-12 text-center">
@@ -426,19 +616,24 @@ export function TaskPanel({ list }: TaskPanelProps) {
             >
               <ul className="space-y-1">
                 {tasks.map((task) => (
-                  <SortableTaskItem
+                  <TaskItem
                     key={task.id}
                     task={task}
+                    level={0}
+                    expandedTasks={expandedTasks}
+                    onToggleExpand={handleToggleExpand}
                     onToggleComplete={handleToggleComplete}
                     onToggleStar={handleToggleStar}
                     onEdit={handleEdit}
                     onDelete={openDeleteDialog}
+                    onAddSubtask={startAddSubtask}
                     onOpenDetail={handleOpenDetail}
                     editingTaskId={editingTaskId}
                     editName={editName}
                     onEditNameChange={setEditName}
                     onSaveEdit={handleSaveEdit}
                     onCancelEdit={handleCancelEdit}
+                    renderSubtasks={renderSubtasks}
                   />
                 ))}
               </ul>
@@ -454,7 +649,8 @@ export function TaskPanel({ list }: TaskPanelProps) {
             <DialogTitle>Delete Task</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-stone-500 dark:text-stone-400">
-            Are you sure you want to delete this task? This action cannot be undone.
+            Are you sure you want to delete this task? Any subtasks will also be
+            deleted. This action cannot be undone.
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>

@@ -50,9 +50,10 @@ This project follows a "long-running agent" methodology with daily progress logg
 3. Run `./init.sh` to start dev environment
 4. Implement the feature
 5. Test with Playwright MCP (the credentials of accounts in `.credentials.local`)
-6. Update `feature_list.json` (set `passes: true` for completed feature)
-7. Update `claude-progress.txt` (append new log for current session, what has done, what does not work, next steps)
-8. Git commit
+6. Make sure project can be built successfully (`npm run build`)
+7. Update `feature_list.json` (set `passes: true` for completed feature)
+8. Update `claude-progress.txt` (append new log for current session, what has done, what does not work, next steps)
+9. Git commit
 
 ## Architecture
 

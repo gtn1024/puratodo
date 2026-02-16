@@ -460,7 +460,7 @@
         "Verify subtask appears under parent",
         "Verify subtask can be completed independently"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 37,
@@ -473,7 +473,7 @@
         "Verify completion status cascades appropriately",
         "Test at least 3+ levels of nesting"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 38,
