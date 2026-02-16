@@ -709,7 +709,7 @@
         "13. Create src/app/api/v1/lists/reorder/route.ts - PATCH handler that accepts { listIds: string[] } and optional group_id",
         "14. Test: Reorder lists within a group, verify order persists"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 55,

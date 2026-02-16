@@ -25,15 +25,25 @@ All tables include user_id for RLS policies and query optimization.
 ### 2026-02-16 (continued)
 
 #### 完成
+- Feature #54: Lists CRUD API
+  - 创建 src/app/api/v1/lists/route.ts - GET (支持 ?group_id 筛选) + POST (创建)
+  - 创建 src/app/api/v1/lists/[id]/route.ts - GET + PATCH + DELETE
+  - 创建 src/app/api/v1/lists/[id]/move/route.ts - PATCH (移动到其他分组)
+  - 创建 src/app/api/v1/lists/reorder/route.ts - PATCH (组内重排序)
+  - 测试通过：所有 CRUD 操作、移动、重排序功能
+
+#### 下一步
+- Feature #55: Tasks CRUD API
+
+---
+
+#### 完成
 - Feature #53: Groups CRUD API
   - 更新 src/lib/api/auth.ts - 添加 getAuthenticatedUser 函数返回带用户 token 的 Supabase client
   - 创建 src/app/api/v1/groups/route.ts - GET (获取所有分组) + POST (创建分组)
   - 创建 src/app/api/v1/groups/[id]/route.ts - GET (获取单个) + PATCH (更新) + DELETE (删除)
   - 创建 src/app/api/v1/groups/reorder/route.ts - PATCH (重排序)
   - 测试通过：所有 CRUD 操作和重排序功能
-
-#### 下一步
-- Feature #54: Lists CRUD API
 
 ---
 
