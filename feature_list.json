@@ -1,5 +1,6 @@
 [
   {
+    "id": 1,
     "category": "functional",
     "description": "Tauri app launches without errors on desktop",
     "steps": [
@@ -8,10 +9,10 @@
       "Verify no console errors",
       "Verify window is visible and interactive"
     ],
-    "passes": true,
-    "id": 1
+    "passes": true
   },
   {
+    "id": 2,
     "category": "functional",
     "description": "App window can be minimized, maximized, and closed",
     "steps": [
@@ -22,10 +23,10 @@
       "Click close button",
       "Verify app closes cleanly"
     ],
-    "passes": false,
-    "id": 2
+    "passes": false
   },
   {
+    "id": 3,
     "category": "functional",
     "description": "Login page displays correctly with email and password fields",
     "steps": [
@@ -35,10 +36,10 @@
       "Verify password input field exists",
       "Verify login button exists"
     ],
-    "passes": false,
-    "id": 3
+    "passes": false
   },
   {
+    "id": 4,
     "category": "functional",
     "description": "User can log in with valid credentials",
     "steps": [
@@ -49,10 +50,10 @@
       "Verify user is redirected to dashboard",
       "Verify user session is persisted"
     ],
-    "passes": false,
-    "id": 4
+    "passes": false
   },
   {
+    "id": 5,
     "category": "functional",
     "description": "User cannot log in with invalid credentials",
     "steps": [
@@ -62,10 +63,10 @@
       "Verify error message is displayed",
       "Verify user stays on login page"
     ],
-    "passes": false,
-    "id": 5
+    "passes": false
   },
   {
+    "id": 6,
     "category": "functional",
     "description": "User can register a new account",
     "steps": [
@@ -77,10 +78,10 @@
       "Verify account is created",
       "Verify user is logged in"
     ],
-    "passes": false,
-    "id": 6
+    "passes": false
   },
   {
+    "id": 7,
     "category": "functional",
     "description": "User can log out",
     "steps": [
@@ -90,10 +91,10 @@
       "Verify user is redirected to login page",
       "Verify session is cleared"
     ],
-    "passes": false,
-    "id": 7
+    "passes": false
   },
   {
+    "id": 8,
     "category": "functional",
     "description": "User can configure custom API server address",
     "steps": [
@@ -104,10 +105,10 @@
       "Verify app connects to custom server",
       "Verify API requests go to custom endpoint"
     ],
-    "passes": false,
-    "id": 204
+    "passes": false
   },
   {
+    "id": 9,
     "category": "functional",
     "description": "Server URL persists after app restart",
     "steps": [
@@ -117,10 +118,10 @@
       "Verify custom server URL is still configured",
       "Verify app connects to custom server"
     ],
-    "passes": false,
-    "id": 205
+    "passes": false
   },
   {
+    "id": 10,
     "category": "functional",
     "description": "User can add multiple accounts",
     "steps": [
@@ -131,10 +132,10 @@
       "Verify both accounts are saved",
       "Verify account list shows both accounts"
     ],
-    "passes": false,
-    "id": 206
+    "passes": false
   },
   {
+    "id": 11,
     "category": "functional",
     "description": "User can switch between multiple accounts",
     "steps": [
@@ -145,10 +146,10 @@
       "Switch back to first account",
       "Verify data loads for first account"
     ],
-    "passes": false,
-    "id": 207
+    "passes": false
   },
   {
+    "id": 12,
     "category": "functional",
     "description": "User can remove an account",
     "steps": [
@@ -160,10 +161,10 @@
       "Verify account is removed from list",
       "Verify other accounts still work"
     ],
-    "passes": false,
-    "id": 208
+    "passes": false
   },
   {
+    "id": 13,
     "category": "functional",
     "description": "Each account has separate session and data",
     "steps": [
@@ -175,10 +176,10 @@
       "Switch back to account A",
       "Verify original task still exists"
     ],
-    "passes": false,
-    "id": 209
+    "passes": false
   },
   {
+    "id": 14,
     "category": "functional",
     "description": "Session persists after app restart",
     "steps": [
@@ -188,10 +189,10 @@
       "Verify user is still logged in",
       "Verify dashboard is displayed"
     ],
-    "passes": false,
-    "id": 8
+    "passes": false
   },
   {
+    "id": 15,
     "category": "functional",
     "description": "Sidebar displays user's groups",
     "steps": [
@@ -200,10 +201,10 @@
       "Verify groups are listed in sidebar",
       "Verify each group shows its name"
     ],
-    "passes": false,
-    "id": 9
+    "passes": false
   },
   {
+    "id": 16,
     "category": "functional",
     "description": "User can create a new group",
     "steps": [
@@ -214,10 +215,10 @@
       "Verify new group appears in sidebar",
       "Verify group is created in backend"
     ],
-    "passes": false,
-    "id": 10
+    "passes": false
   },
   {
+    "id": 17,
     "category": "functional",
     "description": "User can edit a group",
     "steps": [
@@ -228,10 +229,10 @@
       "Click save button",
       "Verify changes are reflected in sidebar"
     ],
-    "passes": false,
-    "id": 11
+    "passes": false
   },
   {
+    "id": 18,
     "category": "functional",
     "description": "User can delete a group",
     "steps": [
@@ -241,10 +242,10 @@
       "Verify group is removed from sidebar",
       "Verify group is deleted from backend"
     ],
-    "passes": false,
-    "id": 12
+    "passes": false
   },
   {
+    "id": 19,
     "category": "functional",
     "description": "User can reorder groups via drag and drop",
     "steps": [
@@ -253,10 +254,10 @@
       "Verify group order is updated",
       "Verify new order persists after app restart"
     ],
-    "passes": false,
-    "id": 13
+    "passes": false
   },
   {
+    "id": 20,
     "category": "functional",
     "description": "Lists are displayed under their parent group",
     "steps": [
@@ -264,10 +265,10 @@
       "Verify lists are visible under the group",
       "Verify each list shows its name and icon"
     ],
-    "passes": false,
-    "id": 14
+    "passes": false
   },
   {
+    "id": 21,
     "category": "functional",
     "description": "User can create a new list",
     "steps": [
@@ -277,10 +278,10 @@
       "Click save button",
       "Verify new list appears under the group"
     ],
-    "passes": false,
-    "id": 15
+    "passes": false
   },
   {
+    "id": 22,
     "category": "functional",
     "description": "User can edit a list",
     "steps": [
@@ -291,10 +292,10 @@
       "Click save button",
       "Verify changes are reflected in sidebar"
     ],
-    "passes": false,
-    "id": 16
+    "passes": false
   },
   {
+    "id": 23,
     "category": "functional",
     "description": "User can delete a list",
     "steps": [
@@ -304,10 +305,10 @@
       "Verify list is removed from sidebar",
       "Verify all tasks in list are also deleted"
     ],
-    "passes": false,
-    "id": 17
+    "passes": false
   },
   {
+    "id": 24,
     "category": "functional",
     "description": "User can move a list to a different group",
     "steps": [
@@ -317,10 +318,10 @@
       "Verify list moves to new group",
       "Verify list order is correct in new group"
     ],
-    "passes": false,
-    "id": 18
+    "passes": false
   },
   {
+    "id": 25,
     "category": "functional",
     "description": "User can reorder lists via drag and drop",
     "steps": [
@@ -329,10 +330,10 @@
       "Verify list order is updated",
       "Verify new order persists"
     ],
-    "passes": false,
-    "id": 19
+    "passes": false
   },
   {
+    "id": 26,
     "category": "functional",
     "description": "Clicking a list shows its tasks in main area",
     "steps": [
@@ -340,10 +341,10 @@
       "Verify main area shows list name as header",
       "Verify tasks are displayed in the list"
     ],
-    "passes": false,
-    "id": 20
+    "passes": false
   },
   {
+    "id": 27,
     "category": "functional",
     "description": "User can create a new task",
     "steps": [
@@ -353,10 +354,10 @@
       "Verify new task appears in list",
       "Verify task is created in backend"
     ],
-    "passes": false,
-    "id": 21
+    "passes": false
   },
   {
+    "id": 28,
     "category": "functional",
     "description": "User can edit a task",
     "steps": [
@@ -366,10 +367,10 @@
       "Verify task name is updated",
       "Verify changes are saved to backend"
     ],
-    "passes": false,
-    "id": 22
+    "passes": false
   },
   {
+    "id": 29,
     "category": "functional",
     "description": "User can delete a task",
     "steps": [
@@ -379,10 +380,10 @@
       "Verify task is removed from list",
       "Verify task is deleted from backend"
     ],
-    "passes": false,
-    "id": 23
+    "passes": false
   },
   {
+    "id": 30,
     "category": "functional",
     "description": "User can mark a task as complete",
     "steps": [
@@ -391,10 +392,10 @@
       "Verify task is marked as completed (strikethrough or visual indicator)",
       "Verify completion status is saved to backend"
     ],
-    "passes": false,
-    "id": 24
+    "passes": false
   },
   {
+    "id": 31,
     "category": "functional",
     "description": "User can mark a completed task as incomplete",
     "steps": [
@@ -403,10 +404,10 @@
       "Verify task is marked as incomplete",
       "Verify status is updated in backend"
     ],
-    "passes": false,
-    "id": 25
+    "passes": false
   },
   {
+    "id": 32,
     "category": "functional",
     "description": "User can star/unstar a task",
     "steps": [
@@ -416,10 +417,10 @@
       "Verify star is unfilled",
       "Verify star status is saved to backend"
     ],
-    "passes": false,
-    "id": 26
+    "passes": false
   },
   {
+    "id": 33,
     "category": "functional",
     "description": "User can set a due date on a task",
     "steps": [
@@ -429,10 +430,10 @@
       "Verify due date is displayed on task",
       "Verify due date is saved to backend"
     ],
-    "passes": false,
-    "id": 27
+    "passes": false
   },
   {
+    "id": 34,
     "category": "functional",
     "description": "User can set a planned date on a task",
     "steps": [
@@ -442,10 +443,10 @@
       "Verify planned date is displayed on task",
       "Verify planned date is saved to backend"
     ],
-    "passes": false,
-    "id": 28
+    "passes": false
   },
   {
+    "id": 35,
     "category": "functional",
     "description": "User can add comments/notes to a task",
     "steps": [
@@ -456,10 +457,10 @@
       "Verify comment is displayed",
       "Verify comment is saved to backend"
     ],
-    "passes": false,
-    "id": 29
+    "passes": false
   },
   {
+    "id": 36,
     "category": "functional",
     "description": "User can set task duration",
     "steps": [
@@ -469,10 +470,10 @@
       "Verify duration is displayed on task",
       "Verify duration is saved to backend"
     ],
-    "passes": false,
-    "id": 30
+    "passes": false
   },
   {
+    "id": 37,
     "category": "functional",
     "description": "User can create a subtask",
     "steps": [
@@ -483,10 +484,10 @@
       "Verify subtask appears under parent task",
       "Verify subtask is indented under parent"
     ],
-    "passes": false,
-    "id": 31
+    "passes": false
   },
   {
+    "id": 38,
     "category": "functional",
     "description": "Subtasks support infinite nesting",
     "steps": [
@@ -496,10 +497,10 @@
       "Verify all levels are displayed correctly",
       "Verify indentation is correct for each level"
     ],
-    "passes": false,
-    "id": 32
+    "passes": false
   },
   {
+    "id": 39,
     "category": "functional",
     "description": "User can complete/uncomplete subtasks",
     "steps": [
@@ -510,10 +511,10 @@
       "Verify subtask is marked incomplete",
       "Verify parent task completion status reflects subtasks"
     ],
-    "passes": false,
-    "id": 33
+    "passes": false
   },
   {
+    "id": 40,
     "category": "functional",
     "description": "User can reorder tasks via drag and drop",
     "steps": [
@@ -522,10 +523,10 @@
       "Verify task order is updated",
       "Verify new order persists after page refresh"
     ],
-    "passes": false,
-    "id": 34
+    "passes": false
   },
   {
+    "id": 41,
     "category": "functional",
     "description": "User can move a task to a different list",
     "steps": [
@@ -534,10 +535,10 @@
       "Verify task moves to new list",
       "Verify task appears in correct list"
     ],
-    "passes": false,
-    "id": 35
+    "passes": false
   },
   {
+    "id": 42,
     "category": "functional",
     "description": "User can reorder subtasks via drag and drop",
     "steps": [
@@ -546,10 +547,10 @@
       "Drop it in a new position",
       "Verify subtask order is updated"
     ],
-    "passes": false,
-    "id": 36
+    "passes": false
   },
   {
+    "id": 43,
     "category": "functional",
     "description": "Search functionality finds tasks by name",
     "steps": [
@@ -559,10 +560,10 @@
       "Verify matching tasks are displayed",
       "Verify non-matching tasks are hidden"
     ],
-    "passes": false,
-    "id": 37
+    "passes": false
   },
   {
+    "id": 44,
     "category": "functional",
     "description": "Search works across all lists",
     "steps": [
@@ -571,10 +572,10 @@
       "Search for one of the unique names",
       "Verify task is found regardless of which list it's in"
     ],
-    "passes": false,
-    "id": 38
+    "passes": false
   },
   {
+    "id": 45,
     "category": "functional",
     "description": "Today view shows tasks due today",
     "steps": [
@@ -582,10 +583,10 @@
       "Verify tasks with due date = today are displayed",
       "Verify tasks with due date != today are not displayed"
     ],
-    "passes": false,
-    "id": 39
+    "passes": false
   },
   {
+    "id": 46,
     "category": "functional",
     "description": "Today view shows tasks with planned date today",
     "steps": [
@@ -593,10 +594,10 @@
       "Navigate to Today view",
       "Verify tasks with planned date = today are displayed"
     ],
-    "passes": false,
-    "id": 40
+    "passes": false
   },
   {
+    "id": 47,
     "category": "functional",
     "description": "Starred tasks view shows all starred tasks",
     "steps": [
@@ -605,10 +606,10 @@
       "Verify all starred tasks are displayed",
       "Verify unstarred tasks are not displayed"
     ],
-    "passes": false,
-    "id": 41
+    "passes": false
   },
   {
+    "id": 48,
     "category": "functional",
     "description": "Theme toggle switches between light and dark mode",
     "steps": [
@@ -617,10 +618,10 @@
       "Click theme toggle again",
       "Verify theme changes from dark to light"
     ],
-    "passes": false,
-    "id": 42
+    "passes": false
   },
   {
+    "id": 49,
     "category": "functional",
     "description": "Dark mode applies correct colors throughout the app",
     "steps": [
@@ -630,10 +631,10 @@
       "Verify interactive elements are visible",
       "Verify no white flashes on navigation"
     ],
-    "passes": false,
-    "id": 43
+    "passes": false
   },
   {
+    "id": 50,
     "category": "functional",
     "description": "System theme preference is respected",
     "steps": [
@@ -643,10 +644,10 @@
       "Set OS to light mode",
       "Verify app is in light mode"
     ],
-    "passes": false,
-    "id": 44
+    "passes": false
   },
   {
+    "id": 51,
     "category": "functional",
     "description": "Keyboard shortcut Ctrl+K / Cmd+K opens search",
     "steps": [
@@ -656,10 +657,10 @@
       "Verify search works",
       "Press Escape to close"
     ],
-    "passes": false,
-    "id": 45
+    "passes": false
   },
   {
+    "id": 52,
     "category": "functional",
     "description": "Keyboard shortcut Ctrl+N / Cmd+N creates new task",
     "steps": [
@@ -669,10 +670,10 @@
       "Press Enter",
       "Verify task is created"
     ],
-    "passes": false,
-    "id": 46
+    "passes": false
   },
   {
+    "id": 53,
     "category": "functional",
     "description": "Keyboard shortcut Escape closes dialogs",
     "steps": [
@@ -680,10 +681,10 @@
       "Press Escape",
       "Verify dialog is closed"
     ],
-    "passes": false,
-    "id": 47
+    "passes": false
   },
   {
+    "id": 54,
     "category": "functional",
     "description": "Loading skeletons display while data is loading",
     "steps": [
@@ -692,10 +693,10 @@
       "Verify skeletons match the content layout",
       "Verify skeletons are replaced with content when loaded"
     ],
-    "passes": false,
-    "id": 48
+    "passes": false
   },
   {
+    "id": 55,
     "category": "functional",
     "description": "Empty states display when there are no items",
     "steps": [
@@ -703,10 +704,10 @@
       "Verify empty state message is displayed",
       "Verify empty state has helpful text or call to action"
     ],
-    "passes": false,
-    "id": 49
+    "passes": false
   },
   {
+    "id": 56,
     "category": "functional",
     "description": "App is responsive on tablet screen sizes",
     "steps": [
@@ -715,10 +716,10 @@
       "Verify sidebar can be collapsed",
       "Verify content is readable"
     ],
-    "passes": false,
-    "id": 50
+    "passes": false
   },
   {
+    "id": 57,
     "category": "functional",
     "description": "App is responsive on mobile screen sizes",
     "steps": [
@@ -727,10 +728,10 @@
       "Verify navigation is accessible",
       "Verify touch targets are large enough"
     ],
-    "passes": false,
-    "id": 51
+    "passes": false
   },
   {
+    "id": 58,
     "category": "functional",
     "description": "Task detail panel slides in from right on desktop",
     "steps": [
@@ -739,10 +740,10 @@
       "Verify panel shows full task details",
       "Verify clicking outside or X closes panel"
     ],
-    "passes": false,
-    "id": 52
+    "passes": false
   },
   {
+    "id": 59,
     "category": "functional",
     "description": "Real-time sync updates tasks when data changes",
     "steps": [
@@ -750,10 +751,10 @@
       "Mark a task as complete in one window",
       "Verify task is marked complete in other window within seconds"
     ],
-    "passes": false,
-    "id": 53
+    "passes": false
   },
   {
+    "id": 60,
     "category": "functional",
     "description": "Offline mode caches current data",
     "steps": [
@@ -762,10 +763,10 @@
       "Verify user can navigate between lists",
       "Verify user can view task details"
     ],
-    "passes": false,
-    "id": 54
+    "passes": false
   },
   {
+    "id": 61,
     "category": "functional",
     "description": "Offline changes sync when back online",
     "steps": [
@@ -775,10 +776,10 @@
       "Go back online",
       "Verify changes sync to backend"
     ],
-    "passes": false,
-    "id": 55
+    "passes": false
   },
   {
+    "id": 62,
     "category": "functional",
     "description": "Context menu appears on right-click for groups",
     "steps": [
@@ -786,10 +787,10 @@
       "Verify context menu appears",
       "Verify options include: Edit, Delete, Add List"
     ],
-    "passes": false,
-    "id": 56
+    "passes": false
   },
   {
+    "id": 63,
     "category": "functional",
     "description": "Context menu appears on right-click for lists",
     "steps": [
@@ -797,10 +798,10 @@
       "Verify context menu appears",
       "Verify options include: Edit, Delete, Move"
     ],
-    "passes": false,
-    "id": 57
+    "passes": false
   },
   {
+    "id": 64,
     "category": "functional",
     "description": "Context menu appears on right-click for tasks",
     "steps": [
@@ -808,10 +809,10 @@
       "Verify context menu appears",
       "Verify options include: Edit, Delete, Star, Move"
     ],
-    "passes": false,
-    "id": 58
+    "passes": false
   },
   {
+    "id": 65,
     "category": "functional",
     "description": "Confirm dialog appears before destructive actions",
     "steps": [
@@ -821,10 +822,10 @@
       "Cancel deletion",
       "Verify group is not deleted"
     ],
-    "passes": false,
-    "id": 59
+    "passes": false
   },
   {
+    "id": 66,
     "category": "functional",
     "description": "API client is configured with correct base URL",
     "steps": [
@@ -832,10 +833,10 @@
       "Verify base URL points to correct API endpoint",
       "Verify timeout is set appropriately"
     ],
-    "passes": false,
-    "id": 60
+    "passes": false
   },
   {
+    "id": 67,
     "category": "functional",
     "description": "API client includes authentication headers",
     "steps": [
@@ -844,10 +845,10 @@
       "Verify request includes Authorization header",
       "Verify token is sent correctly"
     ],
-    "passes": false,
-    "id": 61
+    "passes": false
   },
   {
+    "id": 68,
     "category": "functional",
     "description": "API errors are handled gracefully",
     "steps": [
@@ -856,10 +857,10 @@
       "Verify app doesn't crash",
       "Verify user can retry the action"
     ],
-    "passes": false,
-    "id": 62
+    "passes": false
   },
   {
+    "id": 69,
     "category": "style",
     "description": "Login page matches web app design",
     "steps": [
@@ -867,10 +868,10 @@
       "Compare with web app login page",
       "Verify similar layout and styling"
     ],
-    "passes": false,
-    "id": 63
+    "passes": false
   },
   {
+    "id": 70,
     "category": "style",
     "description": "Sidebar styling matches web app",
     "steps": [
@@ -878,10 +879,10 @@
       "Compare with web app sidebar",
       "Verify similar colors, fonts, spacing"
     ],
-    "passes": false,
-    "id": 64
+    "passes": false
   },
   {
+    "id": 71,
     "category": "style",
     "description": "Task list styling matches web app",
     "steps": [
@@ -889,10 +890,10 @@
       "Compare with web app task list",
       "Verify similar appearance"
     ],
-    "passes": false,
-    "id": 65
+    "passes": false
   },
   {
+    "id": 72,
     "category": "style",
     "description": "Task detail panel styling matches web app",
     "steps": [
@@ -901,10 +902,10 @@
       "Compare with web app task detail",
       "Verify similar styling"
     ],
-    "passes": false,
-    "id": 66
+    "passes": false
   },
   {
+    "id": 73,
     "category": "style",
     "description": "Dark mode colors match web app dark theme",
     "steps": [
@@ -913,10 +914,10 @@
       "Compare with web app dark mode",
       "Verify consistent color scheme"
     ],
-    "passes": false,
-    "id": 67
+    "passes": false
   },
   {
+    "id": 74,
     "category": "style",
     "description": "Animations are smooth and not jarring",
     "steps": [
@@ -925,10 +926,10 @@
       "Navigate between lists",
       "Verify smooth transitions"
     ],
-    "passes": false,
-    "id": 68
+    "passes": false
   },
   {
+    "id": 75,
     "category": "style",
     "description": "Completed task has clear visual indicator",
     "steps": [
@@ -937,10 +938,10 @@
       "Verify checkbox is checked",
       "Verify visual change is clear but not distracting"
     ],
-    "passes": false,
-    "id": 69
+    "passes": false
   },
   {
+    "id": 76,
     "category": "style",
     "description": "Starred task has clear visual indicator",
     "steps": [
@@ -948,10 +949,10 @@
       "Verify star icon is highlighted/filled",
       "Verify star is visible in both list and detail view"
     ],
-    "passes": false,
-    "id": 70
+    "passes": false
   },
   {
+    "id": 77,
     "category": "style",
     "description": "Due date indicator is visually clear",
     "steps": [
@@ -960,10 +961,10 @@
       "Verify overdue tasks have different color",
       "Verify today's tasks have different color"
     ],
-    "passes": false,
-    "id": 71
+    "passes": false
   },
   {
+    "id": 78,
     "category": "desktop",
     "description": "App can be minimized to system tray on Windows",
     "steps": [
@@ -972,10 +973,10 @@
       "Click taskbar icon",
       "Verify app restores"
     ],
-    "passes": false,
-    "id": 72
+    "passes": false
   },
   {
+    "id": 79,
     "category": "desktop",
     "description": "App respects system dark/light mode on Windows",
     "steps": [
@@ -985,10 +986,10 @@
       "Switch Windows to light mode",
       "Verify app uses light theme"
     ],
-    "passes": false,
-    "id": 73
+    "passes": false
   },
   {
+    "id": 80,
     "category": "desktop",
     "description": "App can be minimized to system tray on macOS",
     "steps": [
@@ -997,10 +998,10 @@
       "Click Dock icon",
       "Verify app restores"
     ],
-    "passes": false,
-    "id": 74
+    "passes": false
   },
   {
+    "id": 81,
     "category": "desktop",
     "description": "App respects system dark/light mode on macOS",
     "steps": [
@@ -1010,10 +1011,10 @@
       "Switch macOS to light mode",
       "Verify app uses light theme"
     ],
-    "passes": false,
-    "id": 75
+    "passes": false
   },
   {
+    "id": 82,
     "category": "desktop",
     "description": "App menu bar works on macOS",
     "steps": [
@@ -1021,10 +1022,10 @@
       "Verify menu options are available",
       "Verify standard menu items (About, Quit, etc.)"
     ],
-    "passes": false,
-    "id": 76
+    "passes": false
   },
   {
+    "id": 83,
     "category": "desktop",
     "description": "App appears in system app list on Linux",
     "steps": [
@@ -1032,10 +1033,10 @@
       "Verify app appears in app launcher",
       "Verify app can be pinned to favorites"
     ],
-    "passes": false,
-    "id": 77
+    "passes": false
   },
   {
+    "id": 84,
     "category": "desktop",
     "description": "Native window controls work on Windows",
     "steps": [
@@ -1043,10 +1044,10 @@
       "Click each button",
       "Verify correct behavior"
     ],
-    "passes": false,
-    "id": 78
+    "passes": false
   },
   {
+    "id": 85,
     "category": "desktop",
     "description": "Native window controls work on macOS",
     "steps": [
@@ -1055,10 +1056,10 @@
       "Verify yellow button minimizes",
       "Verify green button maximizes"
     ],
-    "passes": false,
-    "id": 79
+    "passes": false
   },
   {
+    "id": 86,
     "category": "desktop",
     "description": "Native window controls work on Linux",
     "steps": [
@@ -1066,10 +1067,10 @@
       "Test minimize, maximize, close",
       "Verify correct behavior"
     ],
-    "passes": false,
-    "id": 80
+    "passes": false
   },
   {
+    "id": 87,
     "category": "desktop",
     "description": "App window can be resized",
     "steps": [
@@ -1078,10 +1079,10 @@
       "Verify content adjusts to new size",
       "Verify minimum size is respected"
     ],
-    "passes": false,
-    "id": 81
+    "passes": false
   },
   {
+    "id": 88,
     "category": "desktop",
     "description": "App window has minimum size",
     "steps": [
@@ -1089,10 +1090,10 @@
       "Verify window stops at minimum size",
       "Verify content doesn't overflow"
     ],
-    "passes": false,
-    "id": 82
+    "passes": false
   },
   {
+    "id": 89,
     "category": "desktop",
     "description": "App remembers window size and position",
     "steps": [
@@ -1101,10 +1102,10 @@
       "Reopen app",
       "Verify window is in same position and size"
     ],
-    "passes": false,
-    "id": 83
+    "passes": false
   },
   {
+    "id": 90,
     "category": "desktop",
     "description": "Global keyboard shortcut works to bring app to front",
     "steps": [
@@ -1112,10 +1113,10 @@
       "Use global shortcut (if configured)",
       "Verify app comes to foreground"
     ],
-    "passes": false,
-    "id": 84
+    "passes": false
   },
   {
+    "id": 91,
     "category": "mobile",
     "description": "App displays correctly on iOS",
     "steps": [
@@ -1124,10 +1125,10 @@
       "Verify app launches without crash",
       "Verify UI is readable"
     ],
-    "passes": false,
-    "id": 85
+    "passes": false
   },
   {
+    "id": 92,
     "category": "mobile",
     "description": "App displays correctly on Android",
     "steps": [
@@ -1136,10 +1137,10 @@
       "Verify app launches without crash",
       "Verify UI is readable"
     ],
-    "passes": false,
-    "id": 86
+    "passes": false
   },
   {
+    "id": 93,
     "category": "mobile",
     "description": "Swipe right on task marks it complete on mobile",
     "steps": [
@@ -1148,10 +1149,10 @@
       "Verify task is marked complete",
       "Verify visual feedback"
     ],
-    "passes": false,
-    "id": 87
+    "passes": false
   },
   {
+    "id": 94,
     "category": "mobile",
     "description": "Swipe left on task shows delete option on mobile",
     "steps": [
@@ -1161,10 +1162,10 @@
       "Tap delete",
       "Verify task is deleted"
     ],
-    "passes": false,
-    "id": 88
+    "passes": false
   },
   {
+    "id": 95,
     "category": "mobile",
     "description": "Pull to refresh works on mobile",
     "steps": [
@@ -1173,10 +1174,10 @@
       "Verify refresh indicator appears",
       "Verify data is refreshed"
     ],
-    "passes": false,
-    "id": 89
+    "passes": false
   },
   {
+    "id": 96,
     "category": "mobile",
     "description": "Bottom navigation works on mobile",
     "steps": [
@@ -1185,10 +1186,10 @@
       "Tap navigation items",
       "Verify correct view is shown"
     ],
-    "passes": false,
-    "id": 90
+    "passes": false
   },
   {
+    "id": 97,
     "category": "mobile",
     "description": "Touch targets are large enough on mobile",
     "steps": [
@@ -1196,10 +1197,10 @@
       "Verify all buttons and inputs are tappable",
       "Verify 44px minimum touch target size"
     ],
-    "passes": false,
-    "id": 91
+    "passes": false
   },
   {
+    "id": 98,
     "category": "mobile",
     "description": "Keyboard doesn't hide content on mobile",
     "steps": [
@@ -1208,10 +1209,10 @@
       "Verify keyboard appears",
       "Verify content is still visible"
     ],
-    "passes": false,
-    "id": 92
+    "passes": false
   },
   {
+    "id": 99,
     "category": "integration",
     "description": "Deep links can open specific views",
     "steps": [
@@ -1220,10 +1221,10 @@
       "Verify app opens",
       "Verify correct view is displayed"
     ],
-    "passes": false,
-    "id": 93
+    "passes": false
   },
   {
+    "id": 100,
     "category": "integration",
     "description": "Local notifications work for task reminders",
     "steps": [
@@ -1232,10 +1233,10 @@
       "Verify notification appears",
       "Verify tapping notification opens app"
     ],
-    "passes": false,
-    "id": 94
+    "passes": false
   },
   {
+    "id": 101,
     "category": "integration",
     "description": "Secure storage stores auth token",
     "steps": [
@@ -1244,10 +1245,10 @@
       "Check system keychain/keystore",
       "Verify token is encrypted"
     ],
-    "passes": false,
-    "id": 95
+    "passes": false
   },
   {
+    "id": 102,
     "category": "integration",
     "description": "App builds successfully for Windows",
     "steps": [
@@ -1255,10 +1256,10 @@
       "Verify build completes without error",
       "Verify .exe file is generated"
     ],
-    "passes": false,
-    "id": 96
+    "passes": false
   },
   {
+    "id": 103,
     "category": "integration",
     "description": "App builds successfully for macOS",
     "steps": [
@@ -1266,10 +1267,10 @@
       "Verify build completes without error",
       "Verify .app bundle is generated"
     ],
-    "passes": false,
-    "id": 97
+    "passes": false
   },
   {
+    "id": 104,
     "category": "integration",
     "description": "App builds successfully for macOS Apple Silicon",
     "steps": [
@@ -1277,10 +1278,10 @@
       "Verify build completes without error",
       "Verify .app bundle is generated"
     ],
-    "passes": false,
-    "id": 98
+    "passes": false
   },
   {
+    "id": 105,
     "category": "integration",
     "description": "App builds successfully for Linux",
     "steps": [
@@ -1288,10 +1289,10 @@
       "Verify build completes without error",
       "Verify AppImage or .deb is generated"
     ],
-    "passes": false,
-    "id": 99
+    "passes": false
   },
   {
+    "id": 106,
     "category": "functional",
     "description": "User can filter tasks by completed status",
     "steps": [
@@ -1302,10 +1303,10 @@
       "Select 'Incomplete' only",
       "Verify only incomplete tasks are shown"
     ],
-    "passes": false,
-    "id": 100
+    "passes": false
   },
   {
+    "id": 107,
     "category": "functional",
     "description": "User can sort tasks by different criteria",
     "steps": [
@@ -1317,10 +1318,10 @@
       "Sort by created date",
       "Verify tasks are ordered by creation time"
     ],
-    "passes": false,
-    "id": 101
+    "passes": false
   },
   {
+    "id": 108,
     "category": "functional",
     "description": "Expand/collapse group shows/hides lists",
     "steps": [
@@ -1329,10 +1330,10 @@
       "Click again to collapse",
       "Verify lists are hidden"
     ],
-    "passes": false,
-    "id": 102
+    "passes": false
   },
   {
+    "id": 109,
     "category": "functional",
     "description": "Expand/collapse task shows/hides subtasks",
     "steps": [
@@ -1341,10 +1342,10 @@
       "Click again to collapse",
       "Verify subtasks are hidden"
     ],
-    "passes": false,
-    "id": 103
+    "passes": false
   },
   {
+    "id": 110,
     "category": "functional",
     "description": "API requests are retried on network failure",
     "steps": [
@@ -1353,10 +1354,10 @@
       "Verify request is retried",
       "Verify user is notified after max retries"
     ],
-    "passes": false,
-    "id": 104
+    "passes": false
   },
   {
+    "id": 111,
     "category": "functional",
     "description": "Concurrent edits are handled correctly",
     "steps": [
@@ -1367,10 +1368,10 @@
       "Verify no data is lost",
       "Verify last save is preserved"
     ],
-    "passes": false,
-    "id": 105
+    "passes": false
   },
   {
+    "id": 112,
     "category": "functional",
     "description": "Large task lists load performance is acceptable",
     "steps": [
@@ -1379,10 +1380,10 @@
       "Verify tasks load within 2 seconds",
       "Verify scrolling is smooth"
     ],
-    "passes": false,
-    "id": 106
+    "passes": false
   },
   {
+    "id": 113,
     "category": "functional",
     "description": "Deep nested subtasks load correctly",
     "steps": [
@@ -1391,10 +1392,10 @@
       "Verify performance is acceptable",
       "Verify indentation is correct"
     ],
-    "passes": false,
-    "id": 107
+    "passes": false
   },
   {
+    "id": 114,
     "category": "functional",
     "description": "User can collapse/expand all subtasks at once",
     "steps": [
@@ -1405,10 +1406,10 @@
       "Click expand all",
       "Verify all subtasks are shown"
     ],
-    "passes": false,
-    "id": 108
+    "passes": false
   },
   {
+    "id": 115,
     "category": "functional",
     "description": "Quick add input is accessible via keyboard",
     "steps": [
@@ -1418,10 +1419,10 @@
       "Press Enter",
       "Verify task is created"
     ],
-    "passes": false,
-    "id": 109
+    "passes": false
   },
   {
+    "id": 116,
     "category": "functional",
     "description": "Task count is displayed accurately",
     "steps": [
@@ -1432,10 +1433,10 @@
       "Delete a task",
       "Verify count decreases"
     ],
-    "passes": false,
-    "id": 110
+    "passes": false
   },
   {
+    "id": 117,
     "category": "functional",
     "description": "Group count shows number of lists",
     "steps": [
@@ -1444,10 +1445,10 @@
       "Add a list",
       "Verify count increases"
     ],
-    "passes": false,
-    "id": 111
+    "passes": false
   },
   {
+    "id": 118,
     "category": "functional",
     "description": "Completed tasks can be hidden",
     "steps": [
@@ -1458,10 +1459,10 @@
       "Select 'Show completed'",
       "Verify completed tasks are visible"
     ],
-    "passes": false,
-    "id": 112
+    "passes": false
   },
   {
+    "id": 119,
     "category": "functional",
     "description": "User can navigate between views using keyboard",
     "steps": [
@@ -1470,10 +1471,10 @@
       "Press Enter to select",
       "Verify selection works"
     ],
-    "passes": false,
-    "id": 113
+    "passes": false
   },
   {
+    "id": 120,
     "category": "functional",
     "description": "Focus management is correct when opening/closing panels",
     "steps": [
@@ -1482,10 +1483,10 @@
       "Close panel",
       "Verify focus returns to task list"
     ],
-    "passes": false,
-    "id": 114
+    "passes": false
   },
   {
+    "id": 121,
     "category": "functional",
     "description": "Tab navigation order is logical",
     "steps": [
@@ -1494,10 +1495,10 @@
       "Verify focus moves in logical order",
       "Verify all interactive elements are reachable"
     ],
-    "passes": false,
-    "id": 115
+    "passes": false
   },
   {
+    "id": 122,
     "category": "functional",
     "description": "Error states are styled appropriately",
     "steps": [
@@ -1505,10 +1506,10 @@
       "Verify error message is styled (red color, icon, etc.)",
       "Verify error is accessible to screen readers"
     ],
-    "passes": false,
-    "id": 116
+    "passes": false
   },
   {
+    "id": 123,
     "category": "functional",
     "description": "Success feedback is shown after actions",
     "steps": [
@@ -1517,10 +1518,10 @@
       "Complete a task",
       "Verify success feedback"
     ],
-    "passes": false,
-    "id": 117
+    "passes": false
   },
   {
+    "id": 124,
     "category": "functional",
     "description": "Form validation shows inline errors",
     "steps": [
@@ -1529,10 +1530,10 @@
       "Fix errors",
       "Verify errors disappear"
     ],
-    "passes": false,
-    "id": 118
+    "passes": false
   },
   {
+    "id": 125,
     "category": "functional",
     "description": "Date picker is intuitive to use",
     "steps": [
@@ -1543,10 +1544,10 @@
       "Select a date",
       "Verify date is set correctly"
     ],
-    "passes": false,
-    "id": 119
+    "passes": false
   },
   {
+    "id": 126,
     "category": "functional",
     "description": "Time picker works for task duration",
     "steps": [
@@ -1555,10 +1556,10 @@
       "Verify duration is saved correctly",
       "Verify duration displays in readable format"
     ],
-    "passes": false,
-    "id": 120
+    "passes": false
   },
   {
+    "id": 127,
     "category": "functional",
     "description": "Color picker for groups works",
     "steps": [
@@ -1568,10 +1569,10 @@
       "Verify color is applied to group",
       "Verify color persists"
     ],
-    "passes": false,
-    "id": 121
+    "passes": false
   },
   {
+    "id": 128,
     "category": "functional",
     "description": "Icon picker for lists works",
     "steps": [
@@ -1581,10 +1582,10 @@
       "Verify icon is displayed next to list name",
       "Verify icon persists"
     ],
-    "passes": false,
-    "id": 122
+    "passes": false
   },
   {
+    "id": 129,
     "category": "functional",
     "description": "Bulk select and actions work",
     "steps": [
@@ -1593,10 +1594,10 @@
       "Perform action (delete, complete, move)",
       "Verify action applies to all selected"
     ],
-    "passes": false,
-    "id": 123
+    "passes": false
   },
   {
+    "id": 130,
     "category": "functional",
     "description": "Keyboard shortcuts dialog shows all shortcuts",
     "steps": [
@@ -1604,10 +1605,10 @@
       "Verify all shortcuts are listed",
       "Verify shortcuts are organized by category"
     ],
-    "passes": false,
-    "id": 124
+    "passes": false
   },
   {
+    "id": 131,
     "category": "functional",
     "description": "App works when API is slow",
     "steps": [
@@ -1616,10 +1617,10 @@
       "Verify loading states are shown",
       "Verify app remains responsive"
     ],
-    "passes": false,
-    "id": 125
+    "passes": false
   },
   {
+    "id": 132,
     "category": "functional",
     "description": "Tokens are refreshed automatically",
     "steps": [
@@ -1628,10 +1629,10 @@
       "Verify token is refreshed",
       "Verify action completes successfully"
     ],
-    "passes": false,
-    "id": 126
+    "passes": false
   },
   {
+    "id": 133,
     "category": "functional",
     "description": "Logout clears all local data",
     "steps": [
@@ -1641,10 +1642,10 @@
       "Verify cached data is cleared",
       "Verify no user data is visible"
     ],
-    "passes": false,
-    "id": 127
+    "passes": false
   },
   {
+    "id": 134,
     "category": "functional",
     "description": "App handles missing API gracefully",
     "steps": [
@@ -1653,10 +1654,10 @@
       "Verify appropriate error message",
       "Verify app doesn't crash"
     ],
-    "passes": false,
-    "id": 128
+    "passes": false
   },
   {
+    "id": 135,
     "category": "functional",
     "description": "Back button navigation works correctly",
     "steps": [
@@ -1665,10 +1666,10 @@
       "Verify returns to task list",
       "Verify state is preserved"
     ],
-    "passes": false,
-    "id": 129
+    "passes": false
   },
   {
+    "id": 136,
     "category": "functional",
     "description": "App state is preserved during orientation change on mobile",
     "steps": [
@@ -1678,10 +1679,10 @@
       "Verify state is preserved",
       "Verify UI adapts correctly"
     ],
-    "passes": false,
-    "id": 130
+    "passes": false
   },
   {
+    "id": 137,
     "category": "functional",
     "description": "App handles interruptions (calls, notifications) on mobile",
     "steps": [
@@ -1691,10 +1692,10 @@
       "Answer and return to app",
       "Verify state is preserved"
     ],
-    "passes": false,
-    "id": 131
+    "passes": false
   },
   {
+    "id": 138,
     "category": "functional",
     "description": "Multiple rapid clicks don't cause duplicate actions",
     "steps": [
@@ -1702,10 +1703,10 @@
       "Verify only one action is performed",
       "Verify no duplicate tasks are created"
     ],
-    "passes": false,
-    "id": 132
+    "passes": false
   },
   {
+    "id": 139,
     "category": "functional",
     "description": "Undo functionality works for recent actions",
     "steps": [
@@ -1714,10 +1715,10 @@
       "Click undo",
       "Verify task is restored"
     ],
-    "passes": false,
-    "id": 133
+    "passes": false
   },
   {
+    "id": 140,
     "category": "functional",
     "description": "Spinning loading indicator shows during API calls",
     "steps": [
@@ -1725,10 +1726,10 @@
       "Verify loading indicator appears",
       "Verify indicator disappears after load completes"
     ],
-    "passes": false,
-    "id": 134
+    "passes": false
   },
   {
+    "id": 141,
     "category": "functional",
     "description": "Task can be moved to root level (no parent)",
     "steps": [
@@ -1737,10 +1738,10 @@
       "Verify subtask is no longer nested",
       "Verify task appears in main list"
     ],
-    "passes": false,
-    "id": 135
+    "passes": false
   },
   {
+    "id": 142,
     "category": "functional",
     "description": "Completing parent task doesn't auto-complete subtasks",
     "steps": [
@@ -1749,10 +1750,10 @@
       "Verify subtasks remain incomplete",
       "Complete all subtasks manually"
     ],
-    "passes": false,
-    "id": 136
+    "passes": false
   },
   {
+    "id": 143,
     "category": "functional",
     "description": "Deleting parent task deletes all subtasks",
     "steps": [
@@ -1761,10 +1762,10 @@
       "Confirm deletion",
       "Verify parent and all subtasks are deleted"
     ],
-    "passes": false,
-    "id": 137
+    "passes": false
   },
   {
+    "id": 144,
     "category": "functional",
     "description": "Moving parent task moves all subtasks",
     "steps": [
@@ -1773,10 +1774,10 @@
       "Verify subtasks move with parent",
       "Verify subtasks are in new list"
     ],
-    "passes": false,
-    "id": 138
+    "passes": false
   },
   {
+    "id": 145,
     "category": "functional",
     "description": "Group color is visible in task list header",
     "steps": [
@@ -1785,10 +1786,10 @@
       "Switch to different list with different group color",
       "Verify color updates"
     ],
-    "passes": false,
-    "id": 139
+    "passes": false
   },
   {
+    "id": 146,
     "category": "functional",
     "description": "List icon is visible in sidebar and header",
     "steps": [
@@ -1797,10 +1798,10 @@
       "Select list",
       "Verify icon appears in header"
     ],
-    "passes": false,
-    "id": 140
+    "passes": false
   },
   {
+    "id": 147,
     "category": "functional",
     "description": "App caches data for offline use",
     "steps": [
@@ -1809,10 +1810,10 @@
       "Refresh the page",
       "Verify cached data is displayed"
     ],
-    "passes": false,
-    "id": 141
+    "passes": false
   },
   {
+    "id": 148,
     "category": "functional",
     "description": "Pending changes are shown when offline",
     "steps": [
@@ -1822,10 +1823,10 @@
       "Go online",
       "Verify changes sync"
     ],
-    "passes": false,
-    "id": 142
+    "passes": false
   },
   {
+    "id": 149,
     "category": "functional",
     "description": "Conflict resolution shows UI when conflicts occur",
     "steps": [
@@ -1834,10 +1835,10 @@
       "Verify conflict resolution UI appears",
       "Verify user can choose which version to keep"
     ],
-    "passes": false,
-    "id": 143
+    "passes": false
   },
   {
+    "id": 150,
     "category": "style",
     "description": "Typography is consistent throughout app",
     "steps": [
@@ -1846,10 +1847,10 @@
       "Verify consistent font sizes",
       "Verify consistent line heights"
     ],
-    "passes": false,
-    "id": 144
+    "passes": false
   },
   {
+    "id": 151,
     "category": "style",
     "description": "Spacing is consistent throughout app",
     "steps": [
@@ -1857,10 +1858,10 @@
       "Verify consistent spacing scale",
       "Verify consistent spacing between elements"
     ],
-    "passes": false,
-    "id": 145
+    "passes": false
   },
   {
+    "id": 152,
     "category": "style",
     "description": "Icons are consistent in style",
     "steps": [
@@ -1868,10 +1869,10 @@
       "Verify consistent icon style",
       "Verify consistent icon sizes"
     ],
-    "passes": false,
-    "id": 146
+    "passes": false
   },
   {
+    "id": 153,
     "category": "style",
     "description": "Color scheme is consistent",
     "steps": [
@@ -1879,10 +1880,10 @@
       "Verify consistent color usage",
       "Verify semantic colors are used correctly (success=green, error=red)"
     ],
-    "passes": false,
-    "id": 147
+    "passes": false
   },
   {
+    "id": 154,
     "category": "style",
     "description": "Focus states are visible for accessibility",
     "steps": [
@@ -1890,10 +1891,10 @@
       "Verify focus indicator is visible",
       "Verify focus indicator has sufficient contrast"
     ],
-    "passes": false,
-    "id": 148
+    "passes": false
   },
   {
+    "id": 155,
     "category": "style",
     "description": "Hover states are visible",
     "steps": [
@@ -1901,10 +1902,10 @@
       "Verify hover state is visible",
       "Verify hover state provides feedback"
     ],
-    "passes": false,
-    "id": 149
+    "passes": false
   },
   {
+    "id": 156,
     "category": "style",
     "description": "Active/pressed states are visible",
     "steps": [
@@ -1912,10 +1913,10 @@
       "Verify pressed state is visible",
       "Verify visual feedback"
     ],
-    "passes": false,
-    "id": 150
+    "passes": false
   },
   {
+    "id": 157,
     "category": "style",
     "description": "Disabled states are clearly indicated",
     "steps": [
@@ -1924,10 +1925,10 @@
       "Verify reduced opacity",
       "Verify cursor changes to not-allowed"
     ],
-    "passes": false,
-    "id": 151
+    "passes": false
   },
   {
+    "id": 158,
     "category": "style",
     "description": "Scrollbars match theme",
     "steps": [
@@ -1935,10 +1936,10 @@
       "Verify scrollbar matches theme (light/dark)",
       "Verify scrollbar is not obtrusive"
     ],
-    "passes": false,
-    "id": 152
+    "passes": false
   },
   {
+    "id": 159,
     "category": "style",
     "description": "Transitions are smooth (no jank)",
     "steps": [
@@ -1946,10 +1947,10 @@
       "Verify no jank or stutter",
       "Verify consistent 60fps"
     ],
-    "passes": false,
-    "id": 153
+    "passes": false
   },
   {
+    "id": 160,
     "category": "style",
     "description": "No layout shifts during loading",
     "steps": [
@@ -1957,10 +1958,10 @@
       "Verify no layout shifts as content loads",
       "Verify stable layout"
     ],
-    "passes": false,
-    "id": 154
+    "passes": false
   },
   {
+    "id": 161,
     "category": "functional",
     "description": "App works in fullscreen mode on desktop",
     "steps": [
@@ -1970,10 +1971,10 @@
       "Exit fullscreen",
       "Verify normal layout"
     ],
-    "passes": false,
-    "id": 155
+    "passes": false
   },
   {
+    "id": 162,
     "category": "functional",
     "description": "Split view works on iPad",
     "steps": [
@@ -1982,10 +1983,10 @@
       "Verify UI adapts correctly",
       "Verify content is readable"
     ],
-    "passes": false,
-    "id": 156
+    "passes": false
   },
   {
+    "id": 163,
     "category": "functional",
     "description": "Picture-in-picture works for task view on mobile",
     "steps": [
@@ -1994,10 +1995,10 @@
       "Activate PiP if supported",
       "Verify task detail remains visible"
     ],
-    "passes": false,
-    "id": 157
+    "passes": false
   },
   {
+    "id": 164,
     "category": "integration",
     "description": "App can be installed as PWA on desktop",
     "steps": [
@@ -2006,10 +2007,10 @@
       "Verify app installs",
       "Verify app launches from installed location"
     ],
-    "passes": false,
-    "id": 158
+    "passes": false
   },
   {
+    "id": 165,
     "category": "integration",
     "description": "App icon displays correctly on all platforms",
     "steps": [
@@ -2018,10 +2019,10 @@
       "Check app icon on Linux app launcher",
       "Verify icons are correct"
     ],
-    "passes": false,
-    "id": 159
+    "passes": false
   },
   {
+    "id": 166,
     "category": "integration",
     "description": "App name displays correctly in system UI",
     "steps": [
@@ -2030,10 +2031,10 @@
       "Check app name in Linux app launcher",
       "Verify name is 'PuraToDo'"
     ],
-    "passes": false,
-    "id": 160
+    "passes": false
   },
   {
+    "id": 167,
     "category": "integration",
     "description": "Share functionality works on mobile",
     "steps": [
@@ -2042,10 +2043,10 @@
       "Tap share button",
       "Verify native share sheet appears"
     ],
-    "passes": false,
-    "id": 161
+    "passes": false
   },
   {
+    "id": 168,
     "category": "integration",
     "description": "App can receive shared content on mobile",
     "steps": [
@@ -2054,10 +2055,10 @@
       "Select PuraToDo",
       "Verify task is created with shared content"
     ],
-    "passes": false,
-    "id": 162
+    "passes": false
   },
   {
+    "id": 169,
     "category": "functional",
     "description": "Data export works",
     "steps": [
@@ -2067,10 +2068,10 @@
       "Verify JSON/CSV file is downloaded",
       "Verify data is complete"
     ],
-    "passes": false,
-    "id": 163
+    "passes": false
   },
   {
+    "id": 170,
     "category": "functional",
     "description": "Data import works",
     "steps": [
@@ -2080,10 +2081,10 @@
       "Verify data is imported",
       "Verify imported tasks appear"
     ],
-    "passes": false,
-    "id": 164
+    "passes": false
   },
   {
+    "id": 171,
     "category": "functional",
     "description": "About section shows app version",
     "steps": [
@@ -2092,10 +2093,10 @@
       "Verify app version is displayed",
       "Verify version matches package.json"
     ],
-    "passes": false,
-    "id": 165
+    "passes": false
   },
   {
+    "id": 172,
     "category": "functional",
     "description": "Clear data option works",
     "steps": [
@@ -2105,10 +2106,10 @@
       "Verify all local data is cleared",
       "Verify user is logged out"
     ],
-    "passes": false,
-    "id": 166
+    "passes": false
   },
   {
+    "id": 173,
     "category": "functional",
     "description": "Account settings can be accessed",
     "steps": [
@@ -2117,10 +2118,10 @@
       "Verify email is displayed",
       "Verify account info can be edited"
     ],
-    "passes": false,
-    "id": 167
+    "passes": false
   },
   {
+    "id": 174,
     "category": "functional",
     "description": "Notification settings can be configured",
     "steps": [
@@ -2129,10 +2130,10 @@
       "Toggle notification settings",
       "Verify settings are saved"
     ],
-    "passes": false,
-    "id": 168
+    "passes": false
   },
   {
+    "id": 175,
     "category": "functional",
     "description": "Language can be changed",
     "steps": [
@@ -2141,10 +2142,10 @@
       "Change language",
       "Verify UI text updates to selected language"
     ],
-    "passes": false,
-    "id": 169
+    "passes": false
   },
   {
+    "id": 176,
     "category": "functional",
     "description": "App works correctly in multiple languages",
     "steps": [
@@ -2153,10 +2154,10 @@
       "Switch to English",
       "Verify all UI text is in English"
     ],
-    "passes": false,
-    "id": 170
+    "passes": false
   },
   {
+    "id": 177,
     "category": "functional",
     "description": "Date format respects locale",
     "steps": [
@@ -2165,10 +2166,10 @@
       "Set locale to EU",
       "Verify dates are in DD/MM/YYYY format"
     ],
-    "passes": false,
-    "id": 171
+    "passes": false
   },
   {
+    "id": 178,
     "category": "functional",
     "description": "App passes basic accessibility audit",
     "steps": [
@@ -2177,10 +2178,10 @@
       "Verify color contrast is sufficient",
       "Verify all images have alt text"
     ],
-    "passes": false,
-    "id": 172
+    "passes": false
   },
   {
+    "id": 179,
     "category": "functional",
     "description": "Screen reader can navigate the app",
     "steps": [
@@ -2189,10 +2190,10 @@
       "Verify all elements are announced",
       "Verify navigation order is logical"
     ],
-    "passes": false,
-    "id": 173
+    "passes": false
   },
   {
+    "id": 180,
     "category": "functional",
     "description": "Reduced motion preference is respected",
     "steps": [
@@ -2201,10 +2202,10 @@
       "Verify animations are reduced or disabled",
       "Verify app is still fully functional"
     ],
-    "passes": false,
-    "id": 174
+    "passes": false
   },
   {
+    "id": 181,
     "category": "functional",
     "description": "High contrast mode works",
     "steps": [
@@ -2213,10 +2214,10 @@
       "Verify sufficient contrast",
       "Verify all elements are visible"
     ],
-    "passes": false,
-    "id": 175
+    "passes": false
   },
   {
+    "id": 182,
     "category": "functional",
     "description": "App handles very long task names",
     "steps": [
@@ -2225,10 +2226,10 @@
       "Verify full name is visible in detail view",
       "Verify no layout breaks"
     ],
-    "passes": false,
-    "id": 176
+    "passes": false
   },
   {
+    "id": 183,
     "category": "functional",
     "description": "App handles special characters in task names",
     "steps": [
@@ -2237,10 +2238,10 @@
       "Verify task displays correctly",
       "Verify search finds task"
     ],
-    "passes": false,
-    "id": 177
+    "passes": false
   },
   {
+    "id": 184,
     "category": "functional",
     "description": "App handles Unicode in task names",
     "steps": [
@@ -2249,10 +2250,10 @@
       "Verify text displays correctly",
       "Verify search works with Unicode"
     ],
-    "passes": false,
-    "id": 178
+    "passes": false
   },
   {
+    "id": 185,
     "category": "functional",
     "description": "Very deep subtask nesting displays correctly",
     "steps": [
@@ -2261,10 +2262,10 @@
       "Verify horizontal scroll or smart truncation",
       "Verify performance is acceptable"
     ],
-    "passes": false,
-    "id": 179
+    "passes": false
   },
   {
+    "id": 186,
     "category": "functional",
     "description": "Large number of groups (50+) works",
     "steps": [
@@ -2273,10 +2274,10 @@
       "Verify groups load quickly",
       "Verify no performance issues"
     ],
-    "passes": false,
-    "id": 180
+    "passes": false
   },
   {
+    "id": 187,
     "category": "functional",
     "description": "Large number of lists (100+) works",
     "steps": [
@@ -2285,10 +2286,10 @@
       "Verify scrolling is smooth",
       "Verify no performance issues"
     ],
-    "passes": false,
-    "id": 181
+    "passes": false
   },
   {
+    "id": 188,
     "category": "functional",
     "description": "Rapid task creation works",
     "steps": [
@@ -2297,10 +2298,10 @@
       "Verify no duplicates",
       "Verify correct order"
     ],
-    "passes": false,
-    "id": 182
+    "passes": false
   },
   {
+    "id": 189,
     "category": "functional",
     "description": "App recovers from API timeout",
     "steps": [
@@ -2309,10 +2310,10 @@
       "Verify retry option",
       "Verify app doesn't freeze"
     ],
-    "passes": false,
-    "id": 183
+    "passes": false
   },
   {
+    "id": 190,
     "category": "functional",
     "description": "Session expiry is handled gracefully",
     "steps": [
@@ -2321,10 +2322,10 @@
       "Verify redirect to login",
       "Verify user can log in again"
     ],
-    "passes": false,
-    "id": 184
+    "passes": false
   },
   {
+    "id": 191,
     "category": "functional",
     "description": "Memory usage stays reasonable",
     "steps": [
@@ -2333,10 +2334,10 @@
       "Verify no memory leaks",
       "Verify memory doesn't grow unbounded"
     ],
-    "passes": false,
-    "id": 185
+    "passes": false
   },
   {
+    "id": 192,
     "category": "functional",
     "description": "Cold start time is acceptable",
     "steps": [
@@ -2345,10 +2346,10 @@
       "Verify cold start under 3 seconds",
       "Verify usable quickly"
     ],
-    "passes": false,
-    "id": 186
+    "passes": false
   },
   {
+    "id": 193,
     "category": "functional",
     "description": "User can navigate with arrow keys in task list",
     "steps": [
@@ -2356,10 +2357,10 @@
       "Verify focus moves between tasks",
       "Verify selected task is visually highlighted"
     ],
-    "passes": false,
-    "id": 187
+    "passes": false
   },
   {
+    "id": 194,
     "category": "functional",
     "description": "Space key toggles task completion",
     "steps": [
@@ -2368,10 +2369,10 @@
       "Verify task completion toggles",
       "Verify checkbox updates"
     ],
-    "passes": false,
-    "id": 188
+    "passes": false
   },
   {
+    "id": 195,
     "category": "functional",
     "description": "Enter key opens task detail",
     "steps": [
@@ -2379,10 +2380,10 @@
       "Press Enter",
       "Verify task detail panel opens"
     ],
-    "passes": false,
-    "id": 189
+    "passes": false
   },
   {
+    "id": 196,
     "category": "functional",
     "description": "Delete key deletes selected task",
     "steps": [
@@ -2392,10 +2393,10 @@
       "Confirm deletion",
       "Verify task is deleted"
     ],
-    "passes": false,
-    "id": 190
+    "passes": false
   },
   {
+    "id": 197,
     "category": "functional",
     "description": "App works with mouse only",
     "steps": [
@@ -2403,10 +2404,10 @@
       "Complete all common actions",
       "Verify all features are accessible"
     ],
-    "passes": false,
-    "id": 191
+    "passes": false
   },
   {
+    "id": 198,
     "category": "functional",
     "description": "App works with keyboard only",
     "steps": [
@@ -2414,10 +2415,10 @@
       "Complete all common actions",
       "Verify all features are accessible"
     ],
-    "passes": false,
-    "id": 192
+    "passes": false
   },
   {
+    "id": 199,
     "category": "functional",
     "description": "Tooltip appears on hover for truncated text",
     "steps": [
@@ -2425,10 +2426,10 @@
       "Hover over truncated task name",
       "Verify tooltip shows full text"
     ],
-    "passes": false,
-    "id": 193
+    "passes": false
   },
   {
+    "id": 200,
     "category": "functional",
     "description": "Loading spinner shows during group/list fetch",
     "steps": [
@@ -2436,20 +2437,20 @@
       "Verify loading spinner appears",
       "Verify spinner disappears after load"
     ],
-    "passes": false,
-    "id": 194
+    "passes": false
   },
   {
+    "id": 201,
     "category": "functional",
     "description": "Progress bar shows during task creation",
     "steps": [
       "Create multiple tasks quickly",
       "Verify progress or loading state"
     ],
-    "passes": false,
-    "id": 195
+    "passes": false
   },
   {
+    "id": 202,
     "category": "functional",
     "description": "Task created notification appears",
     "steps": [
@@ -2457,10 +2458,10 @@
       "Verify toast/notification appears",
       "Verify notification disappears after timeout"
     ],
-    "passes": false,
-    "id": 196
+    "passes": false
   },
   {
+    "id": 203,
     "category": "functional",
     "description": "Task deleted notification appears",
     "steps": [
@@ -2468,10 +2469,10 @@
       "Verify toast/notification appears",
       "Verify undo option is available"
     ],
-    "passes": false,
-    "id": 197
+    "passes": false
   },
   {
+    "id": 204,
     "category": "functional",
     "description": "Offline indicator is visible",
     "steps": [
@@ -2479,10 +2480,10 @@
       "Verify offline indicator appears",
       "Verify indicator disappears when online"
     ],
-    "passes": false,
-    "id": 198
+    "passes": false
   },
   {
+    "id": 205,
     "category": "functional",
     "description": "Sync status indicator shows during sync",
     "steps": [
@@ -2490,10 +2491,10 @@
       "Verify sync indicator appears",
       "Verify indicator shows completion"
     ],
-    "passes": false,
-    "id": 199
+    "passes": false
   },
   {
+    "id": 206,
     "category": "functional",
     "description": "User can configure default view",
     "steps": [
@@ -2502,10 +2503,10 @@
       "Reopen app",
       "Verify Today view is displayed by default"
     ],
-    "passes": false,
-    "id": 200
+    "passes": false
   },
   {
+    "id": 207,
     "category": "functional",
     "description": "User can configure default group to open",
     "steps": [
@@ -2514,10 +2515,10 @@
       "Reopen app",
       "Verify correct group is selected"
     ],
-    "passes": false,
-    "id": 201
+    "passes": false
   },
   {
+    "id": 208,
     "category": "functional",
     "description": "Quick add keyboard shortcut works globally",
     "steps": [
@@ -2526,10 +2527,10 @@
       "Add task",
       "Verify task is created in correct list"
     ],
-    "passes": false,
-    "id": 202
+    "passes": false
   },
   {
+    "id": 209,
     "category": "functional",
     "description": "Search shortcut works globally",
     "steps": [
@@ -2537,7 +2538,6 @@
       "Verify search opens",
       "Search for task"
     ],
-    "passes": false,
-    "id": 203
+    "passes": false
   }
 ]
