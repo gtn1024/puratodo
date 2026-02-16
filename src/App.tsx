@@ -1,12 +1,16 @@
 import { useAuthStore } from "@/stores/authStore";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import { useEffect, useState } from "react";
 import "./App.css";
 
+type AuthPage = "login" | "register";
+
 function App() {
   const { isAuthenticated, isLoading } = useAuthStore();
   const [isHydrated, setIsHydrated] = useState(false);
+  const [authPage, setAuthPage] = useState<AuthPage>("login");
 
   // Wait for Zustand to hydrate from localStorage
   useEffect(() => {
@@ -34,9 +38,12 @@ function App() {
     );
   }
 
-  // Show login page if not authenticated
+  // Show auth pages if not authenticated
   if (!isAuthenticated) {
-    return <LoginPage />;
+    if (authPage === "register") {
+      return <RegisterPage onSwitchToLogin={() => setAuthPage("login")} />;
+    }
+    return <LoginPage onSwitchToRegister={() => setAuthPage("register")} />;
   }
 
   // Show dashboard if authenticated

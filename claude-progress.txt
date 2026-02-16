@@ -1,64 +1,56 @@
 # PuraToDo Tauri App - Progress Log
 
-## Session 2: Authentication System Implementation
+## Session 3: Register Page & Auth Integration
 **Date:** 2026-02-16
 **Agent:** Claude Code
 
 ### Completed
-- Implemented window controls (native Tauri controls work by default)
-- Built complete login page UI with email/password fields
-- Created authentication system:
-  - API client with configurable base URL
-  - Authentication store using Zustand with localStorage persistence
-  - Login/register/logout API endpoints
-  - useAuth hook for authentication operations
-- Created Dashboard page placeholder for authenticated users
-- Added auth state routing in App.tsx
+- Created RegisterPage.tsx with full UI:
+  - Name (optional), email, password, confirm password fields
+  - Client-side password validation (matching, minimum length)
+  - Loading and error states
+  - Page navigation between login/register
+- Updated App.tsx with auth page state management
+- Updated LoginPage with register page navigation
+- Fixed API endpoint paths (/api/v1/auth/* instead of /api/auth/*)
+- Fixed CORS issue by removing credentials: 'include' (using Bearer token auth)
 
 ### Current Status
-- 3/209 test cases passing
-- Authentication system implemented (requires API server for full testing)
-- Login page ready with error handling
-- Session persistence working
+- 8/209 test cases passing
+- Registration flow working (creates user in Supabase)
+- Login error handling working
+- Logout working
+- API integration confirmed working
 
-### API Configuration
-Default API URL: http://localhost:3000
-Can be configured via settings (Test #8, #9)
-
-### Next Steps
-1. Connect to running API server for login testing
-2. Implement register page UI
-3. Build sidebar with groups/lists
-4. Implement task CRUD operations
-
-### Files Created/Modified
-- src/lib/api/config.ts (new)
-- src/lib/api/client.ts (new)
-- src/lib/api/auth.ts (new)
-- src/stores/authStore.ts (new)
-- src/hooks/useAuth.ts (new)
-- src/pages/DashboardPage.tsx (new)
-- src/pages/LoginPage.tsx (modified - auth integration)
-- src/App.tsx (modified - auth routing)
-
-### Tests Status
-Passing:
+### Tests Passing
 - Test #1: Tauri app launches without errors
 - Test #2: App window can be minimized, maximized, and closed
-- Test #3: Login page displays correctly with email and password fields
-
-Ready for testing (requires API server):
-- Test #4: User can log in with valid credentials
+- Test #3: Login page displays correctly
 - Test #5: User cannot log in with invalid credentials
 - Test #6: User can register a new account
 - Test #7: User can log out
-- Test #14: Session persists after app restart
-- Test #66: API client is configured with correct base URL
+- Test #66: API client configured with correct base URL
 - Test #67: API client includes authentication headers
+
+### Pending (requires email confirmation)
+- Test #4: User can log in with valid credentials (needs confirmed email)
+
+### Files Created/Modified
+- src/pages/RegisterPage.tsx (new)
+- src/pages/LoginPage.tsx (modified - navigation)
+- src/App.tsx (modified - page state)
+- src/lib/api/auth.ts (modified - API paths)
+- src/lib/api/client.ts (modified - removed credentials)
+
+### Next Steps
+1. Implement sidebar with groups/lists
+2. Implement task CRUD operations
+3. Add API server configuration UI (Test #8, #9)
+4. Test with confirmed user account
 
 ---
 
-## Session 1: Project Initialization
+## Session 2: Authentication System Implementation
 **Date:** 2026-02-16
 **Agent:** Claude Code
 

@@ -28,26 +28,26 @@ export interface AuthResponse {
 // Auth API endpoints
 export const authApi = {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    const response = await api.post<AuthResponse>("/api/auth/login", credentials, false);
+    const response = await api.post<AuthResponse>("/api/v1/auth/login", credentials, false);
     return response;
   },
 
   async register(credentials: RegisterCredentials): Promise<AuthResponse> {
-    const response = await api.post<AuthResponse>("/api/auth/register", credentials, false);
+    const response = await api.post<AuthResponse>("/api/v1/auth/register", credentials, false);
     return response;
   },
 
   async logout(): Promise<void> {
-    await api.post("/api/auth/logout");
+    await api.post("/api/v1/auth/logout");
   },
 
   async getCurrentUser(): Promise<User> {
-    const response = await api.get<User>("/api/auth/me");
+    const response = await api.get<User>("/api/v1/auth/me");
     return response;
   },
 
   async refreshToken(): Promise<{ token: string }> {
-    const response = await api.post<{ token: string }>("/api/auth/refresh");
+    const response = await api.post<{ token: string }>("/api/v1/auth/refresh");
     return response;
   },
 };

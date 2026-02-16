@@ -90,7 +90,6 @@ export const api = {
     const response = await fetch(buildUrl(path), {
       method: "GET",
       headers: getHeaders(includeAuth),
-      credentials: "include",
     });
 
     return handleResponse<T>(response);
@@ -100,7 +99,6 @@ export const api = {
     const response = await fetch(buildUrl(path), {
       method: "POST",
       headers: getHeaders(includeAuth),
-      credentials: "include",
       body: body ? JSON.stringify(body) : undefined,
     });
 
@@ -111,7 +109,6 @@ export const api = {
     const response = await fetch(buildUrl(path), {
       method: "PUT",
       headers: getHeaders(includeAuth),
-      credentials: "include",
       body: body ? JSON.stringify(body) : undefined,
     });
 
@@ -122,7 +119,6 @@ export const api = {
     const response = await fetch(buildUrl(path), {
       method: "PATCH",
       headers: getHeaders(includeAuth),
-      credentials: "include",
       body: body ? JSON.stringify(body) : undefined,
     });
 
@@ -133,7 +129,6 @@ export const api = {
     const response = await fetch(buildUrl(path), {
       method: "DELETE",
       headers: getHeaders(includeAuth),
-      credentials: "include",
     });
 
     return handleResponse<T>(response);

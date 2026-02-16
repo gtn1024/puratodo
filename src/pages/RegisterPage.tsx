@@ -1,8 +1,12 @@
 import * as React from "react";
-import { Mail, Lock, ArrowRight, CheckCircle2, AlertCircle } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
+
+interface RegisterPageProps {
+  onSwitchToLogin: () => void;
+}
 
 // Floating geometric shapes component
 function FloatingShapes() {
@@ -64,25 +68,39 @@ function FeatureItem({ children }: { children: React.ReactNode }) {
   );
 }
 
-interface LoginPageProps {
-  onSwitchToRegister: () => void;
-}
-
-export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
+export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
+  const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [confirmPassword, setConfirmPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
-  const { login, isLoading, error, clearError } = useAuth();
+  const [validationError, setValidationError] = React.useState<string | null>(null);
+  const { register, isLoading, error, clearError } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
-    const result = await login({ email, password });
+    setValidationError(null);
+
+    // Client-side validation
+    if (password !== confirmPassword) {
+      setValidationError("Passwords do not match");
+      return;
+    }
+
+    if (password.length < 8) {
+      setValidationError("Password must be at least 8 characters");
+      return;
+    }
+
+    const result = await register({ email, password, name: name || undefined });
     if (result.success) {
       // Navigation will be handled by the auth state change
-      console.log("Login successful");
+      console.log("Registration successful");
     }
   };
+
+  const displayError = validationError || error;
 
   return (
     <div className="min-h-screen w-full flex">
@@ -109,23 +127,23 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
 
           {/* Headline */}
           <h1 className="text-4xl xl:text-5xl font-bold text-zinc-900 dark:text-white leading-tight mb-6">
-            Organize your life,
+            Start organizing
             <br />
             <span className="bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-              one task at a time.
+              your tasks today.
             </span>
           </h1>
 
           <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-10 max-w-md">
-            The minimalist task manager with infinite nested subtasks. Focus on what matters.
+            Create your free account and experience the power of infinite nested subtasks.
           </p>
 
           {/* Features */}
           <ul className="space-y-4">
-            <FeatureItem>Infinite nested subtasks for complex projects</FeatureItem>
-            <FeatureItem>Cross-platform sync - desktop & mobile</FeatureItem>
-            <FeatureItem>Beautiful, distraction-free interface</FeatureItem>
-            <FeatureItem>Offline support with automatic sync</FeatureItem>
+            <FeatureItem>Free forever - no credit card required</FeatureItem>
+            <FeatureItem>Unlimited groups and lists</FeatureItem>
+            <FeatureItem>Real-time sync across all devices</FeatureItem>
+            <FeatureItem>Export and backup your data anytime</FeatureItem>
           </ul>
         </div>
 
@@ -133,7 +151,7 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white/50 dark:from-zinc-900/50 to-transparent" />
       </div>
 
-      {/* Right side - Login form */}
+      {/* Right side - Register form */}
       <div className="flex-1 flex items-center justify-center p-8 bg-white dark:bg-zinc-900">
         <div className="w-full max-w-md">
           {/* Mobile logo */}
@@ -154,25 +172,43 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
           {/* Form header */}
           <div className="text-center lg:text-left mb-8">
             <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2">
-              Welcome back
+              Create your account
             </h2>
             <p className="text-zinc-500 dark:text-zinc-400">
-              Sign in to continue to your tasks
+              Get started with PuraToDo for free
             </p>
           </div>
 
           {/* Error message */}
-          {error && (
+          {displayError && (
             <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
               <div className="flex items-center gap-3">
                 <AlertCircle className="h-5 w-5 text-red-500 dark:text-red-400 flex-shrink-0" />
-                <p className="text-sm text-red-600 dark:text-red-300">{error}</p>
+                <p className="text-sm text-red-600 dark:text-red-300">{displayError}</p>
               </div>
             </div>
           )}
 
-          {/* Login form */}
+          {/* Register form */}
           <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <label
+                htmlFor="name"
+                className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
+              >
+                Name <span className="text-zinc-400">(optional)</span>
+              </label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="John Doe"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                icon={<User className="h-5 w-5" />}
+                disabled={isLoading}
+              />
+            </div>
+
             <div className="space-y-2">
               <label
                 htmlFor="email"
@@ -193,27 +229,38 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="password"
-                  className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
-                >
-                  Password
-                </label>
-                <a
-                  href="#"
-                  className="text-sm text-violet-600 hover:text-violet-500 dark:text-violet-400 dark:hover:text-violet-300 transition-colors"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  Forgot password?
-                </a>
-              </div>
+              <label
+                htmlFor="password"
+                className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
+              >
+                Password
+              </label>
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                placeholder="Enter your password"
+                placeholder="At least 8 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                icon={<Lock className="h-5 w-5" />}
+                required
+                disabled={isLoading}
+                minLength={8}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="confirmPassword"
+                className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
+              >
+                Confirm password
+              </label>
+              <Input
+                id="confirmPassword"
+                type={showPassword ? "text" : "password"}
+                placeholder="Confirm your password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 icon={<Lock className="h-5 w-5" />}
                 required
                 disabled={isLoading}
@@ -227,7 +274,7 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
                 className="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
                 disabled={isLoading}
               >
-                {showPassword ? "Hide" : "Show"} password
+                {showPassword ? "Hide" : "Show"} passwords
               </button>
             </div>
 
@@ -239,11 +286,11 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
               {isLoading ? (
                 <div className="flex items-center gap-2">
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Signing in...</span>
+                  <span>Creating account...</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <span>Sign in</span>
+                  <span>Create account</span>
                   <ArrowRight className="w-5 h-5" />
                 </div>
               )}
@@ -257,26 +304,26 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="px-4 bg-white dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400">
-                New to PuraToDo?
+                Already have an account?
               </span>
             </div>
           </div>
 
-          {/* Register link */}
+          {/* Login link */}
           <div className="text-center">
             <button
               type="button"
-              onClick={onSwitchToRegister}
+              onClick={onSwitchToLogin}
               className="inline-flex items-center gap-2 text-violet-600 hover:text-violet-500 dark:text-violet-400 dark:hover:text-violet-300 font-medium transition-colors"
             >
-              <span>Create an account</span>
+              <span>Sign in instead</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
 
           {/* Footer */}
           <p className="mt-10 text-center text-xs text-zinc-400 dark:text-zinc-500">
-            By signing in, you agree to our{" "}
+            By creating an account, you agree to our{" "}
             <a href="#" className="underline hover:text-zinc-600 dark:hover:text-zinc-300">
               Terms of Service
             </a>{" "}
@@ -291,4 +338,4 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
   );
 }
 
-export default LoginPage;
+export default RegisterPage;

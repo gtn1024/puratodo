@@ -63,7 +63,7 @@
       "Verify error message is displayed",
       "Verify user stays on login page"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 6,
@@ -78,7 +78,7 @@
       "Verify account is created",
       "Verify user is logged in"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 7,
@@ -91,7 +91,7 @@
       "Verify user is redirected to login page",
       "Verify session is cleared"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 8,
