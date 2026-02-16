@@ -95,6 +95,91 @@
   },
   {
     "category": "functional",
+    "description": "User can configure custom API server address",
+    "steps": [
+      "Open settings page",
+      "Find server URL configuration field",
+      "Enter custom server URL (e.g., http://localhost:3000)",
+      "Save settings",
+      "Verify app connects to custom server",
+      "Verify API requests go to custom endpoint"
+    ],
+    "passes": false,
+    "id": 204
+  },
+  {
+    "category": "functional",
+    "description": "Server URL persists after app restart",
+    "steps": [
+      "Configure custom server URL",
+      "Close the app",
+      "Reopen the app",
+      "Verify custom server URL is still configured",
+      "Verify app connects to custom server"
+    ],
+    "passes": false,
+    "id": 205
+  },
+  {
+    "category": "functional",
+    "description": "User can add multiple accounts",
+    "steps": [
+      "Log in with first account",
+      "Go to account settings",
+      "Click add new account",
+      "Log in with second account",
+      "Verify both accounts are saved",
+      "Verify account list shows both accounts"
+    ],
+    "passes": false,
+    "id": 206
+  },
+  {
+    "category": "functional",
+    "description": "User can switch between multiple accounts",
+    "steps": [
+      "Have two accounts logged in",
+      "Open account switcher",
+      "Select second account",
+      "Verify data loads for second account",
+      "Switch back to first account",
+      "Verify data loads for first account"
+    ],
+    "passes": false,
+    "id": 207
+  },
+  {
+    "category": "functional",
+    "description": "User can remove an account",
+    "steps": [
+      "Have multiple accounts logged in",
+      "Go to account management",
+      "Select account to remove",
+      "Click remove account",
+      "Confirm removal",
+      "Verify account is removed from list",
+      "Verify other accounts still work"
+    ],
+    "passes": false,
+    "id": 208
+  },
+  {
+    "category": "functional",
+    "description": "Each account has separate session and data",
+    "steps": [
+      "Log in with account A",
+      "Create a task in account A",
+      "Switch to account B",
+      "Verify account B does not see account A's task",
+      "Create a task in account B",
+      "Switch back to account A",
+      "Verify original task still exists"
+    ],
+    "passes": false,
+    "id": 209
+  },
+  {
+    "category": "functional",
     "description": "Session persists after app restart",
     "steps": [
       "Log in with valid credentials",

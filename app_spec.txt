@@ -87,6 +87,9 @@
       - Session persistence
       - Logout
       - Secure token storage
+      - Multiple account support
+      - Account switching
+      - Custom API server URL configuration
     </authentication>
 
     <task_management>
@@ -114,7 +117,8 @@
 
     <settings>
       - Theme (light, dark, system)
-      - API endpoint configuration (for development)
+      - API endpoint configuration (custom server URL)
+      - Multi-account management
     </settings>
   </core_features>
 
