@@ -162,6 +162,13 @@ All tables include user_id for RLS policies and query optimization.
   - 快捷键在输入框中自动禁用
   - 在 header 添加快捷键帮助按钮
   - 测试通过：? 显示帮助、Esc 关闭对话框、N 创建任务/列表
+- Feature #41: Loading states with skeleton screens - 骨架屏加载状态
+  - 安装 shadcn/ui skeleton 组件
+  - 创建 src/components/dashboard/skeletons.tsx 骨架屏组件
+  - 创建 SidebarSkeleton、ListPanelSkeleton、TaskPanelSkeleton 组件
+  - 创建 src/app/dashboard/loading.tsx 页面加载骨架屏
+  - 更新 TaskPanel 添加 isLoadingTasks 状态，加载时显示骨架屏
+  - 测试通过：页面加载和任务列表切换时骨架屏显示
 
 ---
 

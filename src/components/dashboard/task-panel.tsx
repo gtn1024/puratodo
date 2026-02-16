@@ -35,6 +35,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { TaskDetailSheet } from "./task-detail-sheet";
+import { TaskPanelSkeleton } from "./skeletons";
 import type { List } from "@/actions/lists";
 import {
   DndContext,
@@ -245,6 +246,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
   const [newTaskName, setNewTaskName] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingTasks, setIsLoadingTasks] = useState(true);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
@@ -279,12 +281,14 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
 
   useEffect(() => {
     async function loadTasks() {
+      setIsLoadingTasks(true);
       if (list) {
         const data = await getTasksWithSubtasks(list.id);
         setTasks(data);
       } else {
         setTasks([]);
       }
+      setIsLoadingTasks(false);
     }
     loadTasks();
   }, [list]);
@@ -506,6 +510,11 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
         </p>
       </div>
     );
+  }
+
+  // Show skeleton while loading
+  if (isLoadingTasks) {
+    return <TaskPanelSkeleton />;
   }
 
   const totalTasks = countAllTasks(tasks);

@@ -520,7 +520,7 @@
         "Verify skeleton loaders appear while loading",
         "Verify content replaces skeletons when loaded"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 42,
