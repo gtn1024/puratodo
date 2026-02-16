@@ -1,5 +1,51 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 2: Login Page Implementation
+**Date:** 2026-02-16
+**Agent:** Claude Code
+
+### Completed
+- Implemented window controls (native Tauri controls work by default)
+- Built complete login page UI with:
+  - Email input field with icon
+  - Password input field with show/hide toggle
+  - Login button with loading state
+  - "Forgot password?" link
+  - Link to register page
+  - Beautiful split-screen layout with animated floating shapes
+  - Dark mode support
+  - Theme provider for system theme detection
+- Created reusable UI components:
+  - Button component with variants (default, outline, ghost, etc.)
+  - Input component with icon support and error states
+- Set up project structure with path aliases (@/)
+- Added custom CSS animations (float, rotate)
+- Configured Tailwind CSS 4 with custom theme
+
+### Current Status
+- 3/209 test cases passing
+- Login page UI is complete and functional
+- Theme system is set up
+
+### Next Steps
+1. Implement user authentication (login with API)
+2. Build register page
+3. Implement session persistence
+
+### Files Created/Modified
+- src/lib/utils.ts (new)
+- src/components/ui/button.tsx (new)
+- src/components/ui/input.tsx (new)
+- src/pages/LoginPage.tsx (new)
+- src/hooks/useTheme.tsx (new)
+- src/App.tsx (modified)
+- src/App.css (modified)
+- src/main.tsx (modified)
+- vite.config.ts (modified - path aliases)
+- tsconfig.json (modified - path aliases)
+
+---
+
 ## Session 1: Project Initialization
 **Date:** 2026-02-16
 **Agent:** Claude Code

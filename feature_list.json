@@ -23,7 +23,7 @@
       "Click close button",
       "Verify app closes cleanly"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 3,
@@ -36,7 +36,7 @@
       "Verify password input field exists",
       "Verify login button exists"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 4,
