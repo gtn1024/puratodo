@@ -288,7 +288,7 @@
         "Verify list order updates",
         "Verify sort_order persists after refresh"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 23,

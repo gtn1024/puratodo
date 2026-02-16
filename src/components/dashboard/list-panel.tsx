@@ -21,10 +21,28 @@ import {
   createList,
   updateList,
   deleteList,
+  reorderLists,
   type List,
 } from "@/actions/lists";
 import { MoreHorizontal, Plus, ListTodo, GripVertical } from "lucide-react";
 import type { Group } from "@/actions/groups";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface ListPanelProps {
   group: Group | null;
@@ -48,7 +66,75 @@ const LIST_ICONS = [
   "⭐",
 ];
 
+interface SortableListItemProps {
+  list: List;
+  onEdit: (list: List) => void;
+  onDelete: (list: List) => void;
+}
+
+function SortableListItem({ list, onEdit, onDelete }: SortableListItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: list.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center gap-3 px-4 py-3 rounded-lg border border-stone-200 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors cursor-pointer group"
+    >
+      {/* Drag Handle */}
+      <button
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <GripVertical className="h-4 w-4" />
+      </button>
+
+      <span className="text-xl">{list.icon || "📋"}</span>
+      <span className="flex-1 font-medium text-stone-900 dark:text-stone-100">
+        {list.name}
+      </span>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            className="h-7 w-7 opacity-0 group-hover:opacity-100"
+          >
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-32">
+          <DropdownMenuItem onClick={() => onEdit(list)}>
+            Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => onDelete(list)}
+            className="text-red-600 dark:text-red-400"
+          >
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </li>
+  );
+}
+
 export function ListPanel({ group, lists, onListsChange }: ListPanelProps) {
+  const [localLists, setLocalLists] = useState(lists);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -56,6 +142,33 @@ export function ListPanel({ group, lists, onListsChange }: ListPanelProps) {
   const [name, setName] = useState("");
   const [icon, setIcon] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Sync local lists when props change
+  useEffect(() => {
+    setLocalLists(lists);
+  }, [lists]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id && group) {
+      const oldIndex = localLists.findIndex((l) => l.id === active.id);
+      const newIndex = localLists.findIndex((l) => l.id === over.id);
+      const newLists = arrayMove(localLists, oldIndex, newIndex);
+      setLocalLists(newLists);
+      const orderedIds = newLists.map((l) => l.id);
+      await reorderLists(group.id, orderedIds);
+      onListsChange();
+    }
+  };
 
   const handleCreate = async () => {
     if (!group || !name.trim()) return;
@@ -175,7 +288,7 @@ export function ListPanel({ group, lists, onListsChange }: ListPanelProps) {
 
         {/* List Content */}
         <div className="p-4">
-          {lists.length === 0 ? (
+          {localLists.length === 0 ? (
             <div className="py-12 text-center">
               <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center">
                 <ListTodo className="h-6 w-6 text-stone-400" />
@@ -193,41 +306,27 @@ export function ListPanel({ group, lists, onListsChange }: ListPanelProps) {
               </Button>
             </div>
           ) : (
-            <ul className="grid gap-2">
-              {lists.map((list) => (
-                <li
-                  key={list.id}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg border border-stone-200 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors cursor-pointer group"
-                >
-                  <span className="text-xl">{list.icon || "📋"}</span>
-                  <span className="flex-1 font-medium text-stone-900 dark:text-stone-100">
-                    {list.name}
-                  </span>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        className="h-7 w-7 opacity-0 group-hover:opacity-100"
-                      >
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-32">
-                      <DropdownMenuItem onClick={() => openEditDialog(list)}>
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => openDeleteDialog(list)}
-                        className="text-red-600 dark:text-red-400"
-                      >
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </li>
-              ))}
-            </ul>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={localLists.map((l) => l.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <ul className="grid gap-2">
+                  {localLists.map((list) => (
+                    <SortableListItem
+                      key={list.id}
+                      list={list}
+                      onEdit={openEditDialog}
+                      onDelete={openDeleteDialog}
+                    />
+                  ))}
+                </ul>
+              </SortableContext>
+            </DndContext>
           )}
         </div>
       </div>

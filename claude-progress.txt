@@ -51,9 +51,14 @@ All tables include user_id for RLS policies and query optimization.
   - 删除确认对话框已存在于 ListPanel
   - 显示删除警告（会删除关联任务）
   - 测试通过
+- Feature #22: List Sort - 拖拽排序列表
+  - 使用 @dnd-kit 在 ListPanel 中添加拖拽排序功能
+  - 创建 SortableListItem 组件处理单个可排序列表项
+  - 添加 GripVertical 拖拽手柄，hover 时显示
+  - 使用 reorderLists server action 批量更新 sort_order
+  - 测试通过：拖拽排序后刷新页面顺序持久化
 
 #### 下一步
-- 实现 Feature #22: List Sort - 拖拽排序列表
 - 实现 Feature #23: List Move - 移动列表到其他分组
 - 开始 Feature #24+: Task Module
 
