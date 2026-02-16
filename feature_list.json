@@ -396,7 +396,7 @@
         "Check all editable fields are available",
         "Close panel and verify it dismisses"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 32,
@@ -409,7 +409,7 @@
         "Verify due date displays on task",
         "Edit due date and verify update"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 33,
@@ -422,7 +422,7 @@
         "Verify plan date displays on task",
         "Edit plan date and verify update"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 34,
@@ -435,7 +435,7 @@
         "Verify comment displays",
         "Edit comment and verify update"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 35,
@@ -447,7 +447,7 @@
         "Save task",
         "Verify duration displays on task"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 36,

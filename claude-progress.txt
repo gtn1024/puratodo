@@ -99,10 +99,32 @@ All tables include user_id for RLS policies and query optimization.
   - 添加 GripVertical 拖拽手柄
   - 调用 reorderTasks server action 持久化排序
   - 测试通过：拖拽排序后刷新页面顺序持久化
+- Feature #31: Task Detail Panel - 任务详情面板
+  - 创建 src/components/dashboard/task-detail-sheet.tsx 组件
+  - 安装 shadcn/ui popover, calendar, sheet, textarea 组件
+  - 点击任务名称打开右侧滑出详情面板
+  - 详情面板支持编辑所有任务属性
+  - 测试通过
+- Feature #32: Task Due Date - 设置截止日期
+  - 使用 Calendar 组件选择日期
+  - 支持 Clear 按钮清除日期
+  - 日期格式化显示 (format from date-fns)
+  - 测试通过
+- Feature #33: Task Plan Date - 设置计划日期
+  - 与 Due Date 相同的日期选择器实现
+  - 测试通过
+- Feature #34: Task Comment - 添加备注
+  - 使用 Textarea 组件
+  - 支持多行文本输入
+  - 测试通过
+- Feature #35: Task Duration - 设置时长
+  - 使用 Input type="number" 组件
+  - 以分钟为单位
+  - 测试通过
 
 #### 下一步
-- 实现 Feature #31: Task Detail Panel - 任务详情面板
-- 实现 Feature #32-35: Task Advanced Features
+- 实现 Feature #36-37: Subtask 子任务功能
+- 实现 Feature #38-42: UI/UX 优化
 
 ---
 

@@ -25,6 +25,7 @@ import {
   type Task,
 } from "@/actions/tasks";
 import { MoreHorizontal, Plus, Circle, CheckCircle, Star, GripVertical } from "lucide-react";
+import { TaskDetailSheet } from "./task-detail-sheet";
 import type { List } from "@/actions/lists";
 import {
   DndContext,
@@ -50,6 +51,7 @@ interface SortableTaskItemProps {
   onToggleStar: (task: Task) => void;
   onEdit: (task: Task) => void;
   onDelete: (task: Task) => void;
+  onOpenDetail: (task: Task) => void;
   editingTaskId: string | null;
   editName: string;
   onEditNameChange: (name: string) => void;
@@ -63,6 +65,7 @@ function SortableTaskItem({
   onToggleStar,
   onEdit,
   onDelete,
+  onOpenDetail,
   editingTaskId,
   editName,
   onEditNameChange,
@@ -128,7 +131,8 @@ function SortableTaskItem({
         />
       ) : (
         <span
-          className={`flex-1 ${
+          onClick={() => onOpenDetail(task)}
+          className={`flex-1 cursor-pointer hover:underline ${
             task.completed
               ? "text-stone-400 dark:text-stone-500 line-through"
               : "text-stone-900 dark:text-stone-100"
@@ -192,6 +196,8 @@ export function TaskPanel({ list }: TaskPanelProps) {
   const [editName, setEditName] = useState("");
   const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -259,6 +265,11 @@ export function TaskPanel({ list }: TaskPanelProps) {
   const handleCancelEdit = () => {
     setEditingTaskId(null);
     setEditName("");
+  };
+
+  const handleOpenDetail = (task: Task) => {
+    setSelectedTask(task);
+    setIsDetailOpen(true);
   };
 
   const openDeleteDialog = (task: Task) => {
@@ -422,6 +433,7 @@ export function TaskPanel({ list }: TaskPanelProps) {
                     onToggleStar={handleToggleStar}
                     onEdit={handleEdit}
                     onDelete={openDeleteDialog}
+                    onOpenDetail={handleOpenDetail}
                     editingTaskId={editingTaskId}
                     editName={editName}
                     onEditNameChange={setEditName}
@@ -458,6 +470,14 @@ export function TaskPanel({ list }: TaskPanelProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Task Detail Sheet */}
+      <TaskDetailSheet
+        task={selectedTask}
+        open={isDetailOpen}
+        onOpenChange={setIsDetailOpen}
+        onTaskUpdated={reloadTasks}
+      />
     </div>
   );
 }
