@@ -8,7 +8,7 @@
       "Verify no console errors",
       "Verify window is visible and interactive"
     ],
-    "passes": false,
+    "passes": true,
     "id": 1
   },
   {
