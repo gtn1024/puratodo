@@ -301,7 +301,7 @@
         "Verify list moves to new group",
         "Verify list no longer appears in original group"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 24,

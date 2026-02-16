@@ -22,9 +22,10 @@ import {
   updateList,
   deleteList,
   reorderLists,
+  moveListToGroup,
   type List,
 } from "@/actions/lists";
-import { MoreHorizontal, Plus, ListTodo, GripVertical } from "lucide-react";
+import { MoreHorizontal, Plus, ListTodo, GripVertical, FolderInput } from "lucide-react";
 import type { Group } from "@/actions/groups";
 import {
   DndContext,
@@ -47,6 +48,7 @@ import { CSS } from "@dnd-kit/utilities";
 interface ListPanelProps {
   group: Group | null;
   lists: List[];
+  allGroups: Group[];
   onListsChange: () => void;
 }
 
@@ -70,9 +72,10 @@ interface SortableListItemProps {
   list: List;
   onEdit: (list: List) => void;
   onDelete: (list: List) => void;
+  onMove: (list: List) => void;
 }
 
-function SortableListItem({ list, onEdit, onDelete }: SortableListItemProps) {
+function SortableListItem({ list, onEdit, onDelete, onMove }: SortableListItemProps) {
   const {
     attributes,
     listeners,
@@ -121,6 +124,10 @@ function SortableListItem({ list, onEdit, onDelete }: SortableListItemProps) {
           <DropdownMenuItem onClick={() => onEdit(list)}>
             Edit
           </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onMove(list)}>
+            <FolderInput className="h-4 w-4 mr-2" />
+            Move
+          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => onDelete(list)}
             className="text-red-600 dark:text-red-400"
@@ -133,12 +140,14 @@ function SortableListItem({ list, onEdit, onDelete }: SortableListItemProps) {
   );
 }
 
-export function ListPanel({ group, lists, onListsChange }: ListPanelProps) {
+export function ListPanel({ group, lists, allGroups, onListsChange }: ListPanelProps) {
   const [localLists, setLocalLists] = useState(lists);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isMoveOpen, setIsMoveOpen] = useState(false);
   const [selectedList, setSelectedList] = useState<List | null>(null);
+  const [targetGroupId, setTargetGroupId] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [icon, setIcon] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -222,6 +231,25 @@ export function ListPanel({ group, lists, onListsChange }: ListPanelProps) {
   const openDeleteDialog = (list: List) => {
     setSelectedList(list);
     setIsDeleteOpen(true);
+  };
+
+  const openMoveDialog = (list: List) => {
+    setSelectedList(list);
+    setTargetGroupId(null);
+    setIsMoveOpen(true);
+  };
+
+  const handleMove = async () => {
+    if (!selectedList || !targetGroupId) return;
+    setIsLoading(true);
+    const result = await moveListToGroup(selectedList.id, targetGroupId);
+    if (result.success) {
+      setIsMoveOpen(false);
+      setSelectedList(null);
+      setTargetGroupId(null);
+      onListsChange();
+    }
+    setIsLoading(false);
   };
 
   if (!group) {
@@ -322,6 +350,7 @@ export function ListPanel({ group, lists, onListsChange }: ListPanelProps) {
                       list={list}
                       onEdit={openEditDialog}
                       onDelete={openDeleteDialog}
+                      onMove={openMoveDialog}
                     />
                   ))}
                 </ul>
@@ -447,6 +476,57 @@ export function ListPanel({ group, lists, onListsChange }: ListPanelProps) {
               disabled={isLoading}
             >
               Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Move List Dialog */}
+      <Dialog open={isMoveOpen} onOpenChange={setIsMoveOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Move List</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-stone-500 dark:text-stone-400">
+              Move &ldquo;{selectedList?.name}&rdquo; to another group:
+            </p>
+            <div className="space-y-2">
+              {allGroups
+                .filter((g) => g.id !== group?.id)
+                .map((g) => (
+                  <button
+                    key={g.id}
+                    type="button"
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg border transition-all ${
+                      targetGroupId === g.id
+                        ? "border-stone-400 dark:border-stone-500 bg-stone-50 dark:bg-stone-800"
+                        : "border-stone-200 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800/50"
+                    }`}
+                    onClick={() => setTargetGroupId(g.id)}
+                  >
+                    <div
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: g.color || "#6b7280" }}
+                    />
+                    <span className="font-medium text-stone-900 dark:text-stone-100">
+                      {g.name}
+                    </span>
+                  </button>
+                ))}
+              {allGroups.filter((g) => g.id !== group?.id).length === 0 && (
+                <p className="text-sm text-stone-400 dark:text-stone-500 text-center py-4">
+                  No other groups available
+                </p>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsMoveOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleMove} disabled={isLoading || !targetGroupId}>
+              Move
             </Button>
           </DialogFooter>
         </DialogContent>

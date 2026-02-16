@@ -103,6 +103,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
             <ListPanel
               group={selectedGroup}
               lists={groupLists}
+              allGroups={initialGroups}
               onListsChange={handleListsChange}
             />
           </div>
