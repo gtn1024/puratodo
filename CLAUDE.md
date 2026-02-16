@@ -40,45 +40,43 @@ https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agent
 
 ## Development Workflow
 
-This project follows a "long-running agent" methodology with daily progress logging:
+### 核心原则
 
-1. **Read `claude-progress.txt`** - Check current status and next steps
-2. **Read `feature_list.json`** - Get feature details and test steps. Note that one step MUST do one task, unless it's very small or closely related to another step. If a step is too big, break it down into smaller steps.
-3. **Run `./init.sh`** to start dev environment
-4. **Implement the feature**
-5. **Test with Playwright MCP** (use credentials from `.credentials.local`)
-6. **Make sure project can be built** successfully (`npm run build`)
-7. **Update `feature_list.json`** (set `passes: true` for completed feature)
-8. **Update `claude-progress.txt`** (append new log for current session, what has done, what does not work, next steps)
-9. **Git commit**
+1. **一次只做一个任务** - 从 feature_list.json 取一个测试，做完再取下一个
+2. **先验证再标记** - 只有实际测试通过才能把 `passes` 改成 `true`
+3. **保持进度更新** - claude-progress.txt 是跨会话的关键上下文
 
-### Important Notes
+### 开发步骤
 
-1. Always keep `claude-progress.txt` and `feature_list.json` up to date. These are critical for tracking progress and guiding future development.
-2. **ALWAYS get ONLY ONE task** from `feature_list.json` at a time. This ensures focused development and accurate progress tracking. If you find a task that is too large, let me know!
+```
+1. 读取 claude-progress.txt     → 了解当前状态和下一步
+2. 读取 feature_list.json       → 找一个 passes: false 的测试
+3. 实现/修复代码
+4. 测试验证：
+   - npm run build 构建通过
+   - 用 Playwright MCP 或手动测试功能
+5. 更新 feature_list.json       → 只改 passes 字段
+6. 更新 claude-progress.txt     → 记录做了什么、遇到什么问题
+7. git commit
+```
 
-### Starting a New Session
+### 测试账号
+
+`.credentials.local` 文件中有测试账号，用于登录测试。
+
+### 常用命令
 
 ```bash
-# 1. Get your bearings
-pwd
-ls -la
-cat app_spec.txt
-cat claude-progress.txt
-git log --oneline -20
-
-# 2. Check remaining tests
-cat feature_list.json | grep '"passes": false' | wc -l
-
-# 3. Start development environment
-./init.sh
-
-# 4. Choose and implement ONE feature
-# 5. Test thoroughly
-# 6. Update feature_list.json (only change "passes" field!)
-# 7. Commit with descriptive message
-# 8. Update claude-progress.txt
+npm run tauri dev      # 启动开发环境
+npm run build          # 构建检查 TypeScript 错误
+./init.sh              # 完整环境初始化
 ```
+
+### 注意事项
+
+- 后端 API 需要运行在 localhost:3000
+- 浏览器测试会有 CORS 问题，实际 Tauri webview 中不会有
+- 如果任务太大，告诉用户拆分
 
 ### Running the App
 
