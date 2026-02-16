@@ -263,7 +263,7 @@
         "Click Save button",
         "Verify changes reflect"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 21,
@@ -276,7 +276,7 @@
         "Verify list is removed",
         "Verify associated tasks are deleted"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 22,
