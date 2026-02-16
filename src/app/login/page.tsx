@@ -9,6 +9,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
+const ENABLE_REGISTRATION = process.env.NEXT_PUBLIC_ENABLE_REGISTRATION !== "false";
+
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -208,18 +210,20 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div
-            className="mt-6 text-center text-sm text-stone-500 dark:text-stone-400"
-            style={{ animation: "fadeIn 0.8s ease-out 0.6s both" }}
-          >
-            Don&apos;t have an account?{" "}
-            <Link
-              href="/register"
-              className="font-medium text-stone-900 hover:text-stone-700 dark:text-stone-100 dark:hover:text-stone-200 transition-colors underline-offset-4 hover:underline"
+          {ENABLE_REGISTRATION && (
+            <div
+              className="mt-6 text-center text-sm text-stone-500 dark:text-stone-400"
+              style={{ animation: "fadeIn 0.8s ease-out 0.6s both" }}
             >
-              Create one
-            </Link>
-          </div>
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/register"
+                className="font-medium text-stone-900 hover:text-stone-700 dark:text-stone-100 dark:hover:text-stone-200 transition-colors underline-offset-4 hover:underline"
+              >
+                Create one
+              </Link>
+            </div>
+          )}
         </CardContent>
       </Card>
 

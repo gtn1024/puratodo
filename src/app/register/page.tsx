@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
+const ENABLE_REGISTRATION = process.env.NEXT_PUBLIC_ENABLE_REGISTRATION !== "false";
+
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -15,6 +17,94 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  // Show disabled message if registration is turned off
+  if (!ENABLE_REGISTRATION) {
+    return (
+      <main className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-stone-50 via-stone-100 to-stone-50 dark:from-stone-950 dark:via-stone-900 dark:to-stone-950">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div
+            className="absolute -top-1/2 -left-1/2 w-full h-full opacity-30 dark:opacity-20"
+            style={{
+              background:
+                "radial-gradient(circle, oklch(0.7 0.02 85) 0%, transparent 50%)",
+              animation: "float 20s ease-in-out infinite",
+            }}
+          />
+          <div
+            className="absolute -bottom-1/2 -right-1/2 w-full h-full opacity-30 dark:opacity-20"
+            style={{
+              background:
+                "radial-gradient(circle, oklch(0.7 0.03 180) 0%, transparent 50%)",
+              animation: "float 25s ease-in-out infinite reverse",
+            }}
+          />
+        </div>
+
+        <Card
+          className="w-full max-w-md relative z-10 border-stone-200/60 dark:border-stone-800/60 shadow-2xl shadow-stone-900/5 dark:shadow-stone-900/30 bg-white/80 dark:bg-stone-900/80 backdrop-blur-xl"
+          style={{
+            animation: "slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+          }}
+        >
+          <CardContent className="pt-8 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+              <svg
+                className="w-8 h-8 text-amber-600 dark:text-amber-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            </div>
+            <h2 className="text-xl font-semibold text-stone-900 dark:text-stone-100 mb-2">
+              Registration Disabled
+            </h2>
+            <p className="text-stone-500 dark:text-stone-400 mb-6">
+              New account registration is currently disabled. Please contact the administrator if you need access.
+            </p>
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200 px-4 py-2"
+            >
+              Back to login
+            </Link>
+          </CardContent>
+        </Card>
+
+        <style jsx global>{`
+          @keyframes float {
+            0%,
+            100% {
+              transform: translate(0, 0) rotate(0deg);
+            }
+            33% {
+              transform: translate(30px, -30px) rotate(5deg);
+            }
+            66% {
+              transform: translate(-20px, 20px) rotate(-5deg);
+            }
+          }
+          @keyframes slideUp {
+            from {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}</style>
+      </main>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
