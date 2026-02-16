@@ -509,7 +509,7 @@
         "Test other defined shortcuts",
         "Verify shortcuts work as documented"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 41,

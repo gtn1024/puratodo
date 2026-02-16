@@ -153,6 +153,15 @@ All tables include user_id for RLS policies and query optimization.
   - 点击菜单项自动关闭移动端侧边栏
   - 调整主内容区 padding 适配移动端
   - 测试通过：移动端汉堡菜单、侧边栏滑出、点击导航、桌面端布局
+- Feature #40: Keyboard shortcuts for common operations - 键盘快捷键
+  - 创建 src/hooks/use-keyboard-shortcuts.ts 自定义 Hook
+  - 创建 src/components/keyboard-shortcuts-dialog.tsx 快捷键帮助对话框
+  - 更新 ListPanel 和 TaskPanel 使用 forwardRef 暴露创建方法
+  - 更新 dashboard-content.tsx 集成键盘快捷键
+  - 支持 N（新建任务/列表）、L（新建列表）、?（显示帮助）、Esc（关闭对话框）
+  - 快捷键在输入框中自动禁用
+  - 在 header 添加快捷键帮助按钮
+  - 测试通过：? 显示帮助、Esc 关闭对话框、N 创建任务/列表
 
 ---
 

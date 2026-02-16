@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -50,6 +50,10 @@ interface ListPanelProps {
   lists: List[];
   allGroups: Group[];
   onListsChange: () => void;
+}
+
+export interface ListPanelRef {
+  triggerCreateList: () => void;
 }
 
 // Common emoji icons for lists
@@ -140,12 +144,18 @@ function SortableListItem({ list, onEdit, onDelete, onMove }: SortableListItemPr
   );
 }
 
-export function ListPanel({ group, lists, allGroups, onListsChange }: ListPanelProps) {
+export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
+  function ListPanel({ group, lists, allGroups, onListsChange }, ref) {
   const [localLists, setLocalLists] = useState(lists);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isMoveOpen, setIsMoveOpen] = useState(false);
+
+  // Expose methods to parent via ref
+  useImperativeHandle(ref, () => ({
+    triggerCreateList: () => setIsCreateOpen(true),
+  }), []);
   const [selectedList, setSelectedList] = useState<List | null>(null);
   const [targetGroupId, setTargetGroupId] = useState<string | null>(null);
   const [name, setName] = useState("");
@@ -533,4 +543,4 @@ export function ListPanel({ group, lists, allGroups, onListsChange }: ListPanelP
       </Dialog>
     </>
   );
-}
+});

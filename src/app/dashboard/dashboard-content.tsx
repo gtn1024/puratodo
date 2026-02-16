@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { ListPanel } from "@/components/dashboard/list-panel";
 import { TaskPanel } from "@/components/dashboard/task-panel";
@@ -14,8 +14,12 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  KeyboardShortcutsDialog,
+  KeyboardShortcutsButton,
+} from "@/components/keyboard-shortcuts-dialog";
+import { useKeyboardShortcuts, type KeyboardShortcut } from "@/hooks/use-keyboard-shortcuts";
 
 interface DashboardContentProps {
   initialGroups: Group[];
@@ -30,6 +34,11 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
   const [lists, setLists] = useState<List[]>(allLists);
   const [refreshKey, setRefreshKey] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [shortcutsDialogOpen, setShortcutsDialogOpen] = useState(false);
+
+  // Refs for triggering creation in child components
+  const listPanelRef = useRef<{ triggerCreateList: () => void }>(null);
+  const taskPanelRef = useRef<{ triggerCreateTask: () => void }>(null);
 
   const selectedGroup = initialGroups.find((g) => g.id === selectedGroupId) || null;
   const selectedList = lists.find((l) => l.id === selectedListId) || null;
@@ -67,6 +76,50 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     }
     setMobileMenuOpen(false); // Close mobile menu on selection
   };
+
+  // Keyboard shortcuts
+  const shortcuts: KeyboardShortcut[] = [
+    {
+      key: "n",
+      action: useCallback(() => {
+        if (selectedList) {
+          taskPanelRef.current?.triggerCreateTask();
+        } else if (selectedGroup) {
+          listPanelRef.current?.triggerCreateList();
+        }
+      }, [selectedList, selectedGroup]),
+      description: "New task/list",
+    },
+    {
+      key: "l",
+      action: useCallback(() => {
+        if (selectedGroup && !selectedList) {
+          listPanelRef.current?.triggerCreateList();
+        }
+      }, [selectedGroup, selectedList]),
+      description: "New list",
+    },
+    {
+      key: "?",
+      action: useCallback(() => {
+        setShortcutsDialogOpen(true);
+      }, []),
+      description: "Show shortcuts",
+    },
+    {
+      key: "Escape",
+      action: useCallback(() => {
+        if (mobileMenuOpen) {
+          setMobileMenuOpen(false);
+        } else if (shortcutsDialogOpen) {
+          setShortcutsDialogOpen(false);
+        }
+      }, [mobileMenuOpen, shortcutsDialogOpen]),
+      description: "Close dialog",
+    },
+  ];
+
+  useKeyboardShortcuts({ shortcuts });
 
   return (
     <div className="flex h-screen bg-stone-50 dark:bg-stone-950">
@@ -139,16 +192,20 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                 </h1>
               )}
             </div>
-            <LogoutButton />
+            <div className="flex items-center gap-1">
+              <KeyboardShortcutsButton onClick={() => setShortcutsDialogOpen(true)} />
+              <LogoutButton />
+            </div>
           </div>
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <div className="max-w-4xl mx-auto">
             {selectedList ? (
-              <TaskPanel list={selectedList} />
+              <TaskPanel ref={taskPanelRef} list={selectedList} />
             ) : (
               <ListPanel
+                ref={listPanelRef}
                 group={selectedGroup}
                 lists={groupLists}
                 allGroups={initialGroups}
@@ -158,6 +215,12 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
           </div>
         </main>
       </div>
+
+      {/* Keyboard Shortcuts Help Dialog */}
+      <KeyboardShortcutsDialog
+        open={shortcutsDialogOpen}
+        onOpenChange={setShortcutsDialogOpen}
+      />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, forwardRef, useImperativeHandle, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -235,7 +235,12 @@ interface TaskPanelProps {
   list: List | null;
 }
 
-export function TaskPanel({ list }: TaskPanelProps) {
+export interface TaskPanelRef {
+  triggerCreateTask: () => void;
+}
+
+export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
+  function TaskPanel({ list }, ref) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskName, setNewTaskName] = useState("");
   const [isAdding, setIsAdding] = useState(false);
@@ -249,6 +254,19 @@ export function TaskPanel({ list }: TaskPanelProps) {
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
   const [addingSubtaskTo, setAddingSubtaskTo] = useState<string | null>(null);
   const [newSubtaskName, setNewSubtaskName] = useState("");
+
+  const newTaskInputRef = useRef<HTMLInputElement>(null);
+
+  // Expose methods to parent via ref
+  useImperativeHandle(ref, () => ({
+    triggerCreateTask: () => {
+      setIsAdding(true);
+      // Focus the input after a brief delay to ensure it's rendered
+      setTimeout(() => {
+        newTaskInputRef.current?.focus();
+      }, 50);
+    },
+  }), []);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -523,6 +541,7 @@ export function TaskPanel({ list }: TaskPanelProps) {
           <div className="flex items-center gap-3 px-4 py-3 mb-2 rounded-lg border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/50">
             <Circle className="h-5 w-5 text-stone-300" />
             <input
+              ref={newTaskInputRef}
               type="text"
               value={newTaskName}
               onChange={(e) => setNewTaskName(e.target.value)}
@@ -676,4 +695,4 @@ export function TaskPanel({ list }: TaskPanelProps) {
       />
     </div>
   );
-}
+});
