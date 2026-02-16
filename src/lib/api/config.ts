@@ -8,9 +8,24 @@ export interface ApiConfig {
   timeout: number;
 }
 
+// Check if we're in browser dev mode with Vite proxy
+function isBrowserDevMode(): boolean {
+  if (typeof window === "undefined") return false;
+  // In dev mode, we use Vite proxy which handles CORS
+  // Check if we're on localhost:1420 (Vite dev server)
+  const isLocalhost1420 = window.location.hostname === "localhost" && window.location.port === "1420";
+  return isLocalhost1420 && !localStorage.getItem("apiUrl");
+}
+
 // Get the stored API URL or return default
 export function getApiUrl(): string {
   if (typeof window === "undefined") return DEFAULT_API_URL;
+
+  // In browser dev mode, use empty string to leverage Vite proxy
+  if (isBrowserDevMode()) {
+    return ""; // Use relative URLs through Vite proxy
+  }
+
   return localStorage.getItem("apiUrl") || DEFAULT_API_URL;
 }
 

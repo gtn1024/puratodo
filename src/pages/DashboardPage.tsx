@@ -9,12 +9,22 @@ import {
   ChevronDown,
   X,
   Check,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthStore } from "@/stores/authStore";
 import { useDataStore } from "@/stores/dataStore";
 import type { List as ListType } from "@/lib/api/lists";
+import type { Group } from "@/lib/api/groups";
 
 // Color options for groups
 const GROUP_COLORS = [
@@ -31,7 +41,7 @@ const GROUP_COLORS = [
 export function DashboardPage() {
   const { logout } = useAuth();
   const { user } = useAuthStore();
-  const { groups, lists, isLoading, error, fetchAll, createGroup, deleteGroup } = useDataStore();
+  const { groups, lists, isLoading, error, fetchAll, createGroup, updateGroup, deleteGroup } = useDataStore();
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
   const [selectedListId, setSelectedListId] = React.useState<string | null>(null);
   const [expandedGroups, setExpandedGroups] = React.useState<Set<string>>(new Set());
@@ -39,6 +49,19 @@ export function DashboardPage() {
   const [newGroupName, setNewGroupName] = React.useState("");
   const [newGroupColor, setNewGroupColor] = React.useState(GROUP_COLORS[0].value);
   const [isCreatingGroup, setIsCreatingGroup] = React.useState(false);
+
+  // Edit group state
+  const [editingGroup, setEditingGroup] = React.useState<Group | null>(null);
+  const [editGroupName, setEditGroupName] = React.useState("");
+  const [editGroupColor, setEditGroupColor] = React.useState("");
+  const [isUpdatingGroup, setIsUpdatingGroup] = React.useState(false);
+
+  // Context menu state
+  const [contextMenu, setContextMenu] = React.useState<{
+    x: number;
+    y: number;
+    group: Group;
+  } | null>(null);
 
   // Fetch data on mount
   React.useEffect(() => {
@@ -84,8 +107,9 @@ export function DashboardPage() {
   };
 
   // Handle deleting a group
-  const handleDeleteGroup = async (groupId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDeleteGroup = async (groupId: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setContextMenu(null);
     if (!confirm("Delete this group and all its lists?")) return;
 
     try {
@@ -94,6 +118,48 @@ export function DashboardPage() {
       console.error("Failed to delete group:", err);
     }
   };
+
+  // Handle context menu
+  const handleContextMenu = (e: React.MouseEvent, group: Group) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setContextMenu({ x: e.clientX, y: e.clientY, group });
+  };
+
+  // Open edit dialog
+  const openEditDialog = (group: Group) => {
+    setContextMenu(null);
+    setEditingGroup(group);
+    setEditGroupName(group.name);
+    setEditGroupColor(group.color || GROUP_COLORS[0].value);
+  };
+
+  // Handle update group
+  const handleUpdateGroup = async () => {
+    if (!editingGroup || !editGroupName.trim()) return;
+
+    setIsUpdatingGroup(true);
+    try {
+      await updateGroup(editingGroup.id, {
+        name: editGroupName.trim(),
+        color: editGroupColor,
+      });
+      setEditingGroup(null);
+    } catch (err) {
+      console.error("Failed to update group:", err);
+    } finally {
+      setIsUpdatingGroup(false);
+    }
+  };
+
+  // Close context menu on click outside
+  React.useEffect(() => {
+    const handleClick = () => setContextMenu(null);
+    if (contextMenu) {
+      document.addEventListener("click", handleClick);
+      return () => document.removeEventListener("click", handleClick);
+    }
+  }, [contextMenu]);
 
   // Handle logout
   const handleLogout = async () => {
@@ -224,12 +290,13 @@ export function DashboardPage() {
                   <div key={group.id}>
                     <button
                       onClick={() => toggleGroup(group.id)}
+                      onContextMenu={(e) => handleContextMenu(e, group)}
                       className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors group"
                     >
                       <ChevronDown
                         className={`w-4 h-4 transition-transform ${isExpanded ? "" : "-rotate-90"}`}
                       />
-                      <Folder className="w-5 h-5" style={{ color: group.color }} />
+                      <Folder className="w-5 h-5" style={{ color: group.color ?? undefined }} />
                       <span className="flex-1 text-left truncate">{group.name}</span>
                       <button
                         onClick={(e) => handleDeleteGroup(group.id, e)}
@@ -329,6 +396,88 @@ export function DashboardPage() {
           </div>
         </div>
       </main>
+
+      {/* Context Menu */}
+      {contextMenu && (
+        <div
+          className="fixed z-50 min-w-32 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-lg shadow-lg py-1"
+          style={{ left: contextMenu.x, top: contextMenu.y }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={() => openEditDialog(contextMenu.group)}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-600"
+          >
+            <Pencil className="w-4 h-4" />
+            <span>Edit</span>
+          </button>
+          <button
+            onClick={() => handleDeleteGroup(contextMenu.group.id)}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-zinc-100 dark:hover:bg-zinc-600"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span>Delete</span>
+          </button>
+        </div>
+      )}
+
+      {/* Edit Group Dialog */}
+      <Dialog open={!!editingGroup} onOpenChange={(open) => !open && setEditingGroup(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Group</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Group Name
+              </label>
+              <input
+                type="text"
+                value={editGroupName}
+                onChange={(e) => setEditGroupName(e.target.value)}
+                placeholder="Enter group name"
+                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleUpdateGroup();
+                }}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Color
+              </label>
+              <div className="flex items-center gap-2">
+                {GROUP_COLORS.map((color) => (
+                  <button
+                    key={color.value}
+                    onClick={() => setEditGroupColor(color.value)}
+                    className={`w-6 h-6 rounded-full transition-transform ${
+                      editGroupColor === color.value ? "ring-2 ring-offset-2 ring-violet-500 scale-110" : ""
+                    }`}
+                    style={{ backgroundColor: color.value }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => setEditingGroup(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleUpdateGroup}
+              disabled={isUpdatingGroup || !editGroupName.trim()}
+            >
+              {isUpdatingGroup ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

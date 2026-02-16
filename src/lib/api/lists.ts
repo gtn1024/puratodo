@@ -24,28 +24,26 @@ export interface UpdateListInput {
   sort_order?: number;
 }
 
-export interface ListsResponse {
-  lists: List[];
-}
-
-export interface ListResponse {
-  list: List;
+// Backend API response wrapper
+interface ApiDataResponse<T> {
+  success: boolean;
+  data: T;
 }
 
 export const listsApi = {
   async list(): Promise<List[]> {
-    const response = await api.get<ListsResponse>("/api/v1/lists");
-    return response.lists;
+    const response = await api.get<ApiDataResponse<List[]>>("/api/v1/lists");
+    return response.data;
   },
 
   async create(input: CreateListInput): Promise<List> {
-    const response = await api.post<ListResponse>("/api/v1/lists", input);
-    return response.list;
+    const response = await api.post<ApiDataResponse<List>>("/api/v1/lists", input);
+    return response.data;
   },
 
   async update(id: string, input: UpdateListInput): Promise<List> {
-    const response = await api.patch<ListResponse>(`/api/v1/lists/${id}`, input);
-    return response.list;
+    const response = await api.patch<ApiDataResponse<List>>(`/api/v1/lists/${id}`, input);
+    return response.data;
   },
 
   async delete(id: string): Promise<void> {

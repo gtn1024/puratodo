@@ -229,7 +229,7 @@
       "Click save button",
       "Verify changes are reflected in sidebar"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 18,

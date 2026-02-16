@@ -25,16 +25,53 @@ export interface AuthResponse {
   token: string;
 }
 
+// Backend API response wrapper
+interface ApiDataResponse<T> {
+  success: boolean;
+  data: T;
+}
+
+interface BackendLoginData {
+  access_token: string;
+  refresh_token: string;
+  expires_at: number;
+  user: {
+    id: string;
+    email: string;
+    created_at: string;
+  };
+}
+
 // Auth API endpoints
 export const authApi = {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    const response = await api.post<AuthResponse>("/api/v1/auth/login", credentials, false);
-    return response;
+    const response = await api.post<ApiDataResponse<BackendLoginData>>("/api/v1/auth/login", credentials, false);
+    // Transform backend response to frontend format
+    return {
+      user: {
+        id: response.data.user.id,
+        email: response.data.user.email,
+        name: null,
+        createdAt: response.data.user.created_at,
+        updatedAt: response.data.user.created_at,
+      },
+      token: response.data.access_token,
+    };
   },
 
   async register(credentials: RegisterCredentials): Promise<AuthResponse> {
-    const response = await api.post<AuthResponse>("/api/v1/auth/register", credentials, false);
-    return response;
+    const response = await api.post<ApiDataResponse<BackendLoginData>>("/api/v1/auth/register", credentials, false);
+    // Transform backend response to frontend format
+    return {
+      user: {
+        id: response.data.user.id,
+        email: response.data.user.email,
+        name: credentials.name || null,
+        createdAt: response.data.user.created_at,
+        updatedAt: response.data.user.created_at,
+      },
+      token: response.data.access_token,
+    };
   },
 
   async logout(): Promise<void> {
@@ -42,12 +79,18 @@ export const authApi = {
   },
 
   async getCurrentUser(): Promise<User> {
-    const response = await api.get<User>("/api/v1/auth/me");
-    return response;
+    const response = await api.get<ApiDataResponse<{ id: string; email: string; created_at: string }>>("/api/v1/auth/me");
+    return {
+      id: response.data.id,
+      email: response.data.email,
+      name: null,
+      createdAt: response.data.created_at,
+      updatedAt: response.data.created_at,
+    };
   },
 
   async refreshToken(): Promise<{ token: string }> {
-    const response = await api.post<{ token: string }>("/api/v1/auth/refresh");
-    return response;
+    const response = await api.post<ApiDataResponse<{ access_token: string }>>("/api/v1/auth/refresh");
+    return { token: response.data.access_token };
   },
 };
