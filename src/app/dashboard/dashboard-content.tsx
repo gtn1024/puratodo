@@ -14,6 +14,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetDescription,
 } from "@/components/ui/sheet";
 import {
   KeyboardShortcutsDialog,
@@ -141,6 +142,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
         <SheetContent side="left" className="p-0 w-64" showCloseButton={false}>
           <SheetHeader className="sr-only">
             <SheetTitle>Navigation Menu</SheetTitle>
+            <SheetDescription>Navigate between groups and lists</SheetDescription>
           </SheetHeader>
           <Sidebar
             initialGroups={initialGroups}

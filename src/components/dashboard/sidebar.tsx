@@ -314,7 +314,7 @@ function SortableGroupItem({
             items={localLists.map((l) => l.id)}
             strategy={verticalListSortingStrategy}
           >
-            <ul className="ml-6 mt-0.5 space-y-0.5">
+            <ul className="ml-8 mt-1 space-y-0.5 border-l-2 border-stone-200 dark:border-stone-700 pl-3">
               {localLists.map((list) => (
                 <SortableSidebarListItem
                   key={list.id}

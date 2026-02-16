@@ -88,10 +88,10 @@ export function TaskDetailSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-6 space-y-6">
+        <div className="mt-6 space-y-6 px-4 pb-4">
           {/* Task Name */}
           <div className="space-y-2">
-            <Label htmlFor="name">Task Name</Label>
+            <Label htmlFor="name" className="font-medium text-stone-700 dark:text-stone-300">Task Name</Label>
             <Input
               id="name"
               value={name}
@@ -103,8 +103,8 @@ export function TaskDetailSheet({
           {/* Due Date */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="flex items-center gap-2">
-                <CalendarIcon className="h-4 w-4" />
+              <Label className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
+                <CalendarIcon className="h-4 w-4 text-stone-500 dark:text-stone-400" />
                 Due Date
               </Label>
               {dueDate && (
@@ -145,8 +145,8 @@ export function TaskDetailSheet({
           {/* Plan Date */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="flex items-center gap-2">
-                <CalendarIcon className="h-4 w-4" />
+              <Label className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
+                <CalendarIcon className="h-4 w-4 text-stone-500 dark:text-stone-400" />
                 Plan Date
               </Label>
               {planDate && (
@@ -186,8 +186,8 @@ export function TaskDetailSheet({
 
           {/* Duration */}
           <div className="space-y-2">
-            <Label htmlFor="duration" className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
+            <Label htmlFor="duration" className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
+              <Clock className="h-4 w-4 text-stone-500 dark:text-stone-400" />
               Duration (minutes)
             </Label>
             <Input
@@ -202,8 +202,8 @@ export function TaskDetailSheet({
 
           {/* Comment */}
           <div className="space-y-2">
-            <Label htmlFor="comment" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
+            <Label htmlFor="comment" className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
+              <FileText className="h-4 w-4 text-stone-500 dark:text-stone-400" />
               Comment
             </Label>
             <Textarea
