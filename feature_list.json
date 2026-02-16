@@ -497,7 +497,7 @@
         "Verify content adjusts appropriately",
         "Test touch interactions work"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 40,

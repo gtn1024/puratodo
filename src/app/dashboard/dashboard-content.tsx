@@ -7,6 +7,15 @@ import { TaskPanel } from "@/components/dashboard/task-panel";
 import { LogoutButton } from "./logout-button";
 import { getLists, type List } from "@/actions/lists";
 import type { Group } from "@/actions/groups";
+import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 interface DashboardContentProps {
   initialGroups: Group[];
@@ -20,6 +29,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
   const [lists, setLists] = useState<List[]>(allLists);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const selectedGroup = initialGroups.find((g) => g.id === selectedGroupId) || null;
   const selectedList = lists.find((l) => l.id === selectedListId) || null;
@@ -46,6 +56,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
   const handleListSelect = (listId: string | null, groupId: string) => {
     setSelectedGroupId(groupId);
     setSelectedListId(listId);
+    setMobileMenuOpen(false); // Close mobile menu on selection
   };
 
   const handleGroupSelect = (groupId: string | null) => {
@@ -54,24 +65,57 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     if (groupId !== selectedGroupId) {
       setSelectedListId(null);
     }
+    setMobileMenuOpen(false); // Close mobile menu on selection
   };
 
   return (
     <div className="flex h-screen bg-stone-50 dark:bg-stone-950">
-      <Sidebar
-        initialGroups={initialGroups}
-        initialLists={lists}
-        selectedGroupId={selectedGroupId}
-        selectedListId={selectedListId}
-        onGroupSelect={handleGroupSelect}
-        onListSelect={handleListSelect}
-        onDataChange={handleListsChange}
-      />
+      {/* Desktop Sidebar - hidden on mobile */}
+      <div className="hidden md:block">
+        <Sidebar
+          initialGroups={initialGroups}
+          initialLists={lists}
+          selectedGroupId={selectedGroupId}
+          selectedListId={selectedListId}
+          onGroupSelect={handleGroupSelect}
+          onListSelect={handleListSelect}
+          onDataChange={handleListsChange}
+        />
+      </div>
+
+      {/* Mobile Sidebar - Sheet */}
+      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+        <SheetContent side="left" className="p-0 w-64" showCloseButton={false}>
+          <SheetHeader className="sr-only">
+            <SheetTitle>Navigation Menu</SheetTitle>
+          </SheetHeader>
+          <Sidebar
+            initialGroups={initialGroups}
+            initialLists={lists}
+            selectedGroupId={selectedGroupId}
+            selectedListId={selectedListId}
+            onGroupSelect={handleGroupSelect}
+            onListSelect={handleListSelect}
+            onDataChange={handleListsChange}
+          />
+        </SheetContent>
+      </Sheet>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="border-b border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 px-6 py-4">
+        <header className="border-b border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 px-4 md:px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
+              {/* Mobile menu button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden h-8 w-8 mr-1"
+                onClick={() => setMobileMenuOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Open menu</span>
+              </Button>
+
               {selectedList ? (
                 <>
                   <span className="text-xl">{selectedList.icon || "📋"}</span>
@@ -99,7 +143,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <div className="max-w-4xl mx-auto">
             {selectedList ? (
               <TaskPanel list={selectedList} />

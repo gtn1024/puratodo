@@ -145,6 +145,14 @@ All tables include user_id for RLS policies and query optimization.
   - 支持 Light、Dark、System 三种模式
   - 主题持久化到 localStorage
   - 测试通过：切换主题、刷新页面持久化、切换回原主题
+- Feature #39: Responsive layout for mobile devices - 移动端响应式布局
+  - 更新 dashboard-content.tsx 添加响应式布局
+  - 使用 Sheet 组件实现移动端侧边栏滑出菜单
+  - 桌面端显示固定侧边栏，移动端隐藏
+  - 添加汉堡菜单按钮（Menu 图标）仅在移动端显示
+  - 点击菜单项自动关闭移动端侧边栏
+  - 调整主内容区 padding 适配移动端
+  - 测试通过：移动端汉堡菜单、侧边栏滑出、点击导航、桌面端布局
 
 ---
 
