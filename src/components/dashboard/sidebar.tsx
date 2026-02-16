@@ -210,11 +210,11 @@ function SortableGroupItem({
 
   const handleClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
+    // Ignore clicks on dropdown menu items or buttons with state
     if (target.closest('[data-radix-collection-item]') || target.closest('button[data-state]')) {
       return;
     }
-    // Toggle expand instead of just selecting
-    onToggleExpand();
+    // Clicking the group name area selects the group (navigates to group page)
     onSelect(group.id);
   };
 
