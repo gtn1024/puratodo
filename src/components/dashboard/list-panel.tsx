@@ -51,6 +51,7 @@ interface ListPanelProps {
   lists: List[];
   allGroups: Group[];
   onListsChange: () => void;
+  onListSelect: (listId: string, groupId: string) => void;
 }
 
 export interface ListPanelRef {
@@ -78,9 +79,10 @@ interface SortableListItemProps {
   onEdit: (list: List) => void;
   onDelete: (list: List) => void;
   onMove: (list: List) => void;
+  onSelect: (list: List) => void;
 }
 
-function SortableListItem({ list, onEdit, onDelete, onMove }: SortableListItemProps) {
+function SortableListItem({ list, onEdit, onDelete, onMove, onSelect }: SortableListItemProps) {
   const {
     attributes,
     listeners,
@@ -96,11 +98,21 @@ function SortableListItem({ list, onEdit, onDelete, onMove }: SortableListItemPr
     opacity: isDragging ? 0.5 : 1,
   };
 
+  const handleClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    // Ignore clicks on drag handle, dropdown menu, or buttons
+    if (target.closest('button') || target.closest('[data-radix-collection-item]')) {
+      return;
+    }
+    onSelect(list);
+  };
+
   return (
     <li
       ref={setNodeRef}
       style={style}
       className="flex items-center gap-3 px-4 py-3 rounded-lg border border-stone-200 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors cursor-pointer group"
+      onClick={handleClick}
     >
       {/* Drag Handle */}
       <button
@@ -146,7 +158,7 @@ function SortableListItem({ list, onEdit, onDelete, onMove }: SortableListItemPr
 }
 
 export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
-  function ListPanel({ group, lists, allGroups, onListsChange }, ref) {
+  function ListPanel({ group, lists, allGroups, onListsChange, onListSelect }, ref) {
   const { t } = useI18n();
   const [localLists, setLocalLists] = useState(lists);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -249,6 +261,10 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
     setSelectedList(list);
     setTargetGroupId(null);
     setIsMoveOpen(true);
+  };
+
+  const handleListSelect = (list: List) => {
+    onListSelect(list.id, list.group_id);
   };
 
   const handleMove = async () => {
@@ -363,6 +379,7 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
                       onEdit={openEditDialog}
                       onDelete={openDeleteDialog}
                       onMove={openMoveDialog}
+                      onSelect={handleListSelect}
                     />
                   ))}
                 </ul>

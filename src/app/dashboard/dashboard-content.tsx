@@ -340,6 +340,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                   lists={groupLists}
                   allGroups={initialGroups}
                   onListsChange={handleListsChange}
+                  onListSelect={handleListSelect}
                 />
               )}
             </div>
