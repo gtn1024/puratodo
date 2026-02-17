@@ -76,7 +76,3 @@ NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
 
-## Future: CalDAV Integration
-
-- Phase includes CalDAV integration for Apple Reminders sync
-- API designed for future mobile/desktop clients (iOS, Android, etc.)

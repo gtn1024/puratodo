@@ -33,7 +33,7 @@ All tables include user_id for RLS policies and query optimization.
   - 测试通过：GET /api/openapi 返回有效 JSON，/api-docs 渲染 Swagger UI
 
 #### 下一步
-- REST API 模块完成，准备 CalDAV 集成
+- REST API 模块完成
 
 ---
 
@@ -98,7 +98,7 @@ All tables include user_id for RLS policies and query optimization.
 #### 完成
 - REST API 规划：为多平台客户端（iOS/Android/HarmonyOS/macOS/Windows/Linux）规划REST API
   - 分析现有代码：项目目前只有Server Actions，没有对外REST API
-  - 在 feature_list.json 中添加 Feature #51-57 (REST API) 和 #58-63 (CalDAV)
+  - 在 feature_list.json 中添加 Feature #51-57 (REST API)
   - 将每个feature的steps拆解为详细的子步骤，每步包含具体操作和测试方法
 
 #### 下一步
