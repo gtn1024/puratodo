@@ -30,8 +30,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Get today's date in YYYY-MM-DD format
-    const today = new Date().toISOString().split("T")[0];
+    // Get today's date in local YYYY-MM-DD format (avoiding timezone issues)
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
     // Get tasks with plan_date = today
     const { data: tasks, error } = await auth.supabase

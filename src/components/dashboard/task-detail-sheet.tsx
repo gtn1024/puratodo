@@ -55,14 +55,22 @@ export function TaskDetailSheet({
     }
   }, [task]);
 
+  // Convert Date to local YYYY-MM-DD string (avoiding timezone issues)
+  const toLocalDateString = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const handleSave = async () => {
     if (!task || !name.trim()) return;
 
     setIsSaving(true);
     const result = await updateTask(task.id, {
       name: name.trim(),
-      due_date: dueDate ? dueDate.toISOString().split("T")[0] : null,
-      plan_date: planDate ? planDate.toISOString().split("T")[0] : null,
+      due_date: dueDate ? toLocalDateString(dueDate) : null,
+      plan_date: planDate ? toLocalDateString(planDate) : null,
       comment: comment.trim() || null,
       duration_minutes: durationMinutes ? parseInt(durationMinutes, 10) : null,
     });
