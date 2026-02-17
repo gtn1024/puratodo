@@ -25,6 +25,15 @@ All tables include user_id for RLS policies and query optimization.
 ### 2026-02-17
 
 #### 完成
+- Feature #65: Polish three-column layout styling and interactions
+  - 添加平滑过渡动画 (transition-all duration-300 ease-in-out)
+  - 详情面板打开/关闭时的宽度和透明度动画
+  - 视觉分隔符 (border-l) 已存在于详情面板
+  - 空状态提示 "No Task Selected" 已存在
+  - Escape 键快捷键已存在并正常工作
+  - 每列独立滚动 (overflow-y-auto)
+  - 测试通过：平滑动画、键盘导航、深色模式
+
 - Feature #64: Three-column layout
   - 创建 src/components/dashboard/task-detail-panel.tsx - 固定右侧面板组件
   - 更新 src/actions/tasks.ts - 添加 getTaskById 函数
@@ -37,7 +46,7 @@ All tables include user_id for RLS policies and query optimization.
   - 测试通过：三栏布局、任务选择、编辑保存、关闭面板、移动端响应式
 
 #### 下一步
-- Feature #65: Polish three-column layout styling and interactions
+- 所有已规划功能已完成
 
 ---
 

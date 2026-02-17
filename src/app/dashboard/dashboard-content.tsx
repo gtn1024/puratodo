@@ -346,7 +346,11 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
           </main>
 
           {/* Right Detail Panel - Desktop only */}
-          <div className="hidden md:block w-96 flex-shrink-0">
+          <div
+            className={`hidden md:block flex-shrink-0 transition-all duration-300 ease-in-out ${
+              selectedTaskId ? 'w-96 opacity-100' : 'w-0 opacity-0 overflow-hidden'
+            }`}
+          >
             <TaskDetailPanel
               taskId={selectedTaskId}
               onTaskUpdated={handleListsChange}
