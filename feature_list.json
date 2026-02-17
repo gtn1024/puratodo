@@ -847,6 +847,40 @@
         "5. Test: Move subtask to different parent in external app, verify parent_id updated after sync"
       ],
       "passes": false
+    },
+    {
+      "id": 64,
+      "category": "UI Layout Refactor",
+      "description": "Implement three-column layout (Left: Sidebar, Center: Main Content, Right: Task Detail Panel)",
+      "steps": [
+        "1. Create a new state in DashboardContent to track selected task ID (selectedTaskId)",
+        "2. Create a new component src/components/dashboard/task-detail-panel.tsx - A fixed right panel that displays task details (not a Sheet)",
+        "3. Update DashboardContent layout to use CSS Grid or Flexbox for three-column layout: sidebar (w-64) + main content (flex-1) + detail panel (w-96, conditionally shown)",
+        "4. Update TaskPanel to call a callback when a task is clicked, passing the task ID up to DashboardContent",
+        "5. Add close button to TaskDetailPanel to deselect task and hide the panel",
+        "6. Ensure the three-column layout is responsive: on tablet/mobile, the detail panel becomes a Sheet/overlay",
+        "7. Test: Click on a task in TaskPanel, verify the detail panel appears on the right side",
+        "8. Test: Edit task in detail panel, verify changes reflect in TaskPanel",
+        "9. Test: Close detail panel, verify it hides and task is deselected",
+        "10. Test: On mobile (<768px), verify detail panel behaves as a slide-over Sheet"
+      ],
+      "passes": false
+    },
+    {
+      "id": 65,
+      "category": "UI Layout Refactor",
+      "description": "Polish three-column layout styling and interactions",
+      "steps": [
+        "1. Add visual separator (border) between main content and detail panel",
+        "2. Add smooth transition animation when detail panel opens/closes",
+        "3. Add empty state in detail panel when no task is selected (show helpful message)",
+        "4. Add keyboard shortcut (Escape) to close the detail panel",
+        "5. Ensure scroll position is independent in each column (sidebar, main, detail)",
+        "6. Test: Verify animations are smooth (no jank)",
+        "7. Test: Verify keyboard navigation works between panels",
+        "8. Test: Verify dark mode looks correct in all three columns"
+      ],
+      "passes": false
     }
   ]
 }
