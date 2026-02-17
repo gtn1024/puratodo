@@ -25,6 +25,12 @@ All tables include user_id for RLS policies and query optimization.
 ### 2026-02-17
 
 #### 完成
+- Bug Fix: 窄屏幕点击任务时中间内容区白屏问题
+  - 问题原因：移动端选中任务时，main 元素被 `hidden` 隐藏，但详情是通过 Sheet 叠加层显示的
+  - 修复：移除移动端隐藏中间内容区的逻辑，让 Sheet 叠加在上面显示
+  - 修改文件：src/app/dashboard/dashboard-content.tsx
+  - 测试通过：窄屏幕点击任务，任务列表保持可见，详情 Sheet 正确显示
+
 - Feature #65: Polish three-column layout styling and interactions
   - 添加平滑过渡动画 (transition-all duration-300 ease-in-out)
   - 详情面板打开/关闭时的宽度和透明度动画

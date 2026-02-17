@@ -321,8 +321,8 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
 
         {/* Three-column layout container */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Center Content */}
-          <main className={`flex-1 overflow-y-auto p-4 md:p-6 transition-all duration-300 ${selectedTaskId ? 'hidden md:block md:mr-0' : ''}`}>
+          {/* Center Content - always visible on mobile (Sheet overlays on top), desktop shows alongside detail panel */}
+          <main className="flex-1 overflow-y-auto p-4 md:p-6 transition-all duration-300">
             <div className="max-w-4xl mx-auto">
               {showTodayView ? (
                 <TodayPanel />
