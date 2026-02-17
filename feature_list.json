@@ -781,7 +781,7 @@
         "9. Test: Close detail panel, verify it hides and task is deselected",
         "10. Test: On mobile (<768px), verify detail panel behaves as a slide-over Sheet"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 65,

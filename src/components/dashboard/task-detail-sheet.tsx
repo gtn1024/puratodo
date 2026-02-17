@@ -19,41 +19,67 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { updateTask, type Task } from "@/actions/tasks";
-import { CalendarIcon, Clock, FileText, X } from "lucide-react";
+import { getTaskById, updateTask, type Task } from "@/actions/tasks";
+import { CalendarIcon, Clock, FileText, X, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 
 interface TaskDetailSheetProps {
   task: Task | null;
+  taskId?: string | null; // Alternative: pass just the ID
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onTaskUpdated: () => void;
 }
 
 export function TaskDetailSheet({
-  task,
+  task: initialTask,
+  taskId,
   open,
   onOpenChange,
   onTaskUpdated,
 }: TaskDetailSheetProps) {
   const { t } = useI18n();
+  const [task, setTask] = useState<Task | null>(initialTask);
   const [name, setName] = useState("");
   const [dueDate, setDueDate] = useState<Date | undefined>();
   const [planDate, setPlanDate] = useState<Date | undefined>();
   const [comment, setComment] = useState("");
   const [durationMinutes, setDurationMinutes] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Load task data when task changes
   useEffect(() => {
-    if (task) {
-      setName(task.name);
-      setDueDate(task.due_date ? new Date(task.due_date) : undefined);
-      setPlanDate(task.plan_date ? new Date(task.plan_date) : undefined);
-      setComment(task.comment || "");
-      setDurationMinutes(task.duration_minutes?.toString() || "");
+    async function loadTask() {
+      // If we have a taskId but no task, or the task id doesn't match, load it
+      const effectiveTaskId = taskId || initialTask?.id;
+
+      if (effectiveTaskId && (!initialTask || initialTask.id !== effectiveTaskId)) {
+        setIsLoading(true);
+        const loadedTask = await getTaskById(effectiveTaskId);
+        setTask(loadedTask);
+        if (loadedTask) {
+          setName(loadedTask.name);
+          setDueDate(loadedTask.due_date ? new Date(loadedTask.due_date) : undefined);
+          setPlanDate(loadedTask.plan_date ? new Date(loadedTask.plan_date) : undefined);
+          setComment(loadedTask.comment || "");
+          setDurationMinutes(loadedTask.duration_minutes?.toString() || "");
+        }
+        setIsLoading(false);
+      } else if (initialTask) {
+        setTask(initialTask);
+        setName(initialTask.name);
+        setDueDate(initialTask.due_date ? new Date(initialTask.due_date) : undefined);
+        setPlanDate(initialTask.plan_date ? new Date(initialTask.plan_date) : undefined);
+        setComment(initialTask.comment || "");
+        setDurationMinutes(initialTask.duration_minutes?.toString() || "");
+      }
     }
-  }, [task]);
+
+    if (open) {
+      loadTask();
+    }
+  }, [initialTask, taskId, open]);
 
   // Convert Date to local YYYY-MM-DD string (avoiding timezone issues)
   const toLocalDateString = (date: Date): string => {
@@ -86,7 +112,8 @@ export function TaskDetailSheet({
   const clearDueDate = () => setDueDate(undefined);
   const clearPlanDate = () => setPlanDate(undefined);
 
-  if (!task) return null;
+  const effectiveTaskId = taskId || initialTask?.id;
+  if (!effectiveTaskId) return null;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -98,151 +125,162 @@ export function TaskDetailSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-6 space-y-6 px-4 pb-4">
-          {/* Task Name */}
-          <div className="space-y-2">
-            <Label htmlFor="name" className="font-medium text-stone-700 dark:text-stone-300">Task Name</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter task name"
-            />
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-stone-400" />
           </div>
-
-          {/* Due Date */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
-                <CalendarIcon className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-                {t("taskDetail.dueDate")}
-              </Label>
-              {dueDate && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearDueDate}
-                  className="h-6 px-2 text-stone-500"
-                >
-                  <X className="h-3 w-3 mr-1" />
-                  {t("taskDetail.clear")}
-                </Button>
-              )}
+        ) : !task ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <X className="h-8 w-8 text-stone-400 mb-4" />
+            <p className="text-stone-500">Task not found</p>
+          </div>
+        ) : (
+          <div className="mt-6 space-y-6 px-4 pb-4">
+            {/* Task Name */}
+            <div className="space-y-2">
+              <Label htmlFor="name" className="font-medium text-stone-700 dark:text-stone-300">Task Name</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter task name"
+              />
             </div>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={`w-full justify-start text-left font-normal ${
-                    !dueDate ? "text-stone-500" : ""
-                  }`}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dueDate ? format(dueDate, "PPP") : t("taskDetail.selectDueDate")}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={dueDate}
-                  onSelect={setDueDate}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
 
-          {/* Plan Date */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
-                <CalendarIcon className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-                {t("taskDetail.planDate")}
-              </Label>
-              {planDate && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearPlanDate}
-                  className="h-6 px-2 text-stone-500"
-                >
-                  <X className="h-3 w-3 mr-1" />
-                  {t("taskDetail.clear")}
-                </Button>
-              )}
+            {/* Due Date */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
+                  <CalendarIcon className="h-4 w-4 text-stone-500 dark:text-stone-400" />
+                  {t("taskDetail.dueDate")}
+                </Label>
+                {dueDate && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearDueDate}
+                    className="h-6 px-2 text-stone-500"
+                  >
+                    <X className="h-3 w-3 mr-1" />
+                    {t("taskDetail.clear")}
+                  </Button>
+                )}
+              </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={`w-full justify-start text-left font-normal ${
+                      !dueDate ? "text-stone-500" : ""
+                    }`}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dueDate ? format(dueDate, "PPP") : t("taskDetail.selectDueDate")}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dueDate}
+                    onSelect={setDueDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={`w-full justify-start text-left font-normal ${
-                    !planDate ? "text-stone-500" : ""
-                  }`}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {planDate ? format(planDate, "PPP") : t("taskDetail.selectPlanDate")}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={planDate}
-                  onSelect={setPlanDate}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
 
-          {/* Duration */}
-          <div className="space-y-2">
-            <Label htmlFor="duration" className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
-              <Clock className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-              {t("taskDetail.duration")}
-            </Label>
-            <Input
-              id="duration"
-              type="number"
-              min="0"
-              value={durationMinutes}
-              onChange={(e) => setDurationMinutes(e.target.value)}
-              placeholder="e.g., 30"
-            />
-          </div>
+            {/* Plan Date */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
+                  <CalendarIcon className="h-4 w-4 text-stone-500 dark:text-stone-400" />
+                  {t("taskDetail.planDate")}
+                </Label>
+                {planDate && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearPlanDate}
+                    className="h-6 px-2 text-stone-500"
+                  >
+                    <X className="h-3 w-3 mr-1" />
+                    {t("taskDetail.clear")}
+                  </Button>
+                )}
+              </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={`w-full justify-start text-left font-normal ${
+                      !planDate ? "text-stone-500" : ""
+                    }`}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {planDate ? format(planDate, "PPP") : t("taskDetail.selectPlanDate")}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={planDate}
+                    onSelect={setPlanDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
 
-          {/* Comment */}
-          <div className="space-y-2">
-            <Label htmlFor="comment" className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
-              <FileText className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-              {t("taskDetail.comment")}
-            </Label>
-            <Textarea
-              id="comment"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Add notes or comments..."
-              rows={4}
-            />
-          </div>
+            {/* Duration */}
+            <div className="space-y-2">
+              <Label htmlFor="duration" className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
+                <Clock className="h-4 w-4 text-stone-500 dark:text-stone-400" />
+                {t("taskDetail.duration")}
+              </Label>
+              <Input
+                id="duration"
+                type="number"
+                min="0"
+                value={durationMinutes}
+                onChange={(e) => setDurationMinutes(e.target.value)}
+                placeholder="e.g., 30"
+              />
+            </div>
 
-          {/* Actions */}
-          <div className="flex gap-3 pt-4">
-            <Button
-              className="flex-1"
-              onClick={handleSave}
-              disabled={isSaving || !name.trim()}
-            >
-              {isSaving ? t("common.loading") : t("common.save")}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSaving}
-            >
-              Cancel
-            </Button>
+            {/* Comment */}
+            <div className="space-y-2">
+              <Label htmlFor="comment" className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
+                <FileText className="h-4 w-4 text-stone-500 dark:text-stone-400" />
+                {t("taskDetail.comment")}
+              </Label>
+              <Textarea
+                id="comment"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Add notes or comments..."
+                rows={4}
+              />
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-4">
+              <Button
+                className="flex-1"
+                onClick={handleSave}
+                disabled={isSaving || !name.trim()}
+              >
+                {isSaving ? t("common.loading") : t("common.save")}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isSaving}
+              >
+                Cancel
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </SheetContent>
     </Sheet>
   );

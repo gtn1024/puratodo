@@ -36,7 +36,6 @@ import {
   ChevronDown,
   Filter,
 } from "lucide-react";
-import { TaskDetailSheet } from "./task-detail-sheet";
 import { TaskPanelSkeleton } from "./skeletons";
 import type { List } from "@/actions/lists";
 import { useRealtime } from "@/hooks/use-realtime";
@@ -248,6 +247,8 @@ function TaskItem({
 
 interface TaskPanelProps {
   list: List | null;
+  selectedTaskId?: string | null;
+  onTaskSelect?: (taskId: string | null) => void;
 }
 
 export interface TaskPanelRef {
@@ -255,7 +256,7 @@ export interface TaskPanelRef {
 }
 
 export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
-  function TaskPanel({ list }, ref) {
+  function TaskPanel({ list, selectedTaskId, onTaskSelect }, ref) {
   const { t } = useI18n();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskName, setNewTaskName] = useState("");
@@ -266,8 +267,6 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
   const [editName, setEditName] = useState("");
   const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
   const [addingSubtaskTo, setAddingSubtaskTo] = useState<string | null>(null);
   const [newSubtaskName, setNewSubtaskName] = useState("");
@@ -385,8 +384,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
   };
 
   const handleOpenDetail = (task: Task) => {
-    setSelectedTask(task);
-    setIsDetailOpen(true);
+    onTaskSelect?.(task.id);
   };
 
   const openDeleteDialog = (task: Task) => {
@@ -900,14 +898,6 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Task Detail Sheet */}
-      <TaskDetailSheet
-        task={selectedTask}
-        open={isDetailOpen}
-        onOpenChange={setIsDetailOpen}
-        onTaskUpdated={reloadTasks}
-      />
     </div>
   );
 });

@@ -342,6 +342,31 @@ export async function searchTasks(query: string): Promise<TaskSearchResult[]> {
   return results;
 }
 
+export async function getTaskById(id: string): Promise<Task | null> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .single();
+
+  if (error) {
+    console.error("Error fetching task:", error);
+    return null;
+  }
+
+  return data;
+}
+
 export async function getTodayTasks(): Promise<TaskSearchResult[]> {
   const supabase = await createClient();
   const {

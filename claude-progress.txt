@@ -22,6 +22,25 @@ All tables include user_id for RLS policies and query optimization.
 
 ---
 
+### 2026-02-17
+
+#### 完成
+- Feature #64: Three-column layout
+  - 创建 src/components/dashboard/task-detail-panel.tsx - 固定右侧面板组件
+  - 更新 src/actions/tasks.ts - 添加 getTaskById 函数
+  - 更新 src/components/dashboard/task-panel.tsx - 添加 selectedTaskId 和 onTaskSelect props
+  - 更新 src/components/dashboard/task-detail-sheet.tsx - 支持 taskId prop 从 ID 加载任务
+  - 重构 src/app/dashboard/dashboard-content.tsx - 实现三栏布局
+  - 桌面端：侧边栏 (w-64) + 主内容区 (flex-1) + 详情面板 (w-96)
+  - 移动端：点击任务时显示 Sheet 叠加层
+  - Escape 键关闭详情面板
+  - 测试通过：三栏布局、任务选择、编辑保存、关闭面板、移动端响应式
+
+#### 下一步
+- Feature #65: Polish three-column layout styling and interactions
+
+---
+
 ### 2026-02-16 (continued)
 
 #### 完成
