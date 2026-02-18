@@ -59,13 +59,41 @@ export function TodayPanel() {
   });
 
   const handleToggleComplete = async (task: TaskSearchResult) => {
-    await updateTask(task.id, { completed: !task.completed });
-    await reloadTasks();
+    // Optimistic update
+    const newCompletedState = !task.completed;
+    setTasks(prev => prev.map(t =>
+      t.id === task.id ? { ...t, completed: newCompletedState } : t
+    ));
+
+    try {
+      await updateTask(task.id, { completed: newCompletedState });
+      reloadTasks();
+    } catch (error) {
+      // Revert on error
+      setTasks(prev => prev.map(t =>
+        t.id === task.id ? { ...t, completed: !newCompletedState } : t
+      ));
+      console.error('Failed to update task:', error);
+    }
   };
 
   const handleToggleStar = async (task: TaskSearchResult) => {
-    await updateTask(task.id, { starred: !task.starred });
-    await reloadTasks();
+    // Optimistic update
+    const newStarredState = !task.starred;
+    setTasks(prev => prev.map(t =>
+      t.id === task.id ? { ...t, starred: newStarredState } : t
+    ));
+
+    try {
+      await updateTask(task.id, { starred: newStarredState });
+      reloadTasks();
+    } catch (error) {
+      // Revert on error
+      setTasks(prev => prev.map(t =>
+        t.id === task.id ? { ...t, starred: !newStarredState } : t
+      ));
+      console.error('Failed to update task star:', error);
+    }
   };
 
   const handleOpenDetail = (task: TaskSearchResult) => {

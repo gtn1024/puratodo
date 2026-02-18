@@ -356,13 +356,61 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
   };
 
   const handleToggleComplete = async (task: Task) => {
-    await updateTask(task.id, { completed: !task.completed });
-    await reloadTasks();
+    // Optimistic update - immediately update UI
+    const newCompletedState = !task.completed;
+
+    // Update local state immediately
+    const updateTaskInList = (tasks: Task[]): Task[] => {
+      return tasks.map(t => {
+        if (t.id === task.id) {
+          return { ...t, completed: newCompletedState };
+        }
+        if (t.subtasks) {
+          return { ...t, subtasks: updateTaskInList(t.subtasks) };
+        }
+        return t;
+      });
+    };
+
+    setTasks(prev => updateTaskInList(prev));
+
+    // Send request to server (don't await, let it happen in background)
+    try {
+      await updateTask(task.id, { completed: newCompletedState });
+      // Reload to sync with server state (subtle, in background)
+      reloadTasks();
+    } catch (error) {
+      // Revert on error
+      setTasks(prev => updateTaskInList(prev));
+      console.error('Failed to update task:', error);
+    }
   };
 
   const handleToggleStar = async (task: Task) => {
-    await updateTask(task.id, { starred: !task.starred });
-    await reloadTasks();
+    // Optimistic update - immediately update UI
+    const newStarredState = !task.starred;
+
+    const updateTaskInList = (tasks: Task[]): Task[] => {
+      return tasks.map(t => {
+        if (t.id === task.id) {
+          return { ...t, starred: newStarredState };
+        }
+        if (t.subtasks) {
+          return { ...t, subtasks: updateTaskInList(t.subtasks) };
+        }
+        return t;
+      });
+    };
+
+    setTasks(prev => updateTaskInList(prev));
+
+    try {
+      await updateTask(task.id, { starred: newStarredState });
+      reloadTasks();
+    } catch (error) {
+      setTasks(prev => updateTaskInList(prev));
+      console.error('Failed to update task star:', error);
+    }
   };
 
   const handleEdit = (task: Task) => {
