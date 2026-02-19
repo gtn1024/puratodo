@@ -11,6 +11,7 @@ import {
   Check,
   Pencil,
   Trash2,
+  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { ApiServerSettingsDialog } from "@/components/ApiServerSettingsDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthStore } from "@/stores/authStore";
 import { useDataStore } from "@/stores/dataStore";
@@ -352,15 +354,30 @@ export function DashboardPage() {
                 </p>
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
-            >
-              <LogOut className="w-4 h-4" />
-            </Button>
+            <div className="flex items-center gap-1">
+              <ApiServerSettingsDialog
+                onSaved={fetchAll}
+                trigger={(
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+                    title="API Server Settings"
+                  >
+                    <Settings className="w-4 h-4" />
+                  </Button>
+                )}
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </aside>

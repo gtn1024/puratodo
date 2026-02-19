@@ -1,5 +1,52 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 6: API Server Settings
+**Date:** 2026-02-19
+**Agent:** Codex (GPT-5)
+
+### Completed
+- Added reusable API server settings dialog:
+  - New component `src/components/ApiServerSettingsDialog.tsx`
+  - Server URL input, validation, save, reset, and feedback messages
+- Added settings entry points:
+  - Login page (`src/pages/LoginPage.tsx`)
+  - Register page (`src/pages/RegisterPage.tsx`)
+  - Dashboard user section (`src/pages/DashboardPage.tsx`)
+- Improved API URL config utilities in `src/lib/api/config.ts`:
+  - Added normalize/validate helpers
+  - Added clear/get stored URL helpers
+  - Centralized `apiUrl` storage key usage
+- Dashboard settings save now triggers `fetchAll()` to verify server connectivity with current auth context
+- Verification performed:
+  - `npm run build` passed
+  - Playwright check confirmed custom URL flow
+  - Stub server at `http://127.0.0.1:3999` received login request at `/api/v1/auth/login`
+  - Reload check confirmed saved server URL persisted in settings
+
+### Current Status
+- 13/209 test cases passing
+- Custom API server configuration UI implemented and verified
+- Server URL persistence verified in browser reload scenario
+
+### Tests Now Passing
+- Test #8: User can configure custom API server address ✓
+- Test #9: Server URL persists after app restart ✓
+
+### Files Created/Modified
+- src/components/ApiServerSettingsDialog.tsx (new)
+- src/lib/api/config.ts (added API URL helpers)
+- src/pages/LoginPage.tsx (added API settings entry)
+- src/pages/RegisterPage.tsx (added API settings entry)
+- src/pages/DashboardPage.tsx (added API settings entry + post-save refresh)
+- feature_list.json (marked Test #8 and #9 as passing)
+
+### Next Steps
+1. Implement multi-account management (Tests #10-13)
+2. Verify and mark previously implemented sidebar/group/list tests (#15, #16, #18, #20, #26) with current code
+3. Implement list CRUD UI (Tests #21-25)
+
+---
+
 ## Session 5: Edit Group & API Fixes
 **Date:** 2026-02-16
 **Agent:** Claude Code

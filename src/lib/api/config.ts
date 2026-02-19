@@ -2,6 +2,7 @@
 // The base URL can be configured in settings, defaults to localhost
 
 export const DEFAULT_API_URL = "http://localhost:3000";
+export const API_URL_STORAGE_KEY = "apiUrl";
 
 export interface ApiConfig {
   baseUrl: string;
@@ -14,24 +15,56 @@ function isBrowserDevMode(): boolean {
   // In dev mode, we use Vite proxy which handles CORS
   // Check if we're on localhost:1420 (Vite dev server)
   const isLocalhost1420 = window.location.hostname === "localhost" && window.location.port === "1420";
-  return isLocalhost1420 && !localStorage.getItem("apiUrl");
+  return isLocalhost1420 && !getStoredApiUrl();
+}
+
+export function normalizeApiUrl(url: string): string {
+  return url.trim().replace(/\/+$/, "");
+}
+
+export function isValidApiUrl(url: string): boolean {
+  if (!url) return false;
+
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+export function getStoredApiUrl(): string | null {
+  if (typeof window === "undefined") return null;
+
+  const storedUrl = localStorage.getItem(API_URL_STORAGE_KEY);
+  if (!storedUrl) return null;
+
+  const normalizedUrl = normalizeApiUrl(storedUrl);
+  return normalizedUrl.length > 0 ? normalizedUrl : null;
 }
 
 // Get the stored API URL or return default
 export function getApiUrl(): string {
   if (typeof window === "undefined") return DEFAULT_API_URL;
 
+  const storedApiUrl = getStoredApiUrl();
+
   // In browser dev mode, use empty string to leverage Vite proxy
   if (isBrowserDevMode()) {
     return ""; // Use relative URLs through Vite proxy
   }
 
-  return localStorage.getItem("apiUrl") || DEFAULT_API_URL;
+  return storedApiUrl || DEFAULT_API_URL;
 }
 
 // Set the API URL
 export function setApiUrl(url: string): void {
-  localStorage.setItem("apiUrl", url);
+  const normalizedUrl = normalizeApiUrl(url);
+  localStorage.setItem(API_URL_STORAGE_KEY, normalizedUrl);
+}
+
+export function clearApiUrl(): void {
+  localStorage.removeItem(API_URL_STORAGE_KEY);
 }
 
 // API client configuration

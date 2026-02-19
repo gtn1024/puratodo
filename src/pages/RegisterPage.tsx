@@ -2,6 +2,7 @@ import * as React from "react";
 import { Mail, Lock, User, ArrowRight, CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ApiServerSettingsDialog } from "@/components/ApiServerSettingsDialog";
 import { useAuth } from "@/hooks/useAuth";
 
 interface RegisterPageProps {
@@ -154,6 +155,19 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
       {/* Right side - Register form */}
       <div className="flex-1 flex items-center justify-center p-8 bg-white dark:bg-zinc-900">
         <div className="w-full max-w-md">
+          <div className="mb-6 flex justify-end">
+            <ApiServerSettingsDialog
+              trigger={(
+                <button
+                  type="button"
+                  className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                >
+                  API Server
+                </button>
+              )}
+            />
+          </div>
+
           {/* Mobile logo */}
           <div className="lg:hidden mb-10">
             <div className="flex items-center gap-3 justify-center">

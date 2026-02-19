@@ -105,7 +105,7 @@
       "Verify app connects to custom server",
       "Verify API requests go to custom endpoint"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 9,
@@ -118,7 +118,7 @@
       "Verify custom server URL is still configured",
       "Verify app connects to custom server"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 10,
