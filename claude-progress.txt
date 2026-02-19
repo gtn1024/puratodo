@@ -1,5 +1,41 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 8: Multi-Account Switch Flow
+**Date:** 2026-02-19
+**Agent:** Codex (GPT-5)
+
+### Completed
+- Verified multi-account switching flow with deterministic stub API data on `http://127.0.0.1:3999`
+- Confirmed account switcher can switch from account A to account B and back
+- Confirmed sidebar data reloads per active account after each switch
+
+### Verification Performed
+- `npm run build` passed
+- Playwright flow verified Test #11 steps:
+  - Logged in as `foo@example.com` (account A)
+  - Added `bar@example.com` (account B) in account settings
+  - Switched to account B and confirmed sidebar loaded `Group B`
+  - Switched back to account A and confirmed sidebar loaded `Group A`
+  - Confirmed persisted `auth-storage` contains 2 accounts and active account updates on switch
+
+### Current Status
+- 15/209 test cases passing
+- Multi-account switch flow is verified
+
+### Tests Now Passing
+- Test #11: User can switch between multiple accounts ✓
+
+### Files Created/Modified
+- feature_list.json (marked Test #11 as passing)
+- claude-progress.txt (this session log)
+
+### Next Steps
+1. Verify and mark Test #12 (remove an account)
+2. Verify Test #13 (account session/data isolation)
+3. Continue sidebar/group/list verification tasks (#15, #16, #18, #20, #26)
+
+---
+
 ## Session 7: Multi-Account Add Flow
 **Date:** 2026-02-19
 **Agent:** Codex (GPT-5)

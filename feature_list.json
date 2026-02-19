@@ -146,7 +146,7 @@
       "Switch back to first account",
       "Verify data loads for first account"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 12,
