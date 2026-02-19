@@ -10,6 +10,10 @@ import {
   corsPreflightResponse,
 } from "@/lib/api/response";
 import { parseRecurrenceFields } from "@/lib/recurrence";
+import {
+  isValidRecurrenceUpdateScope,
+  updateTaskWithRecurrenceHandling,
+} from "@/lib/recurrence-runtime";
 import { Task } from "../../route";
 
 // Helper to recursively fetch inbox subtasks
@@ -130,6 +134,16 @@ export async function PATCH(
       duration_minutes,
     } = body;
 
+    const recurrenceScopeRaw = body.recurrence_update_scope;
+    if (
+      recurrenceScopeRaw !== undefined &&
+      !isValidRecurrenceUpdateScope(recurrenceScopeRaw)
+    ) {
+      return withCors(
+        errorResponse("recurrence_update_scope must be one of: single, future")
+      );
+    }
+
     const updateData: Record<string, unknown> = {};
 
     if (name !== undefined) {
@@ -172,32 +186,26 @@ export async function PATCH(
       return withCors(errorResponse("At least one field must be provided"));
     }
 
-    const { data: existingTask, error: fetchError } = await auth.supabase
-      .from("tasks")
-      .select("id")
-      .eq("id", id)
-      .eq("user_id", auth.id)
-      .eq("list_id", inboxList.id)
-      .single();
+    const result = await updateTaskWithRecurrenceHandling({
+      supabase: auth.supabase,
+      userId: auth.id,
+      taskId: id,
+      listId: inboxList.id,
+      patch: {
+        ...updateData,
+        recurrence_update_scope: recurrenceScopeRaw,
+      },
+    });
 
-    if (fetchError || !existingTask) {
-      return withCors(notFoundResponse("Inbox task not found"));
+    if (result.status === 404) {
+      return withCors(notFoundResponse(result.error || "Inbox task not found"));
     }
 
-    const { data, error } = await auth.supabase
-      .from("tasks")
-      .update(updateData)
-      .eq("id", id)
-      .eq("user_id", auth.id)
-      .eq("list_id", inboxList.id)
-      .select()
-      .single();
-
-    if (error) {
-      return withCors(errorResponse(error.message, 500));
+    if (result.error || !result.task) {
+      return withCors(errorResponse(result.error || "Failed to update inbox task", 500));
     }
 
-    return withCors(successResponse<Task>(data));
+    return withCors(successResponse<Task>(result.task));
   } catch (err) {
     console.error("Error updating inbox task:", err);
     return withCors(errorResponse("Failed to update inbox task", 500));

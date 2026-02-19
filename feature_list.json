@@ -825,7 +825,7 @@
         "5. Test: Daily and weekly recurring tasks generate correctly across timezone boundaries",
         "6. Test: Editing recurrence only affects selected scope (single occurrence or all future)"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 68,

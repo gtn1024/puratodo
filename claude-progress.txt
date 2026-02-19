@@ -67,9 +67,42 @@ All tables include user_id for RLS policies and query optimization.
   - `src/actions/tasks.ts`：扩展 Task/TaskUpdatePayload 的 recurrence 字段
   - `src/app/api/openapi/route.ts`：更新 Task schema 与任务创建/更新请求体文档
   - 构建验证通过：`npm run build`
+- Feature #67 (Step 2): 任务详情支持配置重复规则
+  - 新增 `src/components/dashboard/recurrence-fields.tsx`，统一渲染重复设置 UI
+  - 详情面板支持设置：
+    - 频率（不重复/每天/每周/每月/自定义）
+    - 间隔（interval）
+    - 每周重复日（weekly/custom）
+    - 结束条件（永不结束/结束日期/重复次数）
+    - 时区（timezone）与自定义 RRULE（custom）
+  - `TaskDetailPanel` 与 `TaskDetailSheet` 同步接入，桌面端/移动端行为一致
+  - 保存时将 recurrence 字段写入 `updateTask` payload，取消重复时回写为 `null`
+  - 新增中英文文案：`src/messages/en.json`、`src/messages/zh.json`
+  - 构建验证通过：`npm run build`
+- Feature #67 (Step 3-4): 完成任务时按重复规则生成下一次，并保持 series linkage
+  - 新增 `src/lib/recurrence-runtime.ts` 统一处理 recurring runtime：
+    - 识别 `completed: false -> true` 状态跃迁并按需生成下一次 occurrence
+    - 支持 `daily / weekly / monthly / custom(RRULE 子集)` 计算下一日期
+    - 支持 `recurrence_end_date / recurrence_end_count` 截止条件
+    - 自动维护 `recurrence_source_task_id`（首个 occurrence 自链接，后续 occurrence 统一指向 series root）
+    - 避免重复生成（已存在未来 occurrence 时不重复创建）
+  - `src/actions/tasks.ts` 的 `updateTask/updateInboxTask` 改为复用该 runtime
+  - `src/app/api/v1/tasks/[id]/route.ts` 与 `src/app/api/v1/tasks/inbox/[id]/route.ts` PATCH 也复用同一逻辑，App 与 API 行为一致
+- Feature #67 (Step 5): 时区边界与日期推进逻辑
+  - recurrence runtime 采用 timezone-aware 的“今日”解析（`Intl.DateTimeFormat(..., { timeZone })`）作为无锚点任务的推进基准
+  - 周重复计算基于日期字符串与 UTC 日历运算，规避本地时区解析偏移导致的跨日错误
+  - `custom` 规则支持解析 `FREQ/INTERVAL/BYDAY/UNTIL/COUNT`，并与字段截止条件协同
+- Feature #67 (Step 6): 编辑重复规则作用范围（single/future）
+  - 任务详情 recurrence UI 新增作用范围选择：
+    - `This occurrence only` / `This and future occurrences`
+    - 中文：`仅当前任务` / `当前及未来任务`
+  - 新增请求字段 `recurrence_update_scope`（`single | future`）
+  - 当 scope=`future` 时，仅 recurrence 字段会批量应用到同 series 的当前及未来 occurrence，非 recurrence 字段仍只更新当前任务
+  - OpenAPI 文档同步：PATCH task/inbox task 请求体新增 `recurrence_update_scope`
+  - 构建验证通过：`npm run build`
 
 #### 下一步
-- Feature #67 (Step 2): Update task detail UI to configure recurrence pattern
+- Feature #68: Create smart views (Starred, Overdue, Next 7 Days, No Date)
 
 ---
 

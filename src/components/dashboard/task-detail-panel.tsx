@@ -13,6 +13,12 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { getTaskById, updateTask, type Task } from "@/actions/tasks";
+import {
+  RecurrenceFields,
+  type RecurrenceEditorValue,
+  type RecurrenceFrequency,
+  type RecurrenceUpdateScope,
+} from "@/components/dashboard/recurrence-fields";
 import { CalendarIcon, Clock, FileText, X, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -20,6 +26,42 @@ interface TaskDetailPanelProps {
   taskId: string | null;
   onTaskUpdated: () => void;
   onClose: () => void;
+}
+
+function normalizeRecurrenceFrequency(
+  frequency: string | null
+): RecurrenceFrequency {
+  if (
+    frequency === "daily" ||
+    frequency === "weekly" ||
+    frequency === "monthly" ||
+    frequency === "custom"
+  ) {
+    return frequency;
+  }
+  return "";
+}
+
+function createRecurrenceEditorValue(task: Task): RecurrenceEditorValue {
+  const frequency = normalizeRecurrenceFrequency(task.recurrence_frequency);
+  const fallbackTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+
+  return {
+    frequency,
+    interval: task.recurrence_interval?.toString() || (frequency ? "1" : ""),
+    weekdays: task.recurrence_weekdays || [],
+    endType: task.recurrence_end_date
+      ? "onDate"
+      : task.recurrence_end_count
+        ? "afterCount"
+        : "never",
+    endDate: task.recurrence_end_date
+      ? new Date(task.recurrence_end_date)
+      : undefined,
+    endCount: task.recurrence_end_count?.toString() || "",
+    rule: task.recurrence_rule || "",
+    timezone: task.recurrence_timezone || (frequency ? fallbackTimezone : ""),
+  };
 }
 
 export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPanelProps) {
@@ -30,6 +72,18 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
   const [planDate, setPlanDate] = useState<Date | undefined>();
   const [comment, setComment] = useState("");
   const [durationMinutes, setDurationMinutes] = useState<string>("");
+  const [recurrence, setRecurrence] = useState<RecurrenceEditorValue>({
+    frequency: "",
+    interval: "",
+    weekdays: [],
+    endType: "never",
+    endDate: undefined,
+    endCount: "",
+    rule: "",
+    timezone: "",
+  });
+  const [recurrenceScope, setRecurrenceScope] =
+    useState<RecurrenceUpdateScope>("single");
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -50,6 +104,8 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
         setPlanDate(result.plan_date ? new Date(result.plan_date) : undefined);
         setComment(result.comment || "");
         setDurationMinutes(result.duration_minutes?.toString() || "");
+        setRecurrence(createRecurrenceEditorValue(result));
+        setRecurrenceScope("single");
       } else {
         setTask(null);
       }
@@ -69,6 +125,50 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
   const handleSave = async () => {
     if (!task || !name.trim()) return;
 
+    const fallbackTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    const parsedInterval = parseInt(recurrence.interval, 10);
+    const parsedEndCount = parseInt(recurrence.endCount, 10);
+
+    const recurrencePayload = recurrence.frequency
+      ? {
+          recurrence_frequency: recurrence.frequency,
+          recurrence_interval:
+            Number.isInteger(parsedInterval) && parsedInterval > 0
+              ? parsedInterval
+              : 1,
+          recurrence_weekdays:
+            recurrence.frequency === "weekly" || recurrence.frequency === "custom"
+              ? recurrence.weekdays.length > 0
+                ? Array.from(new Set(recurrence.weekdays)).sort((a, b) => a - b)
+                : null
+              : null,
+          recurrence_end_date:
+            recurrence.endType === "onDate" && recurrence.endDate
+              ? toLocalDateString(recurrence.endDate)
+              : null,
+          recurrence_end_count:
+            recurrence.endType === "afterCount" &&
+            Number.isInteger(parsedEndCount) &&
+            parsedEndCount > 0
+              ? parsedEndCount
+              : null,
+          recurrence_rule:
+            recurrence.frequency === "custom"
+              ? recurrence.rule.trim() || null
+              : null,
+          recurrence_timezone:
+            recurrence.timezone.trim() || fallbackTimezone || null,
+        }
+      : {
+          recurrence_frequency: null,
+          recurrence_interval: null,
+          recurrence_weekdays: null,
+          recurrence_end_date: null,
+          recurrence_end_count: null,
+          recurrence_rule: null,
+          recurrence_timezone: null,
+        };
+
     setIsSaving(true);
     const result = await updateTask(task.id, {
       name: name.trim(),
@@ -76,6 +176,8 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
       plan_date: planDate ? toLocalDateString(planDate) : null,
       comment: comment.trim() || null,
       duration_minutes: durationMinutes ? parseInt(durationMinutes, 10) : null,
+      ...recurrencePayload,
+      recurrence_update_scope: recurrenceScope,
     });
 
     setIsSaving(false);
@@ -266,6 +368,14 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
               placeholder="e.g., 30"
             />
           </div>
+
+          {/* Recurrence */}
+          <RecurrenceFields
+            value={recurrence}
+            onChange={setRecurrence}
+            updateScope={recurrenceScope}
+            onUpdateScopeChange={setRecurrenceScope}
+          />
 
           {/* Comment */}
           <div className="space-y-2">

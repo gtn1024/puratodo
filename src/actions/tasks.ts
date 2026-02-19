@@ -3,6 +3,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { getOrCreateInboxListForUser } from "@/lib/inbox";
+import {
+  updateTaskWithRecurrenceHandling,
+  type RecurrenceUpdateScope,
+} from "@/lib/recurrence-runtime";
 
 export type Task = {
   id: string;
@@ -46,6 +50,7 @@ type TaskUpdatePayload = Partial<{
   recurrence_rule: string | null;
   recurrence_timezone: string | null;
   recurrence_source_task_id: string | null;
+  recurrence_update_scope: RecurrenceUpdateScope;
 }>;
 
 export async function getTasks(listId?: string): Promise<Task[]> {
@@ -141,14 +146,15 @@ export async function updateTask(
     return { success: false, error: "Not authenticated" };
   }
 
-  const { error: updateError } = await supabase
-    .from("tasks")
-    .update(data)
-    .eq("id", id)
-    .eq("user_id", user.id);
+  const result = await updateTaskWithRecurrenceHandling({
+    supabase,
+    userId: user.id,
+    taskId: id,
+    patch: data,
+  });
 
-  if (updateError) {
-    return { success: false, error: updateError.message };
+  if (result.error) {
+    return { success: false, error: result.error };
   }
 
   revalidatePath("/dashboard");
@@ -264,15 +270,16 @@ export async function updateInboxTask(
     return { success: false, error: "Inbox task not found" };
   }
 
-  const { error: updateError } = await supabase
-    .from("tasks")
-    .update(data)
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .eq("list_id", inboxList.id);
+  const result = await updateTaskWithRecurrenceHandling({
+    supabase,
+    userId: user.id,
+    taskId: id,
+    patch: data,
+    listId: inboxList.id,
+  });
 
-  if (updateError) {
-    return { success: false, error: updateError.message };
+  if (result.error) {
+    return { success: false, error: result.error };
   }
 
   revalidatePath("/dashboard");

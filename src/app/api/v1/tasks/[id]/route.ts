@@ -9,6 +9,10 @@ import {
   corsPreflightResponse,
 } from "@/lib/api/response";
 import { parseRecurrenceFields } from "@/lib/recurrence";
+import {
+  isValidRecurrenceUpdateScope,
+  updateTaskWithRecurrenceHandling,
+} from "@/lib/recurrence-runtime";
 import { Task } from "../route";
 
 // Helper to recursively fetch subtasks
@@ -103,6 +107,16 @@ export async function PATCH(
       duration_minutes,
     } = body;
 
+    const recurrenceScopeRaw = body.recurrence_update_scope;
+    if (
+      recurrenceScopeRaw !== undefined &&
+      !isValidRecurrenceUpdateScope(recurrenceScopeRaw)
+    ) {
+      return withCors(
+        errorResponse("recurrence_update_scope must be one of: single, future")
+      );
+    }
+
     // Build update data - only include fields that are provided
     const updateData: Record<string, unknown> = {};
 
@@ -144,31 +158,25 @@ export async function PATCH(
       return withCors(errorResponse("At least one field must be provided"));
     }
 
-    // First check if the task exists and belongs to the user
-    const { data: existingTask, error: fetchError } = await auth.supabase
-      .from("tasks")
-      .select("id")
-      .eq("id", id)
-      .eq("user_id", auth.id)
-      .single();
+    const result = await updateTaskWithRecurrenceHandling({
+      supabase: auth.supabase,
+      userId: auth.id,
+      taskId: id,
+      patch: {
+        ...updateData,
+        recurrence_update_scope: recurrenceScopeRaw,
+      },
+    });
 
-    if (fetchError || !existingTask) {
-      return withCors(notFoundResponse("Task not found"));
+    if (result.status === 404) {
+      return withCors(notFoundResponse(result.error || "Task not found"));
     }
 
-    const { data, error } = await auth.supabase
-      .from("tasks")
-      .update(updateData)
-      .eq("id", id)
-      .eq("user_id", auth.id)
-      .select()
-      .single();
-
-    if (error) {
-      return withCors(errorResponse(error.message, 500));
+    if (result.error || !result.task) {
+      return withCors(errorResponse(result.error || "Failed to update task", 500));
     }
 
-    return withCors(successResponse<Task>(data));
+    return withCors(successResponse<Task>(result.task));
   } catch (err) {
     console.error("Error updating task:", err);
     return withCors(errorResponse("Failed to update task", 500));

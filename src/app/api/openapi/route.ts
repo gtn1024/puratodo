@@ -806,6 +806,12 @@ const openApiSpec = {
                     format: "uuid",
                     nullable: true,
                   },
+                  recurrence_update_scope: {
+                    type: "string",
+                    enum: ["single", "future"],
+                    description:
+                      "When updating recurrence fields, apply only this task or this and future occurrences",
+                  },
                 },
               },
             },
@@ -911,6 +917,12 @@ const openApiSpec = {
                     type: "string",
                     format: "uuid",
                     nullable: true,
+                  },
+                  recurrence_update_scope: {
+                    type: "string",
+                    enum: ["single", "future"],
+                    description:
+                      "When updating recurrence fields, apply only this task or this and future occurrences",
                   },
                 },
               },
