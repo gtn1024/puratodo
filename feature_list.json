@@ -176,7 +176,7 @@
       "Switch back to account A",
       "Verify original task still exists"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 14,

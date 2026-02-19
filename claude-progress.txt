@@ -1,5 +1,44 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 10: Multi-Account Data Isolation
+**Date:** 2026-02-19
+**Agent:** Codex (GPT-5)
+
+### Completed
+- Verified account data isolation flow with deterministic local mock API (`http://localhost:3000` via Vite `/api` proxy)
+- Confirmed account A and account B keep separate data views after switching
+- Confirmed switching back restores the original account's data context and token
+
+### Verification Performed
+- `npm run build` passed
+- Playwright flow verified Test #13 isolation behavior:
+  - Logged in as `foo@example.com` (account A)
+  - Created account-A-only data (`A Session Group`)
+  - Added `bar@example.com` (account B) from Account Settings
+  - Switched to account B and verified `Group B` was visible while `Group A` / `A Session Group` were not visible
+  - Created account-B-only data (`B Session Group`)
+  - Switched back to account A and verified `Group A` / `A Session Group` were visible while `Group B` / `B Session Group` were not visible
+  - Verified persisted auth state switched correctly (`auth-storage.activeAccountId=user-a`, `authToken=token-a` after switching back)
+  - Verified data reload requests succeeded during switches (`/api/v1/groups` and `/api/v1/lists` returned 200)
+
+### Current Status
+- 17/209 test cases passing
+- Multi-account session/data isolation is verified
+
+### Tests Now Passing
+- Test #13: Each account has separate session and data ✓
+
+### Files Created/Modified
+- feature_list.json (marked Test #13 as passing)
+- claude-progress.txt (this session log)
+
+### Next Steps
+1. Verify previously implemented sidebar/group/list tasks (#15, #16, #18, #20, #26)
+2. Continue list CRUD tasks (#21-25)
+3. Continue task CRUD tasks (#27+)
+
+---
+
 ## Session 9: Multi-Account Remove Flow
 **Date:** 2026-02-19
 **Agent:** Codex (GPT-5)
