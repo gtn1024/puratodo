@@ -51,6 +51,7 @@
   "sidebar": {
     "groups": "Groups",
     "today": "Today",
+    "inbox": "Inbox",
     "addGroup": "Add Group",
     "noGroups": "No groups yet",
     "createFirstGroup": "Create your first group"

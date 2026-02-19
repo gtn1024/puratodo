@@ -22,6 +22,26 @@ All tables include user_id for RLS policies and query optimization.
 
 ---
 
+### 2026-02-19
+
+#### 完成
+- Feature #66 (Step 1): Inbox 快速收集入口
+  - 在侧边栏新增 Inbox 智能入口（桌面端/移动端 Sheet 均支持）
+  - 在 `dashboard-content.tsx` 新增 Inbox 视图状态，支持与 Today/Group/List 互斥切换
+  - 支持 Inbox 视图下按 `N` 快捷键直接触发新建任务
+  - 新增 `getOrCreateInboxList` server action：首次进入 Inbox 时自动创建并返回可用 Inbox 列表
+  - 若用户尚无分组，会自动创建默认 `Inbox` 分组承载 Inbox 列表
+  - 新增中英文文案：`sidebar.inbox`
+  - 构建验证通过：`npm run build`
+  - 说明：全量 `npm run lint` 当前仍有历史遗留错误（非本次改动引入）
+
+#### 下一步
+- Feature #66 (Step 3): 为 Inbox 增加专用 tasks 查询/CRUD action（避免仅复用普通 list 任务流）
+- Feature #66 (Step 4): 增加 Inbox 任务一键移动到目标分组/列表
+- Feature #66 (Step 5-6): 补桌面/移动端流程测试与回归测试
+
+---
+
 ### 2026-02-17
 
 #### 完成

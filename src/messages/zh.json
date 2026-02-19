@@ -51,6 +51,7 @@
   "sidebar": {
     "groups": "分组",
     "today": "今天",
+    "inbox": "收件箱",
     "addGroup": "添加分组",
     "noGroups": "暂无分组",
     "createFirstGroup": "创建你的第一个分组"

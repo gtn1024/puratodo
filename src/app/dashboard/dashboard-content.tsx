@@ -5,12 +5,13 @@ import { Sidebar } from "@/components/dashboard/sidebar";
 import { ListPanel } from "@/components/dashboard/list-panel";
 import { TaskPanel } from "@/components/dashboard/task-panel";
 import { TodayPanel } from "@/components/dashboard/today-panel";
+import { TaskPanelSkeleton } from "@/components/dashboard/skeletons";
 import { TaskDetailPanel } from "@/components/dashboard/task-detail-panel";
 import { TaskDetailSheet } from "@/components/dashboard/task-detail-sheet";
 import { LogoutButton } from "./logout-button";
-import { getLists, type List } from "@/actions/lists";
+import { getLists, getOrCreateInboxList, type List } from "@/actions/lists";
 import type { Group } from "@/actions/groups";
-import { Menu, Search, Sun } from "lucide-react";
+import { Inbox, Menu, Search, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -45,6 +46,11 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
   const [shortcutsDialogOpen, setShortcutsDialogOpen] = useState(false);
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
   const [showTodayView, setShowTodayView] = useState(false);
+  const [showInboxView, setShowInboxView] = useState(false);
+  const [inboxListId, setInboxListId] = useState<string | null>(
+    allLists.find((list) => list.name === "Inbox")?.id || null
+  );
+  const [isLoadingInbox, setIsLoadingInbox] = useState(false);
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
 
   // Refs for triggering creation in child components
@@ -54,6 +60,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
 
   const selectedGroup = initialGroups.find((g) => g.id === selectedGroupId) || null;
   const selectedList = lists.find((l) => l.id === selectedListId) || null;
+  const inboxList = inboxListId ? lists.find((list) => list.id === inboxListId) || null : null;
 
   // Filter lists for the selected group
   const groupLists = selectedGroupId
@@ -79,6 +86,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     setSelectedListId(listId);
     setSelectedTaskId(null); // Deselect task when changing list
     setShowTodayView(false); // Exit today view when selecting list
+    setShowInboxView(false); // Exit inbox view when selecting list
     setMobileMenuOpen(false); // Close mobile menu on selection
   };
 
@@ -90,15 +98,43 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
       setSelectedTaskId(null); // Deselect task when changing group
     }
     setShowTodayView(false); // Exit today view when selecting group
+    setShowInboxView(false); // Exit inbox view when selecting group
     setMobileMenuOpen(false); // Close mobile menu on selection
   };
 
   const handleTodaySelect = () => {
     setShowTodayView(true);
+    setShowInboxView(false);
     setSelectedGroupId(null);
     setSelectedListId(null);
     setSelectedTaskId(null);
     setMobileMenuOpen(false);
+  };
+
+  const handleInboxSelect = async () => {
+    setShowTodayView(false);
+    setShowInboxView(true);
+    setSelectedGroupId(null);
+    setSelectedListId(null);
+    setSelectedTaskId(null);
+    setMobileMenuOpen(false);
+    setIsLoadingInbox(true);
+
+    const resolvedInboxList = await getOrCreateInboxList();
+    if (resolvedInboxList) {
+      setInboxListId(resolvedInboxList.id);
+      setLists((prev) => {
+        const existingIndex = prev.findIndex((list) => list.id === resolvedInboxList.id);
+        if (existingIndex >= 0) {
+          const next = [...prev];
+          next[existingIndex] = resolvedInboxList;
+          return next;
+        }
+        return [...prev, resolvedInboxList];
+      });
+    }
+
+    setIsLoadingInbox(false);
   };
 
   const handleSidebarAddList = (groupId: string) => {
@@ -106,6 +142,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     setSelectedListId(null);
     setSelectedTaskId(null);
     setShowTodayView(false);
+    setShowInboxView(false);
     setMobileMenuOpen(false);
     pendingCreateListGroupIdRef.current = groupId;
     setAddListRequestKey((k) => k + 1);
@@ -121,17 +158,18 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
   }, []);
 
   // Handle task selection from search
-  const handleSearchTaskSelect = useCallback((taskId: string, listId: string, _groupId: string) => {
+  const handleSearchTaskSelect = useCallback((taskId: string, listId: string, groupId: string) => {
     const list = lists.find((l) => l.id === listId);
-    if (list) {
-      setSelectedGroupId(list.group_id);
-      setSelectedListId(listId);
-      setSelectedTaskId(taskId);
-      setShowTodayView(false);
-      // On mobile, open the detail sheet
-      if (window.innerWidth < 768) {
-        setMobileDetailOpen(true);
-      }
+    const resolvedGroupId = list?.group_id || groupId;
+
+    setSelectedGroupId(resolvedGroupId);
+    setSelectedListId(listId);
+    setSelectedTaskId(taskId);
+    setShowTodayView(false);
+    setShowInboxView(false);
+    // On mobile, open the detail sheet
+    if (window.innerWidth < 768) {
+      setMobileDetailOpen(true);
     }
   }, [lists]);
 
@@ -146,12 +184,12 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     {
       key: "n",
       action: useCallback(() => {
-        if (selectedList) {
+        if (selectedList || showInboxView) {
           taskPanelRef.current?.triggerCreateTask();
         } else if (selectedGroup) {
           listPanelRef.current?.triggerCreateList();
         }
-      }, [selectedList, selectedGroup]),
+      }, [selectedList, selectedGroup, showInboxView]),
       description: "New task/list",
     },
     {
@@ -209,7 +247,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     const pendingGroupId = pendingCreateListGroupIdRef.current;
     if (!pendingGroupId) return;
     if (selectedGroupId !== pendingGroupId) return;
-    if (selectedListId || showTodayView) return;
+    if (selectedListId || showTodayView || showInboxView) return;
 
     if (listPanelRef.current) {
       listPanelRef.current.triggerCreateList();
@@ -220,6 +258,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     selectedGroupId,
     selectedListId,
     showTodayView,
+    showInboxView,
   ]);
 
   // Realtime subscriptions
@@ -253,9 +292,11 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
           selectedGroupId={selectedGroupId}
           selectedListId={selectedListId}
           showTodayView={showTodayView}
+          showInboxView={showInboxView}
           onGroupSelect={handleGroupSelect}
           onListSelect={handleListSelect}
           onTodaySelect={handleTodaySelect}
+          onInboxSelect={handleInboxSelect}
           onDataChange={handleListsChange}
           onAddListRequest={handleSidebarAddList}
         />
@@ -274,9 +315,11 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
             selectedGroupId={selectedGroupId}
             selectedListId={selectedListId}
             showTodayView={showTodayView}
+            showInboxView={showInboxView}
             onGroupSelect={handleGroupSelect}
             onListSelect={handleListSelect}
             onTodaySelect={handleTodaySelect}
+            onInboxSelect={handleInboxSelect}
             onDataChange={handleListsChange}
             onAddListRequest={handleSidebarAddList}
           />
@@ -306,6 +349,15 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                   </div>
                   <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
                     Today
+                  </h1>
+                </>
+              ) : showInboxView ? (
+                <>
+                  <div className="w-8 h-8 rounded-lg bg-sky-100 dark:bg-sky-900/30 flex items-center justify-center">
+                    <Inbox className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+                  </div>
+                  <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
+                    Inbox
                   </h1>
                 </>
               ) : selectedList ? (
@@ -357,6 +409,29 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
             <div className="max-w-4xl mx-auto">
               {showTodayView ? (
                 <TodayPanel />
+              ) : showInboxView ? (
+                isLoadingInbox ? (
+                  <TaskPanelSkeleton />
+                ) : inboxList ? (
+                  <TaskPanel
+                    ref={taskPanelRef}
+                    list={inboxList}
+                    selectedTaskId={selectedTaskId}
+                    onTaskSelect={handleTaskSelect}
+                  />
+                ) : (
+                  <div className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-12 text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center">
+                      <Inbox className="w-8 h-8 text-stone-400" />
+                    </div>
+                    <h2 className="text-xl font-semibold text-stone-900 dark:text-stone-100 mb-2">
+                      Inbox unavailable
+                    </h2>
+                    <p className="text-stone-500 dark:text-stone-400">
+                      Could not create or load the Inbox list for this account.
+                    </p>
+                  </div>
+                )
               ) : selectedList ? (
                 <TaskPanel
                   ref={taskPanelRef}

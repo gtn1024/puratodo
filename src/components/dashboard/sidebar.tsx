@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createGroup, updateGroup, deleteGroup, reorderGroups, type Group } from "@/actions/groups";
 import { reorderLists, type List } from "@/actions/lists";
-import { MoreHorizontal, Plus, Folder, GripVertical, ChevronRight, ChevronDown, ListTodo, Sun } from "lucide-react";
+import { MoreHorizontal, Plus, Folder, GripVertical, ChevronRight, ChevronDown, Inbox, Sun } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import {
@@ -47,9 +47,11 @@ interface SidebarProps {
   selectedGroupId: string | null;
   selectedListId: string | null;
   showTodayView: boolean;
+  showInboxView: boolean;
   onGroupSelect: (groupId: string | null) => void;
   onListSelect: (listId: string | null, groupId: string) => void;
   onTodaySelect: () => void;
+  onInboxSelect: () => void;
   onDataChange: () => void;
   onAddListRequest: (groupId: string) => void;
 }
@@ -343,9 +345,11 @@ export function Sidebar({
   selectedGroupId,
   selectedListId,
   showTodayView,
+  showInboxView,
   onGroupSelect,
   onListSelect,
   onTodaySelect,
+  onInboxSelect,
   onDataChange,
   onAddListRequest,
 }: SidebarProps) {
@@ -500,6 +504,17 @@ export function Sidebar({
           >
             <Sun className={`h-4 w-4 ${showTodayView ? "text-amber-500" : ""}`} />
             <span className="text-sm font-medium">{t("sidebar.today")}</span>
+          </button>
+          <button
+            onClick={onInboxSelect}
+            className={`mt-1 w-full flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
+              showInboxView
+                ? "bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300"
+                : "hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300"
+            }`}
+          >
+            <Inbox className={`h-4 w-4 ${showInboxView ? "text-sky-500" : ""}`} />
+            <span className="text-sm font-medium">{t("sidebar.inbox")}</span>
           </button>
         </div>
 
