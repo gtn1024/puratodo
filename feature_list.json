@@ -798,6 +798,118 @@
         "8. Test: Verify dark mode looks correct in all three columns"
       ],
       "passes": true
+    },
+    {
+      "id": 66,
+      "category": "Productivity Core",
+      "description": "Add Inbox quick capture for fast task collection",
+      "steps": [
+        "1. Add an Inbox smart list entry in sidebar and allow quick task creation without selecting group/list first",
+        "2. Extend tasks schema with inbox flag or create a dedicated default Inbox list per user",
+        "3. Add server actions and API support for inbox task CRUD",
+        "4. Add one-click move flow from Inbox to target group/list",
+        "5. Test: Create tasks in Inbox on desktop/mobile and verify they persist after refresh",
+        "6. Test: Move Inbox task to a list and verify it disappears from Inbox and appears in target list"
+      ],
+      "passes": false
+    },
+    {
+      "id": 67,
+      "category": "Productivity Core",
+      "description": "Support recurring tasks (daily/weekly/monthly/custom rules)",
+      "steps": [
+        "1. Add recurrence fields to tasks (rrule or frequency/interval/weekdays/end condition)",
+        "2. Update task detail UI to configure recurrence pattern",
+        "3. Implement job or on-demand generation logic to create next occurrence when current one is completed",
+        "4. Ensure each generated occurrence keeps linkage to recurrence source",
+        "5. Test: Daily and weekly recurring tasks generate correctly across timezone boundaries",
+        "6. Test: Editing recurrence only affects selected scope (single occurrence or all future)"
+      ],
+      "passes": false
+    },
+    {
+      "id": 68,
+      "category": "Productivity Core",
+      "description": "Create smart views (Starred, Overdue, Next 7 Days, No Date)",
+      "steps": [
+        "1. Add sidebar entries for smart views and route state handling in dashboard",
+        "2. Implement query helpers/actions for each smart view with efficient indexed filters",
+        "3. Reuse task panel for smart views with clear context labels",
+        "4. Keep realtime subscriptions active so smart views auto-refresh on changes",
+        "5. Test: Tasks appear/disappear in smart views immediately after edits",
+        "6. Test: Date-based views remain correct after local timezone day rollover"
+      ],
+      "passes": false
+    },
+    {
+      "id": 69,
+      "category": "Productivity Core",
+      "description": "Add reminders and notifications for plan/due dates",
+      "steps": [
+        "1. Add reminder fields to tasks (remind_at, channel, notified_at)",
+        "2. Build browser notification permission flow and local notification scheduling fallback",
+        "3. Add server-side reminder dispatch (email/push/webhook) with retry and idempotency",
+        "4. Add reminder settings UI in task detail panel",
+        "5. Test: Reminder triggers at expected local time and only once per reminder",
+        "6. Test: Failed sends are retried and logged without duplicate notifications"
+      ],
+      "passes": false
+    },
+    {
+      "id": 70,
+      "category": "Productivity Core",
+      "description": "Implement bulk actions for multi-select task management",
+      "steps": [
+        "1. Add multi-select mode in task list with checkbox selection and keyboard support",
+        "2. Add bulk action bar (complete, star, move, delete, set due/plan date)",
+        "3. Implement transactional batch updates in actions/API for consistency",
+        "4. Add optimistic UI and rollback handling for partial failures",
+        "5. Test: Apply bulk operations to mixed tasks and verify all selected tasks update correctly",
+        "6. Test: Large selection performance remains responsive (100+ tasks)"
+      ],
+      "passes": false
+    },
+    {
+      "id": 71,
+      "category": "Productivity Core",
+      "description": "Add calendar view for scheduling and drag-to-plan",
+      "steps": [
+        "1. Add month/week calendar view that maps tasks by due_date and plan_date",
+        "2. Support drag-and-drop tasks onto date cells to set plan_date quickly",
+        "3. Add filters and list/group context switch within calendar view",
+        "4. Keep task detail integration so users can edit without leaving calendar",
+        "5. Test: Dragging task to a day updates plan_date and reflects in Today view",
+        "6. Test: Calendar renders correctly on mobile and desktop with acceptable performance"
+      ],
+      "passes": false
+    },
+    {
+      "id": 72,
+      "category": "AI Native",
+      "description": "Natural language task creation with date and intent parsing",
+      "steps": [
+        "1. Add quick input parser pipeline (rule-based + LLM fallback) for free-text task capture",
+        "2. Extract structured fields (title, due_date, plan_date, duration, subtasks, priority hints)",
+        "3. Show parse preview and allow user confirmation before saving",
+        "4. Add parsing API endpoint and telemetry for parse quality improvements",
+        "5. Test: Common Chinese/English phrases parse into expected task fields",
+        "6. Test: Ambiguous inputs return safe suggestions instead of silent wrong writes"
+      ],
+      "passes": false
+    },
+    {
+      "id": 73,
+      "category": "AI Native",
+      "description": "Auto-generate weekly/monthly review reports from completed work",
+      "steps": [
+        "1. Aggregate completed tasks and productivity metrics by period and project context",
+        "2. Add summary generator (template + optional LLM) for highlights, delays, and focus areas",
+        "3. Build review page/export options (copy markdown, email, or PDF)",
+        "4. Add scheduler to auto-create weekly and monthly report drafts",
+        "5. Test: Weekly and monthly reports match raw task data and totals",
+        "6. Test: Report generation handles empty periods gracefully with actionable prompts"
+      ],
+      "passes": false
     }
   ]
 }
