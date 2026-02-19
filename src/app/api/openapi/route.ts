@@ -616,6 +616,140 @@ const openApiSpec = {
         },
       },
     },
+    "/tasks/inbox": {
+      get: {
+        summary: "Get inbox tasks with optional filters",
+        parameters: [
+          {
+            name: "completed",
+            in: "query",
+            schema: { type: "boolean" },
+          },
+          {
+            name: "starred",
+            in: "query",
+            schema: { type: "boolean" },
+          },
+          {
+            name: "parent_id",
+            in: "query",
+            schema: { type: "string" },
+            description: "Filter by parent task ID, use 'null' for top-level tasks",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Inbox task list",
+          },
+        },
+      },
+      post: {
+        summary: "Create a new inbox task",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["name"],
+                properties: {
+                  name: { type: "string" },
+                  parent_id: { type: "string", format: "uuid" },
+                  completed: { type: "boolean" },
+                  starred: { type: "boolean" },
+                  due_date: { type: "string", format: "date" },
+                  plan_date: { type: "string", format: "date" },
+                  comment: { type: "string" },
+                  duration_minutes: { type: "integer" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "201": {
+            description: "Inbox task created",
+          },
+        },
+      },
+    },
+    "/tasks/inbox/{id}": {
+      get: {
+        summary: "Get an inbox task by ID with subtasks",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string", format: "uuid" },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Inbox task details",
+          },
+          "404": {
+            description: "Inbox task not found",
+          },
+        },
+      },
+      patch: {
+        summary: "Update an inbox task",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string", format: "uuid" },
+          },
+        ],
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  completed: { type: "boolean" },
+                  starred: { type: "boolean" },
+                  due_date: { type: "string", format: "date", nullable: true },
+                  plan_date: { type: "string", format: "date", nullable: true },
+                  comment: { type: "string", nullable: true },
+                  duration_minutes: { type: "integer", nullable: true },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Inbox task updated",
+          },
+          "404": {
+            description: "Inbox task not found",
+          },
+        },
+      },
+      delete: {
+        summary: "Delete an inbox task",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string", format: "uuid" },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Inbox task deleted",
+          },
+          "404": {
+            description: "Inbox task not found",
+          },
+        },
+      },
+    },
     "/tasks/{id}": {
       get: {
         summary: "Get a task by ID with subtasks",

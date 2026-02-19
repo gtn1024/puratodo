@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { getOrCreateInboxListForUser } from "@/lib/inbox";
 
 export type Task = {
   id: string;
@@ -20,6 +21,16 @@ export type Task = {
   updated_at: string;
   subtasks?: Task[];
 };
+
+type TaskUpdatePayload = Partial<{
+  name: string;
+  completed: boolean;
+  starred: boolean;
+  due_date: string | null;
+  plan_date: string | null;
+  comment: string | null;
+  duration_minutes: number | null;
+}>;
 
 export async function getTasks(listId?: string): Promise<Task[]> {
   const supabase = await createClient();
@@ -103,15 +114,7 @@ export async function createTask(
 
 export async function updateTask(
   id: string,
-  data: Partial<{
-    name: string;
-    completed: boolean;
-    starred: boolean;
-    due_date: string | null;
-    plan_date: string | null;
-    comment: string | null;
-    duration_minutes: number | null;
-  }>
+  data: TaskUpdatePayload
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient();
   const {
@@ -156,6 +159,148 @@ export async function deleteTask(
 
   if (error) {
     return { success: false, error: error.message };
+  }
+
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
+export async function getInboxTasksWithSubtasks(): Promise<Task[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return [];
+  }
+
+  const inboxList = await getOrCreateInboxListForUser(supabase, user.id);
+  if (!inboxList) {
+    return [];
+  }
+
+  return getTasksWithSubtasks(inboxList.id);
+}
+
+export async function createInboxTask(
+  name: string,
+  parentId?: string
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  const inboxList = await getOrCreateInboxListForUser(supabase, user.id);
+  if (!inboxList) {
+    return { success: false, error: "Inbox list unavailable" };
+  }
+
+  if (parentId) {
+    const { data: parentTask, error: parentError } = await supabase
+      .from("tasks")
+      .select("id")
+      .eq("id", parentId)
+      .eq("user_id", user.id)
+      .eq("list_id", inboxList.id)
+      .single();
+
+    if (parentError || !parentTask) {
+      return { success: false, error: "Parent task not found in Inbox" };
+    }
+  }
+
+  return createTask(inboxList.id, name, parentId);
+}
+
+export async function updateInboxTask(
+  id: string,
+  data: TaskUpdatePayload
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  const inboxList = await getOrCreateInboxListForUser(supabase, user.id);
+  if (!inboxList) {
+    return { success: false, error: "Inbox list unavailable" };
+  }
+
+  const { data: inboxTask, error: fetchError } = await supabase
+    .from("tasks")
+    .select("id")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .eq("list_id", inboxList.id)
+    .single();
+
+  if (fetchError || !inboxTask) {
+    return { success: false, error: "Inbox task not found" };
+  }
+
+  const { error: updateError } = await supabase
+    .from("tasks")
+    .update(data)
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .eq("list_id", inboxList.id);
+
+  if (updateError) {
+    return { success: false, error: updateError.message };
+  }
+
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
+export async function deleteInboxTask(
+  id: string
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  const inboxList = await getOrCreateInboxListForUser(supabase, user.id);
+  if (!inboxList) {
+    return { success: false, error: "Inbox list unavailable" };
+  }
+
+  const { data: inboxTask, error: fetchError } = await supabase
+    .from("tasks")
+    .select("id")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .eq("list_id", inboxList.id)
+    .single();
+
+  if (fetchError || !inboxTask) {
+    return { success: false, error: "Inbox task not found" };
+  }
+
+  const { error: deleteError } = await supabase
+    .from("tasks")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .eq("list_id", inboxList.id);
+
+  if (deleteError) {
+    return { success: false, error: deleteError.message };
   }
 
   revalidatePath("/dashboard");

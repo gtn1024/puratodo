@@ -34,9 +34,20 @@ All tables include user_id for RLS policies and query optimization.
   - 新增中英文文案：`sidebar.inbox`
   - 构建验证通过：`npm run build`
   - 说明：全量 `npm run lint` 当前仍有历史遗留错误（非本次改动引入）
+- Feature #66 (Step 3): Inbox 专用任务 CRUD（Server Action + API）
+  - 新增 `src/lib/inbox.ts`，统一封装 `getOrCreateInboxListForUser` 逻辑
+  - 重构 `src/actions/lists.ts`：复用 `lib/inbox`，避免 Inbox 创建逻辑重复
+  - 新增 `src/actions/tasks.ts` Inbox 专用 action：
+    - `getInboxTasksWithSubtasks`
+    - `createInboxTask`
+    - `updateInboxTask`
+    - `deleteInboxTask`
+  - 新增 Inbox API 端点：
+    - `GET/POST /api/v1/tasks/inbox`
+    - `GET/PATCH/DELETE /api/v1/tasks/inbox/{id}`
+  - 更新 OpenAPI 文档，新增 Inbox tasks 路径定义
 
 #### 下一步
-- Feature #66 (Step 3): 为 Inbox 增加专用 tasks 查询/CRUD action（避免仅复用普通 list 任务流）
 - Feature #66 (Step 4): 增加 Inbox 任务一键移动到目标分组/列表
 - Feature #66 (Step 5-6): 补桌面/移动端流程测试与回归测试
 
