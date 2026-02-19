@@ -47,6 +47,7 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
+  pointerWithin,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -555,10 +556,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
       if (!task.subtasks || task.subtasks.length === 0) return null;
 
       return (
-        <SortableContext
-          items={task.subtasks.map((t) => t.id)}
-          strategy={verticalListSortingStrategy}
-        >
+        <>
           {task.subtasks.map((subtask) => (
             <TaskItem
               key={subtask.id}
@@ -580,11 +578,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
               renderSubtasks={renderSubtasks}
             />
           ))}
-          {/* Add subtask input */}
-          {addingSubtaskTo && task.subtasks.some((s) => s.id === addingSubtaskTo)
-            ? null
-            : null}
-        </SortableContext>
+        </>
       );
     },
     [
@@ -887,7 +881,20 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
         ) : (
           <DndContext
             sensors={sensors}
-            collisionDetection={closestCenter}
+            collisionDetection={({ droppableContainers, ...args }) => {
+              // First try pointer within, then fall back to closest center
+              const pointerCollisions = pointerWithin({
+                droppableContainers,
+                ...args,
+              });
+              if (pointerCollisions.length > 0) {
+                return pointerCollisions;
+              }
+              return closestCenter({
+                droppableContainers,
+                ...args,
+              });
+            }}
             onDragEnd={handleDragEnd}
           >
             <SortableContext
