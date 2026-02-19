@@ -256,6 +256,83 @@ export interface TaskPanelRef {
   triggerCreateTask: () => void;
 }
 
+const ROOT_SORTABLE_ID = "root-tasks";
+const SUBTASK_SORTABLE_PREFIX = "subtasks-";
+
+function getParentIdFromContainerId(containerId: string): string | null {
+  if (containerId === ROOT_SORTABLE_ID) {
+    return null;
+  }
+
+  if (containerId.startsWith(SUBTASK_SORTABLE_PREFIX)) {
+    return containerId.slice(SUBTASK_SORTABLE_PREFIX.length) || null;
+  }
+
+  return null;
+}
+
+function reorderSiblingTasks(
+  taskList: Task[],
+  parentId: string | null,
+  activeId: string,
+  overId: string
+): { nextTasks: Task[]; orderedIds: string[] } {
+  if (parentId === null) {
+    const oldIndex = taskList.findIndex((task) => task.id === activeId);
+    const newIndex = taskList.findIndex((task) => task.id === overId);
+
+    if (oldIndex === -1 || newIndex === -1) {
+      return { nextTasks: taskList, orderedIds: [] };
+    }
+
+    const nextTasks = arrayMove(taskList, oldIndex, newIndex);
+    return { nextTasks, orderedIds: nextTasks.map((task) => task.id) };
+  }
+
+  const reorderInNestedTasks = (
+    tasks: Task[]
+  ): { nextTasks: Task[]; orderedIds: string[]; changed: boolean } => {
+    let orderedIds: string[] = [];
+    let changed = false;
+
+    const nextTasks = tasks.map((task) => {
+      if (task.id === parentId) {
+        const subtasks = task.subtasks || [];
+        const oldIndex = subtasks.findIndex((subtask) => subtask.id === activeId);
+        const newIndex = subtasks.findIndex((subtask) => subtask.id === overId);
+
+        if (oldIndex === -1 || newIndex === -1) {
+          return task;
+        }
+
+        const reorderedSubtasks = arrayMove(subtasks, oldIndex, newIndex);
+        orderedIds = reorderedSubtasks.map((subtask) => subtask.id);
+        changed = true;
+        return { ...task, subtasks: reorderedSubtasks };
+      }
+
+      if (task.subtasks && task.subtasks.length > 0) {
+        const nested = reorderInNestedTasks(task.subtasks);
+        if (nested.changed) {
+          orderedIds = nested.orderedIds;
+          changed = true;
+          return { ...task, subtasks: nested.nextTasks };
+        }
+      }
+
+      return task;
+    });
+
+    return { nextTasks, orderedIds, changed };
+  };
+
+  const reordered = reorderInNestedTasks(taskList);
+  return {
+    nextTasks: reordered.changed ? reordered.nextTasks : taskList,
+    orderedIds: reordered.orderedIds,
+  };
+}
+
 export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
   function TaskPanel({ list, selectedTaskId, onTaskSelect }, ref) {
   const { t } = useI18n();
@@ -465,14 +542,43 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
-    if (over && active.id !== over.id && list) {
-      const oldIndex = tasks.findIndex((t) => t.id === active.id);
-      const newIndex = tasks.findIndex((t) => t.id === over.id);
-      const newTasks = arrayMove(tasks, oldIndex, newIndex);
-      setTasks(newTasks);
-      const orderedIds = newTasks.map((t) => t.id);
-      await reorderTasks(list.id, orderedIds);
+    if (!over || active.id === over.id || !list) return;
+
+    const activeContainerId = String(active.data.current?.sortable.containerId || "");
+    const overContainerId = String(over.data.current?.sortable.containerId || "");
+
+    if (
+      !activeContainerId ||
+      !overContainerId ||
+      activeContainerId !== overContainerId
+    ) {
+      return;
     }
+
+    if (
+      activeContainerId !== ROOT_SORTABLE_ID &&
+      !activeContainerId.startsWith(SUBTASK_SORTABLE_PREFIX)
+    ) {
+      return;
+    }
+
+    const parentId = getParentIdFromContainerId(activeContainerId);
+    const activeId = String(active.id);
+    const overId = String(over.id);
+
+    const { nextTasks, orderedIds } = reorderSiblingTasks(
+      tasks,
+      parentId,
+      activeId,
+      overId
+    );
+
+    if (orderedIds.length === 0) {
+      return;
+    }
+
+    setTasks(nextTasks);
+    await reorderTasks(list.id, orderedIds, parentId ?? undefined);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -556,7 +662,11 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
       if (!task.subtasks || task.subtasks.length === 0) return null;
 
       return (
-        <>
+        <SortableContext
+          id={`${SUBTASK_SORTABLE_PREFIX}${task.id}`}
+          items={task.subtasks.map((subtask) => subtask.id)}
+          strategy={verticalListSortingStrategy}
+        >
           {task.subtasks.map((subtask) => (
             <TaskItem
               key={subtask.id}
@@ -578,14 +688,13 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
               renderSubtasks={renderSubtasks}
             />
           ))}
-        </>
+        </SortableContext>
       );
     },
     [
       expandedTasks,
       editingTaskId,
       editName,
-      addingSubtaskTo,
       handleToggleExpand,
       handleToggleComplete,
       handleToggleStar,
@@ -898,6 +1007,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
             onDragEnd={handleDragEnd}
           >
             <SortableContext
+              id={ROOT_SORTABLE_ID}
               items={filteredTasks.map((t) => t.id)}
               strategy={verticalListSortingStrategy}
             >
