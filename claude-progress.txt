@@ -46,10 +46,30 @@ All tables include user_id for RLS policies and query optimization.
     - `GET/POST /api/v1/tasks/inbox`
     - `GET/PATCH/DELETE /api/v1/tasks/inbox/{id}`
   - 更新 OpenAPI 文档，新增 Inbox tasks 路径定义
+- Feature #66 (Step 4): Inbox 任务一键移动到目标列表
+  - 新增 `moveInboxTaskToList` server action（`src/actions/tasks.ts`）
+  - 增加移动校验：仅允许移动 Inbox 顶层任务、目标列表必须属于当前用户且不能是 Inbox
+  - 移动时保留子任务树关系：整棵子树同步更新到目标列表，根任务在目标列表追加到末尾
+  - `TaskPanel` 在 Inbox 模式新增 `Move to...` 菜单，按分组/列表展示可选目标
+  - 移动后自动刷新 Inbox 数据，任务即时从 Inbox 消失
+- Feature #66 (Step 5-6): 桌面/移动端与移动流程验证
+  - 桌面端验证：Inbox 新建任务成功，刷新后数据仍在
+  - 桌面端验证：任务从 Inbox 移动到目标列表后，Inbox 消失且目标列表可见
+  - 移动端视口验证：Inbox 任务创建后刷新仍可见（持久化正常）
+  - 构建验证通过：`npm run build`
+- Feature #67 (Step 1): 为任务模型添加 recurrence 字段
+  - `supabase/schema.sql`：为 `tasks` 新增 `recurrence_frequency / recurrence_interval / recurrence_weekdays / recurrence_end_date / recurrence_end_count / recurrence_rule / recurrence_timezone / recurrence_source_task_id`
+  - 同步补充 `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`，兼容已有数据库
+  - `src/lib/supabase/database.types.ts`：同步 Row/Insert/Update 类型
+  - 新增 `src/lib/recurrence.ts`：统一解析与校验 recurrence 请求字段
+  - `src/app/api/v1/tasks*` 与 `src/app/api/v1/tasks/inbox*`：POST/PATCH 接入 recurrence 字段写入与更新
+  - `src/app/api/v1/search/tasks/route.ts`：补充搜索结果类型中的 recurrence 字段
+  - `src/actions/tasks.ts`：扩展 Task/TaskUpdatePayload 的 recurrence 字段
+  - `src/app/api/openapi/route.ts`：更新 Task schema 与任务创建/更新请求体文档
+  - 构建验证通过：`npm run build`
 
 #### 下一步
-- Feature #66 (Step 4): 增加 Inbox 任务一键移动到目标分组/列表
-- Feature #66 (Step 5-6): 补桌面/移动端流程测试与回归测试
+- Feature #67 (Step 2): Update task detail UI to configure recurrence pattern
 
 ---
 

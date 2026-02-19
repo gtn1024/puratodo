@@ -417,6 +417,9 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                     ref={taskPanelRef}
                     list={inboxList}
                     selectedTaskId={selectedTaskId}
+                    allLists={lists}
+                    allGroups={initialGroups.map((group) => ({ id: group.id, name: group.name }))}
+                    isInboxMode
                     onTaskSelect={handleTaskSelect}
                   />
                 ) : (
@@ -437,6 +440,9 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                   ref={taskPanelRef}
                   list={selectedList}
                   selectedTaskId={selectedTaskId}
+                  allLists={lists}
+                  allGroups={initialGroups.map((group) => ({ id: group.id, name: group.name }))}
+                  isInboxMode={false}
                   onTaskSelect={handleTaskSelect}
                 />
               ) : (

@@ -16,6 +16,14 @@ export type Task = {
   plan_date: string | null;
   comment: string | null;
   duration_minutes: number | null;
+  recurrence_frequency: string | null;
+  recurrence_interval: number | null;
+  recurrence_weekdays: number[] | null;
+  recurrence_end_date: string | null;
+  recurrence_end_count: number | null;
+  recurrence_rule: string | null;
+  recurrence_timezone: string | null;
+  recurrence_source_task_id: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -30,6 +38,14 @@ type TaskUpdatePayload = Partial<{
   plan_date: string | null;
   comment: string | null;
   duration_minutes: number | null;
+  recurrence_frequency: string | null;
+  recurrence_interval: number | null;
+  recurrence_weekdays: number[] | null;
+  recurrence_end_date: string | null;
+  recurrence_end_count: number | null;
+  recurrence_rule: string | null;
+  recurrence_timezone: string | null;
+  recurrence_source_task_id: string | null;
 }>;
 
 export async function getTasks(listId?: string): Promise<Task[]> {
@@ -301,6 +317,130 @@ export async function deleteInboxTask(
 
   if (deleteError) {
     return { success: false, error: deleteError.message };
+  }
+
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
+export async function moveInboxTaskToList(
+  id: string,
+  targetListId: string
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  if (!id || !targetListId) {
+    return { success: false, error: "Task id and target list id are required" };
+  }
+
+  const inboxList = await getOrCreateInboxListForUser(supabase, user.id);
+  if (!inboxList) {
+    return { success: false, error: "Inbox list unavailable" };
+  }
+
+  if (targetListId === inboxList.id) {
+    return { success: false, error: "Target list must be different from Inbox" };
+  }
+
+  const { data: inboxTask, error: inboxTaskError } = await supabase
+    .from("tasks")
+    .select("id, parent_id")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .eq("list_id", inboxList.id)
+    .single();
+
+  if (inboxTaskError || !inboxTask) {
+    return { success: false, error: "Inbox task not found" };
+  }
+
+  if (inboxTask.parent_id) {
+    return {
+      success: false,
+      error: "Only top-level inbox tasks can be moved",
+    };
+  }
+
+  const { data: targetList, error: targetListError } = await supabase
+    .from("lists")
+    .select("id")
+    .eq("id", targetListId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (targetListError || !targetList) {
+    return { success: false, error: "Target list not found" };
+  }
+
+  const { data: existingTargetTasks, error: sortFetchError } = await supabase
+    .from("tasks")
+    .select("sort_order")
+    .eq("user_id", user.id)
+    .eq("list_id", targetListId)
+    .is("parent_id", null)
+    .order("sort_order", { ascending: false })
+    .limit(1);
+
+  if (sortFetchError) {
+    return { success: false, error: sortFetchError.message };
+  }
+
+  const nextSortOrder = (existingTargetTasks?.[0]?.sort_order ?? -1) + 1;
+
+  const descendantIds: string[] = [];
+  let frontier = [id];
+
+  // Move the whole subtree so nested inbox tasks stay attached to their parent.
+  while (frontier.length > 0) {
+    const { data: children, error: childrenError } = await supabase
+      .from("tasks")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("list_id", inboxList.id)
+      .in("parent_id", frontier);
+
+    if (childrenError) {
+      return { success: false, error: childrenError.message };
+    }
+
+    if (!children || children.length === 0) {
+      break;
+    }
+
+    const childIds = children.map((task) => task.id);
+    descendantIds.push(...childIds);
+    frontier = childIds;
+  }
+
+  const subtreeIds = [id, ...descendantIds];
+
+  const { error: subtreeMoveError } = await supabase
+    .from("tasks")
+    .update({ list_id: targetListId })
+    .in("id", subtreeIds)
+    .eq("user_id", user.id)
+    .eq("list_id", inboxList.id);
+
+  if (subtreeMoveError) {
+    return { success: false, error: subtreeMoveError.message };
+  }
+
+  const { error: rootTaskUpdateError } = await supabase
+    .from("tasks")
+    .update({ parent_id: null, sort_order: nextSortOrder })
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .eq("list_id", targetListId);
+
+  if (rootTaskUpdateError) {
+    return { success: false, error: rootTaskUpdateError.message };
   }
 
   revalidatePath("/dashboard");

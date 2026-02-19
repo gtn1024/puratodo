@@ -9,6 +9,7 @@ import {
   withCors,
   corsPreflightResponse,
 } from "@/lib/api/response";
+import { parseRecurrenceFields } from "@/lib/recurrence";
 import { Task } from "../../route";
 
 // Helper to recursively fetch inbox subtasks
@@ -119,7 +120,15 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { name, completed, starred, due_date, plan_date, comment, duration_minutes } = body;
+    const {
+      name,
+      completed,
+      starred,
+      due_date,
+      plan_date,
+      comment,
+      duration_minutes,
+    } = body;
 
     const updateData: Record<string, unknown> = {};
 
@@ -149,6 +158,15 @@ export async function PATCH(
         ? Number(duration_minutes)
         : null;
     }
+
+    const recurrenceResult = parseRecurrenceFields(
+      body as Record<string, unknown>,
+      { partial: true }
+    );
+    if (recurrenceResult.error) {
+      return withCors(errorResponse(recurrenceResult.error));
+    }
+    Object.assign(updateData, recurrenceResult.data);
 
     if (Object.keys(updateData).length === 0) {
       return withCors(errorResponse("At least one field must be provided"));

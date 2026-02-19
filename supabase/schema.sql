@@ -40,10 +40,29 @@ CREATE TABLE IF NOT EXISTS public.tasks (
   plan_date DATE DEFAULT NULL,
   comment TEXT DEFAULT NULL,
   duration_minutes INTEGER DEFAULT NULL,
+  recurrence_frequency TEXT DEFAULT NULL,
+  recurrence_interval INTEGER DEFAULT NULL,
+  recurrence_weekdays SMALLINT[] DEFAULT NULL,
+  recurrence_end_date DATE DEFAULT NULL,
+  recurrence_end_count INTEGER DEFAULT NULL,
+  recurrence_rule TEXT DEFAULT NULL,
+  recurrence_timezone TEXT DEFAULT NULL,
+  recurrence_source_task_id UUID REFERENCES public.tasks(id) ON DELETE SET NULL,
   sort_order INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Backfill recurrence columns for existing databases
+ALTER TABLE public.tasks
+  ADD COLUMN IF NOT EXISTS recurrence_frequency TEXT DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS recurrence_interval INTEGER DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS recurrence_weekdays SMALLINT[] DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS recurrence_end_date DATE DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS recurrence_end_count INTEGER DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS recurrence_rule TEXT DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS recurrence_timezone TEXT DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS recurrence_source_task_id UUID REFERENCES public.tasks(id) ON DELETE SET NULL;
 
 -- Create indexes for better query performance
 CREATE INDEX IF NOT EXISTS idx_groups_user_id ON public.groups(user_id);
@@ -52,6 +71,7 @@ CREATE INDEX IF NOT EXISTS idx_lists_group_id ON public.lists(group_id);
 CREATE INDEX IF NOT EXISTS idx_tasks_user_id ON public.tasks(user_id);
 CREATE INDEX IF NOT EXISTS idx_tasks_list_id ON public.tasks(list_id);
 CREATE INDEX IF NOT EXISTS idx_tasks_parent_id ON public.tasks(parent_id);
+CREATE INDEX IF NOT EXISTS idx_tasks_recurrence_source_task_id ON public.tasks(recurrence_source_task_id);
 
 -- Enable Row Level Security
 ALTER TABLE public.groups ENABLE ROW LEVEL SECURITY;

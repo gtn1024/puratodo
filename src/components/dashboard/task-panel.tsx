@@ -22,6 +22,7 @@ import {
   createTask,
   updateTask,
   deleteTask,
+  moveInboxTaskToList,
   reorderTasks,
   type Task,
 } from "@/actions/tasks";
@@ -69,6 +70,18 @@ interface TaskFilters {
   date: DateFilter;
 }
 
+type GroupOption = {
+  id: string;
+  name: string;
+};
+
+interface InboxMoveTarget {
+  listId: string;
+  listName: string;
+  listIcon: string | null;
+  groupName: string;
+}
+
 interface TaskItemProps {
   task: Task;
   level: number;
@@ -85,6 +98,9 @@ interface TaskItemProps {
   onEditNameChange: (name: string) => void;
   onSaveEdit: () => void;
   onCancelEdit: () => void;
+  canMoveFromInbox?: boolean;
+  moveTargets?: InboxMoveTarget[];
+  onMoveToList?: (task: Task, targetListId: string) => void;
   renderSubtasks: (task: Task, level: number) => React.ReactNode;
 }
 
@@ -104,6 +120,9 @@ function TaskItem({
   onEditNameChange,
   onSaveEdit,
   onCancelEdit,
+  canMoveFromInbox,
+  moveTargets,
+  onMoveToList,
   renderSubtasks,
 }: TaskItemProps) {
   const {
@@ -124,6 +143,9 @@ function TaskItem({
   const isEditing = editingTaskId === task.id;
   const hasSubtasks = task.subtasks && task.subtasks.length > 0;
   const isExpanded = expandedTasks.has(task.id);
+  const showInboxMoveMenu =
+    Boolean(canMoveFromInbox && level === 0 && onMoveToList) &&
+    (moveTargets?.length || 0) > 0;
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
@@ -230,6 +252,26 @@ function TaskItem({
               <Plus className="h-4 w-4 mr-2" />
               Add Subtask
             </DropdownMenuItem>
+            {showInboxMoveMenu && (
+              <>
+                <DropdownMenuItem disabled className="text-xs text-stone-500">
+                  Move to...
+                </DropdownMenuItem>
+                {moveTargets?.map((target) => (
+                  <DropdownMenuItem
+                    key={target.listId}
+                    onClick={() => onMoveToList?.(task, target.listId)}
+                    className="flex items-center gap-2"
+                  >
+                    <span>{target.listIcon || "📋"}</span>
+                    <span className="truncate">{target.listName}</span>
+                    <span className="ml-auto text-[10px] text-stone-400 truncate">
+                      {target.groupName}
+                    </span>
+                  </DropdownMenuItem>
+                ))}
+              </>
+            )}
             <DropdownMenuItem
               onClick={() => onDelete(task)}
               className="text-red-600 dark:text-red-400"
@@ -249,6 +291,9 @@ function TaskItem({
 interface TaskPanelProps {
   list: List | null;
   selectedTaskId?: string | null;
+  allLists?: List[];
+  allGroups?: GroupOption[];
+  isInboxMode?: boolean;
   onTaskSelect?: (taskId: string | null) => void;
 }
 
@@ -334,7 +379,10 @@ function reorderSiblingTasks(
 }
 
 export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
-  function TaskPanel({ list, selectedTaskId, onTaskSelect }, ref) {
+  function TaskPanel(
+    { list, selectedTaskId, allLists, allGroups, isInboxMode, onTaskSelect },
+    ref
+  ) {
   const { t } = useI18n();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskName, setNewTaskName] = useState("");
@@ -647,6 +695,23 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
 
   // Get filtered tasks
   const filteredTasks = hasActiveFilters ? filterTasks(tasks) : tasks;
+  const groupNameById = new Map((allGroups || []).map((group) => [group.id, group.name]));
+  const inboxMoveTargets: InboxMoveTarget[] =
+    isInboxMode && list
+      ? (allLists || [])
+          .filter((candidate) => candidate.id !== list.id)
+          .map((candidate) => ({
+            listId: candidate.id,
+            listName: candidate.name,
+            listIcon: candidate.icon,
+            groupName: groupNameById.get(candidate.group_id) || "Unknown Group",
+          }))
+          .sort(
+            (a, b) =>
+              a.groupName.localeCompare(b.groupName) ||
+              a.listName.localeCompare(b.listName)
+          )
+      : [];
 
   const startAddSubtask = (task: Task) => {
     setAddingSubtaskTo(task.id);
@@ -655,6 +720,20 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
     if (!expandedTasks.has(task.id)) {
       setExpandedTasks((prev) => new Set(prev).add(task.id));
     }
+  };
+
+  const handleMoveToList = async (task: Task, targetListId: string) => {
+    setIsLoading(true);
+    const result = await moveInboxTaskToList(task.id, targetListId);
+    if (result.success) {
+      if (selectedTaskId === task.id) {
+        onTaskSelect?.(null);
+      }
+      await reloadTasks();
+    } else {
+      console.error("Failed to move inbox task:", result.error);
+    }
+    setIsLoading(false);
   };
 
   const renderSubtasks = useCallback(
@@ -685,6 +764,9 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
               onEditNameChange={setEditName}
               onSaveEdit={handleSaveEdit}
               onCancelEdit={handleCancelEdit}
+              canMoveFromInbox={false}
+              moveTargets={inboxMoveTargets}
+              onMoveToList={handleMoveToList}
               renderSubtasks={renderSubtasks}
             />
           ))}
@@ -1030,6 +1112,9 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
                     onEditNameChange={setEditName}
                     onSaveEdit={handleSaveEdit}
                     onCancelEdit={handleCancelEdit}
+                    canMoveFromInbox={isInboxMode}
+                    moveTargets={inboxMoveTargets}
+                    onMoveToList={handleMoveToList}
                     renderSubtasks={renderSubtasks}
                   />
                 ))}

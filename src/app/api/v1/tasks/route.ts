@@ -7,6 +7,7 @@ import {
   withCors,
   corsPreflightResponse,
 } from "@/lib/api/response";
+import { parseRecurrenceFields } from "@/lib/recurrence";
 
 export type Task = {
   id: string;
@@ -20,6 +21,14 @@ export type Task = {
   plan_date: string | null;
   comment: string | null;
   duration_minutes: number | null;
+  recurrence_frequency: string | null;
+  recurrence_interval: number | null;
+  recurrence_weekdays: number[] | null;
+  recurrence_end_date: string | null;
+  recurrence_end_count: number | null;
+  recurrence_rule: string | null;
+  recurrence_timezone: string | null;
+  recurrence_source_task_id: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -95,7 +104,22 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { list_id, parent_id, name, completed, starred, due_date, plan_date, comment, duration_minutes } = body;
+    const {
+      list_id,
+      parent_id,
+      name,
+      completed,
+      starred,
+      due_date,
+      plan_date,
+      comment,
+      duration_minutes,
+    } = body;
+
+    const recurrenceResult = parseRecurrenceFields(body as Record<string, unknown>);
+    if (recurrenceResult.error) {
+      return withCors(errorResponse(recurrenceResult.error));
+    }
 
     if (!list_id || typeof list_id !== "string") {
       return withCors(errorResponse("list_id is required"));
@@ -168,6 +192,7 @@ export async function POST(request: NextRequest) {
         plan_date: plan_date || null,
         comment: comment || null,
         duration_minutes: duration_minutes || null,
+        ...recurrenceResult.data,
         sort_order: maxOrder + 1,
       })
       .select()

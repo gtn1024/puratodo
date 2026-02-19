@@ -20,6 +20,14 @@ export type TaskSearchResult = {
   plan_date: string | null;
   comment: string | null;
   duration_minutes: number | null;
+  recurrence_frequency: string | null;
+  recurrence_interval: number | null;
+  recurrence_weekdays: number[] | null;
+  recurrence_end_date: string | null;
+  recurrence_end_count: number | null;
+  recurrence_rule: string | null;
+  recurrence_timezone: string | null;
+  recurrence_source_task_id: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;

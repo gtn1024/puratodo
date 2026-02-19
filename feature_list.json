@@ -811,7 +811,7 @@
         "5. Test: Create tasks in Inbox on desktop/mobile and verify they persist after refresh",
         "6. Test: Move Inbox task to a list and verify it disappears from Inbox and appears in target list"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 67,

@@ -8,6 +8,7 @@ import {
   withCors,
   corsPreflightResponse,
 } from "@/lib/api/response";
+import { parseRecurrenceFields } from "@/lib/recurrence";
 import { Task } from "../route";
 
 // OPTIONS - CORS preflight
@@ -84,7 +85,21 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { parent_id, name, completed, starred, due_date, plan_date, comment, duration_minutes } = body;
+    const {
+      parent_id,
+      name,
+      completed,
+      starred,
+      due_date,
+      plan_date,
+      comment,
+      duration_minutes,
+    } = body;
+
+    const recurrenceResult = parseRecurrenceFields(body as Record<string, unknown>);
+    if (recurrenceResult.error) {
+      return withCors(errorResponse(recurrenceResult.error));
+    }
 
     if (!name || typeof name !== "string" || name.trim() === "") {
       return withCors(errorResponse("Name is required"));
@@ -138,6 +153,7 @@ export async function POST(request: NextRequest) {
         plan_date: plan_date || null,
         comment: comment || null,
         duration_minutes: duration_minutes || null,
+        ...recurrenceResult.data,
         sort_order: maxOrder + 1,
       })
       .select()
