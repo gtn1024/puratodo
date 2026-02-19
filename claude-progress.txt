@@ -1,5 +1,43 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 9: Multi-Account Remove Flow
+**Date:** 2026-02-19
+**Agent:** Codex (GPT-5)
+
+### Completed
+- Verified remove-account flow with deterministic local mock API (`http://127.0.0.1:3000` via Vite `/api` proxy)
+- Confirmed account management can remove a selected saved account after confirmation
+- Confirmed remaining account session stays active and data requests continue to work after removal
+
+### Verification Performed
+- `npm run build` passed
+- Playwright flow verified Test #12 steps:
+  - Logged in as `foo@example.com` (account A)
+  - Opened Account Settings and added `bar@example.com` (account B)
+  - Clicked remove on account B and accepted confirm dialog (`Remove account bar@example.com?`)
+  - Verified removed account disappeared from account list
+  - Verified remaining account A stayed authenticated and sidebar still showed `Group A`
+  - Verified persisted `auth-storage` contains exactly 1 account (`foo@example.com`) after removal
+  - Verified post-removal data reload requests succeeded (`/api/v1/groups` and `/api/v1/lists` returned 200)
+
+### Current Status
+- 16/209 test cases passing
+- Multi-account remove flow is verified
+
+### Tests Now Passing
+- Test #12: User can remove an account ✓
+
+### Files Created/Modified
+- feature_list.json (marked Test #12 as passing)
+- claude-progress.txt (this session log)
+
+### Next Steps
+1. Verify and mark Test #13 (account session/data isolation)
+2. Verify previously implemented sidebar/group/list tasks (#15, #16, #18, #20, #26)
+3. Continue list CRUD tasks (#21-25)
+
+---
+
 ## Session 8: Multi-Account Switch Flow
 **Date:** 2026-02-19
 **Agent:** Codex (GPT-5)

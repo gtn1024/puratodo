@@ -161,7 +161,7 @@
       "Verify account is removed from list",
       "Verify other accounts still work"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 13,
