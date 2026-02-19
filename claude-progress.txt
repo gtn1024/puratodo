@@ -1,5 +1,55 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 7: Multi-Account Add Flow
+**Date:** 2026-02-19
+**Agent:** Codex (GPT-5)
+
+### Completed
+- Implemented multi-account session model in auth store:
+  - Added persisted account list and active account tracking
+  - Added `addAccount`, `switchAccount`, `removeAccount` actions
+  - Kept existing `login` flow compatible by mapping to active-account updates
+  - Synced `authToken` in localStorage with current active account
+- Added account management dialog UI:
+  - New component `src/components/AccountSettingsDialog.tsx`
+  - Shows saved accounts and active account badge
+  - Supports "Add New Account" with email/password login
+  - Includes account switch and remove actions (for next tests)
+- Updated dashboard integration:
+  - Added Account Settings entry in user section
+  - Refetches groups/lists when active account changes
+  - Clears selected list and cached data on account change to avoid stale cross-account view
+
+### Verification Performed
+- `npm run build` passed
+- Playwright flow verified Test #10 steps using stub API (`http://127.0.0.1:3999`):
+  - Logged in with first account
+  - Opened account settings and added second account
+  - Verified both accounts appear in account list
+  - Verified persisted storage contains 2 accounts in `auth-storage`
+- Note: online backend `https://puratodo.top` registration for newly created users requires email confirmation, so second-account login verification was done with stubbed auth responses for this UI flow.
+
+### Current Status
+- 14/209 test cases passing
+- Multi-account add flow is implemented and verified
+
+### Tests Now Passing
+- Test #10: User can add multiple accounts ✓
+
+### Files Created/Modified
+- src/stores/authStore.ts (multi-account session model)
+- src/components/AccountSettingsDialog.tsx (new)
+- src/pages/DashboardPage.tsx (account settings entry + account-change refetch)
+- feature_list.json (marked Test #10 as passing)
+
+### Next Steps
+1. Verify and mark Test #11 (switch between multiple accounts)
+2. Verify and mark Test #12 (remove an account)
+3. Verify Test #13 (account session/data isolation)
+4. Continue sidebar/group/list verification tasks (#15, #16, #18, #20, #26)
+
+---
+
 ## Session 6: API Server Settings
 **Date:** 2026-02-19
 **Agent:** Codex (GPT-5)

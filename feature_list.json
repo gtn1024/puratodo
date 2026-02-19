@@ -132,7 +132,7 @@
       "Verify both accounts are saved",
       "Verify account list shows both accounts"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 11,

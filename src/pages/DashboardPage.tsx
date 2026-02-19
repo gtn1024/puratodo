@@ -12,6 +12,7 @@ import {
   Pencil,
   Trash2,
   Settings,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +23,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { ApiServerSettingsDialog } from "@/components/ApiServerSettingsDialog";
+import { AccountSettingsDialog } from "@/components/AccountSettingsDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthStore } from "@/stores/authStore";
 import { useDataStore } from "@/stores/dataStore";
@@ -42,8 +44,8 @@ const GROUP_COLORS = [
 
 export function DashboardPage() {
   const { logout } = useAuth();
-  const { user } = useAuthStore();
-  const { groups, lists, isLoading, error, fetchAll, createGroup, updateGroup, deleteGroup } = useDataStore();
+  const { user, activeAccountId } = useAuthStore();
+  const { groups, lists, isLoading, error, fetchAll, createGroup, updateGroup, deleteGroup, clear } = useDataStore();
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
   const [selectedListId, setSelectedListId] = React.useState<string | null>(null);
   const [expandedGroups, setExpandedGroups] = React.useState<Set<string>>(new Set());
@@ -65,10 +67,13 @@ export function DashboardPage() {
     group: Group;
   } | null>(null);
 
-  // Fetch data on mount
+  // Refetch data when active account changes
   React.useEffect(() => {
-    fetchAll();
-  }, [fetchAll]);
+    if (!activeAccountId) return;
+    clear();
+    setSelectedListId(null);
+    void fetchAll();
+  }, [activeAccountId, clear, fetchAll]);
 
   // Toggle group expansion
   const toggleGroup = (groupId: string) => {
@@ -167,6 +172,12 @@ export function DashboardPage() {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     await logout();
+  };
+
+  const handleAccountChanged = async () => {
+    clear();
+    setSelectedListId(null);
+    await fetchAll();
   };
 
   // Get selected list
@@ -355,6 +366,19 @@ export function DashboardPage() {
               </div>
             </div>
             <div className="flex items-center gap-1">
+              <AccountSettingsDialog
+                onAccountChanged={handleAccountChanged}
+                trigger={(
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+                    title="Account Settings"
+                  >
+                    <Users className="w-4 h-4" />
+                  </Button>
+                )}
+              />
               <ApiServerSettingsDialog
                 onSaved={fetchAll}
                 trigger={(
