@@ -40,6 +40,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [lists, setLists] = useState<List[]>(allLists);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [addListRequestKey, setAddListRequestKey] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [shortcutsDialogOpen, setShortcutsDialogOpen] = useState(false);
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
@@ -49,6 +50,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
   // Refs for triggering creation in child components
   const listPanelRef = useRef<{ triggerCreateList: () => void }>(null);
   const taskPanelRef = useRef<{ triggerCreateTask: () => void }>(null);
+  const pendingCreateListGroupIdRef = useRef<string | null>(null);
 
   const selectedGroup = initialGroups.find((g) => g.id === selectedGroupId) || null;
   const selectedList = lists.find((l) => l.id === selectedListId) || null;
@@ -97,6 +99,16 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     setSelectedListId(null);
     setSelectedTaskId(null);
     setMobileMenuOpen(false);
+  };
+
+  const handleSidebarAddList = (groupId: string) => {
+    setSelectedGroupId(groupId);
+    setSelectedListId(null);
+    setSelectedTaskId(null);
+    setShowTodayView(false);
+    setMobileMenuOpen(false);
+    pendingCreateListGroupIdRef.current = groupId;
+    setAddListRequestKey((k) => k + 1);
   };
 
   // Handle task selection from TaskPanel
@@ -193,6 +205,23 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
 
   useKeyboardShortcuts({ shortcuts });
 
+  useEffect(() => {
+    const pendingGroupId = pendingCreateListGroupIdRef.current;
+    if (!pendingGroupId) return;
+    if (selectedGroupId !== pendingGroupId) return;
+    if (selectedListId || showTodayView) return;
+
+    if (listPanelRef.current) {
+      listPanelRef.current.triggerCreateList();
+      pendingCreateListGroupIdRef.current = null;
+    }
+  }, [
+    addListRequestKey,
+    selectedGroupId,
+    selectedListId,
+    showTodayView,
+  ]);
+
   // Realtime subscriptions
   const handleRealtimeChange = useCallback(() => {
     setRefreshKey((k) => k + 1);
@@ -228,6 +257,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
           onListSelect={handleListSelect}
           onTodaySelect={handleTodaySelect}
           onDataChange={handleListsChange}
+          onAddListRequest={handleSidebarAddList}
         />
       </div>
 
@@ -248,6 +278,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
             onListSelect={handleListSelect}
             onTodaySelect={handleTodaySelect}
             onDataChange={handleListsChange}
+            onAddListRequest={handleSidebarAddList}
           />
         </SheetContent>
       </Sheet>

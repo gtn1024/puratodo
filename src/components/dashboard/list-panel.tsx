@@ -165,16 +165,20 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isMoveOpen, setIsMoveOpen] = useState(false);
-
-  // Expose methods to parent via ref
-  useImperativeHandle(ref, () => ({
-    triggerCreateList: () => setIsCreateOpen(true),
-  }), []);
   const [selectedList, setSelectedList] = useState<List | null>(null);
   const [targetGroupId, setTargetGroupId] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [icon, setIcon] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Expose methods to parent via ref
+  useImperativeHandle(ref, () => ({
+    triggerCreateList: () => {
+      setName("");
+      setIcon(null);
+      setIsCreateOpen(true);
+    },
+  }), []);
 
   // Sync local lists when props change
   useEffect(() => {

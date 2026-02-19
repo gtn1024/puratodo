@@ -51,6 +51,7 @@ interface SidebarProps {
   onListSelect: (listId: string | null, groupId: string) => void;
   onTodaySelect: () => void;
   onDataChange: () => void;
+  onAddListRequest: (groupId: string) => void;
 }
 
 const PRESET_COLORS = [
@@ -346,6 +347,7 @@ export function Sidebar({
   onListSelect,
   onTodaySelect,
   onDataChange,
+  onAddListRequest,
 }: SidebarProps) {
   const { t } = useI18n();
   const [groups, setGroups] = useState(initialGroups);
@@ -448,9 +450,7 @@ export function Sidebar({
   };
 
   const handleAddList = (groupId: string) => {
-    onGroupSelect(groupId);
-    onListSelect(null, groupId);
-    // This will be handled by parent component to open create list dialog
+    onAddListRequest(groupId);
   };
 
   const handleReorderLists = async (groupId: string, orderedIds: string[]) => {
