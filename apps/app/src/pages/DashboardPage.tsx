@@ -114,6 +114,8 @@ export function DashboardPage() {
   const [draggingTaskId, setDraggingTaskId] = React.useState<string | null>(null);
   const [dropTargetTaskId, setDropTargetTaskId] = React.useState<string | null>(null);
   const [dropTargetListForTask, setDropTargetListForTask] = React.useState<string | null>(null);
+  // For subtask drag-and-drop
+  const [draggingSubtaskParentId, setDraggingSubtaskParentId] = React.useState<string | null>(null);
 
   // Create task state
   const [showNewTaskInput, setShowNewTaskInput] = React.useState(false);
@@ -197,8 +199,30 @@ export function DashboardPage() {
       .sort((a, b) => a.sort_order - b.sort_order);
   };
 
+  // Handle reordering subtasks within a parent task
+  const handleReorderSubtasks = async (fromTaskId: string, toTaskId: string, parentId: string) => {
+    if (fromTaskId === toTaskId) return;
+
+    // Get subtasks with the same parent
+    const siblingSubtasks = tasks.filter((task) => task.parent_id === parentId);
+    const fromIndex = siblingSubtasks.findIndex((task) => task.id === fromTaskId);
+    const toIndex = siblingSubtasks.findIndex((task) => task.id === toTaskId);
+    if (fromIndex < 0 || toIndex < 0) return;
+
+    // Reorder within siblings
+    const nextSubtasks = [...siblingSubtasks];
+    const [movedTask] = nextSubtasks.splice(fromIndex, 1);
+    nextSubtasks.splice(toIndex, 0, movedTask);
+
+    try {
+      await reorderTasks(nextSubtasks.map((task) => task.id));
+    } catch (err) {
+      console.error("Failed to reorder subtasks:", err);
+    }
+  };
+
   // Recursively render task with subtasks
-  const renderTaskItem = (task: Task, depth: number): React.ReactNode => {
+  const renderTaskItem = (task: Task, depth: number, parentId?: string): React.ReactNode => {
     const subtasks = getSubtasks(task.id);
     const hasSubtasks = subtasks.length > 0;
     const isExpanded = expandedTasks.has(task.id);
@@ -208,44 +232,79 @@ export function DashboardPage() {
     const hasIncompleteSubtasks = hasSubtasks && subtasks.some((st) => !st.completed);
     const allSubtasksCompleted = hasSubtasks && subtasks.every((st) => st.completed);
 
-    // Only root level tasks (depth === 0) can be dragged for reordering
-    const isDraggable = depth === 0;
+    // All tasks (root and subtasks) can be dragged for reordering
+    const isDraggable = true;
+    const isSubtask = depth > 0;
 
     return (
       <div key={task.id}>
         <div
           draggable={isDraggable}
           onDragStart={(e) => {
-            if (!isDraggable) return;
             e.dataTransfer.effectAllowed = "move";
             e.dataTransfer.setData("text/plain", task.id);
             e.dataTransfer.setData("application/task-id", task.id);
             e.dataTransfer.setData("application/list-id", task.list_id);
+            e.dataTransfer.setData("application/depth", String(depth));
+            if (parentId) {
+              e.dataTransfer.setData("application/parent-id", parentId);
+            }
             setDraggingTaskId(task.id);
+            if (isSubtask && parentId) {
+              setDraggingSubtaskParentId(parentId);
+            } else {
+              setDraggingSubtaskParentId(null);
+            }
           }}
           onDragEnd={() => {
             setDraggingTaskId(null);
             setDropTargetTaskId(null);
             setDropTargetListForTask(null);
+            setDraggingSubtaskParentId(null);
           }}
           onDragOver={(e) => {
-            if (!isDraggable) return;
             e.preventDefault();
+            // Read from dataTransfer directly for synchronous access
+            const sourceDepth = parseInt(e.dataTransfer.getData("application/depth") || "0", 10);
+            const sourceParentId = e.dataTransfer.getData("application/parent-id");
+            const sourceListId = e.dataTransfer.getData("application/list-id");
+
             if (draggingTaskId && draggingTaskId !== task.id) {
-              e.dataTransfer.dropEffect = "move";
-              setDropTargetTaskId(task.id);
+              // For subtasks: only allow drop if same parent
+              if (sourceDepth > 0 && sourceParentId) {
+                // Dragging a subtask - only allow drop on siblings
+                if (isSubtask && parentId === sourceParentId) {
+                  e.dataTransfer.dropEffect = "move";
+                  setDropTargetTaskId(task.id);
+                }
+              } else {
+                // Dragging a root task - only allow drop on root tasks in same list
+                if (!isSubtask && task.list_id === sourceListId) {
+                  e.dataTransfer.dropEffect = "move";
+                  setDropTargetTaskId(task.id);
+                }
+              }
             }
           }}
           onDrop={(e) => {
-            if (!isDraggable) return;
             e.preventDefault();
             const sourceTaskId = e.dataTransfer.getData("text/plain") || draggingTaskId;
-            const sourceListId = e.dataTransfer.getData("application/list-id");
-            if (sourceTaskId && sourceListId === task.list_id) {
-              void handleReorderTasks(sourceTaskId, task.id, task.list_id);
+            const sourceDepth = parseInt(e.dataTransfer.getData("application/depth") || "0", 10);
+            const sourceParentId = e.dataTransfer.getData("application/parent-id");
+
+            if (isSubtask && sourceParentId && parentId === sourceParentId) {
+              // Reordering subtasks within same parent
+              void handleReorderSubtasks(sourceTaskId, task.id, parentId);
+            } else if (!isSubtask && sourceDepth === 0) {
+              // Reordering root tasks within same list
+              const sourceListId = e.dataTransfer.getData("application/list-id");
+              if (sourceListId === task.list_id) {
+                void handleReorderTasks(sourceTaskId, task.id, task.list_id);
+              }
             }
             setDraggingTaskId(null);
             setDropTargetTaskId(null);
+            setDraggingSubtaskParentId(null);
           }}
           className={`flex items-center gap-3 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 ${
             draggingTaskId === task.id ? "opacity-60" : ""
@@ -358,7 +417,7 @@ export function DashboardPage() {
           <div className="space-y-2 mt-1">
             {subtasks
               .sort((a, b) => a.sort_order - b.sort_order)
-              .map((subtask) => renderTaskItem(subtask, depth + 1))}
+              .map((subtask) => renderTaskItem(subtask, depth + 1, task.id))}
           </div>
         )}
       </div>

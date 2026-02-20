@@ -107,6 +107,7 @@ export async function PATCH(
       duration_minutes,
       remind_at,
       list_id,
+      sort_order,
     } = body;
 
     const recurrenceScopeRaw = body.recurrence_update_scope;
@@ -151,6 +152,9 @@ export async function PATCH(
     }
     if (list_id !== undefined) {
       updateData.list_id = list_id;
+    }
+    if (sort_order !== undefined) {
+      updateData.sort_order = Number(sort_order);
     }
 
     const recurrenceResult = parseRecurrenceFields(

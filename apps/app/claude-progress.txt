@@ -1,5 +1,55 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 25: Subtask Drag and Drop Reorder Implementation
+**Date:** 2026-02-20
+**Agent:** Claude Code (GLM-5)
+
+### Completed
+- Implemented subtask drag-and-drop reordering:
+  - Added `handleReorderSubtasks` function in DashboardPage
+  - Modified `renderTaskItem` to support subtask dragging
+  - Added `draggingSubtaskParentId` state for tracking subtask parent
+  - Subtasks can only be reordered within the same parent task
+  - Visual feedback during drag (opacity, ring highlight)
+- Fixed `onDragOver` to use dataTransfer directly instead of async React state
+- Added `sort_order` field support to backend API:
+  - Updated PATCH /api/v1/tasks/[id] to accept `sort_order` field
+  - Frontend now correctly sends `sort_order` updates
+- Verified Test #42 with real backend API on localhost:3000:
+  - Expanded "Parent Task" to show subtasks
+  - Dragged "Subtask Level 2" onto "Subtask Level 1"
+  - Verified order changed from [Subtask Level 1, Subtask Level 2] to [Subtask Level 2, Subtask Level 1]
+  - Verified PATCH API calls were made successfully
+
+### Verification Performed
+- `npm run build` passed (app)
+- `pnpm build:web` passed (web backend)
+- Playwright verification confirmed:
+  - Drag and drop functionality works correctly
+  - API requests successful:
+    - PATCH /api/v1/tasks/b8bd6596-aaae-4d5a-b388-ef6ecd32e911 => [200] OK
+    - PATCH /api/v1/tasks/ac7f808b-61cb-4c61-9816-10345d662978 => [200] OK
+  - Order persisted after page refresh
+
+### Current Status
+- 42/209 test cases passing
+- Test #42 verified with real backend API on localhost:3000
+
+### Tests Now Passing
+- Test #42: User can reorder subtasks via drag and drop ✓
+
+### Files Created/Modified
+- src/pages/DashboardPage.tsx (added subtask drag-and-drop handlers)
+- apps/web/src/app/api/v1/tasks/[id]/route.ts (added sort_order support)
+- feature_list.json (marked Test #42 as passing)
+- claude-progress.txt (this session log)
+
+### Next Steps
+1. Continue with Test #43 (search functionality)
+2. Continue with remaining task features
+
+---
+
 ## Session 24: Task Move to Different List Implementation
 **Date:** 2026-02-20
 **Agent:** Claude Code (GLM-5)
