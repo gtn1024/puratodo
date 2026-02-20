@@ -25,7 +25,7 @@
         "选中样式 violet → stone",
         "添加 Web 风格动画: float, slideUp, fadeIn"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 2,
@@ -37,7 +37,7 @@
         "Logo渐变: violet-500/indigo-600 → stone-800/600 (暗色反转)",
         "文字: zinc-500/400 → stone-500/400"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 3,
@@ -54,7 +54,7 @@
         "链接: violet → blue-600/400",
         "输入框: stone 色系边框和背景"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 4,
@@ -70,7 +70,7 @@
         "按钮: stone-900 背景",
         "链接: violet → blue-600/400"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 5,
@@ -88,7 +88,7 @@
         "确认按钮: violet-600 → stone-900",
         "用户头像: violet/indigo → stone-700/500"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 6,
@@ -98,7 +98,7 @@
       "changes": [
         "focus:ring-violet-500 → focus:ring-stone-400"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 7,
@@ -106,9 +106,10 @@
       "file": "apps/app/src/components/AccountSettingsDialog.tsx",
       "description": "更新账户设置对话框的链接颜色",
       "changes": [
-        "text-violet-600 hover:text-violet-700 → text-blue-600 hover:text-blue-700"
+        "text-violet-600 hover:text-violet-700 → text-blue-600 hover:text-blue-700",
+        "同时更新 zinc → stone 色系"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 8,
@@ -120,7 +121,7 @@
         "选中背景: violet-50/900 → stone-100/800",
         "勾选图标: violet-500 → stone-600"
       ],
-      "passes": false
+      "passes": true
     }
   ]
 }

@@ -195,7 +195,7 @@ export function AccountSettingsDialog({
         <div className="space-y-3 py-2">
           <div className="space-y-2">
             {sortedAccounts.length === 0 && (
-              <p className="rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
+              <p className="rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-500 dark:border-stone-700 dark:text-stone-400">
                 No accounts saved yet.
               </p>
             )}
@@ -207,14 +207,14 @@ export function AccountSettingsDialog({
               return (
                 <div
                   key={account.id}
-                  className="rounded-lg border border-zinc-200 px-3 py-2 dark:border-zinc-700"
+                  className="rounded-lg border border-stone-200 px-3 py-2 dark:border-stone-700"
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                      <p className="text-sm font-medium text-stone-900 dark:text-stone-100">
                         {account.user.email}
                       </p>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      <p className="text-xs text-stone-500 dark:text-stone-400">
                         {isActive ? "Current account" : "Saved account"}
                       </p>
                     </div>
@@ -237,7 +237,7 @@ export function AccountSettingsDialog({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="text-zinc-400 hover:text-red-500"
+                        className="text-stone-400 hover:text-red-500"
                         onClick={() => handleRemoveAccount(account.id)}
                         disabled={sortedAccounts.length === 1}
                         title={sortedAccounts.length === 1 ? "At least one account is required" : "Remove account"}
@@ -248,8 +248,8 @@ export function AccountSettingsDialog({
                   </div>
 
                   {/* Server URL display/edit */}
-                  <div className="mt-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
-                    <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+                  <div className="mt-2 pt-2 border-t border-stone-100 dark:border-stone-800">
+                    <div className="flex items-center gap-2 text-xs text-stone-500 dark:text-stone-400">
                       <Server className="h-3 w-3" />
                       <span>Server:</span>
                     </div>
@@ -260,7 +260,7 @@ export function AccountSettingsDialog({
                           value={editingServerUrlValue}
                           onChange={(e) => setEditingServerUrlValue(e.target.value)}
                           placeholder={DEFAULT_API_URL}
-                          className="flex-1 px-2 py-1 text-xs border border-zinc-300 dark:border-zinc-600 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                          className="flex-1 px-2 py-1 text-xs border border-stone-300 dark:border-stone-600 rounded bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100"
                           autoFocus
                           onKeyDown={(e) => {
                             if (e.key === "Enter") saveServerUrl(account);
@@ -278,7 +278,7 @@ export function AccountSettingsDialog({
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6 text-zinc-400"
+                          className="h-6 w-6 text-stone-400"
                           onClick={cancelEditServerUrl}
                         >
                           ×
@@ -319,7 +319,7 @@ export function AccountSettingsDialog({
           )}
 
           {isAdding && (
-            <form onSubmit={handleAddAccount} className="space-y-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+            <form onSubmit={handleAddAccount} className="space-y-3 rounded-lg border border-stone-200 p-3 dark:border-stone-700">
               <Input
                 type="email"
                 value={email}
