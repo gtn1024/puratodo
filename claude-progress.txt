@@ -74,12 +74,25 @@ All tables include user_id for RLS policies and query optimization.
   - 构建验证通过：`npm run build`
 - Feature #68 (Step 5-6): 行为验证状态
   - 已尝试使用 Playwright 执行 Smart View 端到端验证（登录 + 视图切换 + 任务编辑触发出入视图）
-  - 当前环境阻塞：Playwright Chrome persistent context 被现有会话锁定（报错：`正在现有的浏览器会话中打开`），导致脚本无法稳定连续执行
-  - 代码侧已完成 Step 6 关键保障：本地日期计算 + 本地午夜自动刷新
-  - 后续需在可用浏览器上下文中补齐 Step 5-6 的完整自动化验收
+  - 已绕过 MCP 持久会话限制，使用独立 Playwright（非持久上下文）完成补充验收
+  - 验证通过（UI 编辑路径）：
+    - 在 `Starred` 视图中通过任务行星标按钮取消星标，任务可在视图内自动消失（约 5-6 秒内）
+    - 日期边界校验正确（本地日期 `2026-02-20`）：
+      - `Overdue` 包含 `2026-02-19`
+      - `Next 7 Days` 包含 `2026-02-20` 与 `2026-02-27`，不包含 `2026-02-28`
+      - `No Date` 包含 `due_date/plan_date` 均为空的任务
+  - 发现失败场景（已修复）：
+    - 在 Smart View 打开状态下，若通过外部通道（API PATCH，模拟“其他设备/会话编辑”）修改任务字段，当前页面未触发自动出入视图
+    - 复现：`Starred` 视图中将任务改为 `starred=false`，30 秒内仍停留；手动刷新页面后即消失
+  - 修复：
+    - `useRealtime` 改为稳定 Supabase client + handler ref，避免因组件重渲染导致 channel 频繁重建
+    - `TaskPanel` 在 Smart View 模式新增可见页轮询兜底刷新（3 秒）+ `focus/visibilitychange` 触发即时刷新
+  - 修复后验证：
+    - 通过外部 API 将 `Starred` 任务改为 `starred=false` 后，任务约 1.5 秒内从当前视图消失（无需手动刷新）
+  - 结论：Step 5 已满足；Step 6（午夜 rollover 自动刷新）仍需补充专项自动化验证，`feature_list.json` 中 Feature #68 暂保持 `passes: false`
 
 #### 下一步
-- Feature #68 (Step 5-6): 在可用 Playwright 浏览器上下文中完成自动化验收（编辑后即时出入视图 + 本地跨天正确性）
+- Feature #68: 补齐 Step 6 的“本地跨天（午夜 rollover）”自动刷新验证（含可复现脚本）
 
 ---
 

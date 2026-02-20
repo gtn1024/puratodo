@@ -453,6 +453,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
   });
 
   const newTaskInputRef = useRef<HTMLInputElement>(null);
+  const smartViewPollingInFlightRef = useRef(false);
   const isSmartViewMode = Boolean(smartView);
   const isDateDrivenSmartView = smartView === "overdue" || smartView === "next7days";
   const canCreateTasks = Boolean(list) && !isSmartViewMode;
@@ -587,6 +588,63 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
       }
     };
   }, [isDateDrivenSmartView, reloadTasks]);
+
+  // Fallback refresh for Smart Views when external edits are made from another session/device.
+  // This keeps membership changes (e.g. Starred/No Date/Overdue) visible even if realtime events are delayed.
+  useEffect(() => {
+    if (!isSmartViewMode) {
+      return;
+    }
+
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    let disposed = false;
+
+    const safeReload = async () => {
+      if (disposed || smartViewPollingInFlightRef.current) {
+        return;
+      }
+
+      if (typeof document !== "undefined" && document.visibilityState !== "visible") {
+        return;
+      }
+
+      smartViewPollingInFlightRef.current = true;
+      try {
+        await reloadTasks();
+      } finally {
+        smartViewPollingInFlightRef.current = false;
+      }
+    };
+
+    // Refresh quickly on focus/visibility changes.
+    const handleFocus = () => {
+      void safeReload();
+    };
+    const handleVisibilityChange = () => {
+      void safeReload();
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("focus", handleFocus);
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+    }
+
+    // Periodic fallback for cross-session updates.
+    intervalId = setInterval(() => {
+      void safeReload();
+    }, 3000);
+
+    return () => {
+      disposed = true;
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+      if (typeof window !== "undefined") {
+        window.removeEventListener("focus", handleFocus);
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+      }
+    };
+  }, [isSmartViewMode, reloadTasks]);
 
   const handleAddTask = async () => {
     if (!canCreateTasks || !list || !newTaskName.trim()) return;

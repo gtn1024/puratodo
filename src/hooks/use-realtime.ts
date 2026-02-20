@@ -20,11 +20,29 @@ export function useRealtime({
   onDelete,
   enabled = true,
 }: RealtimeConfig) {
-  const supabase = createClient();
-  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null);
+  const channelRef = useRef<ReturnType<ReturnType<typeof createClient>["channel"]> | null>(null);
+  const handlersRef = useRef({
+    onInsert,
+    onUpdate,
+    onDelete,
+  });
+
+  if (!supabaseRef.current) {
+    supabaseRef.current = createClient();
+  }
 
   useEffect(() => {
-    if (!enabled) return;
+    handlersRef.current = {
+      onInsert,
+      onUpdate,
+      onDelete,
+    };
+  }, [onInsert, onUpdate, onDelete]);
+
+  useEffect(() => {
+    const supabase = supabaseRef.current;
+    if (!enabled || !supabase) return;
 
     const channelInstance = supabase
       .channel(channel)
@@ -33,18 +51,20 @@ export function useRealtime({
         {
           event: "*",
           schema: "public",
-          table: table,
+          table,
         },
         (payload) => {
+          const handlers = handlersRef.current;
+
           switch (payload.eventType) {
             case "INSERT":
-              onInsert?.(payload.new);
+              handlers.onInsert?.(payload.new);
               break;
             case "UPDATE":
-              onUpdate?.(payload.new);
+              handlers.onUpdate?.(payload.new);
               break;
             case "DELETE":
-              onDelete?.(payload.old);
+              handlers.onDelete?.(payload.old);
               break;
           }
         }
@@ -56,9 +76,10 @@ export function useRealtime({
     return () => {
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
       }
     };
-  }, [channel, table, onInsert, onUpdate, onDelete, enabled, supabase]);
+  }, [channel, table, enabled]);
 }
 
 // Hook to subscribe to all task changes for a specific list
