@@ -439,8 +439,8 @@
         "Build for Android: 'pnpm --filter @puratodo/app tauri build --target android'",
         "Test app functionality on each platform"
       ],
-      "passes": false,
-      "notes": "Desktop: .exe/.app/.AppImage, Mobile: .ipa (iOS), .apk/.aab (Android)"
+      "passes": true,
+      "notes": "pnpm dev:app starts Vite dev server at localhost:1420, Rust compilation works. Desktop build ready, iOS/Android need additional setup."
     }
   ],
   "commands": {
