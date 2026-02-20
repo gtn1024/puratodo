@@ -430,7 +430,7 @@
       "Verify due date is displayed on task",
       "Verify due date is saved to backend"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 34,

@@ -14,6 +14,7 @@ import {
   Settings,
   Users,
   Move,
+  Calendar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +31,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { useDataStore } from "@/stores/dataStore";
 import type { List as ListType } from "@/lib/api/lists";
 import type { Group } from "@/lib/api/groups";
+import type { Task } from "@/lib/api/tasks";
 
 // Color options for groups
 const GROUP_COLORS = [
@@ -120,6 +122,9 @@ export function DashboardPage() {
     taskId: string;
     taskName: string;
   } | null>(null);
+
+  // Task detail panel state
+  const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
 
   // Context menu state for groups
   const [contextMenu, setContextMenu] = React.useState<{
@@ -407,6 +412,19 @@ export function DashboardPage() {
       await updateTask(taskId, { starred: !currentStarred });
     } catch (err) {
       console.error("Failed to toggle task star:", err);
+    }
+  };
+
+  // Update task due date
+  const updateTaskDueDate = async (taskId: string, dueDate: string | null) => {
+    try {
+      await updateTask(taskId, { due_date: dueDate });
+      // Update local selectedTask state if it matches
+      if (selectedTask && selectedTask.id === taskId) {
+        setSelectedTask({ ...selectedTask, due_date: dueDate });
+      }
+    } catch (err) {
+      console.error("Failed to update task due date:", err);
     }
   };
 
@@ -973,6 +991,13 @@ export function DashboardPage() {
                         >
                           <Star className="w-4 h-4" fill={task.starred ? "currentColor" : "none"} />
                         </button>
+                        <button
+                          onClick={() => setSelectedTask(task)}
+                          className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-400"
+                          title="Task details"
+                        >
+                          <Calendar className="w-4 h-4" />
+                        </button>
                       </>
                     )}
                   </div>
@@ -1222,6 +1247,87 @@ export function DashboardPage() {
               disabled={isMovingList || !targetGroupId || targetGroupId === movingList?.group_id}
             >
               {isMovingList ? "Moving..." : "Move List"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Task Detail Dialog */}
+      <Dialog open={!!selectedTask} onOpenChange={(open) => !open && setSelectedTask(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Task Details</DialogTitle>
+          </DialogHeader>
+          {selectedTask && (
+            <div className="space-y-4">
+              {/* Task Name */}
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                  Task Name
+                </label>
+                <div className="text-zinc-900 dark:text-zinc-100">{selectedTask.name}</div>
+              </div>
+
+              {/* Due Date */}
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                  Due Date
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="date"
+                    value={selectedTask.due_date || ""}
+                    onChange={(e) => {
+                      const newDate = e.target.value || null;
+                      updateTaskDueDate(selectedTask.id, newDate);
+                    }}
+                    className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                  />
+                  {selectedTask.due_date && (
+                    <button
+                      onClick={() => updateTaskDueDate(selectedTask.id, null)}
+                      className="p-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                      title="Clear due date"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Completed Status */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={selectedTask.completed}
+                  onChange={() => toggleTaskComplete(selectedTask.id, selectedTask.completed)}
+                  className="w-4 h-4"
+                  id="task-completed"
+                />
+                <label htmlFor="task-completed" className="text-sm text-zinc-700 dark:text-zinc-300">
+                  Marked as completed
+                </label>
+              </div>
+
+              {/* Starred Status */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => toggleTaskStar(selectedTask.id, selectedTask.starred)}
+                  className={`p-1 rounded ${
+                    selectedTask.starred ? "text-yellow-500" : "text-zinc-300 dark:text-zinc-600"
+                  }`}
+                >
+                  <Star className="w-5 h-5" fill={selectedTask.starred ? "currentColor" : "none"} />
+                </button>
+                <span className="text-sm text-zinc-700 dark:text-zinc-300">
+                  {selectedTask.starred ? "Starred" : "Not starred"}
+                </span>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setSelectedTask(null)}>
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
