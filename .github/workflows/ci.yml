@@ -47,6 +47,22 @@ jobs:
         run: |
           echo "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321" >> $GITHUB_ENV
           echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(supabase anon_key)" >> $GITHUB_ENV
+          echo "SUPABASE_SERVICE_KEY=$(supabase service_key)" >> $GITHUB_ENV
+
+      - name: Create test user
+        working-directory: apps/web
+        run: |
+          # Create test user via admin API
+          curl -X POST 'http://127.0.0.1:54321/auth/v1/admin/users' \
+            -H "Authorization: Bearer $SUPABASE_SERVICE_KEY" \
+            -H "apikey: $SUPABASE_SERVICE_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "email": "test@example.com",
+              "password": "password123",
+              "user_metadata": {},
+              "email_confirm": true
+            }'
 
       - name: Build web app
         working-directory: apps/web
