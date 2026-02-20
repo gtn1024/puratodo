@@ -51,11 +51,25 @@ All tables include user_id for RLS policies and query optimization.
   - Feature #5: 添加 Vercel 部署配置
     - 创建 apps/web/vercel.json
     - 更新 CLAUDE.md 文档反映 monorepo 结构
+- Monorepo Phase 2-4: Extract Shared Packages (完成)
+  - @puratodo/api-types: 提取 database.types.ts 到 packages/api-types
+    - 迁移 Database, Tables, InsertTables, UpdateTables 类型
+    - 迁移 Group, List, Task 表类型别名
+    - 迁移 ApiResponse, PaginatedResponse API 类型
+    - apps/web/src/lib/supabase/database.types.ts 改为重新导出
+  - @puratodo/shared: 提取共享工具函数到 packages/shared
+    - 迁移 recurrence.ts (parseRecurrenceFields)
+    - 迁移 notifications.ts (浏览器通知工具函数)
+    - 保留 date-utils.ts (日期格式化工具)
+    - apps/web/src/lib/recurrence.ts 改为重新导出
+    - apps/web/src/lib/notifications.ts 改为重新导出
+  - @puratodo/ui: 提取 cn 工具函数
+    - 已包含 utils.ts 中的 cn 函数
+    - apps/web/src/lib/utils.ts 改为重新导出
+  - 构建验证通过: pnpm build:web
 
 #### 下一步
-- Phase 2: Extract @puratodo/ui - 将 UI 组件迁移到共享包
-- Phase 3: Extract @puratodo/api-types - 迁移 API 类型定义
-- Phase 4: Extract @puratodo/shared - 迁移共享工具函数
+- 可以继续 Feature #72: Natural language task creation
 
 ---
 

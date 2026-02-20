@@ -1,3 +1,5 @@
-// Shared utilities - to be migrated from apps/web/src/lib/
+// Shared utilities
 
 export * from './date-utils';
+export * from './recurrence';
+export * from './notifications';
