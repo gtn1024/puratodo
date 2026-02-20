@@ -9,9 +9,9 @@
 - 发现 app 可能存在 bugs 和 UI 风格与 web 不一致的问题
 
 ### Current Status
-- 0/79 items passing
-- 待检查 UI 风格与 web 统一性
-- 待验证各项功能
+- 13/79 items passing (功能 #1-3, #5-7, #9, #11, #18, #32-33, #38, #49-50)
+- 已验证核心功能正常工作
+- 深色模式正常工作
 
 ### Next Steps
 1. 启动 Tauri app (`./init.sh app`)
