@@ -881,7 +881,7 @@
         "5. Test: Dragging task to a day updates plan_date and reflects in Today view",
         "6. Test: Calendar renders correctly on mobile and desktop with acceptable performance"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 72,

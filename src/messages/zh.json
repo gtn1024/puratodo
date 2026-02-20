@@ -163,6 +163,15 @@
     "english": "English",
     "chinese": "中文"
   },
+  "calendar": {
+    "title": "日历",
+    "month": "月",
+    "week": "周",
+    "today": "今天",
+    "unscheduled": "未安排",
+    "noTasks": "无任务",
+    "allLists": "所有列表"
+  },
   "reminder": {
     "title": "提醒",
     "enable": "启用通知",

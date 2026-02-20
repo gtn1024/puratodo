@@ -163,6 +163,15 @@
     "english": "English",
     "chinese": "中文"
   },
+  "calendar": {
+    "title": "Calendar",
+    "month": "Month",
+    "week": "Week",
+    "today": "Today",
+    "unscheduled": "Unscheduled",
+    "noTasks": "No tasks",
+    "allLists": "All Lists"
+  },
   "reminder": {
     "title": "Reminder",
     "enable": "Enable Notifications",

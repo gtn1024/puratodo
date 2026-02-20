@@ -903,3 +903,76 @@ export async function getNoDateTasks(): Promise<TaskSearchResult[]> {
 
   return attachTaskContext(supabase, tasks as Task[]);
 }
+
+// Get all tasks within a date range (by plan_date or due_date)
+export async function getTasksInDateRange(
+  startDate: string,
+  endDate: string,
+  listId?: string
+): Promise<TaskSearchResult[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return [];
+  }
+
+  // Get tasks where plan_date or due_date is within the range
+  let query = supabase
+    .from("tasks")
+    .select("*")
+    .eq("user_id", user.id)
+    .is("parent_id", null)
+    .or(`plan_date.gte.${startDate},due_date.gte.${startDate}`)
+    .or(`plan_date.lte.${endDate},due_date.lte.${endDate}`);
+
+  if (listId) {
+    query = query.eq("list_id", listId);
+  }
+
+  const { data: tasks, error } = await query.order("plan_date", { ascending: true });
+
+  if (error || !tasks) {
+    console.error("Error fetching tasks in date range:", error);
+    return [];
+  }
+
+  return attachTaskContext(supabase, tasks as Task[]);
+}
+
+// Get all unscheduled tasks (no plan_date)
+export async function getUnscheduledTasks(
+  listId?: string
+): Promise<TaskSearchResult[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return [];
+  }
+
+  let query = supabase
+    .from("tasks")
+    .select("*")
+    .eq("user_id", user.id)
+    .is("parent_id", null)
+    .eq("completed", false)
+    .is("plan_date", null);
+
+  if (listId) {
+    query = query.eq("list_id", listId);
+  }
+
+  const { data: tasks, error } = await query.order("updated_at", { ascending: false });
+
+  if (error || !tasks) {
+    console.error("Error fetching unscheduled tasks:", error);
+    return [];
+  }
+
+  return attachTaskContext(supabase, tasks as Task[]);
+}

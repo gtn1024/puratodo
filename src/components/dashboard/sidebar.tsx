@@ -33,6 +33,7 @@ import {
   Plus,
   Star,
   Sun,
+  Calendar,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -60,11 +61,13 @@ interface SidebarProps {
   selectedGroupId: string | null;
   selectedListId: string | null;
   showTodayView: boolean;
+  showCalendarView: boolean;
   showInboxView: boolean;
   selectedSmartView: "starred" | "overdue" | "next7days" | "nodate" | null;
   onGroupSelect: (groupId: string | null) => void;
   onListSelect: (listId: string | null, groupId: string) => void;
   onTodaySelect: () => void;
+  onCalendarSelect: () => void;
   onInboxSelect: () => void;
   onSmartViewSelect: (view: "starred" | "overdue" | "next7days" | "nodate") => void;
   onDataChange: () => void;
@@ -360,11 +363,13 @@ export function Sidebar({
   selectedGroupId,
   selectedListId,
   showTodayView,
+  showCalendarView,
   showInboxView,
   selectedSmartView,
   onGroupSelect,
   onListSelect,
   onTodaySelect,
+  onCalendarSelect,
   onInboxSelect,
   onSmartViewSelect,
   onDataChange,
@@ -521,6 +526,17 @@ export function Sidebar({
           >
             <Sun className={`h-4 w-4 ${showTodayView ? "text-amber-500" : ""}`} />
             <span className="text-sm font-medium">{t("sidebar.today")}</span>
+          </button>
+          <button
+            onClick={onCalendarSelect}
+            className={`mt-1 w-full flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
+              showCalendarView
+                ? "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300"
+                : "hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300"
+            }`}
+          >
+            <Calendar className={`h-4 w-4 ${showCalendarView ? "text-violet-500" : ""}`} />
+            <span className="text-sm font-medium">{t("calendar.title")}</span>
           </button>
           <button
             onClick={onInboxSelect}

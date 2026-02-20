@@ -25,6 +25,27 @@ All tables include user_id for RLS policies and query optimization.
 ### 2026-02-20
 
 #### 完成
+- Feature #71: 日历视图（Calendar View）
+  - 添加 `showCalendarView` 状态到 `dashboard-content.tsx`，与其他视图状态互斥
+  - 在 Sidebar 添加 "日历/Calendar" 入口（紫色高亮）
+  - 创建 `src/components/dashboard/calendar-panel.tsx` 日历面板组件：
+    - 月视图 7 列网格（Sun-Sat）
+    - 上/下月导航和 "今天" 快捷按钮
+    - 日期格子显示任务预览（最多3个，显示 "+X more"）
+    - 列表筛选下拉（所有列表/指定列表）
+    - 右侧 "未安排" 任务侧边栏（桌面端可见）
+  - 添加 `src/actions/tasks.ts` 查询函数：
+    - `getTasksInDateRange`：按日期范围获取任务
+    - `getUnscheduledTasks`：获取无 plan_date 的任务
+  - 中英文翻译：添加 `calendar.*` 翻译键（title/month/week/today/unscheduled/noTasks/allLists）
+  - Header 显示 "Calendar" 标题和紫色图标
+  - 构建验证通过：`npm run build`
+  - Playwright 测试验证：
+    - 点击 "日历" 按钮切换到日历视图
+    - 月份导航正常工作
+    - 日历网格正确渲染
+    - 列表筛选下拉正常工作
+  - 说明：拖拽功能暂时未实现（保留 @dnd-kit 上下文供后续扩展）
 - Feature #70: 批量操作（多选任务管理）
   - TaskPanel 新增多选模式：点击 "Select" 按钮进入选择模式
   - 每行任务显示选择框（Square/CheckSquare 图标）
@@ -67,7 +88,8 @@ All tables include user_id for RLS policies and query optimization.
   - 目前使用客户端定时器实现提醒，服务端推送通知可后续扩展
 
 #### 下一步
-- Feature #71: Add calendar view for scheduling and drag-to-plan
+- Feature #72: Natural language task creation with date and intent parsing
+- Feature #73: Auto-generate weekly/monthly review reports from completed work
 
 ---
 

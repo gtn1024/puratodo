@@ -5,13 +5,14 @@ import { Sidebar } from "@/components/dashboard/sidebar";
 import { ListPanel } from "@/components/dashboard/list-panel";
 import { TaskPanel } from "@/components/dashboard/task-panel";
 import { TodayPanel } from "@/components/dashboard/today-panel";
+import { CalendarPanel } from "@/components/dashboard/calendar-panel";
 import { TaskPanelSkeleton } from "@/components/dashboard/skeletons";
 import { TaskDetailPanel } from "@/components/dashboard/task-detail-panel";
 import { TaskDetailSheet } from "@/components/dashboard/task-detail-sheet";
 import { LogoutButton } from "./logout-button";
 import { getLists, getOrCreateInboxList, type List } from "@/actions/lists";
 import type { Group } from "@/actions/groups";
-import { AlertTriangle, CalendarDays, Circle, Inbox, Menu, Search, Star, Sun } from "lucide-react";
+import { AlertTriangle, Calendar as CalendarIcon, CalendarDays, Circle, Inbox, Menu, Search, Star, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -49,6 +50,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
   const [shortcutsDialogOpen, setShortcutsDialogOpen] = useState(false);
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
   const [showTodayView, setShowTodayView] = useState(false);
+  const [showCalendarView, setShowCalendarView] = useState(false);
   const [showInboxView, setShowInboxView] = useState(false);
   const [selectedSmartView, setSelectedSmartView] = useState<SmartViewType | null>(null);
   const [inboxListId, setInboxListId] = useState<string | null>(
@@ -90,6 +92,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     setSelectedListId(listId);
     setSelectedTaskId(null); // Deselect task when changing list
     setShowTodayView(false); // Exit today view when selecting list
+    setShowCalendarView(false); // Exit calendar view when selecting list
     setShowInboxView(false); // Exit inbox view when selecting list
     setSelectedSmartView(null); // Exit smart view when selecting list
     setMobileMenuOpen(false); // Close mobile menu on selection
@@ -103,6 +106,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
       setSelectedTaskId(null); // Deselect task when changing group
     }
     setShowTodayView(false); // Exit today view when selecting group
+    setShowCalendarView(false); // Exit calendar view when selecting group
     setShowInboxView(false); // Exit inbox view when selecting group
     setSelectedSmartView(null); // Exit smart view when selecting group
     setMobileMenuOpen(false); // Close mobile menu on selection
@@ -110,6 +114,18 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
 
   const handleTodaySelect = () => {
     setShowTodayView(true);
+    setShowCalendarView(false);
+    setShowInboxView(false);
+    setSelectedGroupId(null);
+    setSelectedListId(null);
+    setSelectedTaskId(null);
+    setSelectedSmartView(null);
+    setMobileMenuOpen(false);
+  };
+
+  const handleCalendarSelect = () => {
+    setShowTodayView(false);
+    setShowCalendarView(true);
     setShowInboxView(false);
     setSelectedGroupId(null);
     setSelectedListId(null);
@@ -120,6 +136,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
 
   const handleInboxSelect = async () => {
     setShowTodayView(false);
+    setShowCalendarView(false);
     setShowInboxView(true);
     setSelectedGroupId(null);
     setSelectedListId(null);
@@ -147,6 +164,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
 
   const handleSmartViewSelect = (view: SmartViewType) => {
     setShowTodayView(false);
+    setShowCalendarView(false);
     setShowInboxView(false);
     setSelectedGroupId(null);
     setSelectedListId(null);
@@ -160,6 +178,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     setSelectedListId(null);
     setSelectedTaskId(null);
     setShowTodayView(false);
+    setShowCalendarView(false);
     setShowInboxView(false);
     setSelectedSmartView(null);
     setMobileMenuOpen(false);
@@ -185,6 +204,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     setSelectedListId(listId);
     setSelectedTaskId(taskId);
     setShowTodayView(false);
+    setShowCalendarView(false);
     setShowInboxView(false);
     setSelectedSmartView(null);
     // On smaller screens (not large desktop), open the detail sheet
@@ -316,11 +336,13 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
           selectedGroupId={selectedGroupId}
           selectedListId={selectedListId}
           showTodayView={showTodayView}
+          showCalendarView={showCalendarView}
           showInboxView={showInboxView}
           selectedSmartView={selectedSmartView}
           onGroupSelect={handleGroupSelect}
           onListSelect={handleListSelect}
           onTodaySelect={handleTodaySelect}
+          onCalendarSelect={handleCalendarSelect}
           onInboxSelect={handleInboxSelect}
           onSmartViewSelect={handleSmartViewSelect}
           onDataChange={handleListsChange}
@@ -341,11 +363,13 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
             selectedGroupId={selectedGroupId}
             selectedListId={selectedListId}
             showTodayView={showTodayView}
+            showCalendarView={showCalendarView}
             showInboxView={showInboxView}
             selectedSmartView={selectedSmartView}
             onGroupSelect={handleGroupSelect}
             onListSelect={handleListSelect}
             onTodaySelect={handleTodaySelect}
+            onCalendarSelect={handleCalendarSelect}
             onInboxSelect={handleInboxSelect}
             onSmartViewSelect={handleSmartViewSelect}
             onDataChange={handleListsChange}
@@ -377,6 +401,15 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                   </div>
                   <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
                     Today
+                  </h1>
+                </>
+              ) : showCalendarView ? (
+                <>
+                  <div className="w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
+                    <CalendarIcon className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
+                    Calendar
                   </h1>
                 </>
               ) : showInboxView ? (
@@ -470,9 +503,16 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
         <div className="flex-1 flex overflow-hidden">
           {/* Center Content - always visible on mobile (Sheet overlays on top), desktop shows alongside detail panel */}
           <main className="flex-1 overflow-y-auto p-4 md:p-6 transition-all duration-300 min-w-0">
-            <div className="max-w-4xl mx-auto">
+            <div className={showCalendarView ? "h-full" : "max-w-4xl mx-auto"}>
               {showTodayView ? (
                 <TodayPanel />
+              ) : showCalendarView ? (
+                <CalendarPanel
+                  selectedTaskId={selectedTaskId}
+                  allLists={lists}
+                  filterListId={selectedListId}
+                  onTaskSelect={handleTaskSelect}
+                />
               ) : showInboxView ? (
                 isLoadingInbox ? (
                   <TaskPanelSkeleton />
