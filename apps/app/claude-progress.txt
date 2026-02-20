@@ -1,5 +1,31 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 4: Fix Delete Account Function
+**Date:** 2026-02-20
+
+### Problem
+Delete account function in multi-account management was not working properly. The issue was that the code used native browser `confirm()` dialog which may not work correctly in Tauri environment.
+
+### What was done
+Modified `AccountSettingsDialog.tsx`:
+1. Replaced native `confirm()` with custom confirmation dialog using shadcn/ui Dialog component
+2. Added `deleteAccountId` state to track which account to delete
+3. Split the delete logic into `handleRemoveAccount`, `confirmRemoveAccount`, and `cancelRemoveAccount`
+4. Added a confirmation dialog that shows the email of the account being removed
+5. Used React Fragment to wrap both dialogs
+
+### Testing
+- Tested by adding a mock second account via localStorage
+- Confirmed that clicking delete button shows the confirmation dialog
+- Confirmed that clicking "Remove" successfully deletes the account
+- Confirmed that clicking "Cancel" closes the dialog without deleting
+- Build verified successfully
+
+### Result
+Delete account function now works correctly with a proper confirmation dialog.
+
+---
+
 ## Session 3: Scrollbar Fix
 **Date:** 2026-02-20
 

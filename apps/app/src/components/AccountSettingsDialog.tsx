@@ -49,6 +49,7 @@ export function AccountSettingsDialog({
   const [success, setSuccess] = React.useState<string | null>(null);
   const [editingServerUrlAccountId, setEditingServerUrlAccountId] = React.useState<string | null>(null);
   const [editingServerUrlValue, setEditingServerUrlValue] = React.useState("");
+  const [deleteAccountId, setDeleteAccountId] = React.useState<string | null>(null);
 
   // Support both controlled and uncontrolled modes
   const isControlled = controlledOpen !== undefined;
@@ -152,19 +153,28 @@ export function AccountSettingsDialog({
     setSuccess("Switched account");
   };
 
-  const handleRemoveAccount = async (accountId: string) => {
-    const target = accounts.find((account) => account.id === accountId);
-    if (!target) return;
+  const handleRemoveAccount = (accountId: string) => {
+    setDeleteAccountId(accountId);
+  };
 
-    const confirmed = confirm(`Remove account ${target.user.email}?`);
-    if (!confirmed) return;
+  const confirmRemoveAccount = async () => {
+    if (!deleteAccountId) return;
 
     setError(null);
     setSuccess(null);
-    removeAccount(accountId);
+    removeAccount(deleteAccountId);
+    setDeleteAccountId(null);
     await onAccountChanged?.();
     setSuccess("Account removed");
   };
+
+  const cancelRemoveAccount = () => {
+    setDeleteAccountId(null);
+  };
+
+  const accountToDelete = deleteAccountId
+    ? accounts.find((account) => account.id === deleteAccountId)
+    : null;
 
   const startEditServerUrl = (account: AccountSession) => {
     setEditingServerUrlAccountId(account.id);
@@ -203,6 +213,7 @@ export function AccountSettingsDialog({
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={handleOpenChange}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="sm:max-w-lg" onInteractOutside={(e) => e.preventDefault()}>
@@ -409,6 +420,33 @@ export function AccountSettingsDialog({
         </div>
       </DialogContent>
     </Dialog>
+
+    {/* Delete confirmation dialog */}
+    <Dialog open={!!deleteAccountId} onOpenChange={(open) => !open && cancelRemoveAccount()}>
+      <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()}>
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
+            <AlertCircle className="h-5 w-5" />
+            <span>Remove Account</span>
+          </DialogTitle>
+          <DialogDescription>
+            Are you sure you want to remove <strong>{accountToDelete?.user.email}</strong>? You can add this account again later.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex justify-end gap-2 pt-2">
+          <Button variant="outline" onClick={cancelRemoveAccount}>
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={confirmRemoveAccount}
+          >
+            Remove
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
 
