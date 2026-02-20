@@ -417,7 +417,7 @@
       "Verify star is unfilled",
       "Verify star status is saved to backend"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 33,
