@@ -1,5 +1,43 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 13: Group Deletion Verification
+**Date:** 2026-02-20
+**Agent:** Codex (GPT-5)
+
+### Completed
+- Verified Test #18 with deterministic local mock API on `http://127.0.0.1:3000` (via Vite `/api` proxy in `http://localhost:1420`)
+- Confirmed right-click context menu delete flow works for groups
+- Confirmed deletion updates sidebar immediately and backend delete succeeds
+
+### Verification Performed
+- `npm run build` passed
+- Playwright flow verified Test #18:
+  - Opened app on `http://localhost:1420`
+  - Right-clicked `Group A` in sidebar
+  - Clicked `Delete` in context menu
+  - Accepted confirm dialog (`Delete this group and all its lists?`)
+  - Verified `Group A` is removed from sidebar (only `Work` remained)
+  - Verified network request `DELETE /api/v1/groups/group-a` returned `200`
+  - Verified mock API log recorded deletion: `groups:2->1` and `lists:2->1`
+
+### Current Status
+- 20/209 test cases passing
+- Group deletion flow is verified
+
+### Tests Now Passing
+- Test #18: User can delete a group ✓
+
+### Files Created/Modified
+- feature_list.json (marked Test #18 as passing)
+- claude-progress.txt (this session log)
+
+### Next Steps
+1. Verify Test #20 (lists displayed under parent group)
+2. Verify Test #26 (clicking a list shows tasks in main area)
+3. Continue list CRUD verification tasks (#21-25)
+
+---
+
 ## Session 12: Group Creation Verification
 **Date:** 2026-02-20
 **Agent:** Codex (GPT-5)

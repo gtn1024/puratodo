@@ -242,7 +242,7 @@
       "Verify group is removed from sidebar",
       "Verify group is deleted from backend"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 19,
