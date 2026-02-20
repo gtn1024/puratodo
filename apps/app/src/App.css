@@ -3,6 +3,9 @@
 
 @import "tailwindcss";
 
+/* Configure dark mode to use class selector instead of media query */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Tailwind CSS 4 theme customization */
 @theme {
   --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;

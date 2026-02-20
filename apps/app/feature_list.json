@@ -631,7 +631,7 @@
       "Verify interactive elements are visible",
       "Verify no white flashes on navigation"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 50,
