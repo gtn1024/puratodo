@@ -201,7 +201,7 @@
       "Verify groups are listed in sidebar",
       "Verify each group shows its name"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 16,

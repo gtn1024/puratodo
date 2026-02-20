@@ -1,5 +1,40 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 11: Sidebar Groups Display
+**Date:** 2026-02-20
+**Agent:** Codex (GPT-5)
+
+### Completed
+- Verified Test #15 with deterministic local mock API on `http://127.0.0.1:3000` (via Vite `/api` proxy in `http://localhost:1420`)
+- Confirmed sidebar is visible after login and group entries are rendered with names
+
+### Verification Performed
+- `npm run build` passed
+- Playwright flow verified Test #15:
+  - Opened login page on `http://localhost:1420`
+  - Logged in as `foo@example.com`
+  - Verified sidebar container is visible
+  - Verified groups are listed in sidebar (`Group A`, `Work`)
+  - Verified `/api/v1/groups` and `/api/v1/lists` requests returned `200`
+
+### Current Status
+- 18/209 test cases passing
+- Sidebar groups display is verified
+
+### Tests Now Passing
+- Test #15: Sidebar displays user's groups ✓
+
+### Files Created/Modified
+- feature_list.json (marked Test #15 as passing)
+- claude-progress.txt (this session log)
+
+### Next Steps
+1. Verify Test #16 (create a new group)
+2. Verify Test #18 (delete a group)
+3. Verify Test #20 and Test #26 (list display and list selection behavior)
+
+---
+
 ## Session 10: Multi-Account Data Isolation
 **Date:** 2026-02-19
 **Agent:** Codex (GPT-5)
