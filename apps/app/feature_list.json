@@ -13,7 +13,7 @@
         "Verify no console errors",
         "Verify window is visible and interactive"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 2,
@@ -24,7 +24,7 @@
         "Click maximize button - verify window maximizes to full screen",
         "Click close button - verify app closes cleanly"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 3,
@@ -35,7 +35,7 @@
         "Verify window resizes and content adjusts",
         "Try to resize below minimum - verify it stops"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 4,
@@ -60,7 +60,7 @@
         "Verify password input field exists",
         "Verify login button exists"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 6,
@@ -73,7 +73,7 @@
         "Verify user is redirected to dashboard",
         "Verify user session is persisted"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 7,
@@ -85,7 +85,7 @@
         "Verify error message is displayed",
         "Verify user stays on login page"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 8,
@@ -110,7 +110,7 @@
         "Verify user is redirected to login page",
         "Verify session is cleared"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 10,
@@ -135,7 +135,7 @@
         "Verify user is still logged in",
         "Check session persists"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 12,
@@ -223,7 +223,7 @@
         "Verify groups are listed in sidebar",
         "Verify each group shows name and color"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 19,
@@ -394,7 +394,7 @@
         "Click save or press Enter",
         "Verify new task appears in list"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 33,
@@ -406,7 +406,7 @@
         "Click again to toggle",
         "Verify status changes correctly"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 34,
@@ -465,7 +465,7 @@
         "Verify panel shows with full task details",
         "Close panel and verify it dismisses"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 39,
@@ -597,7 +597,7 @@
         "Toggle back and verify",
         "Verify theme persists after restart"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 50,
@@ -609,7 +609,7 @@
         "Verify text is light/visible",
         "Verify interactive elements are visible"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 51,
