@@ -839,7 +839,7 @@
         "5. Test: Tasks appear/disappear in smart views immediately after edits",
         "6. Test: Date-based views remain correct after local timezone day rollover"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 69,

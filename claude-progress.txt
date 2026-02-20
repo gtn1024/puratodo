@@ -89,10 +89,14 @@ All tables include user_id for RLS policies and query optimization.
     - `TaskPanel` 在 Smart View 模式新增可见页轮询兜底刷新（3 秒）+ `focus/visibilitychange` 触发即时刷新
   - 修复后验证：
     - 通过外部 API 将 `Starred` 任务改为 `starred=false` 后，任务约 1.5 秒内从当前视图消失（无需手动刷新）
-  - 结论：Step 5 已满足；Step 6（午夜 rollover 自动刷新）仍需补充专项自动化验证，`feature_list.json` 中 Feature #68 暂保持 `passes: false`
+  - Step 6 补充验证（本地跨天）：
+    - 使用独立 Playwright 脚本将浏览器本地时间模拟到 `2026-02-20 23:59:59`
+    - 临时禁用 Smart View 3 秒轮询（仅保留午夜 `setTimeout`）后，在 `Overdue` 视图观测到跨天后自动触发一次数据刷新请求（`/dashboard`），验证午夜刷新定时器生效
+    - 日期视图动态校验：外部 API 修改日期后，`Overdue` 约 1.0 秒自动纳入任务，`Next 7 Days` 约 3.0 秒自动纳入任务
+  - 结论：Feature #68 Step 5-6 验证完成，`feature_list.json` 已更新为 `passes: true`
 
 #### 下一步
-- Feature #68: 补齐 Step 6 的“本地跨天（午夜 rollover）”自动刷新验证（含可复现脚本）
+- Feature #69: Add reminders and notifications for plan/due dates
 
 ---
 
