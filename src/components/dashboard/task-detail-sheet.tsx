@@ -226,7 +226,7 @@ export function TaskDetailSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+      <SheetContent className="w-[85%] sm:w-[400px] md:w-[500px] lg:w-[600px] overflow-y-auto">
         <SheetHeader>
           <SheetTitle>{t("taskDetail.taskDetails")}</SheetTitle>
           <SheetDescription>

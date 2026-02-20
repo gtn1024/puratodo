@@ -170,8 +170,8 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
   // Handle task selection from TaskPanel
   const handleTaskSelect = useCallback((taskId: string | null) => {
     setSelectedTaskId(taskId);
-    // On mobile, open the detail sheet
-    if (taskId && window.innerWidth < 768) {
+    // On smaller screens (not large desktop), open the detail sheet instead of side panel
+    if (taskId && window.innerWidth < 1280) {
       setMobileDetailOpen(true);
     }
   }, []);
@@ -187,8 +187,8 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     setShowTodayView(false);
     setShowInboxView(false);
     setSelectedSmartView(null);
-    // On mobile, open the detail sheet
-    if (window.innerWidth < 768) {
+    // On smaller screens (not large desktop), open the detail sheet
+    if (window.innerWidth < 1280) {
       setMobileDetailOpen(true);
     }
   }, [lists]);
@@ -469,7 +469,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
         {/* Three-column layout container */}
         <div className="flex-1 flex overflow-hidden">
           {/* Center Content - always visible on mobile (Sheet overlays on top), desktop shows alongside detail panel */}
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 transition-all duration-300">
+          <main className="flex-1 overflow-y-auto p-4 md:p-6 transition-all duration-300 min-w-0">
             <div className="max-w-4xl mx-auto">
               {showTodayView ? (
                 <TodayPanel />
@@ -530,10 +530,10 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
             </div>
           </main>
 
-          {/* Right Detail Panel - Desktop only */}
+          {/* Right Detail Panel - Desktop only (large screens) */}
           <div
-            className={`hidden md:block flex-shrink-0 transition-all duration-300 ease-in-out ${
-              selectedTaskId ? 'w-96 opacity-100' : 'w-0 opacity-0 overflow-hidden'
+            className={`hidden xl:block flex-shrink-0 transition-all duration-300 ease-in-out ${
+              selectedTaskId ? 'xl:w-80 2xl:w-96 opacity-100' : 'w-0 opacity-0 overflow-hidden'
             }`}
           >
             <TaskDetailPanel
