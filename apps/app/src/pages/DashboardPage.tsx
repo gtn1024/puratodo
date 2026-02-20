@@ -28,6 +28,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { AccountSettingsDialog } from "@/components/AccountSettingsDialog";
+import { AccountSwitcher } from "@/components/AccountSwitcher";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuthStore } from "@/stores/authStore";
@@ -1381,16 +1382,19 @@ export function DashboardPage() {
           <h1 className="text-xl font-semibold text-zinc-900 dark:text-white">
             {getHeaderTitle()}
           </h1>
-          <button
-            onClick={() => setShowSearch(true)}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
-          >
-            <Search className="w-4 h-4" />
-            <span>Search</span>
-            <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-xs bg-zinc-200 dark:bg-zinc-700 rounded">
-              ⌘K
-            </kbd>
-          </button>
+          <div className="flex items-center gap-4">
+            <AccountSwitcher onAccountChanged={handleAccountChanged} />
+            <button
+              onClick={() => setShowSearch(true)}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+            >
+              <Search className="w-4 h-4" />
+              <span>Search</span>
+              <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-xs bg-zinc-200 dark:bg-zinc-700 rounded">
+                ⌘K
+              </kbd>
+            </button>
+          </div>
         </header>
 
         {/* Content */}

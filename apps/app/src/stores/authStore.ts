@@ -28,6 +28,7 @@ interface AuthState {
   removeAccount: (accountId: string) => void;
   login: (user: User, token: string) => void;
   logout: () => void;
+  signOutCurrentAccount: () => void;
   getCurrentServerUrl: () => string | null;
   setCurrentServerUrl: (url: string | null) => void;
 }
@@ -222,6 +223,39 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: false,
           isLoading: false,
         });
+      },
+
+      signOutCurrentAccount: () => {
+        const state = get();
+        // Remove current account from accounts list
+        const remainingAccounts = state.accounts.filter(
+          (account) => account.id !== state.activeAccountId
+        );
+        // Get next active account or null
+        const nextActiveAccount = remainingAccounts.length > 0 ? remainingAccounts[0] : null;
+
+        if (nextActiveAccount) {
+          // Switch to next account
+          syncAuthToken(nextActiveAccount.token);
+          set({
+            accounts: remainingAccounts,
+            activeAccountId: nextActiveAccount.id,
+            user: nextActiveAccount.user,
+            token: nextActiveAccount.token,
+            isAuthenticated: true,
+          });
+        } else {
+          // No more accounts, go to login
+          syncAuthToken(null);
+          set({
+            user: null,
+            token: null,
+            accounts: [],
+            activeAccountId: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
+        }
       },
 
       getCurrentServerUrl: () => {

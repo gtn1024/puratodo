@@ -1,5 +1,42 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 2: Multi-Account UI Improvements
+**Date:** 2026-02-20
+
+### What was done
+1. Modified LoginPage.tsx:
+   - Removed "API Server" link from top-right corner
+   - Added server URL input field directly in the login form (above email/password)
+   - Shows default URL (http://localhost:3000) on first login
+   - Validates server URL before login
+
+2. Created AccountSwitcher.tsx component:
+   - Shows current account avatar + email + server short name in header
+   - Dropdown menu with all saved accounts
+   - Current account has checkmark indicator
+   - "Add new account" option - signs out current account but keeps others for switching
+   - "Manage accounts" option - opens AccountSettingsDialog
+   - "Sign out" option - signs out completely (removes all accounts)
+
+3. Modified authStore.ts:
+   - Added signOutCurrentAccount() function for switching accounts cleanly
+
+4. Modified DashboardPage.tsx:
+   - Integrated AccountSwitcher in the header (top-right area)
+
+### Next Steps
+- Run app and verify:
+  - [ ] Login page shows server URL input
+  - [ ] Can log in with custom server URL
+  - [ ] Header shows current account info
+  - [ ] Dropdown shows all accounts
+  - [ ] Can switch between accounts
+  - [ ] "Add new account" works
+  - [ ] "Manage accounts" dialog opens
+  - [ ] "Sign out" works
+
+---
+
 ## Session 1: Feature Alignment with Web App
 **Date:** 2026-02-20
 

@@ -8,13 +8,14 @@ interface UseAuthReturn {
   login: (credentials: LoginCredentials) => Promise<{ success: boolean; error?: string }>;
   register: (credentials: RegisterCredentials) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
+  signOutCurrentAccount: () => void;
   isLoading: boolean;
   error: string | null;
   clearError: () => void;
 }
 
 export function useAuth(): UseAuthReturn {
-  const { login: setLogin, logout: setLogout, setCurrentServerUrl } = useAuthStore();
+  const { login: setLogin, logout: setLogout, signOutCurrentAccount, setCurrentServerUrl } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -100,6 +101,7 @@ export function useAuth(): UseAuthReturn {
     login,
     register,
     logout,
+    signOutCurrentAccount,
     isLoading,
     error,
     clearError,

@@ -1,9 +1,9 @@
 import * as React from "react";
-import { Mail, Lock, ArrowRight, CheckCircle2, AlertCircle } from "lucide-react";
+import { Mail, Lock, ArrowRight, CheckCircle2, AlertCircle, Server } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ApiServerSettingsDialog } from "@/components/ApiServerSettingsDialog";
 import { useAuth } from "@/hooks/useAuth";
+import { DEFAULT_API_URL, getPendingApiUrl, setPendingApiUrl, isValidApiUrl, normalizeApiUrl } from "@/lib/api/config";
 
 // Floating geometric shapes component
 function FloatingShapes() {
@@ -73,11 +73,26 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
+  const [serverUrl, setServerUrl] = React.useState(() => getPendingApiUrl() ?? DEFAULT_API_URL);
+  const [serverUrlError, setServerUrlError] = React.useState("");
   const { login, isLoading, error, clearError } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
+
+    // Validate server URL
+    const normalizedUrl = normalizeApiUrl(serverUrl);
+    const shouldUseDefault = normalizedUrl.length === 0 || normalizedUrl === DEFAULT_API_URL;
+    if (!shouldUseDefault && !isValidApiUrl(normalizedUrl)) {
+      setServerUrlError("Please enter a valid URL starting with http:// or https://");
+      return;
+    }
+    setServerUrlError("");
+
+    // Save the server URL as pending for the login
+    setPendingApiUrl(shouldUseDefault ? DEFAULT_API_URL : normalizedUrl);
+
     const result = await login({ email, password });
     if (result.success) {
       // Navigation will be handled by the auth state change
@@ -137,18 +152,6 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
       {/* Right side - Login form */}
       <div className="flex-1 flex items-center justify-center p-8 bg-white dark:bg-zinc-900">
         <div className="w-full max-w-md">
-          <div className="mb-6 flex justify-end">
-            <ApiServerSettingsDialog
-              trigger={(
-                <button
-                  type="button"
-                  className="text-sm font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-                >
-                  API Server
-                </button>
-              )}
-            />
-          </div>
 
           {/* Mobile logo */}
           <div className="lg:hidden mb-10">
@@ -187,6 +190,32 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
 
           {/* Login form */}
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Server URL - prominent at top of form */}
+            <div className="space-y-2">
+              <label
+                htmlFor="server-url"
+                className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
+              >
+                API Server
+              </label>
+              <Input
+                id="server-url"
+                type="url"
+                placeholder={DEFAULT_API_URL}
+                value={serverUrl}
+                onChange={(e) => {
+                  setServerUrl(e.target.value);
+                  setServerUrlError("");
+                }}
+                icon={<Server className="h-5 w-5" />}
+                error={serverUrlError}
+                disabled={isLoading}
+              />
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                The server URL where your account is hosted
+              </p>
+            </div>
+
             <div className="space-y-2">
               <label
                 htmlFor="email"
