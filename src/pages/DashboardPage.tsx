@@ -58,6 +58,8 @@ export function DashboardPage() {
     reorderGroups,
     deleteGroup,
     createList,
+    updateList,
+    deleteList,
     clear,
   } = useDataStore();
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
@@ -82,11 +84,23 @@ export function DashboardPage() {
   const [newListName, setNewListName] = React.useState("");
   const [isCreatingList, setIsCreatingList] = React.useState(false);
 
-  // Context menu state
+  // Edit list state
+  const [editingList, setEditingList] = React.useState<ListType | null>(null);
+  const [editListName, setEditListName] = React.useState("");
+  const [isUpdatingList, setIsUpdatingList] = React.useState(false);
+
+  // Context menu state for groups
   const [contextMenu, setContextMenu] = React.useState<{
     x: number;
     y: number;
     group: Group;
+  } | null>(null);
+
+  // Context menu state for lists
+  const [listContextMenu, setListContextMenu] = React.useState<{
+    x: number;
+    y: number;
+    list: ListType;
   } | null>(null);
 
   // Refetch data when active account changes
@@ -218,14 +232,63 @@ export function DashboardPage() {
     }
   };
 
+  // Handle list context menu
+  const handleListContextMenu = (e: React.MouseEvent, list: ListType) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setListContextMenu({ x: e.clientX, y: e.clientY, list });
+  };
+
+  // Open edit list dialog
+  const openEditListDialog = (list: ListType) => {
+    setListContextMenu(null);
+    setEditingList(list);
+    setEditListName(list.name);
+  };
+
+  // Handle update list
+  const handleUpdateList = async () => {
+    if (!editingList || !editListName.trim()) return;
+
+    setIsUpdatingList(true);
+    try {
+      await updateList(editingList.id, {
+        name: editListName.trim(),
+      });
+      setEditingList(null);
+    } catch (err) {
+      console.error("Failed to update list:", err);
+    } finally {
+      setIsUpdatingList(false);
+    }
+  };
+
+  // Handle deleting a list
+  const handleDeleteList = async (listId: string) => {
+    setListContextMenu(null);
+    if (!confirm("Delete this list and all its tasks?")) return;
+
+    try {
+      await deleteList(listId);
+      if (selectedListId === listId) {
+        setSelectedListId(null);
+      }
+    } catch (err) {
+      console.error("Failed to delete list:", err);
+    }
+  };
+
   // Close context menu on click outside
   React.useEffect(() => {
-    const handleClick = () => setContextMenu(null);
-    if (contextMenu) {
+    const handleClick = () => {
+      setContextMenu(null);
+      setListContextMenu(null);
+    };
+    if (contextMenu || listContextMenu) {
       document.addEventListener("click", handleClick);
       return () => document.removeEventListener("click", handleClick);
     }
-  }, [contextMenu]);
+  }, [contextMenu, listContextMenu]);
 
   // Handle logout
   const handleLogout = async () => {
@@ -445,6 +508,7 @@ export function DashboardPage() {
                           <button
                             key={list.id}
                             onClick={() => setSelectedListId(list.id)}
+                            onContextMenu={(e) => handleListContextMenu(e, list)}
                             className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors ${
                               selectedListId === list.id
                                 ? "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300"
@@ -633,7 +697,7 @@ export function DashboardPage() {
         </div>
       </main>
 
-      {/* Context Menu */}
+      {/* Context Menu for Groups */}
       {contextMenu && (
         <div
           className="fixed z-50 min-w-32 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-lg shadow-lg py-1"
@@ -649,6 +713,30 @@ export function DashboardPage() {
           </button>
           <button
             onClick={() => handleDeleteGroup(contextMenu.group.id)}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-zinc-100 dark:hover:bg-zinc-600"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span>Delete</span>
+          </button>
+        </div>
+      )}
+
+      {/* Context Menu for Lists */}
+      {listContextMenu && (
+        <div
+          className="fixed z-50 min-w-32 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-lg shadow-lg py-1"
+          style={{ left: listContextMenu.x, top: listContextMenu.y }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={() => openEditListDialog(listContextMenu.list)}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-600"
+          >
+            <Pencil className="w-4 h-4" />
+            <span>Edit</span>
+          </button>
+          <button
+            onClick={() => handleDeleteList(listContextMenu.list.id)}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-zinc-100 dark:hover:bg-zinc-600"
           >
             <Trash2 className="w-4 h-4" />
@@ -710,6 +798,47 @@ export function DashboardPage() {
               disabled={isUpdatingGroup || !editGroupName.trim()}
             >
               {isUpdatingGroup ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit List Dialog */}
+      <Dialog open={!!editingList} onOpenChange={(open) => !open && setEditingList(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit List</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                List Name
+              </label>
+              <input
+                type="text"
+                value={editListName}
+                onChange={(e) => setEditListName(e.target.value)}
+                placeholder="Enter list name"
+                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleUpdateList();
+                }}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => setEditingList(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleUpdateList}
+              disabled={isUpdatingList || !editListName.trim()}
+            >
+              {isUpdatingList ? "Saving..." : "Save Changes"}
             </Button>
           </DialogFooter>
         </DialogContent>

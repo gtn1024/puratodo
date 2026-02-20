@@ -292,7 +292,7 @@
       "Click save button",
       "Verify changes are reflected in sidebar"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 23,
@@ -305,7 +305,7 @@
       "Verify list is removed from sidebar",
       "Verify all tasks in list are also deleted"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 24,
