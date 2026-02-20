@@ -156,3 +156,63 @@ Vercel automatically detects pnpm monorepo via `pnpm-workspace.yaml`:
 - **Install Command**: `pnpm install` (auto-detected)
 
 The `apps/web/vercel.json` file configures the build command for monorepo context.
+
+## Testing
+
+This project uses **Playwright** for end-to-end testing. Tests are located in `apps/web/tests/`.
+
+### Running Tests
+
+```bash
+# Run all tests
+cd apps/web
+npx playwright test
+
+# Run specific test file
+npx playwright test auth.spec.ts
+
+# Run with UI
+npx playwright test --ui
+```
+
+### Test Structure
+
+- Test files follow the naming convention: `*.spec.ts`
+- Test plan: `apps/web/feature_test_list.json` contains all integration test cases
+- Each test category (Auth, Group, List, Task, etc.) has its own test file
+
+### CI Testing
+
+GitHub Actions automatically runs tests on every push and PR. See `.github/workflows/ci.yml`.
+
+The CI workflow:
+1. Starts Supabase local instance via Docker
+2. Runs database migrations
+3. Creates test user via Admin API
+4. Builds the web app
+5. Runs Playwright E2E tests
+
+### Local Development with Tests
+
+```bash
+# Start Supabase locally
+cd apps/web
+supabase start
+
+# Run tests against local instance
+npx playwright test
+```
+
+### Test User Credentials
+
+Test user is created via seed or Admin API:
+- Email: `test@example.com`
+- Password: `password123`
+- User ID: `00000000-0000-0000-0000-000000000001`
+
+### Adding New Tests
+
+1. Add test case to `apps/web/feature_test_list.json`
+2. Create or update test file in `apps/web/tests/`
+3. Run test locally to verify
+4. Commit changes
