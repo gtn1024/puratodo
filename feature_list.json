@@ -443,7 +443,7 @@
       "Verify planned date is displayed on task",
       "Verify planned date is saved to backend"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 35,

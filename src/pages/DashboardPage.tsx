@@ -428,6 +428,19 @@ export function DashboardPage() {
     }
   };
 
+  // Update task planned date
+  const updateTaskPlanDate = async (taskId: string, planDate: string | null) => {
+    try {
+      await updateTask(taskId, { plan_date: planDate });
+      // Update local selectedTask state if it matches
+      if (selectedTask && selectedTask.id === taskId) {
+        setSelectedTask({ ...selectedTask, plan_date: planDate });
+      }
+    } catch (err) {
+      console.error("Failed to update task planned date:", err);
+    }
+  };
+
   // Open move list dialog
   const openMoveListDialog = (list: ListType) => {
     setListContextMenu(null);
@@ -1288,6 +1301,33 @@ export function DashboardPage() {
                       onClick={() => updateTaskDueDate(selectedTask.id, null)}
                       className="p-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
                       title="Clear due date"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Planned Date */}
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                  Planned Date
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="date"
+                    value={selectedTask.plan_date || ""}
+                    onChange={(e) => {
+                      const newDate = e.target.value || null;
+                      updateTaskPlanDate(selectedTask.id, newDate);
+                    }}
+                    className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                  />
+                  {selectedTask.plan_date && (
+                    <button
+                      onClick={() => updateTaskPlanDate(selectedTask.id, null)}
+                      className="p-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                      title="Clear planned date"
                     >
                       <X className="w-4 h-4" />
                     </button>
