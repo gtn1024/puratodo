@@ -14,6 +14,7 @@ interface DataState {
   fetchGroups: () => Promise<void>;
   createGroup: (input: CreateGroupInput) => Promise<Group>;
   updateGroup: (id: string, input: UpdateGroupInput) => Promise<Group>;
+  reorderGroups: (orderedGroupIds: string[]) => Promise<void>;
   deleteGroup: (id: string) => Promise<void>;
 
   // List actions
@@ -74,6 +75,54 @@ export const useDataStore = create<DataState>((set, get) => ({
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to update group";
       set({ error: message });
+      throw error;
+    }
+  },
+
+  reorderGroups: async (orderedGroupIds) => {
+    const previousGroups = [...get().groups];
+    if (previousGroups.length <= 1) return;
+
+    const groupMap = new Map(previousGroups.map((group) => [group.id, group]));
+    const reorderedGroups = orderedGroupIds
+      .map((groupId) => groupMap.get(groupId))
+      .filter((group): group is Group => Boolean(group));
+
+    if (reorderedGroups.length !== previousGroups.length) return;
+
+    const minSortOrder = previousGroups.reduce(
+      (min, group) => Math.min(min, group.sort_order),
+      previousGroups[0]?.sort_order ?? 0,
+    );
+
+    const nextGroups = reorderedGroups.map((group, index) => ({
+      ...group,
+      sort_order: minSortOrder + index,
+    }));
+
+    const changedGroups = nextGroups.filter((group) => {
+      const previous = groupMap.get(group.id);
+      return previous ? previous.sort_order !== group.sort_order : false;
+    });
+
+    if (changedGroups.length === 0) return;
+
+    set({ groups: nextGroups, error: null });
+
+    try {
+      const updatedGroups = await Promise.all(
+        changedGroups.map((group) =>
+          groupsApi.update(group.id, { sort_order: group.sort_order }),
+        ),
+      );
+
+      const updatedMap = new Map(updatedGroups.map((group) => [group.id, group]));
+      const mergedGroups = nextGroups.map((group) => updatedMap.get(group.id) ?? group);
+      mergedGroups.sort((a, b) => a.sort_order - b.sort_order);
+      set({ groups: mergedGroups, error: null });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to reorder groups";
+      set({ groups: previousGroups, error: message });
       throw error;
     }
   },

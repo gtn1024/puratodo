@@ -1,5 +1,48 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 16: Group Drag-and-Drop Reorder Verification
+**Date:** 2026-02-20
+**Agent:** Codex (GPT-5)
+
+### Completed
+- Implemented sidebar group drag-and-drop reordering on dashboard
+- Added `reorderGroups()` action in data store to persist reordered `sort_order` values
+- Added optimistic UI update with rollback if reorder API persistence fails
+- Verified Test #19 with deterministic local mock API on `http://127.0.0.1:3999`
+
+### Verification Performed
+- `npm run build` passed
+- Playwright flow verified Test #19:
+  - Opened app on `http://127.0.0.1:4173`
+  - Dragged group `Group A` and dropped it on `Work`
+  - Verified sidebar order updated to `Work` then `Group A`
+  - Reloaded app to simulate restart
+  - Verified order remained `Work` then `Group A`
+  - Verified reorder persistence calls succeeded:
+    - `PATCH /api/v1/groups/group-b` with `sort_order=0`
+    - `PATCH /api/v1/groups/group-a` with `sort_order=1`
+  - Verified subsequent `GET /api/v1/groups` returned persisted order `[Work:0, Group A:1]`
+
+### Current Status
+- 23/209 test cases passing
+- Group drag-and-drop reorder behavior is implemented and verified
+
+### Tests Now Passing
+- Test #19: User can reorder groups via drag and drop ✓
+
+### Files Created/Modified
+- src/stores/dataStore.ts (added `reorderGroups` action)
+- src/pages/DashboardPage.tsx (added group drag/drop interactions)
+- feature_list.json (marked Test #19 as passing)
+- claude-progress.txt (this session log)
+
+### Next Steps
+1. Verify list CRUD tasks (#21-25) in order
+2. Continue task CRUD verification (#27+)
+3. Address remaining sidebar interaction robustness issues during list/group actions
+
+---
+
 ## Session 15: List Selection Task Display Verification
 **Date:** 2026-02-20
 **Agent:** Codex (GPT-5)

@@ -254,7 +254,7 @@
       "Verify group order is updated",
       "Verify new order persists after app restart"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 20,

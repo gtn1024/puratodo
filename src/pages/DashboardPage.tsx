@@ -55,6 +55,7 @@ export function DashboardPage() {
     fetchTasks,
     createGroup,
     updateGroup,
+    reorderGroups,
     deleteGroup,
     clear,
   } = useDataStore();
@@ -72,6 +73,8 @@ export function DashboardPage() {
   const [editGroupName, setEditGroupName] = React.useState("");
   const [editGroupColor, setEditGroupColor] = React.useState("");
   const [isUpdatingGroup, setIsUpdatingGroup] = React.useState(false);
+  const [draggingGroupId, setDraggingGroupId] = React.useState<string | null>(null);
+  const [dropTargetGroupId, setDropTargetGroupId] = React.useState<string | null>(null);
 
   // Context menu state
   const [contextMenu, setContextMenu] = React.useState<{
@@ -169,6 +172,24 @@ export function DashboardPage() {
       console.error("Failed to update group:", err);
     } finally {
       setIsUpdatingGroup(false);
+    }
+  };
+
+  const handleReorderGroups = async (fromGroupId: string, toGroupId: string) => {
+    if (fromGroupId === toGroupId) return;
+
+    const fromIndex = groups.findIndex((group) => group.id === fromGroupId);
+    const toIndex = groups.findIndex((group) => group.id === toGroupId);
+    if (fromIndex < 0 || toIndex < 0) return;
+
+    const nextGroups = [...groups];
+    const [movedGroup] = nextGroups.splice(fromIndex, 1);
+    nextGroups.splice(toIndex, 0, movedGroup);
+
+    try {
+      await reorderGroups(nextGroups.map((group) => group.id));
+    } catch (err) {
+      console.error("Failed to reorder groups:", err);
     }
   };
 
@@ -339,11 +360,45 @@ export function DashboardPage() {
                 const isExpanded = expandedGroups.has(group.id);
 
                 return (
-                  <div key={group.id}>
+                  <div
+                    key={group.id}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      if (draggingGroupId && draggingGroupId !== group.id) {
+                        e.dataTransfer.dropEffect = "move";
+                        setDropTargetGroupId(group.id);
+                      }
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const sourceGroupId = e.dataTransfer.getData("text/plain") || draggingGroupId;
+                      if (sourceGroupId) {
+                        void handleReorderGroups(sourceGroupId, group.id);
+                      }
+                      setDraggingGroupId(null);
+                      setDropTargetGroupId(null);
+                    }}
+                  >
                     <button
+                      draggable
+                      onDragStart={(e) => {
+                        e.dataTransfer.effectAllowed = "move";
+                        e.dataTransfer.setData("text/plain", group.id);
+                        setDraggingGroupId(group.id);
+                      }}
+                      onDragEnd={() => {
+                        setDraggingGroupId(null);
+                        setDropTargetGroupId(null);
+                      }}
                       onClick={() => toggleGroup(group.id)}
                       onContextMenu={(e) => handleContextMenu(e, group)}
-                      className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors group"
+                      className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors group ${
+                        draggingGroupId === group.id ? "opacity-60" : ""
+                      } ${
+                        dropTargetGroupId === group.id && draggingGroupId !== group.id
+                          ? "ring-2 ring-violet-300 dark:ring-violet-700"
+                          : ""
+                      }`}
                     >
                       <ChevronDown
                         className={`w-4 h-4 transition-transform ${isExpanded ? "" : "-rotate-90"}`}
