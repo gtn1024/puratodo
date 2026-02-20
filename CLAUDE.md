@@ -6,15 +6,47 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 PuraToDo is a task management web application with support for infinite nested subtasks. Built with Next.js 16, React 19, and Supabase.
 
+## Monorepo Structure
+
+This project uses **pnpm workspaces** for monorepo management:
+
+```
+puratodo/
+├── apps/
+│   └── web/                 # Next.js web application
+│       ├── src/             # App source code
+│       ├── public/          # Static assets
+│       ├── supabase/        # Database migrations
+│       └── package.json     # @puratodo/web
+├── packages/
+│   ├── ui/                  # Shared UI components (@puratodo/ui)
+│   ├── api-types/           # API type definitions (@puratodo/api-types)
+│   └── shared/              # Shared utilities (@puratodo/shared)
+├── pnpm-workspace.yaml      # Workspace configuration
+├── package.json             # Root package with scripts
+└── tsconfig.base.json       # Shared TypeScript config
+```
+
 ## Commands
 
 ```bash
-./init.sh              # Install deps and start dev server (alias for npm run dev)
-./init.sh --no-dev    # Only install deps, don't start server
-npm run dev           # Start development server (localhost:3000)
-npm run build         # Production build
-npm run start         # Start production server
-npm run lint          # Run ESLint
+# Run from monorepo root
+pnpm dev              # Start development server (apps/web)
+pnpm build            # Build all packages
+pnpm build:web        # Build web app only
+pnpm lint             # Lint all packages
+pnpm clean            # Clean all node_modules and build artifacts
+
+# Package-specific commands
+pnpm --filter @puratodo/web dev       # Start web dev server
+pnpm --filter @puratodo/web build     # Build web app
+pnpm --filter @puratodo/ui build      # Build UI package
+
+# Database (runs in apps/web context)
+pnpm db:migration:new   # Create new migration
+pnpm db:push            # Push migrations to Supabase
+pnpm db:pull            # Pull schema from Supabase
+pnpm db:diff            # Show schema differences
 ```
 
 ## Tech Stack
@@ -24,6 +56,7 @@ npm run lint          # Run ESLint
 - **Backend**: Supabase (PostgreSQL, Auth, Realtime, RLS)
 - **Testing**: Playwright MCP (end-to-end)
 - **Language**: TypeScript (strict mode)
+- **Package Manager**: pnpm 9+ with workspaces
 
 ## Data Model
 
@@ -47,10 +80,10 @@ This project follows a "long-running agent" methodology with daily progress logg
 
 1. Read `claude-progress.txt` - check current status and next steps
 2. Read `feature_list.json` - get feature details and test steps. Note that one step MUST do one task, unless it's very small or closely related to another step. If a step is too big, break it down into smaller steps.
-3. Run `./init.sh` to start dev environment
+3. Run `pnpm dev` to start dev environment
 4. Implement the feature
 5. Test with Playwright MCP (the credentials of accounts in `.credentials.local`)
-6. Make sure project can be built successfully (`npm run build`)
+6. Make sure project can be built successfully (`pnpm build:web`)
 7. Update `feature_list.json` (set `passes: true` for completed feature)
 8. Update `claude-progress.txt` (append new log for current session, what has done, what does not work, next steps)
 9. Git commit
@@ -62,17 +95,28 @@ This project follows a "long-running agent" methodology with daily progress logg
 
 ## Architecture
 
-- **App Router**: Routes in `src/app/`, use folder-based routing
-- **Server Actions**: Business logic in `src/actions/` (e.g., `src/actions/groups.ts`)
-- **Components**: UI components in `src/components/`, dashboard components in `src/components/dashboard/`
-- **Supabase**: Client in `src/lib/supabase/` (browser client + server client for SSR)
-- **Path Alias**: `@/*` maps to `./src/*`
+- **App Router**: Routes in `apps/web/src/app/`, use folder-based routing
+- **Server Actions**: Business logic in `apps/web/src/actions/` (e.g., `src/actions/groups.ts`)
+- **Components**: UI components in `apps/web/src/components/`, dashboard components in `apps/web/src/components/dashboard/`
+- **Supabase**: Client in `apps/web/src/lib/supabase/` (browser client + server client for SSR)
+- **Path Alias**: `@/*` maps to `./src/*` (in apps/web)
+- **Workspace Packages**: Import as `@puratodo/ui`, `@puratodo/api-types`, `@puratodo/shared`
 
 ## Environment Variables
 
-Required in `.env.local`:
+Required in `apps/web/.env.local`:
 ```
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
 
+## Vercel Deployment
+
+Vercel automatically detects pnpm monorepo via `pnpm-workspace.yaml`:
+
+- **Framework Preset**: Next.js (auto-detected)
+- **Root Directory**: Leave empty (auto-detects apps/web)
+- **Build Command**: `pnpm build` (or leave auto)
+- **Install Command**: `pnpm install` (auto-detected)
+
+The `apps/web/vercel.json` file configures the build command for monorepo context.

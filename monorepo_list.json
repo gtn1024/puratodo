@@ -144,7 +144,7 @@
         "Create root tsconfig.base.json with base TypeScript settings",
         "Create root .gitignore (node_modules, .next, dist, etc.)"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 2,
@@ -157,7 +157,7 @@
         "Add workspace dependencies: @puratodo/ui, @puratodo/api-types, @puratodo/shared",
         "Keep existing dependencies, add workspace refs later"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 3,
@@ -170,7 +170,7 @@
         "Create package.json for each with proper names (@puratodo/*)",
         "Create tsconfig.json for each package"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 4,
@@ -183,7 +183,7 @@
         "Run 'pnpm dev' to verify web app starts",
         "Run 'pnpm build:web' to verify build works"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 5,
@@ -195,7 +195,7 @@
         "Document Vercel dashboard settings in CLAUDE.md",
         "Test build command locally: pnpm build:web"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 6,

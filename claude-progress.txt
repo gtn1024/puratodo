@@ -25,6 +25,43 @@ All tables include user_id for RLS policies and query optimization.
 ### 2026-02-20
 
 #### 完成
+- Monorepo Phase 1: Monorepo Setup (完成)
+  - Feature #1: 创建 monorepo 根配置文件
+    - pnpm-workspace.yaml (apps/*, packages/*)
+    - 根 package.json (puratodo-monorepo, pnpm scripts)
+    - .npmrc (auto-install-peers=true)
+    - tsconfig.base.json (共享 TypeScript 配置)
+    - 更新 .gitignore (支持 monorepo 结构)
+  - Feature #2: 创建 apps 目录并迁移 web 项目
+    - 创建 apps/web/ 目录
+    - 移动所有文件到 apps/web/ (src/, public/, supabase/, 配置文件)
+    - 更新 apps/web/package.json name 为 @puratodo/web
+    - 添加 workspace 依赖: @puratodo/ui, @puratodo/api-types, @puratodo/shared
+    - 更新 apps/web/tsconfig.json 继承 tsconfig.base.json
+  - Feature #3: 创建 packages 目录和共享包结构
+    - packages/ui/ - UI 组件库 (@puratodo/ui)
+    - packages/api-types/ - API 类型定义 (@puratodo/api-types)
+    - packages/shared/ - 共享工具函数 (@puratodo/shared)
+    - 每个包包含 package.json, tsconfig.json, src/index.ts
+  - Feature #4: 安装并验证 pnpm workspaces
+    - 删除旧的 npm 依赖 (node_modules, package-lock.json)
+    - 运行 pnpm install 安装 monorepo 依赖
+    - 验证 workspace 链接正确 (link:../../packages/*)
+    - 构建验证通过: pnpm build:web
+  - Feature #5: 添加 Vercel 部署配置
+    - 创建 apps/web/vercel.json
+    - 更新 CLAUDE.md 文档反映 monorepo 结构
+
+#### 下一步
+- Phase 2: Extract @puratodo/ui - 将 UI 组件迁移到共享包
+- Phase 3: Extract @puratodo/api-types - 迁移 API 类型定义
+- Phase 4: Extract @puratodo/shared - 迁移共享工具函数
+
+---
+
+### 2026-02-20 (Earlier)
+
+#### 完成
 - Feature #71: 日历视图（Calendar View）
   - 添加 `showCalendarView` 状态到 `dashboard-content.tsx`，与其他视图状态互斥
   - 在 Sidebar 添加 "日历/Calendar" 入口（紫色高亮）
