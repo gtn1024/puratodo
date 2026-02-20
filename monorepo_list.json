@@ -1,0 +1,364 @@
+{
+  "project": "PuraToDo Monorepo Migration",
+  "description": "Migrate PuraToDo from single Next.js project to pnpm monorepo structure",
+  "targetStructure": {
+    "puratodo/": {
+      "type": "root",
+      "children": ["apps/", "packages/", "pnpm-workspace.yaml", "package.json", ".npmrc"]
+    },
+    "apps/": {
+      "type": "apps",
+      "children": ["web/"]
+    },
+    "apps/web/": {
+      "type": "app",
+      "description": "Next.js web application (current puratodo)",
+      "children": ["src/", "next.config.ts", "package.json", "vercel.json"]
+    },
+    "packages/": {
+      "type": "packages",
+      "children": ["ui/", "api-types/", "shared/"]
+    },
+    "packages/ui/": {
+      "type": "package",
+      "description": "Shared shadcn/ui components",
+      "children": ["src/", "package.json", "tsconfig.json", "tailwind.config.ts"]
+    },
+    "packages/api-types/": {
+      "type": "package",
+      "description": "API request/response type definitions",
+      "children": ["src/", "package.json", "tsconfig.json"]
+    },
+    "packages/shared/": {
+      "type": "package",
+      "description": "Shared utilities, constants, hooks",
+      "children": ["src/", "package.json", "tsconfig.json"]
+    }
+  },
+  "configFiles": {
+    "pnpm-workspace.yaml": {
+      "path": "pnpm-workspace.yaml",
+      "content": "packages:\n  - 'apps/*'\n  - 'packages/*'"
+    },
+    "root-package.json": {
+      "path": "package.json",
+      "content": {
+        "name": "puratodo-monorepo",
+        "private": true,
+        "scripts": {
+          "dev": "pnpm --filter @puratodo/web dev",
+          "dev:web": "pnpm --filter @puratodo/web dev",
+          "build": "pnpm -r build",
+          "build:web": "pnpm --filter @puratodo/web build",
+          "lint": "pnpm -r lint",
+          "clean": "pnpm -r clean && rm -rf node_modules"
+        },
+        "devDependencies": {
+          "typescript": "^5"
+        },
+        "engines": {
+          "node": ">=18",
+          "pnpm": ">=8"
+        }
+      }
+    },
+    "npmrc": {
+      "path": ".npmrc",
+      "content": "auto-install-peers=true\nstrict-peer-dependencies=false"
+    },
+    "apps-web-package.json": {
+      "path": "apps/web/package.json",
+      "content": {
+        "name": "@puratodo/web",
+        "version": "0.1.0",
+        "private": true,
+        "scripts": {
+          "dev": "next dev",
+          "build": "next build",
+          "start": "next start",
+          "lint": "eslint"
+        },
+        "dependencies": {
+          "@puratodo/ui": "workspace:*",
+          "@puratodo/api-types": "workspace:*",
+          "@puratodo/shared": "workspace:*"
+        }
+      }
+    },
+    "vercel.json": {
+      "path": "apps/web/vercel.json",
+      "content": {
+        "$schema": "https://openapi.vercel.sh/vercel.json",
+        "buildCommand": "pnpm build"
+      },
+      "notes": "Vercel auto-detects pnpm monorepo. Root Directory in Vercel dashboard should be set to 'apps/web' OR leave empty and Vercel will auto-detect."
+    }
+  },
+  "deployment": {
+    "vercel": {
+      "setup": [
+        "Connect GitHub repository to Vercel",
+        "Vercel auto-detects pnpm-workspace.yaml",
+        "Framework Preset: Next.js (auto-detected)",
+        "Root Directory: Leave empty (auto-detect) OR set to 'apps/web'",
+        "Build Command: pnpm build (or leave auto)",
+        "Output Directory: .next (auto-detected)",
+        "Install Command: pnpm install (auto-detected)"
+      ],
+      "buildCommands": {
+        "local": "pnpm build:web",
+        "vercel": "pnpm build (runs in apps/web context)",
+        "vercel-auto": "Next.js build triggered automatically"
+      },
+      "envVars": [
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+      ],
+      "notes": [
+        "Vercel automatically detects pnpm via pnpm-workspace.yaml",
+        "If Root Directory is empty, Vercel finds apps/web with next.config.ts",
+        "workspace:* dependencies are resolved correctly by Vercel",
+        "No turbo.json needed for simple monorepo"
+      ]
+    },
+    "otherPlatforms": {
+      "netlify": {
+        "buildCommand": "cd apps/web && pnpm build",
+        "publishDirectory": "apps/web/.next"
+      },
+      "docker": {
+        "context": "apps/web",
+        "notes": "Need to copy packages/* for workspace dependencies"
+      }
+    }
+  },
+  "features": [
+    {
+      "id": 1,
+      "category": "Phase 1: Monorepo Setup",
+      "description": "Create monorepo root configuration files",
+      "steps": [
+        "Create pnpm-workspace.yaml with 'apps/*' and 'packages/*'",
+        "Create root package.json with name 'puratodo-monorepo' and scripts",
+        "Create .npmrc with auto-install-peers=true",
+        "Create root tsconfig.base.json with base TypeScript settings",
+        "Create root .gitignore (node_modules, .next, dist, etc.)"
+      ],
+      "passes": false
+    },
+    {
+      "id": 2,
+      "category": "Phase 1: Monorepo Setup",
+      "description": "Create apps directory and migrate web project",
+      "steps": [
+        "Create apps/ directory",
+        "Move all files to apps/web/ (except monorepo root configs)",
+        "Update apps/web/package.json name to '@puratodo/web'",
+        "Add workspace dependencies: @puratodo/ui, @puratodo/api-types, @puratodo/shared",
+        "Keep existing dependencies, add workspace refs later"
+      ],
+      "passes": false
+    },
+    {
+      "id": 3,
+      "category": "Phase 1: Monorepo Setup",
+      "description": "Create packages directory structure",
+      "steps": [
+        "Create packages/ui/ with empty src/index.ts",
+        "Create packages/api-types/ with empty src/index.ts",
+        "Create packages/shared/ with empty src/index.ts",
+        "Create package.json for each with proper names (@puratodo/*)",
+        "Create tsconfig.json for each package"
+      ],
+      "passes": false
+    },
+    {
+      "id": 4,
+      "category": "Phase 1: Monorepo Setup",
+      "description": "Install and verify pnpm workspaces",
+      "steps": [
+        "Run 'pnpm install' at monorepo root",
+        "Verify pnpm-lock.yaml created at root",
+        "Verify node_modules at root and symlinks in apps/web",
+        "Run 'pnpm dev' to verify web app starts",
+        "Run 'pnpm build:web' to verify build works"
+      ],
+      "passes": false
+    },
+    {
+      "id": 5,
+      "category": "Phase 1: Monorepo Setup",
+      "description": "Add Vercel deployment configuration",
+      "steps": [
+        "Create apps/web/vercel.json with buildCommand",
+        "Verify no conflicting settings with next.config.ts",
+        "Document Vercel dashboard settings in CLAUDE.md",
+        "Test build command locally: pnpm build:web"
+      ],
+      "passes": false
+    },
+    {
+      "id": 6,
+      "category": "Phase 2: Extract @puratodo/ui",
+      "description": "Create @puratodo/ui package with shadcn components",
+      "steps": [
+        "Create packages/ui/package.json with name '@puratodo/ui'",
+        "Create packages/ui/tsconfig.json extending root config",
+        "Create packages/ui/tailwind.config.ts for component library",
+        "Move src/components/ui/* to packages/ui/src/components/",
+        "Create packages/ui/src/index.ts exporting all components"
+      ],
+      "passes": false
+    },
+    {
+      "id": 7,
+      "category": "Phase 2: Extract @puratodo/ui",
+      "description": "Update apps/web to use @puratodo/ui",
+      "steps": [
+        "Add '@puratodo/ui: workspace:*' to apps/web dependencies",
+        "Update all imports from '@/components/ui/*' to '@puratodo/ui'",
+        "Move tailwind base styles if needed",
+        "Run pnpm install to link packages",
+        "Verify UI components render correctly"
+      ],
+      "passes": false
+    },
+    {
+      "id": 8,
+      "category": "Phase 2: Extract @puratodo/ui",
+      "description": "Move reusable dashboard components",
+      "steps": [
+        "Identify reusable components in src/components/dashboard/",
+        "Move to packages/ui/src/components/ if shared",
+        "Update exports in packages/ui/src/index.ts",
+        "Update imports in apps/web",
+        "Verify dashboard renders correctly"
+      ],
+      "passes": false
+    },
+    {
+      "id": 9,
+      "category": "Phase 3: Extract @puratodo/api-types",
+      "description": "Create @puratodo/api-types package",
+      "steps": [
+        "Create packages/api-types/package.json",
+        "Create packages/api-types/tsconfig.json",
+        "Move src/lib/supabase/database.types.ts to packages/api-types/src/database.ts",
+        "Create src/api.ts for API request/response types",
+        "Export all types from src/index.ts"
+      ],
+      "passes": false
+    },
+    {
+      "id": 10,
+      "category": "Phase 3: Extract @puratodo/api-types",
+      "description": "Update apps/web to use @puratodo/api-types",
+      "steps": [
+        "Add '@puratodo/api-types: workspace:*' to apps/web dependencies",
+        "Update database type imports to '@puratodo/api-types'",
+        "Remove duplicate type definitions",
+        "Run pnpm build:web to verify TypeScript compiles",
+        "Run pnpm dev to verify app works"
+      ],
+      "passes": false
+    },
+    {
+      "id": 11,
+      "category": "Phase 4: Extract @puratodo/shared",
+      "description": "Create @puratodo/shared package with utilities",
+      "steps": [
+        "Create packages/shared/package.json",
+        "Create packages/shared/tsconfig.json",
+        "Move src/lib/utils.ts to packages/shared/src/utils.ts",
+        "Move src/lib/recurrence*.ts to packages/shared/src/",
+        "Move reusable hooks from src/hooks/ to packages/shared/src/hooks/"
+      ],
+      "passes": false
+    },
+    {
+      "id": 12,
+      "category": "Phase 4: Extract @puratodo/shared",
+      "description": "Update apps/web to use @puratodo/shared",
+      "steps": [
+        "Add '@puratodo/shared: workspace:*' to apps/web dependencies",
+        "Update all imports from '@/lib/utils' to '@puratodo/shared'",
+        "Update hook imports if moved",
+        "Export all utilities from packages/shared/src/index.ts",
+        "Verify all imports resolved correctly"
+      ],
+      "passes": false
+    },
+    {
+      "id": 13,
+      "category": "Phase 5: Configuration & Docs",
+      "description": "Update monorepo documentation",
+      "steps": [
+        "Update CLAUDE.md with monorepo structure and commands",
+        "Update README.md with monorepo overview",
+        "Update init.sh to work from monorepo root",
+        "Move claude-progress.txt to root (or keep in apps/web)",
+        "Move feature_list.json to root (or keep in apps/web)"
+      ],
+      "passes": false
+    },
+    {
+      "id": 14,
+      "category": "Phase 5: Configuration & Docs",
+      "description": "Update shared TypeScript configurations",
+      "steps": [
+        "Create tsconfig.base.json at root with shared settings",
+        "Update apps/web/tsconfig.json to extend base",
+        "Update packages/*/tsconfig.json to extend base",
+        "Configure path aliases correctly for monorepo",
+        "Verify tsc --noEmit passes for all packages"
+      ],
+      "passes": false
+    },
+    {
+      "id": 15,
+      "category": "Phase 6: Verification",
+      "description": "Full monorepo verification and deployment test",
+      "steps": [
+        "Delete node_modules and pnpm-lock.yaml, run fresh pnpm install",
+        "Run 'pnpm build' to verify all packages build",
+        "Run 'pnpm dev' and verify web app at localhost:3000",
+        "Run Playwright E2E tests to verify functionality",
+        "Push to GitHub and test Vercel deployment"
+      ],
+      "passes": false
+    }
+  ],
+  "commands": {
+    "development": {
+      "start dev server": "pnpm dev",
+      "build all": "pnpm build",
+      "build web only": "pnpm build:web",
+      "lint all": "pnpm lint",
+      "clean all": "pnpm clean"
+    },
+    "packageSpecific": {
+      "run command in web": "pnpm --filter @puratodo/web <command>",
+      "run command in ui": "pnpm --filter @puratodo/ui <command>",
+      "add dep to web": "pnpm --filter @puratodo/web add <package>",
+      "add dep to ui": "pnpm --filter @puratodo/ui add <package>"
+    },
+    "deployment": {
+      "vercel build": "pnpm build (in apps/web context)",
+      "vercel local preview": "vercel dev",
+      "test production build": "pnpm build:web && cd apps/web && pnpm start"
+    }
+  },
+  "notes": [
+    "Keep apps/web self-contained - only extract truly shared code",
+    "Supabase client stays in apps/web (not shared with future desktop app)",
+    "API routes stay in apps/web",
+    "i18n and messages stay in apps/web for now",
+    "workspace:* syntax ensures packages are linked locally",
+    "Vercel auto-detects pnpm monorepo via pnpm-workspace.yaml"
+  ],
+  "futureConsiderations": [
+    "Add Turborepo for smarter caching when adding apps/desktop",
+    "Add changesets for versioning packages",
+    "Consider shared ESLint/Prettier config as separate package"
+  ]
+}
