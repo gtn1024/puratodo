@@ -120,6 +120,21 @@ export function DashboardPage() {
   const [dropTargetListForTask, setDropTargetListForTask] = React.useState<string | null>(null);
   // For subtask drag-and-drop
   const [draggingSubtaskParentId, setDraggingSubtaskParentId] = React.useState<string | null>(null);
+  // Store drag source info in state (needed for webview compatibility)
+  const [dragSourceInfo, setDragSourceInfo] = React.useState<{
+    depth: number;
+    parentId: string | null;
+    listId: string;
+  } | null>(null);
+  // Group drag source info
+  const [dragGroupSourceInfo, setDragGroupSourceInfo] = React.useState<{
+    groupId: string;
+  } | null>(null);
+  // List drag source info
+  const [dragListSourceInfo, setDragListSourceInfo] = React.useState<{
+    listId: string;
+    groupId: string;
+  } | null>(null);
 
   // Create task state
   const [showNewTaskInput, setShowNewTaskInput] = React.useState(false);
@@ -251,12 +266,8 @@ export function DashboardPage() {
           onDragStart={(e) => {
             e.dataTransfer.effectAllowed = "move";
             e.dataTransfer.setData("text/plain", task.id);
-            e.dataTransfer.setData("application/task-id", task.id);
-            e.dataTransfer.setData("application/list-id", task.list_id);
-            e.dataTransfer.setData("application/depth", String(depth));
-            if (parentId) {
-              e.dataTransfer.setData("application/parent-id", parentId);
-            }
+            // Store source info in state for webview compatibility
+            setDragSourceInfo({ depth, parentId, listId: task.list_id });
             setDraggingTaskId(task.id);
             if (isSubtask && parentId) {
               setDraggingSubtaskParentId(parentId);
@@ -269,13 +280,14 @@ export function DashboardPage() {
             setDropTargetTaskId(null);
             setDropTargetListForTask(null);
             setDraggingSubtaskParentId(null);
+            setDragSourceInfo(null);
           }}
           onDragOver={(e) => {
             e.preventDefault();
-            // Read from dataTransfer directly for synchronous access
-            const sourceDepth = parseInt(e.dataTransfer.getData("application/depth") || "0", 10);
-            const sourceParentId = e.dataTransfer.getData("application/parent-id");
-            const sourceListId = e.dataTransfer.getData("application/list-id");
+            // Use state for drag source info (webview compatible)
+            const sourceDepth = dragSourceInfo?.depth ?? 0;
+            const sourceParentId = dragSourceInfo?.parentId ?? null;
+            const sourceListId = dragSourceInfo?.listId ?? "";
 
             if (draggingTaskId && draggingTaskId !== task.id) {
               // For subtasks: only allow drop if same parent
@@ -296,16 +308,16 @@ export function DashboardPage() {
           }}
           onDrop={(e) => {
             e.preventDefault();
-            const sourceTaskId = e.dataTransfer.getData("text/plain") || draggingTaskId;
-            const sourceDepth = parseInt(e.dataTransfer.getData("application/depth") || "0", 10);
-            const sourceParentId = e.dataTransfer.getData("application/parent-id");
+            const sourceTaskId = draggingTaskId;
+            const sourceDepth = dragSourceInfo?.depth ?? 0;
+            const sourceParentId = dragSourceInfo?.parentId ?? null;
 
             if (isSubtask && sourceParentId && parentId === sourceParentId) {
               // Reordering subtasks within same parent
               void handleReorderSubtasks(sourceTaskId, task.id, parentId);
             } else if (!isSubtask && sourceDepth === 0) {
               // Reordering root tasks within same list
-              const sourceListId = e.dataTransfer.getData("application/list-id");
+              const sourceListId = dragSourceInfo?.listId;
               if (sourceListId === task.list_id) {
                 void handleReorderTasks(sourceTaskId, task.id, task.list_id);
               }
@@ -313,6 +325,7 @@ export function DashboardPage() {
             setDraggingTaskId(null);
             setDropTargetTaskId(null);
             setDraggingSubtaskParentId(null);
+            setDragSourceInfo(null);
           }}
           className={`flex items-center gap-3 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 ${
             draggingTaskId === task.id ? "opacity-60" : ""
@@ -1116,12 +1129,13 @@ export function DashboardPage() {
                     }}
                     onDrop={(e) => {
                       e.preventDefault();
-                      const sourceGroupId = e.dataTransfer.getData("text/plain") || draggingGroupId;
+                      const sourceGroupId = draggingGroupId;
                       if (sourceGroupId) {
                         void handleReorderGroups(sourceGroupId, group.id);
                       }
                       setDraggingGroupId(null);
                       setDropTargetGroupId(null);
+                      setDragGroupSourceInfo(null);
                     }}
                   >
                     <button
@@ -1129,11 +1143,13 @@ export function DashboardPage() {
                       onDragStart={(e) => {
                         e.dataTransfer.effectAllowed = "move";
                         e.dataTransfer.setData("text/plain", group.id);
+                        setDragGroupSourceInfo({ groupId: group.id });
                         setDraggingGroupId(group.id);
                       }}
                       onDragEnd={() => {
                         setDraggingGroupId(null);
                         setDropTargetGroupId(null);
+                        setDragGroupSourceInfo(null);
                       }}
                       onClick={() => toggleGroup(group.id)}
                       onContextMenu={(e) => handleContextMenu(e, group)}
@@ -1169,12 +1185,14 @@ export function DashboardPage() {
                               e.dataTransfer.effectAllowed = "move";
                               e.dataTransfer.setData("text/plain", list.id);
                               e.dataTransfer.setData("application/group-id", group.id);
+                              setDragListSourceInfo({ listId: list.id, groupId: group.id });
                               setDraggingListId(list.id);
                             }}
                             onDragEnd={() => {
                               setDraggingListId(null);
                               setDropTargetListId(null);
                               setDropTargetListForTask(null);
+                              setDragListSourceInfo(null);
                             }}
                             onDragOver={(e) => {
                               e.preventDefault();
@@ -1194,21 +1212,25 @@ export function DashboardPage() {
                             }}
                             onDrop={(e) => {
                               e.preventDefault();
-                              // Handle list reorder
-                              const sourceListId = e.dataTransfer.getData("text/plain") || draggingListId;
-                              const sourceGroupId = e.dataTransfer.getData("application/group-id");
+                              // Handle list reorder using state
+                              const sourceListId = draggingListId;
+                              const sourceGroupId = dragListSourceInfo?.groupId;
                               if (sourceListId && sourceGroupId === group.id && draggingListId) {
                                 void handleReorderLists(sourceListId, list.id, group.id);
                               }
-                              // Handle task move to different list
-                              const sourceTaskId = e.dataTransfer.getData("application/task-id");
-                              const sourceTaskListId = e.dataTransfer.getData("application/list-id");
-                              if (sourceTaskId && sourceTaskListId !== list.id) {
-                                void handleMoveTask(sourceTaskId, list.id);
+                              // Handle task move to different list using state
+                              if (draggingTaskId && dragSourceInfo) {
+                                const sourceTaskListId = dragSourceInfo.listId;
+                                if (sourceTaskListId !== list.id) {
+                                  void handleMoveTask(draggingTaskId, list.id);
+                                }
                               }
                               setDraggingListId(null);
+                              setDraggingTaskId(null);
                               setDropTargetListId(null);
                               setDropTargetListForTask(null);
+                              setDragListSourceInfo(null);
+                              setDragSourceInfo(null);
                             }}
                             onClick={() => {
                               setSelectedListId(list.id);
