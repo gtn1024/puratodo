@@ -670,7 +670,7 @@
       "Press Enter",
       "Verify task is created"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 53,

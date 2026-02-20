@@ -37,13 +37,14 @@
   - Escape closes search dialog
 
 ### Current Status
-- 51/209 test cases passing
-- Tests #49, #50, #51, #53 verified
+- 52/209 test cases passing
+- Tests #49, #50, #51, #52, #53 verified
 
 ### Tests Now Passing
 - Test #49: Dark mode applies correct colors throughout the app ✓
 - Test #50: System theme preference is respected ✓
 - Test #51: Keyboard shortcut Ctrl+K / Cmd+K opens search ✓
+- Test #52: Keyboard shortcut Ctrl+N / Cmd+N creates new task ✓
 - Test #53: Keyboard shortcut Escape closes dialogs ✓
 
 ### Files Created/Modified

@@ -825,17 +825,25 @@ export function DashboardPage() {
     }
   }, [contextMenu, listContextMenu, taskContextMenu]);
 
-  // Keyboard shortcut for search (Ctrl+K / Cmd+K)
+  // Keyboard shortcut for search (Ctrl+K / Cmd+K) and new task (Ctrl+N / Cmd+N)
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         setShowSearch(true);
       }
+      if ((e.metaKey || e.ctrlKey) && e.key === "n") {
+        e.preventDefault();
+        if (!selectedListId) {
+          alert("Please select a list first");
+          return;
+        }
+        setShowNewTaskInput(true);
+      }
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [selectedListId]);
 
   // Fetch all tasks when search dialog opens
   React.useEffect(() => {
