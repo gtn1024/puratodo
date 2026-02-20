@@ -1,5 +1,5 @@
--- PuraToDo Database Schema
--- Run this in Supabase SQL Editor
+-- PuraToDo Initial Database Schema
+-- Migration: 20240220000000_initial_schema.sql
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -52,17 +52,6 @@ CREATE TABLE IF NOT EXISTS public.tasks (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
-
--- Backfill recurrence columns for existing databases
-ALTER TABLE public.tasks
-  ADD COLUMN IF NOT EXISTS recurrence_frequency TEXT DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS recurrence_interval INTEGER DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS recurrence_weekdays SMALLINT[] DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS recurrence_end_date DATE DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS recurrence_end_count INTEGER DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS recurrence_rule TEXT DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS recurrence_timezone TEXT DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS recurrence_source_task_id UUID REFERENCES public.tasks(id) ON DELETE SET NULL;
 
 -- Create indexes for better query performance
 CREATE INDEX IF NOT EXISTS idx_groups_user_id ON public.groups(user_id);
