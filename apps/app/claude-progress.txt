@@ -1,5 +1,58 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 26: Search Functionality Implementation
+**Date:** 2026-02-20
+**Agent:** Claude Code (GLM-5)
+
+### Completed
+- Implemented search functionality:
+  - Added Search button in header with ⌘K hint
+  - Added search dialog with input field
+  - Added keyboard shortcut (Ctrl+K / Cmd+K) to open search
+  - Search filters tasks by name (case-insensitive)
+  - Search results show task name and list path (Group / List)
+  - Clicking a search result navigates to that list
+- Implemented cross-list search:
+  - Added useEffect to fetch all tasks when search dialog opens
+  - Search works across all lists in the user's account
+  - Results are displayed with their respective list context
+- Verified Tests #43-44 with real backend API on localhost:3000:
+  - Created tasks in two different lists ("Test List", "Shopping List")
+  - Searched for "Buy" and verified results from both lists appeared
+  - Verified clicking a result navigates to correct list
+
+### Verification Performed
+- `npm run build` passed (app)
+- Playwright verification confirmed:
+  - Search button visible in header
+  - Search dialog opens on click and keyboard shortcut
+  - Search query "Buy" returns 3 results from 2 different lists:
+    - "Buy electronics" from Shopping List
+    - "Buy groceries" from Test List
+    - "Buy milk" from Test List
+  - Non-matching tasks are hidden
+  - Clicking result navigates to correct list and closes dialog
+
+### Current Status
+- 44/209 test cases passing
+- Tests #43-44 verified with real backend API on localhost:3000
+
+### Tests Now Passing
+- Test #43: Search functionality finds tasks by name ✓
+- Test #44: Search works across all lists ✓
+
+### Files Created/Modified
+- src/pages/DashboardPage.tsx (added search button, dialog, keyboard shortcut, cross-list fetch)
+- feature_list.json (marked Tests #43-44 as passing)
+- claude-progress.txt (this session log)
+
+### Next Steps
+1. Continue with Test #45 (Today view shows tasks due today)
+2. Continue with Test #46 (Today view shows tasks with planned date today)
+3. Continue with Test #47 (Starred tasks view)
+
+---
+
 ## Session 25: Subtask Drag and Drop Reorder Implementation
 **Date:** 2026-02-20
 **Agent:** Claude Code (GLM-5)

@@ -560,7 +560,7 @@
       "Verify matching tasks are displayed",
       "Verify non-matching tasks are hidden"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 44,
@@ -572,7 +572,7 @@
       "Search for one of the unique names",
       "Verify task is found regardless of which list it's in"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 45,

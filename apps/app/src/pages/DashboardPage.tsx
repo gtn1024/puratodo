@@ -16,6 +16,7 @@ import {
   Users,
   Move,
   Calendar,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -138,6 +139,10 @@ export function DashboardPage() {
   const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
   const [showAddSubtask, setShowAddSubtask] = React.useState(false);
   const [newSubtaskName, setNewSubtaskName] = React.useState("");
+
+  // Search state
+  const [showSearch, setShowSearch] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState("");
 
   // Context menu state for groups
   const [contextMenu, setContextMenu] = React.useState<{
@@ -817,6 +822,34 @@ export function DashboardPage() {
     }
   }, [contextMenu, listContextMenu, taskContextMenu]);
 
+  // Keyboard shortcut for search (Ctrl+K / Cmd+K)
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setShowSearch(true);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Fetch all tasks when search dialog opens
+  React.useEffect(() => {
+    if (showSearch && tasks.length === 0) {
+      void fetchTasks();
+    }
+  }, [showSearch, tasks.length, fetchTasks]);
+
+  // Search tasks across all lists
+  const searchTasks = (query: string): Task[] => {
+    if (!query.trim()) return [];
+    const lowerQuery = query.toLowerCase();
+    return tasks.filter((task) =>
+      task.name.toLowerCase().includes(lowerQuery)
+    );
+  };
+
   // Handle logout
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -1227,10 +1260,20 @@ export function DashboardPage() {
       {/* Main content */}
       <main className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="h-16 border-b border-zinc-200 dark:border-zinc-700 flex items-center px-6">
+        <header className="h-16 border-b border-zinc-200 dark:border-zinc-700 flex items-center justify-between px-6">
           <h1 className="text-xl font-semibold text-zinc-900 dark:text-white">
             {selectedList ? selectedList.name : "Today"}
           </h1>
+          <button
+            onClick={() => setShowSearch(true)}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+          >
+            <Search className="w-4 h-4" />
+            <span>Search</span>
+            <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-xs bg-zinc-200 dark:bg-zinc-700 rounded">
+              ⌘K
+            </kbd>
+          </button>
         </header>
 
         {/* Content */}
@@ -1784,6 +1827,101 @@ export function DashboardPage() {
           )}
           <DialogFooter>
             <Button variant="ghost" onClick={() => setSelectedTask(null)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Search Dialog */}
+      <Dialog open={showSearch} onOpenChange={setShowSearch}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Search Tasks</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search tasks by name..."
+                className="w-full pl-10 pr-4 py-3 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                autoFocus
+              />
+            </div>
+            {/* Search Results */}
+            <div className="max-h-80 overflow-y-auto">
+              {searchQuery.trim() ? (
+                searchTasks(searchQuery).length > 0 ? (
+                  <div className="space-y-2">
+                    {searchTasks(searchQuery).map((task) => {
+                      const taskList = lists.find((l) => l.id === task.list_id);
+                      const taskGroup = taskList
+                        ? groups.find((g) => g.id === taskList.group_id)
+                        : null;
+                      return (
+                        <button
+                          key={task.id}
+                          onClick={() => {
+                            // Navigate to the task's list and close search
+                            setSelectedListId(task.list_id);
+                            setShowSearch(false);
+                            setSearchQuery("");
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors text-left"
+                        >
+                          <div
+                            className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 ${
+                              task.completed
+                                ? "border-green-500 bg-green-500 text-white"
+                                : "border-zinc-300 dark:border-zinc-600"
+                            }`}
+                          >
+                            {task.completed && <Check className="w-3 h-3" />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div
+                              className={`text-sm truncate ${
+                                task.completed
+                                  ? "line-through text-zinc-400"
+                                  : "text-zinc-900 dark:text-zinc-100"
+                              }`}
+                            >
+                              {task.name}
+                            </div>
+                            <div className="text-xs text-zinc-400 truncate">
+                              {taskGroup?.name} / {taskList?.name}
+                            </div>
+                          </div>
+                          {task.starred && (
+                            <Star
+                              className="w-4 h-4 text-yellow-500 flex-shrink-0"
+                              fill="currentColor"
+                            />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-zinc-500 dark:text-zinc-400">
+                    <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <p>No tasks found matching "{searchQuery}"</p>
+                  </div>
+                )
+              ) : (
+                <div className="text-center py-8 text-zinc-500 dark:text-zinc-400">
+                  <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <p>Type to search tasks</p>
+                  <p className="text-xs mt-1">Search across all lists</p>
+                </div>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setShowSearch(false)}>
               Close
             </Button>
           </DialogFooter>

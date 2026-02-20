@@ -52,3 +52,6 @@ next-env.d.ts
 .playwright-mcp/
 
 .claude/
+
+supabase/.branches/
+supabase/.temp/
