@@ -1,0 +1,380 @@
+{
+  "project": "PuraToDo Web Integration Tests",
+  "description": "Playwright E2E integration tests for PuraToDo web application",
+  "testFramework": "Playwright",
+  "testCategories": [
+    {
+      "category": "Authentication",
+      "description": "User authentication flows",
+      "tests": [
+        {
+          "id": "auth-1",
+          "name": "Login page loads correctly",
+          "route": "/login",
+          "steps": [
+            "Navigate to /login",
+            "Verify email input exists",
+            "Verify password input exists",
+            "Verify Sign in button exists",
+            "Verify link to register page works"
+          ]
+        },
+        {
+          "id": "auth-2",
+          "name": "User can login with valid credentials",
+          "route": "/login",
+          "steps": [
+            "Navigate to /login",
+            "Enter test user email and password",
+            "Click Sign in button",
+            "Verify redirect to /dashboard",
+            "Verify user session is established"
+          ]
+        },
+        {
+          "id": "auth-3",
+          "name": "User can register a new account",
+          "route": "/register",
+          "steps": [
+            "Navigate to /register",
+            "Fill email, password fields",
+            "Submit registration form",
+            "Verify success message or email confirmation"
+          ]
+        },
+        {
+          "id": "auth-4",
+          "name": "User can logout",
+          "steps": [
+            "Login as test user",
+            "Click logout button",
+            "Verify user is signed out",
+            "Verify redirect to /login"
+          ]
+        },
+        {
+          "id": "auth-5",
+          "name": "Unauthenticated users are redirected to login",
+          "steps": [
+            "Navigate to /dashboard without login",
+            "Verify redirect to /login occurs"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Group Module",
+      "description": "Group CRUD operations",
+      "tests": [
+        {
+          "id": "group-1",
+          "name": "Display groups in sidebar",
+          "steps": [
+            "Login as test user",
+            "Navigate to /dashboard",
+            "Verify groups list appears in sidebar",
+            "Verify group shows name and color"
+          ]
+        },
+        {
+          "id": "group-2",
+          "name": "Create new group",
+          "steps": [
+            "Click Add Group button",
+            "Enter group name",
+            "Select group color",
+            "Click Create button",
+            "Verify new group appears in sidebar"
+          ]
+        },
+        {
+          "id": "group-3",
+          "name": "Edit group name and color",
+          "steps": [
+            "Click on group menu",
+            "Select Edit option",
+            "Modify group name and/or color",
+            "Click Save button",
+            "Verify changes reflect in sidebar"
+          ]
+        },
+        {
+          "id": "group-4",
+          "name": "Delete group with confirmation",
+          "steps": [
+            "Click on group menu",
+            "Select Delete option",
+            "Confirm deletion",
+            "Verify group is removed from sidebar"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "List Module",
+      "description": "List CRUD operations",
+      "tests": [
+        {
+          "id": "list-1",
+          "name": "Display lists under selected group",
+          "steps": [
+            "Select a group",
+            "Verify lists appear in main area",
+            "Verify list shows name and icon"
+          ]
+        },
+        {
+          "id": "list-2",
+          "name": "Create new list",
+          "steps": [
+            "Select a group",
+            "Click Add List button",
+            "Enter list name",
+            "Select icon",
+            "Click Create button",
+            "Verify new list appears"
+          ]
+        },
+        {
+          "id": "list-3",
+          "name": "Edit list name and icon",
+          "steps": [
+            "Click on list menu",
+            "Select Edit option",
+            "Modify list name",
+            "Click Save button",
+            "Verify changes reflect"
+          ]
+        },
+        {
+          "id": "list-4",
+          "name": "Delete list",
+          "steps": [
+            "Click on list menu",
+            "Select Delete option",
+            "Confirm deletion",
+            "Verify list is removed"
+          ]
+        },
+        {
+          "id": "list-5",
+          "name": "Move list to another group",
+          "steps": [
+            "Click on list menu",
+            "Select Move option",
+            "Choose target group",
+            "Verify list moves to new group"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Task Module",
+      "description": "Task CRUD operations",
+      "tests": [
+        {
+          "id": "task-1",
+          "name": "Display tasks under selected list",
+          "steps": [
+            "Select a list",
+            "Verify tasks appear in main area",
+            "Verify tasks show name and completion status"
+          ]
+        },
+        {
+          "id": "task-2",
+          "name": "Create new task",
+          "steps": [
+            "Select a list",
+            "Click Add Task button",
+            "Enter task name",
+            "Click Create",
+            "Verify new task appears"
+          ]
+        },
+        {
+          "id": "task-3",
+          "name": "Mark task as complete/incomplete",
+          "steps": [
+            "Click checkbox on task",
+            "Verify task shows completed state",
+            "Click again to toggle",
+            "Verify status changes correctly"
+          ]
+        },
+        {
+          "id": "task-4",
+          "name": "Edit task name",
+          "steps": [
+            "Click on task name to edit",
+            "Modify task name",
+            "Save changes",
+            "Verify new name displays"
+          ]
+        },
+        {
+          "id": "task-5",
+          "name": "Delete task",
+          "steps": [
+            "Click on task menu",
+            "Select Delete option",
+            "Verify task is removed"
+          ]
+        },
+        {
+          "id": "task-6",
+          "name": "Star/unstar a task",
+          "steps": [
+            "Click star icon on task",
+            "Verify task shows starred state",
+            "Click again to unstar",
+            "Verify star status toggles"
+          ]
+        },
+        {
+          "id": "task-7",
+          "name": "Task detail panel opens",
+          "steps": [
+            "Click on task to open detail panel",
+            "Verify panel shows with task details",
+            "Verify editable fields are available"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Subtasks",
+      "description": "Infinite nested subtasks",
+      "tests": [
+        {
+          "id": "subtask-1",
+          "name": "Create subtask under a task",
+          "steps": [
+            "Select a task",
+            "Click Add Subtask option",
+            "Enter subtask name",
+            "Verify subtask appears under parent"
+          ]
+        },
+        {
+          "id": "subtask-2",
+          "name": "Support unlimited nesting levels",
+          "steps": [
+            "Create a subtask under a subtask",
+            "Create another level deeper",
+            "Verify all levels display correctly",
+            "Test at least 3+ levels of nesting"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Smart Views",
+      "description": "Smart views like Today, Starred",
+      "tests": [
+        {
+          "id": "smart-1",
+          "name": "Today view shows tasks with today's plan_date",
+          "steps": [
+            "Navigate to Today view",
+            "Verify only tasks with today's plan_date show"
+          ]
+        },
+        {
+          "id": "smart-2",
+          "name": "Starred view shows starred tasks",
+          "steps": [
+            "Navigate to Starred view",
+            "Verify only starred tasks appear"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "UI/UX",
+      "description": "UI/UX features",
+      "tests": [
+        {
+          "id": "ui-1",
+          "name": "Theme toggle works",
+          "steps": [
+            "Click theme toggle button",
+            "Verify theme switches",
+            "Refresh page and verify theme persists"
+          ]
+        },
+        {
+          "id": "ui-2",
+          "name": "Empty states display correctly",
+          "steps": [
+            "Create a new group with no lists",
+            "Verify friendly empty message shows",
+            "Create a new list with no tasks",
+            "Verify empty state shows"
+          ]
+        },
+        {
+          "id": "ui-3",
+          "name": "Loading states display",
+          "steps": [
+            "Navigate to a page with data",
+            "Verify skeleton loaders appear while loading"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Search",
+      "description": "Global search functionality",
+      "tests": [
+        {
+          "id": "search-1",
+          "name": "Global search returns results",
+          "steps": [
+            "Click search icon",
+            "Type search query",
+            "Verify search results appear"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "API",
+      "description": "REST API endpoints",
+      "tests": [
+        {
+          "id": "api-1",
+          "name": "API returns 401 without token",
+          "steps": [
+            "Send request to /api/v1/groups without token",
+            "Verify 401 response"
+          ]
+        },
+        {
+          "id": "api-2",
+          "name": "API accepts valid token",
+          "steps": [
+            "Send request to /api/v1/groups with valid token",
+            "Verify 200 response with data"
+          ]
+        },
+        {
+          "id": "api-3",
+          "name": "Auth login endpoint works",
+          "steps": [
+            "POST to /api/v1/auth/login with credentials",
+            "Verify returns access_token"
+          ]
+        },
+        {
+          "id": "api-4",
+          "name": "Auth register endpoint works",
+          "steps": [
+            "POST to /api/v1/auth/register with new email",
+            "Verify user created"
+          ]
+        }
+      ]
+    }
+  ]
+}
