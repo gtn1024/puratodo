@@ -79,7 +79,7 @@
 
 /* Base styles */
 * {
-  border-color: theme(colors.zinc.200);
+  border-color: theme(colors.stone.200);
 }
 
 html {
@@ -89,14 +89,14 @@ html {
 }
 
 body {
-  background-color: white;
-  color: theme(colors.zinc.900);
+  background-color: theme(colors.stone.50);
+  color: theme(colors.stone.900);
 }
 
 /* Dark mode base */
 .dark body {
-  background-color: theme(colors.zinc.900);
-  color: theme(colors.zinc.100);
+  background-color: theme(colors.stone.950);
+  color: theme(colors.stone.100);
 }
 
 /* Smooth scrolling */
@@ -115,35 +115,68 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: theme(colors.zinc.300);
+  background: theme(colors.stone.300);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: theme(colors.zinc.400);
+  background: theme(colors.stone.400);
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: theme(colors.zinc.700);
+  background: theme(colors.stone.700);
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: theme(colors.zinc.600);
+  background: theme(colors.stone.600);
 }
 
 /* Focus visible styles */
 *:focus-visible {
-  outline: 2px solid theme(colors.violet.500);
+  outline: 2px solid theme(colors.stone.500);
   outline-offset: 2px;
 }
 
 /* Selection styles */
 ::selection {
-  background-color: theme(colors.violet.200);
-  color: theme(colors.violet.900);
+  background-color: theme(colors.stone.200);
+  color: theme(colors.stone.700);
 }
 
 .dark ::selection {
-  background-color: theme(colors.violet.800);
-  color: theme(colors.violet.100);
+  background-color: theme(colors.stone.700);
+  color: theme(colors.stone.100);
+}
+
+/* Card animations */
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  33% {
+    transform: translate(30px, -30px) rotate(5deg);
+  }
+  66% {
+    transform: translate(-20px, 20px) rotate(-5deg);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

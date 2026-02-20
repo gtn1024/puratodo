@@ -286,12 +286,12 @@ export function AccountSettingsDialog({
                       </div>
                     ) : (
                       <div className="flex items-center justify-between mt-1">
-                        <span className="text-xs text-zinc-700 dark:text-zinc-300 truncate">
+                        <span className="text-xs text-stone-700 dark:text-stone-300 truncate">
                           {account.serverUrl || DEFAULT_API_URL}
                         </span>
                         <button
                           onClick={() => startEditServerUrl(account)}
-                          className="text-xs text-violet-600 hover:text-violet-700 dark:text-violet-400"
+                          className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400"
                         >
                           Edit
                         </button>

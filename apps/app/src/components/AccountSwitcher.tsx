@@ -97,19 +97,19 @@ export function AccountSwitcher({
       {/* Current account button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors"
       >
         {/* Avatar */}
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white text-sm font-medium">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-stone-700 to-stone-500 flex items-center justify-center text-white dark:text-stone-100 text-sm font-medium">
           {user.email?.[0]?.toUpperCase() || "U"}
         </div>
 
         {/* Email and server */}
         <div className="hidden sm:block text-left">
-          <div className="text-sm font-medium text-zinc-900 dark:text-white truncate max-w-32">
+          <div className="text-sm font-medium text-stone-900 dark:text-stone-100 truncate max-w-32">
             {user.email}
           </div>
-          <div className="text-xs text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
+          <div className="text-xs text-stone-500 dark:text-stone-400 flex items-center gap-1">
             <Server className="w-3 h-3" />
             <span>{getServerShortName(currentServerUrl)}</span>
           </div>
@@ -117,7 +117,7 @@ export function AccountSwitcher({
 
         {/* Chevron */}
         <ChevronDown
-          className={`w-4 h-4 text-zinc-400 transition-transform ${
+          className={`w-4 h-4 text-stone-400 transition-transform ${
             isOpen ? "rotate-180" : ""
           }`}
         />
@@ -125,10 +125,10 @@ export function AccountSwitcher({
 
       {/* Dropdown menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-lg py-1 z-50">
+        <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl shadow-lg py-1 z-50">
           {/* Account list */}
           <div className="px-2 py-1">
-            <div className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider px-2 py-1">
+            <div className="text-xs font-medium text-stone-400 dark:text-stone-500 uppercase tracking-wider px-2 py-1">
               Accounts
             </div>
             {sortedAccounts.map((account) => {
@@ -141,22 +141,22 @@ export function AccountSwitcher({
                   onClick={() => !isActive && handleSwitchAccount(account.id)}
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                     isActive
-                      ? "bg-violet-50 dark:bg-violet-900/20"
-                      : "hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                      ? "bg-stone-100 dark:bg-stone-700"
+                      : "hover:bg-stone-100 dark:hover:bg-stone-700"
                   }`}
                   disabled={isActive}
                 >
                   {/* Avatar */}
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-stone-700 to-stone-500 flex items-center justify-center text-white dark:text-stone-100 text-sm font-medium flex-shrink-0">
                     {account.user.email?.[0]?.toUpperCase() || "U"}
                   </div>
 
                   {/* Email and server */}
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-zinc-900 dark:text-white truncate">
+                    <div className="text-sm font-medium text-stone-900 dark:text-stone-100 truncate">
                       {account.user.email}
                     </div>
-                    <div className="text-xs text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
+                    <div className="text-xs text-stone-500 dark:text-stone-400 flex items-center gap-1">
                       <Server className="w-3 h-3" />
                       <span>{serverShortName}</span>
                     </div>
@@ -164,7 +164,7 @@ export function AccountSwitcher({
 
                   {/* Active indicator */}
                   {isActive && (
-                    <Check className="w-4 h-4 text-violet-500 flex-shrink-0" />
+                    <Check className="w-4 h-4 text-stone-600 dark:text-stone-300 flex-shrink-0" />
                   )}
                 </button>
               );
@@ -172,12 +172,12 @@ export function AccountSwitcher({
           </div>
 
           {/* Divider */}
-          <div className="h-px bg-zinc-200 dark:bg-zinc-700 my-1" />
+          <div className="h-px bg-stone-200 dark:bg-stone-700 my-1" />
 
           {/* Add new account */}
           <button
             onClick={handleAddAccount}
-            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors"
           >
             <UserPlus className="w-4 h-4" />
             <span>Add new account</span>
@@ -187,7 +187,7 @@ export function AccountSwitcher({
           <AccountSettingsDialog
             onAccountChanged={onAccountChanged}
             trigger={
-              <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+              <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors">
                 <Users className="w-4 h-4" />
                 <span>Manage accounts</span>
               </button>
@@ -195,7 +195,7 @@ export function AccountSwitcher({
           />
 
           {/* Divider */}
-          <div className="h-px bg-zinc-200 dark:bg-zinc-700 my-1" />
+          <div className="h-px bg-stone-200 dark:bg-stone-700 my-1" />
 
           {/* Sign out */}
           <button

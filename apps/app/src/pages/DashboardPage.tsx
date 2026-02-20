@@ -328,11 +328,11 @@ export function DashboardPage() {
             setDraggingSubtaskParentId(null);
             setDragSourceInfo(null);
           }}
-          className={`flex items-center gap-3 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 ${
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 ${
             draggingTaskId === task.id ? "opacity-60" : ""
           } ${
             dropTargetTaskId === task.id && draggingTaskId !== task.id
-              ? "ring-2 ring-violet-300 dark:ring-violet-700"
+              ? "ring-2 ring-stone-300 dark:ring-stone-700"
               : ""
           }`}
           style={{ marginLeft: indentPadding }}
@@ -350,7 +350,7 @@ export function DashboardPage() {
           {hasSubtasks ? (
             <button
               onClick={() => toggleTaskExpand(task.id)}
-              className="p-0.5 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-400"
+              className="p-0.5 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
             >
               {isExpanded ? (
                 <ChevronDown className="w-4 h-4" />
@@ -366,15 +366,15 @@ export function DashboardPage() {
               task.completed
                 ? "border-green-500 bg-green-500 text-white"
                 : hasIncompleteSubtasks
-                ? "border-violet-400 bg-violet-100 dark:bg-violet-900"
-                : "border-zinc-300 dark:border-zinc-600"
+                ? "border-stone-400 bg-stone-100 dark:bg-stone-700"
+                : "border-stone-300 dark:border-stone-600"
             }`}
             onClick={() => toggleTaskComplete(task.id, task.completed)}
           >
             {task.completed ? (
               <Check className="w-3 h-3" />
             ) : hasIncompleteSubtasks ? (
-              <div className="w-2 h-2 rounded-full bg-violet-500" />
+              <div className="w-2 h-2 rounded-full bg-stone-500" />
             ) : null}
           </div>
           {editingTaskId === task.id ? (
@@ -383,7 +383,7 @@ export function DashboardPage() {
                 type="text"
                 value={editingTaskName}
                 onChange={(e) => setEditingTaskName(e.target.value)}
-                className="flex-1 bg-transparent border border-zinc-300 dark:border-zinc-600 rounded px-2 py-1 text-sm text-zinc-800 dark:text-zinc-100 outline-none focus:border-violet-500"
+                className="flex-1 bg-transparent border border-stone-300 dark:border-stone-600 rounded px-2 py-1 text-sm text-stone-800 dark:text-stone-100 outline-none focus:border-stone-400"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === "Enter") saveEditTask();
@@ -393,24 +393,24 @@ export function DashboardPage() {
               />
               <button
                 onClick={saveEditTask}
-                className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700"
               >
                 <Check className="w-4 h-4 text-green-500" />
               </button>
               <button
                 onClick={cancelEditTask}
-                className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700"
               >
-                <X className="w-4 h-4 text-zinc-500" />
+                <X className="w-4 h-4 text-stone-500" />
               </button>
             </div>
           ) : (
             <>
               <span
-                className={`flex-1 text-sm cursor-pointer hover:text-violet-600 ${
+                className={`flex-1 text-sm cursor-pointer hover:text-stone-600 dark:hover:text-stone-300 ${
                   task.completed
-                    ? "line-through text-zinc-400 dark:text-zinc-500"
-                    : "text-zinc-800 dark:text-zinc-100"
+                    ? "line-through text-stone-400 dark:text-stone-500"
+                    : "text-stone-800 dark:text-stone-100"
                 }`}
                 onClick={() => startEditTask(task.id, task.name)}
               >
@@ -418,15 +418,15 @@ export function DashboardPage() {
               </span>
               <button
                 onClick={() => toggleTaskStar(task.id, task.starred)}
-                className={`p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700 ${
-                  task.starred ? "text-yellow-500" : "text-zinc-300 dark:text-zinc-600"
+                className={`p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 ${
+                  task.starred ? "text-yellow-500" : "text-stone-300 dark:text-stone-600"
                 }`}
               >
                 <Star className="w-4 h-4" fill={task.starred ? "currentColor" : "none"} />
               </button>
               <button
                 onClick={() => setSelectedTask(task)}
-                className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-400"
+                className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
                 title="Task details"
               >
                 <Calendar className="w-4 h-4" />
@@ -976,14 +976,14 @@ export function DashboardPage() {
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-zinc-50 dark:bg-zinc-800 border-r border-zinc-200 dark:border-zinc-700 flex flex-col">
+      <aside className="w-64 bg-stone-50 dark:bg-stone-900 border-r border-stone-200 dark:border-stone-700 flex flex-col">
         {/* Logo */}
-        <div className="p-4 border-b border-zinc-200 dark:border-zinc-700">
+        <div className="p-4 border-b border-stone-200 dark:border-stone-700">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-stone-800 to-stone-600 dark:from-stone-100 dark:to-stone-300 flex items-center justify-center">
+              <CheckCircle2 className="w-4 h-4 text-white dark:text-stone-900" />
             </div>
-            <span className="text-lg font-semibold text-zinc-900 dark:text-white">PuraToDo</span>
+            <span className="text-lg font-semibold text-stone-900 dark:text-stone-100">PuraToDo</span>
           </div>
         </div>
 
@@ -997,7 +997,7 @@ export function DashboardPage() {
               }
               setShowNewTaskInput(true);
             }}
-            className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-medium hover:from-violet-500 hover:to-indigo-500 transition-all"
+            className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg bg-stone-900 dark:bg-stone-700 text-white dark:text-stone-100 text-sm font-medium hover:bg-stone-800 dark:hover:bg-stone-600 transition-all shadow-lg shadow-stone-900/20 dark:shadow-stone-900/40"
           >
             <Plus className="w-4 h-4" />
             <span>Add Task</span>
@@ -1014,8 +1014,8 @@ export function DashboardPage() {
               }}
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                 currentView === 'today'
-                  ? "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300"
-                  : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                  ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
+                  : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
               }`}
             >
               <CheckCircle2 className="w-5 h-5" />
@@ -1028,8 +1028,8 @@ export function DashboardPage() {
               }}
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                 currentView === 'starred'
-                  ? "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300"
-                  : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                  ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
+                  : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
               }`}
             >
               <Star className="w-5 h-5" />
@@ -1040,12 +1040,12 @@ export function DashboardPage() {
           {/* Groups section */}
           <div className="mt-6">
             <div className="flex items-center justify-between px-3 mb-2">
-              <h3 className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+              <h3 className="text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
                 Groups
               </h3>
               <button
                 onClick={() => setShowNewGroupInput(true)}
-                className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+                className="p-1 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
               >
                 <Plus className="w-4 h-4" />
               </button>
@@ -1053,13 +1053,13 @@ export function DashboardPage() {
 
             {/* New group input */}
             {showNewGroupInput && (
-              <div className="px-3 py-2 mb-2 bg-white dark:bg-zinc-700 rounded-lg border border-zinc-200 dark:border-zinc-600">
+              <div className="px-3 py-2 mb-2 bg-white dark:bg-stone-800 rounded-lg border border-stone-200 dark:border-stone-600">
                 <input
                   type="text"
                   value={newGroupName}
                   onChange={(e) => setNewGroupName(e.target.value)}
                   placeholder="Group name"
-                  className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-zinc-900 dark:text-white placeholder-zinc-400"
+                  className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-stone-900 dark:text-stone-100 placeholder-stone-400"
                   autoFocus
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleCreateGroup();
@@ -1087,14 +1087,14 @@ export function DashboardPage() {
                       setShowNewGroupInput(false);
                       setNewGroupName("");
                     }}
-                    className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-600 text-zinc-400"
+                    className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
                   >
                     <X className="w-4 h-4" />
                   </button>
                   <button
                     onClick={handleCreateGroup}
                     disabled={isCreatingGroup || !newGroupName.trim()}
-                    className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-600 text-green-500 disabled:opacity-50"
+                    className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-green-500 disabled:opacity-50"
                   >
                     <Check className="w-4 h-4" />
                   </button>
@@ -1104,7 +1104,7 @@ export function DashboardPage() {
 
             {/* Loading state */}
             {isLoading && groups.length === 0 && (
-              <div className="px-3 py-4 text-sm text-zinc-400 dark:text-zinc-500">Loading...</div>
+              <div className="px-3 py-4 text-sm text-stone-400 dark:text-stone-500">Loading...</div>
             )}
 
             {/* Error state */}
@@ -1154,11 +1154,11 @@ export function DashboardPage() {
                       }}
                       onClick={() => toggleGroup(group.id)}
                       onContextMenu={(e) => handleContextMenu(e, group)}
-                      className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors group ${
+                      className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors group ${
                         draggingGroupId === group.id ? "opacity-60" : ""
                       } ${
                         dropTargetGroupId === group.id && draggingGroupId !== group.id
-                          ? "ring-2 ring-violet-300 dark:ring-violet-700"
+                          ? "ring-2 ring-stone-300 dark:ring-stone-700"
                           : ""
                       }`}
                     >
@@ -1169,7 +1169,7 @@ export function DashboardPage() {
                       <span className="flex-1 text-left truncate">{group.name}</span>
                       <button
                         onClick={(e) => handleDeleteGroup(group.id, e)}
-                        className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-zinc-300 dark:hover:bg-zinc-600 text-zinc-400 hover:text-red-500"
+                        className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-stone-300 dark:hover:bg-stone-600 text-stone-400 hover:text-red-500"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -1242,7 +1242,7 @@ export function DashboardPage() {
                               draggingListId === list.id ? "opacity-60" : ""
                             } ${
                               dropTargetListId === list.id && draggingListId !== list.id
-                                ? "ring-2 ring-violet-300 dark:ring-violet-700"
+                                ? "ring-2 ring-stone-300 dark:ring-stone-700"
                                 : ""
                             } ${
                               dropTargetListForTask === list.id && draggingTaskId
@@ -1250,8 +1250,8 @@ export function DashboardPage() {
                                 : ""
                             } ${
                               selectedListId === list.id
-                                ? "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300"
-                                : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                                ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
+                                : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
                             }`}
                           >
                             <List className="w-4 h-4" />
@@ -1261,13 +1261,13 @@ export function DashboardPage() {
 
                         {/* New list input */}
                         {showNewListInput === group.id ? (
-                          <div className="px-3 py-2 bg-white dark:bg-zinc-700 rounded-lg border border-zinc-200 dark:border-zinc-600">
+                          <div className="px-3 py-2 bg-white dark:bg-stone-800 rounded-lg border border-stone-200 dark:border-stone-600">
                             <input
                               type="text"
                               value={newListName}
                               onChange={(e) => setNewListName(e.target.value)}
                               placeholder="List name"
-                              className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-zinc-900 dark:text-white placeholder-zinc-400"
+                              className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-stone-900 dark:text-stone-100 placeholder-stone-400"
                               autoFocus
                               onKeyDown={(e) => {
                                 if (e.key === "Enter") handleCreateList(group.id);
@@ -1283,14 +1283,14 @@ export function DashboardPage() {
                                   setShowNewListInput(null);
                                   setNewListName("");
                                 }}
-                                className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-600 text-zinc-400"
+                                className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
                               >
                                 <X className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => handleCreateList(group.id)}
                                 disabled={isCreatingList || !newListName.trim()}
-                                className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-600 text-green-500 disabled:opacity-50"
+                                className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-green-500 disabled:opacity-50"
                               >
                                 <Check className="w-4 h-4" />
                               </button>
@@ -1299,7 +1299,7 @@ export function DashboardPage() {
                         ) : (
                           <button
                             onClick={() => setShowNewListInput(group.id)}
-                            className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-zinc-400 dark:text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+                            className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-stone-400 dark:text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
                           >
                             <Plus className="w-4 h-4" />
                             <span>Add list</span>
@@ -1313,7 +1313,7 @@ export function DashboardPage() {
 
               {/* Empty state */}
               {!isLoading && groups.length === 0 && !showNewGroupInput && (
-                <div className="px-3 py-4 text-sm text-zinc-400 dark:text-zinc-500">
+                <div className="px-3 py-4 text-sm text-stone-400 dark:text-stone-500">
                   No groups yet. Click + to create one.
                 </div>
               )}
@@ -1322,14 +1322,14 @@ export function DashboardPage() {
         </nav>
 
         {/* User section */}
-        <div className="p-4 border-t border-zinc-200 dark:border-zinc-700">
+        <div className="p-4 border-t border-stone-200 dark:border-stone-700">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white text-sm font-medium">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-stone-700 to-stone-500 flex items-center justify-center text-white dark:text-stone-100 text-sm font-medium">
                 {user?.email?.[0]?.toUpperCase() || "U"}
               </div>
               <div className="text-sm">
-                <p className="font-medium text-zinc-900 dark:text-white truncate max-w-24">
+                <p className="font-medium text-stone-900 dark:text-stone-100 truncate max-w-24">
                   {user?.name || user?.email?.split("@")[0] || "User"}
                 </p>
               </div>
@@ -1341,7 +1341,7 @@ export function DashboardPage() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+                    className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
                     title="Account Settings"
                   >
                     <Users className="w-4 h-4" />
@@ -1352,7 +1352,7 @@ export function DashboardPage() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
                 title={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
               >
                 {resolvedTheme === "dark" ? (
@@ -1366,7 +1366,7 @@ export function DashboardPage() {
                 size="icon"
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
               >
                 <LogOut className="w-4 h-4" />
               </Button>
@@ -1378,19 +1378,19 @@ export function DashboardPage() {
       {/* Main content */}
       <main className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="h-16 border-b border-zinc-200 dark:border-zinc-700 flex items-center justify-between px-6">
-          <h1 className="text-xl font-semibold text-zinc-900 dark:text-white">
+        <header className="h-16 border-b border-stone-200 dark:border-stone-700 flex items-center justify-between px-6">
+          <h1 className="text-xl font-semibold text-stone-900 dark:text-stone-100">
             {getHeaderTitle()}
           </h1>
           <div className="flex items-center gap-4">
             <AccountSwitcher onAccountChanged={handleAccountChanged} />
             <button
               onClick={() => setShowSearch(true)}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+              className="flex items-center gap-2 px-3 py-1.5 text-sm text-stone-500 dark:text-stone-400 bg-stone-100 dark:bg-stone-800 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
             >
               <Search className="w-4 h-4" />
               <span>Search</span>
-              <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-xs bg-zinc-200 dark:bg-zinc-700 rounded">
+              <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-xs bg-stone-200 dark:bg-stone-700 rounded">
                 ⌘K
               </kbd>
             </button>
@@ -1404,14 +1404,14 @@ export function DashboardPage() {
             {selectedList && (
               <div className="mb-4">
                 {showNewTaskInput ? (
-                  <div className="flex items-center gap-2 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
-                    <div className="w-5 h-5 rounded-full border border-zinc-300 dark:border-zinc-600" />
+                  <div className="flex items-center gap-2 px-4 py-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800">
+                    <div className="w-5 h-5 rounded-full border border-stone-300 dark:border-stone-600" />
                     <input
                       type="text"
                       value={newTaskName}
                       onChange={(e) => setNewTaskName(e.target.value)}
                       placeholder="Enter task name..."
-                      className="flex-1 bg-transparent border-none outline-none text-zinc-800 dark:text-zinc-100 placeholder-zinc-400"
+                      className="flex-1 bg-transparent border-none outline-none text-stone-800 dark:text-stone-100 placeholder-stone-400"
                       autoFocus
                       onKeyDown={(e) => {
                         if (e.key === "Enter") handleCreateTask();
@@ -1425,7 +1425,7 @@ export function DashboardPage() {
                     <button
                       onClick={handleCreateTask}
                       disabled={isCreatingTask || !newTaskName.trim()}
-                      className="p-1.5 rounded-lg bg-violet-600 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-violet-500"
+                      className="p-1.5 rounded-lg bg-stone-900 dark:bg-stone-700 text-white dark:text-stone-100 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-800 dark:hover:bg-stone-600"
                     >
                       <Check className="w-4 h-4" />
                     </button>
@@ -1434,15 +1434,15 @@ export function DashboardPage() {
                         setShowNewTaskInput(false);
                         setNewTaskName("");
                       }}
-                      className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                      className="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-700"
                     >
-                      <X className="w-4 h-4 text-zinc-500" />
+                      <X className="w-4 h-4 text-stone-500" />
                     </button>
                   </div>
                 ) : (
                   <button
                     onClick={() => setShowNewTaskInput(true)}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-600 text-zinc-400 hover:border-violet-300 hover:text-violet-500 transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-stone-300 dark:border-stone-600 text-stone-400 hover:border-stone-400 hover:text-stone-600 dark:hover:border-stone-500 dark:hover:text-stone-300 transition-colors"
                   >
                     <Plus className="w-5 h-5" />
                     <span>Add a task</span>
@@ -1466,10 +1466,10 @@ export function DashboardPage() {
               // Empty state based on view
               return (
                 <div className="text-center py-16">
-                  <div className="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle2 className="w-8 h-8 text-zinc-400 dark:text-zinc-500" />
+                  <div className="w-16 h-16 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle2 className="w-8 h-8 text-stone-400 dark:text-stone-500" />
                   </div>
-                  <h2 className="text-lg font-medium text-zinc-900 dark:text-white mb-2">
+                  <h2 className="text-lg font-medium text-stone-900 dark:text-stone-100 mb-2">
                     {isLoadingTasks
                       ? "Loading tasks..."
                       : currentView === 'today'
@@ -1480,7 +1480,7 @@ export function DashboardPage() {
                       ? `No tasks in "${selectedList.name}"`
                       : "No tasks yet"}
                   </h2>
-                  <p className="text-zinc-500 dark:text-zinc-400 mb-6">
+                  <p className="text-stone-500 dark:text-stone-400 mb-6">
                     {currentView === 'today'
                       ? "Tasks with due date or planned date of today will appear here"
                       : currentView === 'starred'
@@ -1506,20 +1506,20 @@ export function DashboardPage() {
       {/* Context Menu for Groups */}
       {contextMenu && (
         <div
-          className="fixed z-50 min-w-32 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-lg shadow-lg py-1"
+          className="fixed z-50 min-w-32 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-lg shadow-lg py-1"
           style={{ left: contextMenu.x, top: contextMenu.y }}
           onClick={(e) => e.stopPropagation()}
         >
           <button
             onClick={() => openEditDialog(contextMenu.group)}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-600"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Pencil className="w-4 h-4" />
             <span>Edit</span>
           </button>
           <button
             onClick={() => handleDeleteGroup(contextMenu.group.id)}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-zinc-100 dark:hover:bg-zinc-600"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Trash2 className="w-4 h-4" />
             <span>Delete</span>
@@ -1530,27 +1530,27 @@ export function DashboardPage() {
       {/* Context Menu for Lists */}
       {listContextMenu && (
         <div
-          className="fixed z-50 min-w-32 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-lg shadow-lg py-1"
+          className="fixed z-50 min-w-32 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-lg shadow-lg py-1"
           style={{ left: listContextMenu.x, top: listContextMenu.y }}
           onClick={(e) => e.stopPropagation()}
         >
           <button
             onClick={() => openEditListDialog(listContextMenu.list)}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-600"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Pencil className="w-4 h-4" />
             <span>Edit</span>
           </button>
           <button
             onClick={() => openMoveListDialog(listContextMenu.list)}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-600"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Move className="w-4 h-4" />
             <span>Move</span>
           </button>
           <button
             onClick={() => handleDeleteList(listContextMenu.list.id)}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-zinc-100 dark:hover:bg-zinc-600"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Trash2 className="w-4 h-4" />
             <span>Delete</span>
@@ -1561,7 +1561,7 @@ export function DashboardPage() {
       {/* Context Menu for Tasks */}
       {taskContextMenu && (
         <div
-          className="fixed z-50 min-w-32 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-lg shadow-lg py-1"
+          className="fixed z-50 min-w-32 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-lg shadow-lg py-1"
           style={{ left: taskContextMenu.x, top: taskContextMenu.y }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -1570,14 +1570,14 @@ export function DashboardPage() {
               startEditTask(taskContextMenu.taskId, taskContextMenu.taskName);
               setTaskContextMenu(null);
             }}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-600"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Pencil className="w-4 h-4" />
             <span>Edit</span>
           </button>
           <button
             onClick={() => handleDeleteTask(taskContextMenu.taskId)}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-zinc-100 dark:hover:bg-zinc-600"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Trash2 className="w-4 h-4" />
             <span>Delete</span>
@@ -1593,7 +1593,7 @@ export function DashboardPage() {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
                 Group Name
               </label>
               <input
@@ -1601,7 +1601,7 @@ export function DashboardPage() {
                 value={editGroupName}
                 onChange={(e) => setEditGroupName(e.target.value)}
                 placeholder="Enter group name"
-                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleUpdateGroup();
@@ -1609,7 +1609,7 @@ export function DashboardPage() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
                 Color
               </label>
               <div className="flex items-center gap-2">
@@ -1618,7 +1618,7 @@ export function DashboardPage() {
                     key={color.value}
                     onClick={() => setEditGroupColor(color.value)}
                     className={`w-6 h-6 rounded-full transition-transform ${
-                      editGroupColor === color.value ? "ring-2 ring-offset-2 ring-violet-500 scale-110" : ""
+                      editGroupColor === color.value ? "ring-2 ring-offset-2 ring-stone-500 scale-110" : ""
                     }`}
                     style={{ backgroundColor: color.value }}
                   />
@@ -1651,7 +1651,7 @@ export function DashboardPage() {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
                 List Name
               </label>
               <input
@@ -1659,7 +1659,7 @@ export function DashboardPage() {
                 value={editListName}
                 onChange={(e) => setEditListName(e.target.value)}
                 placeholder="Enter list name"
-                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleUpdateList();
@@ -1691,17 +1691,17 @@ export function DashboardPage() {
             <DialogTitle>Move List</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="text-sm text-stone-600 dark:text-stone-400">
               Move <strong>{movingList?.name}</strong> to a different group:
             </p>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
                 Target Group
               </label>
               <select
                 value={targetGroupId}
                 onChange={(e) => setTargetGroupId(e.target.value)}
-                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-stone-400"
               >
                 {groups.map((group) => (
                   <option key={group.id} value={group.id}>
@@ -1738,22 +1738,22 @@ export function DashboardPage() {
             <div className="space-y-4">
               {/* Task Name */}
               <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">
                   Task Name
                 </label>
-                <div className="text-zinc-900 dark:text-zinc-100">{selectedTask.name}</div>
+                <div className="text-stone-900 dark:text-stone-100">{selectedTask.name}</div>
               </div>
 
               {/* Subtasks */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  <label className="block text-sm font-medium text-stone-700 dark:text-stone-300">
                     Subtasks
                   </label>
                   {!showAddSubtask && (
                     <button
                       onClick={() => setShowAddSubtask(true)}
-                      className="text-xs text-violet-600 hover:text-violet-700"
+                      className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400"
                     >
                       + Add subtask
                     </button>
@@ -1773,7 +1773,7 @@ export function DashboardPage() {
                         }
                       }}
                       placeholder="Subtask name..."
-                      className="flex-1 px-3 py-1 text-sm border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                      className="flex-1 px-3 py-1 text-sm border border-stone-300 dark:border-stone-600 rounded-md bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100"
                       autoFocus
                     />
                     <button
@@ -1787,7 +1787,7 @@ export function DashboardPage() {
                         setShowAddSubtask(false);
                         setNewSubtaskName("");
                       }}
-                      className="p-1 text-zinc-500 hover:text-zinc-600"
+                      className="p-1 text-stone-500 hover:text-stone-600"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -1800,13 +1800,13 @@ export function DashboardPage() {
                   .map((subtask) => (
                     <div
                       key={subtask.id}
-                      className="flex items-center gap-2 py-1 px-2 bg-zinc-50 dark:bg-zinc-800 rounded"
+                      className="flex items-center gap-2 py-1 px-2 bg-stone-50 dark:bg-stone-800 rounded"
                     >
                       <div
                         className={`w-4 h-4 rounded-full border flex items-center justify-center cursor-pointer ${
                           subtask.completed
                             ? "border-green-500 bg-green-500 text-white"
-                            : "border-zinc-300 dark:border-zinc-600"
+                            : "border-stone-300 dark:border-stone-600"
                         }`}
                         onClick={() => toggleTaskComplete(subtask.id, subtask.completed)}
                       >
@@ -1815,8 +1815,8 @@ export function DashboardPage() {
                       <span
                         className={`flex-1 text-sm ${
                           subtask.completed
-                            ? "line-through text-zinc-400"
-                            : "text-zinc-800 dark:text-zinc-100"
+                            ? "line-through text-stone-400"
+                            : "text-stone-800 dark:text-stone-100"
                         }`}
                       >
                         {subtask.name}
@@ -1825,13 +1825,13 @@ export function DashboardPage() {
                   ))}
                 {tasks.filter((t) => t.parent_id === selectedTask.id).length === 0 &&
                   !showAddSubtask && (
-                    <div className="text-sm text-zinc-400 italic">No subtasks yet</div>
+                    <div className="text-sm text-stone-400 italic">No subtasks yet</div>
                   )}
               </div>
 
               {/* Due Date */}
               <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">
                   Due Date
                 </label>
                 <div className="flex items-center gap-2">
@@ -1842,12 +1842,12 @@ export function DashboardPage() {
                       const newDate = e.target.value || null;
                       updateTaskDueDate(selectedTask.id, newDate);
                     }}
-                    className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                    className="flex-1 px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-md bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100"
                   />
                   {selectedTask.due_date && (
                     <button
                       onClick={() => updateTaskDueDate(selectedTask.id, null)}
-                      className="p-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                      className="p-2 text-stone-500 hover:text-stone-700 dark:hover:text-stone-300"
                       title="Clear due date"
                     >
                       <X className="w-4 h-4" />
@@ -1858,7 +1858,7 @@ export function DashboardPage() {
 
               {/* Planned Date */}
               <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">
                   Planned Date
                 </label>
                 <div className="flex items-center gap-2">
@@ -1869,12 +1869,12 @@ export function DashboardPage() {
                       const newDate = e.target.value || null;
                       updateTaskPlanDate(selectedTask.id, newDate);
                     }}
-                    className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                    className="flex-1 px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-md bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100"
                   />
                   {selectedTask.plan_date && (
                     <button
                       onClick={() => updateTaskPlanDate(selectedTask.id, null)}
-                      className="p-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                      className="p-2 text-stone-500 hover:text-stone-700 dark:hover:text-stone-300"
                       title="Clear planned date"
                     >
                       <X className="w-4 h-4" />
@@ -1892,14 +1892,14 @@ export function DashboardPage() {
                   className="w-4 h-4"
                   id="task-completed"
                 />
-                <label htmlFor="task-completed" className="text-sm text-zinc-700 dark:text-zinc-300">
+                <label htmlFor="task-completed" className="text-sm text-stone-700 dark:text-stone-300">
                   Marked as completed
                 </label>
               </div>
 
               {/* Comment/Notes */}
               <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">
                   Notes
                 </label>
                 <textarea
@@ -1915,13 +1915,13 @@ export function DashboardPage() {
                   }}
                   placeholder="Add notes..."
                   rows={3}
-                  className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 resize-none"
+                  className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-md bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 resize-none"
                 />
               </div>
 
               {/* Duration */}
               <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">
                   Duration (minutes)
                 </label>
                 <div className="flex items-center gap-2">
@@ -1940,12 +1940,12 @@ export function DashboardPage() {
                       updateTaskDuration(selectedTask.id, duration);
                     }}
                     placeholder="e.g. 30"
-                    className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                    className="flex-1 px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-md bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100"
                   />
                   {selectedTask.duration_minutes && (
                     <button
                       onClick={() => updateTaskDuration(selectedTask.id, null)}
-                      className="p-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                      className="p-2 text-stone-500 hover:text-stone-700 dark:hover:text-stone-300"
                       title="Clear duration"
                     >
                       <X className="w-4 h-4" />
@@ -1959,12 +1959,12 @@ export function DashboardPage() {
                 <button
                   onClick={() => toggleTaskStar(selectedTask.id, selectedTask.starred)}
                   className={`p-1 rounded ${
-                    selectedTask.starred ? "text-yellow-500" : "text-zinc-300 dark:text-zinc-600"
+                    selectedTask.starred ? "text-yellow-500" : "text-stone-300 dark:text-stone-600"
                   }`}
                 >
                   <Star className="w-5 h-5" fill={selectedTask.starred ? "currentColor" : "none"} />
                 </button>
-                <span className="text-sm text-zinc-700 dark:text-zinc-300">
+                <span className="text-sm text-stone-700 dark:text-stone-300">
                   {selectedTask.starred ? "Starred" : "Not starred"}
                 </span>
               </div>
@@ -1986,13 +1986,13 @@ export function DashboardPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search tasks by name..."
-                className="w-full pl-10 pr-4 py-3 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                className="w-full pl-10 pr-4 py-3 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400"
                 autoFocus
               />
             </div>
@@ -2015,13 +2015,13 @@ export function DashboardPage() {
                             setShowSearch(false);
                             setSearchQuery("");
                           }}
-                          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors text-left"
+                          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors text-left"
                         >
                           <div
                             className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 ${
                               task.completed
                                 ? "border-green-500 bg-green-500 text-white"
-                                : "border-zinc-300 dark:border-zinc-600"
+                                : "border-stone-300 dark:border-stone-600"
                             }`}
                           >
                             {task.completed && <Check className="w-3 h-3" />}
@@ -2030,13 +2030,13 @@ export function DashboardPage() {
                             <div
                               className={`text-sm truncate ${
                                 task.completed
-                                  ? "line-through text-zinc-400"
-                                  : "text-zinc-900 dark:text-zinc-100"
+                                  ? "line-through text-stone-400"
+                                  : "text-stone-900 dark:text-stone-100"
                               }`}
                             >
                               {task.name}
                             </div>
-                            <div className="text-xs text-zinc-400 truncate">
+                            <div className="text-xs text-stone-400 truncate">
                               {taskGroup?.name} / {taskList?.name}
                             </div>
                           </div>
@@ -2051,13 +2051,13 @@ export function DashboardPage() {
                     })}
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-zinc-500 dark:text-zinc-400">
+                  <div className="text-center py-8 text-stone-500 dark:text-stone-400">
                     <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
                     <p>No tasks found matching "{searchQuery}"</p>
                   </div>
                 )
               ) : (
-                <div className="text-center py-8 text-zinc-500 dark:text-zinc-400">
+                <div className="text-center py-8 text-stone-500 dark:text-stone-400">
                   <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
                   <p>Type to search tasks</p>
                   <p className="text-xs mt-1">Search across all lists</p>

@@ -106,7 +106,7 @@ export function ApiServerSettingsDialog({ trigger, onSaved }: ApiServerSettingsD
         </DialogHeader>
 
         <div className="space-y-2 py-2">
-          <label htmlFor="api-server-url" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <label htmlFor="api-server-url" className="text-sm font-medium text-stone-700 dark:text-stone-300">
             Server URL
           </label>
           <input
@@ -115,10 +115,10 @@ export function ApiServerSettingsDialog({ trigger, onSaved }: ApiServerSettingsD
             value={apiUrlInput}
             onChange={(e) => setApiUrlInput(e.target.value)}
             placeholder={DEFAULT_API_URL}
-            className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-500 dark:border-zinc-600 dark:bg-zinc-700 dark:text-white"
+            className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
             autoFocus
           />
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          <p className="text-xs text-stone-500 dark:text-stone-400">
             Example: http://localhost:3000
           </p>
 
