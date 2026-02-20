@@ -13,11 +13,16 @@ This project uses **pnpm workspaces** for monorepo management:
 ```
 puratodo/
 ├── apps/
-│   └── web/                 # Next.js web application
-│       ├── src/             # App source code
-│       ├── public/          # Static assets
-│       ├── supabase/        # Database migrations
-│       └── package.json     # @puratodo/web
+│   ├── web/                 # Next.js web application (@puratodo/web)
+│   │   ├── src/             # App source code
+│   │   ├── public/          # Static assets
+│   │   ├── supabase/        # Database migrations
+│   │   └── package.json
+│   └── app/                 # Tauri desktop app (@puratodo/app)
+│       ├── src/             # React frontend (Vite)
+│       ├── src-tauri/       # Tauri Rust backend
+│       ├── package.json
+│       └── app_spec.txt
 ├── packages/
 │   ├── ui/                  # Shared UI components (@puratodo/ui)
 │   ├── api-types/           # API type definitions (@puratodo/api-types)
@@ -47,6 +52,10 @@ pnpm db:migration:new   # Create new migration
 pnpm db:push            # Push migrations to Supabase
 pnpm db:pull            # Pull schema from Supabase
 pnpm db:diff            # Show schema differences
+
+# Tauri app (apps/app)
+cd apps/app && npm run tauri dev      # Start Tauri dev mode
+cd apps/app && npm run tauri build   # Build for production
 ```
 
 ## Tech Stack
@@ -92,6 +101,19 @@ This project follows a "long-running agent" methodology with daily progress logg
 
 1. Always keep `claude-progress.txt` and `feature_list.json` up to date. These are critical for tracking progress and guiding future development.
 2. ALWAYS get ONLY ONE task from `feature_list.json` at a time. This ensures focused development and accurate progress tracking. If you find a task that is too large, let me know!
+
+## Apps Overview
+
+### apps/web (Next.js Web App)
+- Primary web application
+- Uses root `feature_list.json` and `claude-progress.txt`
+- Target: Browser, Vercel deployment
+
+### apps/app (Tauri Desktop App)
+- Cross-platform desktop/mobile app (Tauri 2.0)
+- Has **separate** `feature_list.json` (209 test cases) and `claude-progress.txt`
+- Target: Desktop (macOS, Windows, Linux), Mobile (iOS, Android)
+- Connects to web app's API backend
 
 ## Architecture
 
