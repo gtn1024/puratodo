@@ -1,0 +1,237 @@
+<project_specification>
+  <project_name>PuraToDo - Cross-Platform Desktop & Mobile Client</project_name>
+
+  <overview>
+    Build a cross-platform native client application for PuraToDo using Tauri 2.0.
+    The app connects to the existing PuraToDo API backend and supports infinite
+    nested subtasks on desktop (Windows, macOS, Linux) and mobile (iOS, Android).
+
+    This is a **client application** that consumes the PuraToDo API.
+    The backend API is documented in the puratodo project (for reference).
+  </overview>
+
+  <technology_stack>
+    <framework>
+      <name>Tauri 2.0</name>
+      <description>Cross-platform framework using Rust backend with web frontend</description>
+      <features>
+        - Native performance with small bundle size
+        - Secure Rust-based backend
+        - Support for desktop and mobile platforms
+      </features>
+    </framework>
+
+    <frontend>
+      <framework>React 19 + TypeScript</framework>
+      <bundler>Vite</bundler>
+      <styling>Tailwind CSS 4</styling>
+      <components>shadcn/ui</components>
+      <state>TanStack Query (React Query) for server state</state>
+    </frontend>
+
+    <backend>
+      <rust>Tauri Rust for native integrations only</rust>
+      <api>Connects to PuraToDo API (existing backend)</api>
+      <auth>Uses PuraToDo authentication system</auth>
+    </backend>
+
+    <native_features>
+      <notifications>Local notifications for reminders</notifications>
+      <storage>Secure token storage via keychain/keystore</storage>
+      <shortcuts>Keyboard shortcuts and quick actions</shortcuts>
+      <deep_links>Deep linking for external app integration</deep_links>
+    </native_features>
+
+    <platforms>
+      <desktop>
+        - Windows 10/11
+        - macOS 10.15+
+        - Linux
+      </desktop>
+      <mobile>
+        - Android 8.0+
+        - iOS 14.0+
+      </mobile>
+    </platforms>
+  </technology_stack>
+
+  <api_integration>
+    The app connects to PuraToDo API endpoints. Key API patterns:
+
+    - Authentication: Login, logout, session management
+    - Groups: CRUD operations for task groups/categories
+    - Lists: CRUD operations for task lists within groups
+    - Tasks: CRUD operations with nested subtask support (parent_id)
+
+    API calls should be made via fetch or axios, with proper authentication
+    headers (session token/cookie).
+  </api_integration>
+
+  <data_model>
+    (Client-side view of the API data model)
+
+    users (via API auth)
+        └── groups (categories)
+                └── lists (todo lists)
+                        └── tasks (self-referencing via parent_id for subtasks)
+
+    Key fields:
+    - groups: id, user_id, name, color, sort_order
+    - lists: id, user_id, group_id, name, icon, sort_order
+    - tasks: id, user_id, list_id, parent_id, name, completed, starred, due_date, plan_date, comment, duration_minutes, sort_order
+  </data_model>
+
+  <core_features>
+    <authentication>
+      - Login with existing credentials
+      - Session persistence
+      - Logout
+      - Secure token storage
+      - Multiple account support
+      - Account switching
+      - Custom API server URL configuration
+    </authentication>
+
+    <task_management>
+      - Create, edit, delete tasks
+      - Infinite nested subtasks
+      - Drag and drop reordering
+      - Mark complete/incomplete
+      - Star/favorite tasks
+      - Due dates and planned dates
+      - Comments/notes
+    </task_management>
+
+    <organization>
+      - Groups (categories)
+      - Lists within groups
+      - Custom colors and icons
+      - Search and filter
+    </organization>
+
+    <offline>
+      - Local caching of data
+      - Offline queue for operations
+      - Sync when back online
+    </offline>
+
+    <settings>
+      - Theme (light, dark, system)
+      - API endpoint configuration (custom server URL)
+      - Multi-account management
+    </settings>
+  </core_features>
+
+  <ui_layout>
+    <main_structure>
+      - Sidebar: Groups and lists navigation
+      - Main: Task list with infinite scroll
+      - Detail: Task details and subtasks
+      - Input: Quick add at bottom
+    </main_structure>
+
+    <responsive_behavior>
+      <desktop>
+        - Multi-column layout
+        - Keyboard shortcuts
+      </desktop>
+      <mobile>
+        - Single column navigation
+        - Swipe gestures
+        - Pull-to-refresh
+      </mobile>
+    </responsive_behavior>
+  </ui_layout>
+
+  <implementation_steps>
+    <step number="1">
+      <title>Project Setup</title>
+      <tasks>
+        - Initialize Tauri + Vite + React + TypeScript
+        - Configure Tailwind CSS
+        - Set up shadcn/ui
+        - Configure API client base
+      </tasks>
+    </step>
+
+    <step number="2">
+      <title>Authentication</title>
+      <tasks>
+        - Login page UI
+        - API login integration
+        - Token storage
+        - Protected routes
+        - Logout functionality
+      </tasks>
+    </step>
+
+    <step number="3">
+      <title>Core UI</title>
+      <tasks>
+        - Sidebar navigation
+        - Task list view
+        - Task detail panel
+        - Responsive layout
+      </tasks>
+    </step>
+
+    <step number="4">
+      <title>Task Operations</title>
+      <tasks>
+        - Create task
+        - Edit task
+        - Delete task
+        - Nested subtasks
+        - Drag and drop
+      </tasks>
+    </step>
+
+    <step number="5">
+      <title>Groups & Lists</title>
+      <tasks>
+        - Groups CRUD
+        - Lists CRUD
+        - Navigation
+      </tasks>
+    </step>
+
+    <step number="6">
+      <title>Additional Features</title>
+      <tasks>
+        - Search
+        - Filtering
+        - Offline support
+        - Notifications
+      </tasks>
+    </step>
+
+    <step number="7">
+      <title>Polish</title>
+      <tasks>
+        - UI polish
+        - Performance
+        - Build for platforms
+      </tasks>
+    </step>
+  </implementation_steps>
+
+  <success_criteria>
+    <functionality>
+      - All API operations work correctly
+      - Offline mode functional
+      - Notifications working
+    </functionality>
+
+    <user_experience>
+      - Native feel on each platform
+      - Fast and responsive
+      - Smooth animations
+    </user_experience>
+
+    <technical>
+      - Clean code
+      - Secure token storage
+      - TypeScript strict mode
+    </technical>
+  </success_criteria>
+</project_specification>
