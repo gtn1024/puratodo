@@ -3,6 +3,83 @@
   "description": "A modern todo application with groups, lists, and nested tasks",
   "features": [
     {
+      "id": "M1",
+      "category": "Monorepo",
+      "description": "Setup pnpm workspaces monorepo structure",
+      "steps": [
+        "Create pnpm-workspace.yaml with apps/* and packages/*",
+        "Create root package.json with monorepo scripts",
+        "Create .npmrc with auto-install-peers=true",
+        "Create tsconfig.base.json for shared TypeScript config",
+        "Update .gitignore for monorepo structure",
+        "Verify: pnpm install works, pnpm build passes"
+      ],
+      "passes": true
+    },
+    {
+      "id": "M2",
+      "category": "Monorepo",
+      "description": "Create apps/web directory and migrate Next.js app",
+      "steps": [
+        "Create apps/web/ directory structure",
+        "Move src/, public/, supabase/, config files to apps/web/",
+        "Update apps/web/package.json name to @puratodo/web",
+        "Add workspace dependencies (@puratodo/ui, @puratodo/api-types, @puratodo/shared)",
+        "Update tsconfig.json to extend tsconfig.base.json",
+        "Verify: pnpm build:web passes"
+      ],
+      "passes": true
+    },
+    {
+      "id": "M3",
+      "category": "Monorepo",
+      "description": "Create packages directory with shared packages",
+      "steps": [
+        "Create packages/ui/ with package.json, tsconfig.json, src/index.ts",
+        "Create packages/api-types/ with package.json, tsconfig.json, src/index.ts",
+        "Create packages/shared/ with package.json, tsconfig.json, src/index.ts",
+        "Verify: All packages build correctly"
+      ],
+      "passes": true
+    },
+    {
+      "id": "M4",
+      "category": "Monorepo",
+      "description": "Extract @puratodo/api-types from web app",
+      "steps": [
+        "Extract Database, Tables, Group, List, Task types to packages/api-types",
+        "Extract ApiResponse, PaginatedResponse types",
+        "Update apps/web/src/lib/supabase/database.types.ts to re-export",
+        "Verify: pnpm build passes"
+      ],
+      "passes": true
+    },
+    {
+      "id": "M5",
+      "category": "Monorepo",
+      "description": "Extract @puratodo/shared utilities from web app",
+      "steps": [
+        "Extract recurrence.ts (parseRecurrenceFields) to packages/shared",
+        "Extract notifications.ts (browser notifications) to packages/shared",
+        "Keep date-utils.ts in packages/shared",
+        "Update apps/web/src/lib/recurrence.ts to re-export",
+        "Update apps/web/src/lib/notifications.ts to re-export",
+        "Verify: pnpm build passes"
+      ],
+      "passes": true
+    },
+    {
+      "id": "M6",
+      "category": "Monorepo",
+      "description": "Extract @puratodo/ui utilities from web app",
+      "steps": [
+        "Extract cn() utility to packages/ui",
+        "Update apps/web/src/lib/utils.ts to re-export",
+        "Verify: pnpm build passes"
+      ],
+      "passes": true
+    },
+    {
       "id": 1,
       "category": "Project Initialization",
       "description": "Create Next.js project scaffold with TypeScript, Tailwind CSS, ESLint",
