@@ -77,6 +77,7 @@ export function DashboardPage() {
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
   const [isLoadingTasks, setIsLoadingTasks] = React.useState(false);
   const [selectedListId, setSelectedListId] = React.useState<string | null>(null);
+  const [currentView, setCurrentView] = React.useState<'today' | 'starred' | 'list'>('today');
   const [expandedGroups, setExpandedGroups] = React.useState<Set<string>>(new Set());
   const [expandedTasks, setExpandedTasks] = React.useState<Set<string>>(new Set());
   const [showNewGroupInput, setShowNewGroupInput] = React.useState(false);
@@ -866,6 +867,67 @@ export function DashboardPage() {
   const selectedList = selectedListId ? lists.find((l) => l.id === selectedListId) : null;
   const selectedListTasks = selectedList ? getRootTasks(selectedList.id) : [];
 
+  // Get today's tasks (due_date or plan_date = today)
+  const getTodayTasks = (): Task[] => {
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    return tasks.filter((task) =>
+      !task.parent_id && (task.due_date === today || task.plan_date === today)
+    ).sort((a, b) => a.sort_order - b.sort_order);
+  };
+
+  // Get starred tasks
+  const getStarredTasks = (): Task[] => {
+    return tasks.filter((task) =>
+      !task.parent_id && task.starred
+    ).sort((a, b) => a.sort_order - b.sort_order);
+  };
+
+  // Get display tasks based on current view
+  const getDisplayTasks = (): Task[] => {
+    if (currentView === 'today') {
+      return getTodayTasks();
+    } else if (currentView === 'starred') {
+      return getStarredTasks();
+    } else if (selectedListId) {
+      return getRootTasks(selectedListId);
+    }
+    return [];
+  };
+
+  // Get header title based on current view
+  const getHeaderTitle = (): string => {
+    if (currentView === 'today') {
+      return 'Today';
+    } else if (currentView === 'starred') {
+      return 'Starred';
+    } else if (selectedList) {
+      return selectedList.name;
+    }
+    return 'Today';
+  };
+
+  // Fetch tasks when view changes
+  React.useEffect(() => {
+    if (currentView === 'list' && !selectedListId) return;
+
+    let isCancelled = false;
+    setIsLoadingTasks(true);
+
+    void fetchTasks()
+      .catch((err) => {
+        console.error("Failed to fetch tasks:", err);
+      })
+      .finally(() => {
+        if (!isCancelled) {
+          setIsLoadingTasks(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [currentView, selectedListId, fetchTasks]);
+
   React.useEffect(() => {
     if (!selectedListId) return;
 
@@ -921,11 +983,31 @@ export function DashboardPage() {
         {/* Navigation */}
         <nav className="flex-1 px-3 overflow-y-auto">
           <div className="space-y-1">
-            <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
+            <button
+              onClick={() => {
+                setCurrentView('today');
+                setSelectedListId(null);
+              }}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                currentView === 'today'
+                  ? "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300"
+                  : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+              }`}
+            >
               <CheckCircle2 className="w-5 h-5" />
               <span>Today</span>
             </button>
-            <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
+            <button
+              onClick={() => {
+                setCurrentView('starred');
+                setSelectedListId(null);
+              }}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                currentView === 'starred'
+                  ? "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300"
+                  : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+              }`}
+            >
               <Star className="w-5 h-5" />
               <span>Starred</span>
             </button>
@@ -1118,7 +1200,10 @@ export function DashboardPage() {
                               setDropTargetListId(null);
                               setDropTargetListForTask(null);
                             }}
-                            onClick={() => setSelectedListId(list.id)}
+                            onClick={() => {
+                              setSelectedListId(list.id);
+                              setCurrentView('list');
+                            }}
                             onContextMenu={(e) => handleListContextMenu(e, list)}
                             className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors ${
                               draggingListId === list.id ? "opacity-60" : ""
@@ -1262,7 +1347,7 @@ export function DashboardPage() {
         {/* Header */}
         <header className="h-16 border-b border-zinc-200 dark:border-zinc-700 flex items-center justify-between px-6">
           <h1 className="text-xl font-semibold text-zinc-900 dark:text-white">
-            {selectedList ? selectedList.name : "Today"}
+            {getHeaderTitle()}
           </h1>
           <button
             onClick={() => setShowSearch(true)}
@@ -1330,30 +1415,54 @@ export function DashboardPage() {
               </div>
             )}
 
-            {selectedList && selectedListTasks.length > 0 ? (
-              <div className="space-y-2">
-                {selectedListTasks.map((task) => renderTaskItem(task, 0))}
-              </div>
-            ) : (
-              <div className="text-center py-16">
-                <div className="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle2 className="w-8 h-8 text-zinc-400 dark:text-zinc-500" />
+            {(() => {
+              const displayTasks = getDisplayTasks();
+              const showAddTask = currentView === 'list' && selectedList;
+
+              if (displayTasks.length > 0) {
+                return (
+                  <div className="space-y-2">
+                    {displayTasks.map((task) => renderTaskItem(task, 0))}
+                  </div>
+                );
+              }
+
+              // Empty state based on view
+              return (
+                <div className="text-center py-16">
+                  <div className="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle2 className="w-8 h-8 text-zinc-400 dark:text-zinc-500" />
+                  </div>
+                  <h2 className="text-lg font-medium text-zinc-900 dark:text-white mb-2">
+                    {isLoadingTasks
+                      ? "Loading tasks..."
+                      : currentView === 'today'
+                      ? "No tasks for today"
+                      : currentView === 'starred'
+                      ? "No starred tasks"
+                      : selectedList
+                      ? `No tasks in "${selectedList.name}"`
+                      : "No tasks yet"}
+                  </h2>
+                  <p className="text-zinc-500 dark:text-zinc-400 mb-6">
+                    {currentView === 'today'
+                      ? "Tasks with due date or planned date of today will appear here"
+                      : currentView === 'starred'
+                      ? "Star important tasks to see them here"
+                      : "Get started by creating your first task"}
+                  </p>
+                  {showAddTask && (
+                    <Button
+                      onClick={() => setShowNewTaskInput(true)}
+                      className="gap-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Create Task</span>
+                    </Button>
+                  )}
                 </div>
-                <h2 className="text-lg font-medium text-zinc-900 dark:text-white mb-2">
-                  {isLoadingTasks && selectedList ? "Loading tasks..." : selectedList ? `No tasks in "${selectedList.name}"` : "No tasks yet"}
-                </h2>
-                <p className="text-zinc-500 dark:text-zinc-400 mb-6">
-                  Get started by creating your first task
-                </p>
-                <Button
-                  onClick={() => setShowNewTaskInput(true)}
-                  className="gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Create Task</span>
-                </Button>
-              </div>
-            )}
+              );
+            })()}
           </div>
         </div>
       </main>

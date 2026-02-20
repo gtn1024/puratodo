@@ -1,5 +1,53 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 27: Today and Starred Views Implementation
+**Date:** 2026-02-20
+**Agent:** Claude Code (GLM-5)
+
+### Completed
+- Implemented Today view:
+  - Added currentView state ('today' | 'starred' | 'list')
+  - Today view shows tasks with due_date = today OR plan_date = today
+  - Added helper functions: getTodayTasks(), getStarredTasks(), getDisplayTasks()
+  - Updated header to show correct view title
+- Implemented Starred view:
+  - Shows all starred tasks across all lists
+  - Visual feedback on Today/Starred buttons when selected
+- Updated list click handler to set currentView to 'list'
+- Added proper empty state messages for each view
+- Verified Tests #45-47 with real backend API on localhost:3000:
+  - Created tasks with today's due_date and plan_date
+  - Verified Today view shows both types of today tasks
+  - Starred a task and verified Starred view shows it
+
+### Verification Performed
+- `npm run build` passed (app)
+- Playwright verification confirmed:
+  - Today view shows "Task due today" and "Task planned today"
+  - Starred view shows "Buy electronics" (starred task)
+  - Navigation buttons show selected state
+  - View switching works correctly
+
+### Current Status
+- 47/209 test cases passing
+- Tests #45-47 verified with real backend API on localhost:3000
+
+### Tests Now Passing
+- Test #45: Today view shows tasks due today ✓
+- Test #46: Today view shows tasks with planned date today ✓
+- Test #47: Starred tasks view shows all starred tasks ✓
+
+### Files Created/Modified
+- src/pages/DashboardPage.tsx (added currentView state, Today/Starred logic)
+- feature_list.json (marked Tests #45-47 as passing)
+- claude-progress.txt (this session log)
+
+### Next Steps
+1. Continue with Test #48 (Theme toggle)
+2. Continue with Test #49 (Keyboard shortcuts)
+
+---
+
 ## Session 26: Search Functionality Implementation
 **Date:** 2026-02-20
 **Agent:** Claude Code (GLM-5)

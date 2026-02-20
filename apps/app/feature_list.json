@@ -583,7 +583,7 @@
       "Verify tasks with due date = today are displayed",
       "Verify tasks with due date != today are not displayed"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 46,
@@ -594,7 +594,7 @@
       "Navigate to Today view",
       "Verify tasks with planned date = today are displayed"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 47,
@@ -606,7 +606,7 @@
       "Verify all starred tasks are displayed",
       "Verify unstarred tasks are not displayed"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 48,
