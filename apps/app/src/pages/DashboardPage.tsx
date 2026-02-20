@@ -7,6 +7,7 @@ import {
   List,
   Star,
   ChevronDown,
+  ChevronRight,
   X,
   Check,
   Pencil,
@@ -74,6 +75,7 @@ export function DashboardPage() {
   const [isLoadingTasks, setIsLoadingTasks] = React.useState(false);
   const [selectedListId, setSelectedListId] = React.useState<string | null>(null);
   const [expandedGroups, setExpandedGroups] = React.useState<Set<string>>(new Set());
+  const [expandedTasks, setExpandedTasks] = React.useState<Set<string>>(new Set());
   const [showNewGroupInput, setShowNewGroupInput] = React.useState(false);
   const [newGroupName, setNewGroupName] = React.useState("");
   const [newGroupColor, setNewGroupColor] = React.useState(GROUP_COLORS[0].value);
@@ -161,6 +163,157 @@ export function DashboardPage() {
       }
       return next;
     });
+  };
+
+  // Toggle task expansion (for subtasks)
+  const toggleTaskExpand = (taskId: string) => {
+    setExpandedTasks((prev) => {
+      const next = new Set(prev);
+      if (next.has(taskId)) {
+        next.delete(taskId);
+      } else {
+        next.add(taskId);
+      }
+      return next;
+    });
+  };
+
+  // Get subtasks for a task
+  const getSubtasks = (parentId: string): Task[] => {
+    return tasks.filter((task) => task.parent_id === parentId);
+  };
+
+  // Get root tasks (no parent)
+  const getRootTasks = (listId: string): Task[] => {
+    return tasks
+      .filter((task) => task.list_id === listId && !task.parent_id)
+      .sort((a, b) => a.sort_order - b.sort_order);
+  };
+
+  // Recursively render task with subtasks
+  const renderTaskItem = (task: Task, depth: number): React.ReactNode => {
+    const subtasks = getSubtasks(task.id);
+    const hasSubtasks = subtasks.length > 0;
+    const isExpanded = expandedTasks.has(task.id);
+    const indentPadding = depth * 24; // 24px per level
+
+    // Check if any subtasks are incomplete (for parent task indicator)
+    const hasIncompleteSubtasks = hasSubtasks && subtasks.some((st) => !st.completed);
+    const allSubtasksCompleted = hasSubtasks && subtasks.every((st) => st.completed);
+
+    return (
+      <div key={task.id}>
+        <div
+          className="flex items-center gap-3 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
+          style={{ marginLeft: indentPadding }}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            setTaskContextMenu({
+              x: e.clientX,
+              y: e.clientY,
+              taskId: task.id,
+              taskName: task.name,
+            });
+          }}
+        >
+          {/* Expand/collapse button for tasks with subtasks */}
+          {hasSubtasks ? (
+            <button
+              onClick={() => toggleTaskExpand(task.id)}
+              className="p-0.5 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-400"
+            >
+              {isExpanded ? (
+                <ChevronDown className="w-4 h-4" />
+              ) : (
+                <ChevronRight className="w-4 h-4" />
+              )}
+            </button>
+          ) : (
+            <div className="w-5" /> // Spacer
+          )}
+          <div
+            className={`w-5 h-5 rounded-full border flex items-center justify-center cursor-pointer hover:border-green-500 ${
+              task.completed
+                ? "border-green-500 bg-green-500 text-white"
+                : hasIncompleteSubtasks
+                ? "border-violet-400 bg-violet-100 dark:bg-violet-900"
+                : "border-zinc-300 dark:border-zinc-600"
+            }`}
+            onClick={() => toggleTaskComplete(task.id, task.completed)}
+          >
+            {task.completed ? (
+              <Check className="w-3 h-3" />
+            ) : hasIncompleteSubtasks ? (
+              <div className="w-2 h-2 rounded-full bg-violet-500" />
+            ) : null}
+          </div>
+          {editingTaskId === task.id ? (
+            <div className="flex-1 flex items-center gap-2">
+              <input
+                type="text"
+                value={editingTaskName}
+                onChange={(e) => setEditingTaskName(e.target.value)}
+                className="flex-1 bg-transparent border border-zinc-300 dark:border-zinc-600 rounded px-2 py-1 text-sm text-zinc-800 dark:text-zinc-100 outline-none focus:border-violet-500"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") saveEditTask();
+                  if (e.key === "Escape") cancelEditTask();
+                }}
+                onBlur={saveEditTask}
+              />
+              <button
+                onClick={saveEditTask}
+                className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700"
+              >
+                <Check className="w-4 h-4 text-green-500" />
+              </button>
+              <button
+                onClick={cancelEditTask}
+                className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700"
+              >
+                <X className="w-4 h-4 text-zinc-500" />
+              </button>
+            </div>
+          ) : (
+            <>
+              <span
+                className={`flex-1 text-sm cursor-pointer hover:text-violet-600 ${
+                  task.completed
+                    ? "line-through text-zinc-400 dark:text-zinc-500"
+                    : "text-zinc-800 dark:text-zinc-100"
+                }`}
+                onClick={() => startEditTask(task.id, task.name)}
+              >
+                {task.name}
+              </span>
+              <button
+                onClick={() => toggleTaskStar(task.id, task.starred)}
+                className={`p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700 ${
+                  task.starred ? "text-yellow-500" : "text-zinc-300 dark:text-zinc-600"
+                }`}
+              >
+                <Star className="w-4 h-4" fill={task.starred ? "currentColor" : "none"} />
+              </button>
+              <button
+                onClick={() => setSelectedTask(task)}
+                className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-400"
+                title="Task details"
+              >
+                <Calendar className="w-4 h-4" />
+              </button>
+            </>
+          )}
+        </div>
+        {/* Render subtasks recursively */}
+        {hasSubtasks && isExpanded && (
+          <div className="space-y-2 mt-1">
+            {subtasks
+              .sort((a, b) => a.sort_order - b.sort_order)
+              .map((subtask) => renderTaskItem(subtask, depth + 1))}
+          </div>
+        )}
+      </div>
+    );
   };
 
   // Get lists for a group
@@ -539,11 +692,7 @@ export function DashboardPage() {
 
   // Get selected list
   const selectedList = selectedListId ? lists.find((l) => l.id === selectedListId) : null;
-  const selectedListTasks = selectedList
-    ? tasks
-        .filter((task) => task.list_id === selectedList.id)
-        .sort((a, b) => a.sort_order - b.sort_order)
-    : [];
+  const selectedListTasks = selectedList ? getRootTasks(selectedList.id) : [];
 
   React.useEffect(() => {
     if (!selectedListId) return;
@@ -978,89 +1127,8 @@ export function DashboardPage() {
             )}
 
             {selectedList && selectedListTasks.length > 0 ? (
-              <div className="space-y-3">
-                {selectedListTasks.map((task) => (
-                  <div
-                    key={task.id}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
-                    onContextMenu={(e) => {
-                      e.preventDefault();
-                      setTaskContextMenu({
-                        x: e.clientX,
-                        y: e.clientY,
-                        taskId: task.id,
-                        taskName: task.name,
-                      });
-                    }}
-                  >
-                    <div
-                      className={`w-5 h-5 rounded-full border flex items-center justify-center cursor-pointer hover:border-green-500 ${
-                        task.completed
-                          ? "border-green-500 bg-green-500 text-white"
-                          : "border-zinc-300 dark:border-zinc-600"
-                      }`}
-                      onClick={() => toggleTaskComplete(task.id, task.completed)}
-                    >
-                      {task.completed ? <Check className="w-3 h-3" /> : null}
-                    </div>
-                    {editingTaskId === task.id ? (
-                      <div className="flex-1 flex items-center gap-2">
-                        <input
-                          type="text"
-                          value={editingTaskName}
-                          onChange={(e) => setEditingTaskName(e.target.value)}
-                          className="flex-1 bg-transparent border border-zinc-300 dark:border-zinc-600 rounded px-2 py-1 text-sm text-zinc-800 dark:text-zinc-100 outline-none focus:border-violet-500"
-                          autoFocus
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") saveEditTask();
-                            if (e.key === "Escape") cancelEditTask();
-                          }}
-                          onBlur={saveEditTask}
-                        />
-                        <button
-                          onClick={saveEditTask}
-                          className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700"
-                        >
-                          <Check className="w-4 h-4 text-green-500" />
-                        </button>
-                        <button
-                          onClick={cancelEditTask}
-                          className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700"
-                        >
-                          <X className="w-4 h-4 text-zinc-500" />
-                        </button>
-                      </div>
-                    ) : (
-                      <>
-                        <span
-                          className={`flex-1 text-sm cursor-pointer hover:text-violet-600 ${
-                            task.completed
-                              ? "line-through text-zinc-400 dark:text-zinc-500"
-                              : "text-zinc-800 dark:text-zinc-100"
-                          }`}
-                          onClick={() => startEditTask(task.id, task.name)}
-                        >
-                          {task.name}
-                        </span>
-                        <button
-                          onClick={() => toggleTaskStar(task.id, task.starred)}
-                          className={`p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700 ${
-                            task.starred ? "text-yellow-500" : "text-zinc-300 dark:text-zinc-600"
-                          }`}
-                        >
-                          <Star className="w-4 h-4" fill={task.starred ? "currentColor" : "none"} />
-                        </button>
-                        <button
-                          onClick={() => setSelectedTask(task)}
-                          className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-400"
-                          title="Task details"
-                        >
-                          <Calendar className="w-4 h-4" />
-                        </button>
-                      </>
-                    )}
-                  </div>
-                ))}
+              <div className="space-y-2">
+                {selectedListTasks.map((task) => renderTaskItem(task, 0))}
               </div>
             ) : (
               <div className="text-center py-16">

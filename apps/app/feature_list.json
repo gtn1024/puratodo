@@ -497,7 +497,7 @@
       "Verify all levels are displayed correctly",
       "Verify indentation is correct for each level"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 39,
@@ -511,7 +511,7 @@
       "Verify subtask is marked incomplete",
       "Verify parent task completion status reflects subtasks"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 40,

@@ -1,5 +1,57 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 22: Infinite Nested Subtasks Implementation
+**Date:** 2026-02-20
+**Agent:** Claude Code (MiniMax-M2.5)
+
+### Completed
+- Implemented infinite nested subtasks support:
+  - Added expandedTasks state (Set<string>) for tracking expanded tasks
+  - Added toggleTaskExpand function to show/hide subtasks
+  - Added getSubtasks function to get child tasks
+  - Added getRootTasks function to get top-level tasks
+  - Created renderTaskItem recursive function for rendering tasks with indentation
+  - Added ChevronRight/ChevronDown icons for expand/collapse
+  - 24px indentation per nesting level
+  - Only expanded subtasks are visible
+- Added parent task completion indicator:
+  - Shows purple dot when parent has incomplete subtasks
+  - Shows green check when all subtasks completed
+  - Parent checkbox reflects subtask completion status
+- Verified Test #38 with real backend API on localhost:3000:
+  - Created Parent Task
+  - Created Subtask Level 1 under Parent Task
+  - Created Subtask Level 2 under Subtask Level 1
+  - Verified all 3 levels display with correct indentation
+  - Verified expand/collapse works correctly
+
+### Verification Performed
+- `npm run build` passed
+- Playwright verification confirmed:
+  - Parent Task displays at level 0
+  - Subtask Level 1 displays indented under Parent Task
+  - Subtask Level 2 displays indented under Subtask Level 1
+  - Expand button (ChevronDown/ChevronRight) works correctly
+
+### Current Status
+- 39/209 test cases passing
+- Test #38-39 verified with real backend API on localhost:3000
+
+### Tests Now Passing
+- Test #38: Subtasks support infinite nesting ✓
+- Test #39: User can complete/uncomplete subtasks ✓
+
+### Files Created/Modified
+- src/pages/DashboardPage.tsx (added infinite nesting support)
+- feature_list.json (marked Tests #38-39 as passing)
+- claude-progress.txt (this session log)
+
+### Next Steps
+1. Continue with Test #40 (reorder tasks via drag and drop)
+2. Continue with remaining task features
+
+---
+
 ## Session 21: Task Edit, Delete, and Completion Implementation
 **Date:** 2026-02-20
 **Agent:** Claude Code (GLM-5)

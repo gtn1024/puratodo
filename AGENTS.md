@@ -100,7 +100,7 @@ This project follows a "long-running agent" methodology with daily progress logg
 6. Make sure project can be built successfully (`pnpm build:web`)
 7. Update `apps/web/feature_list.json` (set `passes: true` for completed feature)
 8. Update `apps/web/claude-progress.txt` (append new log for current session, what has done, what does not work, next steps)
-9. Git commit
+9. **Git commit** - Always commit your changes after testing passes and updating the progress files
 
 ### init.sh Script
 
