@@ -60,6 +60,7 @@ export function DashboardPage() {
     deleteGroup,
     createList,
     updateList,
+    moveList,
     reorderLists,
     deleteList,
     clear,
@@ -327,10 +328,7 @@ export function DashboardPage() {
 
     setIsMovingList(true);
     try {
-      await updateList(movingList.id, {
-        name: movingList.name,
-        group_id: targetGroupId,
-      });
+      await moveList(movingList.id, targetGroupId);
       setMovingList(null);
     } catch (err) {
       console.error("Failed to move list:", err);

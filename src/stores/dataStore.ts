@@ -21,6 +21,7 @@ interface DataState {
   fetchLists: () => Promise<void>;
   createList: (input: CreateListInput) => Promise<List>;
   updateList: (id: string, input: UpdateListInput) => Promise<List>;
+  moveList: (id: string, group_id: string) => Promise<List>;
   reorderLists: (orderedListIds: string[]) => Promise<void>;
   deleteList: (id: string) => Promise<void>;
 
@@ -177,6 +178,20 @@ export const useDataStore = create<DataState>((set, get) => ({
       return updatedList;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to update list";
+      set({ error: message });
+      throw error;
+    }
+  },
+
+  moveList: async (id, group_id) => {
+    try {
+      const updatedList = await listsApi.move(id, group_id);
+      const lists = get().lists.map((l) => (l.id === id ? updatedList : l));
+      lists.sort((a, b) => a.sort_order - b.sort_order);
+      set({ lists, error: null });
+      return updatedList;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to move list";
       set({ error: message });
       throw error;
     }

@@ -49,4 +49,9 @@ export const listsApi = {
   async delete(id: string): Promise<void> {
     await api.delete(`/api/v1/lists/${id}`);
   },
+
+  async move(id: string, group_id: string): Promise<List> {
+    const response = await api.patch<ApiDataResponse<List>>(`/api/v1/lists/${id}/move`, { group_id });
+    return response.data;
+  },
 };
