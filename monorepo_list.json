@@ -8,12 +8,17 @@
     },
     "apps/": {
       "type": "apps",
-      "children": ["web/"]
+      "children": ["web/", "app/"]
     },
     "apps/web/": {
       "type": "app",
       "description": "Next.js web application (current puratodo)",
       "children": ["src/", "next.config.ts", "package.json", "vercel.json"]
+    },
+    "apps/app/": {
+      "type": "app",
+      "description": "Tauri desktop/mobile application (supports macOS, Windows, Linux, iOS, Android)",
+      "children": ["src/", "src-tauri/", "package.json", "vite.config.ts", "index.html"]
     },
     "packages/": {
       "type": "packages",
@@ -85,6 +90,28 @@
         }
       }
     },
+    "apps-app-package.json": {
+      "path": "apps/app/package.json",
+      "content": {
+        "name": "@puratodo/app",
+        "private": true,
+        "version": "0.1.0",
+        "type": "module",
+        "scripts": {
+          "dev": "tauri dev",
+          "build": "tauri build",
+          "tauri": "tauri"
+        },
+        "dependencies": {
+          "@puratodo/shared": "workspace:*",
+          "@puratodo/api-types": "workspace:*"
+        },
+        "devDependencies": {
+          "@tauri-apps/cli": "^2"
+        }
+      },
+      "notes": "Tauri app uses Vite + React 19 + Tailwind 4. Supports macOS, Windows, Linux, iOS, Android."
+    },
     "vercel.json": {
       "path": "apps/web/vercel.json",
       "content": {
@@ -129,6 +156,28 @@
       "docker": {
         "context": "apps/web",
         "notes": "Need to copy packages/* for workspace dependencies"
+      }
+    },
+    "tauri": {
+      "supportedPlatforms": ["macOS", "Windows", "Linux", "iOS", "Android"],
+      "buildCommands": {
+        "desktop": "pnpm --filter @puratodo/app tauri build",
+        "ios": "pnpm --filter @puratodo/app tauri build ios",
+        "android": "pnpm --filter @puratodo/app tauri build android"
+      },
+      "requirements": {
+        "macos": "Xcode + macOS",
+        "windows": "Visual Studio Build Tools + Rust",
+        "linux": "Rust + system libraries (webkit2gtk)",
+        "ios": "macOS + Xcode + Apple Developer Account",
+        "android": "Android SDK + Java 17+"
+      },
+      "output": {
+        "macos": "apps/app/src-tauri/target/release/bundle/macos/*.app",
+        "windows": "apps/app/src-tauri/target/release/bundle/msi/*.msi",
+        "linux": "apps/app/src-tauri/target/release/bundle/appimage/*.AppImage",
+        "ios": "apps/app/src-tauri/target/release/bundle/ios/*.ipa",
+        "android": "apps/app/src-tauri/target/release/bundle/android/*.apk"
       }
     }
   },
@@ -336,6 +385,62 @@
       ],
       "passes": true,
       "notes": "pnpm build passes, Playwright login and task creation verified"
+    },
+    {
+      "id": 16,
+      "category": "Phase 7: Add Tauri App",
+      "description": "Add Tauri desktop/mobile app to monorepo with git history",
+      "steps": [
+        "Move ../app to apps/app/",
+        "Update apps/app/package.json name to '@puratodo/app'",
+        "Run 'git subtree add --prefix=apps/app /path/to/app main' to merge git history",
+        "Update root package.json scripts for desktop app",
+        "Update tsconfig.base.json to include apps/app/"
+      ],
+      "passes": false,
+      "notes": "Tauri 2.x supports: macOS, Windows, Linux (desktop), iOS, Android (mobile)"
+    },
+    {
+      "id": 17,
+      "category": "Phase 7: Add Tauri App",
+      "description": "Configure Tauri app for cross-platform builds",
+      "steps": [
+        "Install Tauri CLI: pnpm --filter @puratodo/app add -D @tauri-apps/cli",
+        "Update src-tauri/Cargo.toml package name",
+        "Configure Tauri for iOS: tauri init --ci --ios",
+        "Configure Tauri for Android: tauri init --ci --android",
+        "Add mobile-specific configurations in src-tauri/"
+      ],
+      "passes": false,
+      "notes": "iOS requires macOS + Xcode, Android requires Android SDK"
+    },
+    {
+      "id": 18,
+      "category": "Phase 7: Add Tauri App",
+      "description": "Add shared packages to Tauri app",
+      "steps": [
+        "Add '@puratodo/shared: workspace:*' to apps/app dependencies",
+        "Add '@puratodo/api-types: workspace:*' to apps/app dependencies",
+        "Optionally add '@puratodo/ui: workspace:*' if needed",
+        "Run pnpm install to link packages",
+        "Update imports to use workspace packages"
+      ],
+      "passes": false,
+      "notes": "Reuse shared utilities, types between web and desktop"
+    },
+    {
+      "id": 19,
+      "category": "Phase 7: Add Tauri App",
+      "description": "Verify Tauri app builds and runs",
+      "steps": [
+        "Run 'pnpm --filter @puratodo/app tauri dev' to verify dev server",
+        "Build for desktop: 'pnpm --filter @puratodo/app tauri build'",
+        "Build for iOS: 'pnpm --filter @puratodo/app tauri build --target ios' (on macOS)",
+        "Build for Android: 'pnpm --filter @puratodo/app tauri build --target android'",
+        "Test app functionality on each platform"
+      ],
+      "passes": false,
+      "notes": "Desktop: .exe/.app/.AppImage, Mobile: .ipa (iOS), .apk/.aab (Android)"
     }
   ],
   "commands": {
@@ -348,9 +453,19 @@
     },
     "packageSpecific": {
       "run command in web": "pnpm --filter @puratodo/web <command>",
+      "run command in app": "pnpm --filter @puratodo/app <command>",
       "run command in ui": "pnpm --filter @puratodo/ui <command>",
       "add dep to web": "pnpm --filter @puratodo/web add <package>",
+      "add dep to app": "pnpm --filter @puratodo/app add <package>",
       "add dep to ui": "pnpm --filter @puratodo/ui add <package>"
+    },
+    "tauri": {
+      "tauri dev (desktop)": "pnpm --filter @puratodo/app tauri dev",
+      "tauri build (desktop)": "pnpm --filter @puratodo/app tauri build",
+      "tauri dev ios": "pnpm --filter @puratodo/app tauri dev ios",
+      "tauri build ios": "pnpm --filter @puratodo/app tauri build ios",
+      "tauri dev android": "pnpm --filter @puratodo/app tauri dev android",
+      "tauri build android": "pnpm --filter @puratodo/app tauri build android"
     },
     "deployment": {
       "vercel build": "pnpm build (in apps/web context)",
@@ -364,11 +479,13 @@
     "API routes stay in apps/web",
     "i18n and messages stay in apps/web for now",
     "workspace:* syntax ensures packages are linked locally",
-    "Vercel auto-detects pnpm monorepo via pnpm-workspace.yaml"
+    "Vercel auto-detects pnpm monorepo via pnpm-workspace.yaml",
+    "Tauri app (apps/app) supports: macOS, Windows, Linux, iOS, Android"
   ],
   "futureConsiderations": [
-    "Add Turborepo for smarter caching when adding apps/desktop",
+    "Add Turborepo for smarter caching when adding more apps",
     "Add changesets for versioning packages",
-    "Consider shared ESLint/Prettier config as separate package"
+    "Consider shared ESLint/Prettier config as separate package",
+    "Extract @puratodo/ui components for use in Tauri app"
   ]
 }
