@@ -354,7 +354,7 @@
       "Verify new task appears in list",
       "Verify task is created in backend"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 28,

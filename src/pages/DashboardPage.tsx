@@ -63,6 +63,7 @@ export function DashboardPage() {
     moveList,
     reorderLists,
     deleteList,
+    createTask,
     clear,
   } = useDataStore();
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
@@ -100,6 +101,11 @@ export function DashboardPage() {
   // List drag-and-drop state
   const [draggingListId, setDraggingListId] = React.useState<string | null>(null);
   const [dropTargetListId, setDropTargetListId] = React.useState<string | null>(null);
+
+  // Create task state
+  const [showNewTaskInput, setShowNewTaskInput] = React.useState(false);
+  const [newTaskName, setNewTaskName] = React.useState("");
+  const [isCreatingTask, setIsCreatingTask] = React.useState(false);
 
   // Context menu state for groups
   const [contextMenu, setContextMenu] = React.useState<{
@@ -312,6 +318,25 @@ export function DashboardPage() {
     }
   };
 
+  // Create new task
+  const handleCreateTask = async () => {
+    if (!selectedListId || !newTaskName.trim()) return;
+
+    setIsCreatingTask(true);
+    try {
+      await createTask({
+        list_id: selectedListId,
+        name: newTaskName.trim(),
+      });
+      setNewTaskName("");
+      setShowNewTaskInput(false);
+    } catch (err) {
+      console.error("Failed to create task:", err);
+    } finally {
+      setIsCreatingTask(false);
+    }
+  };
+
   // Open move list dialog
   const openMoveListDialog = (list: ListType) => {
     setListContextMenu(null);
@@ -406,7 +431,16 @@ export function DashboardPage() {
 
         {/* Quick Add */}
         <div className="p-4">
-          <button className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-medium hover:from-violet-500 hover:to-indigo-500 transition-all">
+          <button
+            onClick={() => {
+              if (!selectedListId) {
+                alert("Please select a list first");
+                return;
+              }
+              setShowNewTaskInput(true);
+            }}
+            className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-medium hover:from-violet-500 hover:to-indigo-500 transition-all"
+          >
             <Plus className="w-4 h-4" />
             <span>Add Task</span>
           </button>
@@ -741,6 +775,57 @@ export function DashboardPage() {
         {/* Content */}
         <div className="flex-1 p-6">
           <div className="max-w-2xl mx-auto">
+            {/* New task input */}
+            {selectedList && (
+              <div className="mb-4">
+                {showNewTaskInput ? (
+                  <div className="flex items-center gap-2 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+                    <div className="w-5 h-5 rounded-full border border-zinc-300 dark:border-zinc-600" />
+                    <input
+                      type="text"
+                      value={newTaskName}
+                      onChange={(e) => setNewTaskName(e.target.value)}
+                      placeholder="Enter task name..."
+                      className="flex-1 bg-transparent border-none outline-none text-zinc-800 dark:text-zinc-100 placeholder-zinc-400"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleCreateTask();
+                        if (e.key === "Escape") {
+                          setShowNewTaskInput(false);
+                          setNewTaskName("");
+                        }
+                      }}
+                      disabled={isCreatingTask}
+                    />
+                    <button
+                      onClick={handleCreateTask}
+                      disabled={isCreatingTask || !newTaskName.trim()}
+                      className="p-1.5 rounded-lg bg-violet-600 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-violet-500"
+                    >
+                      <Check className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowNewTaskInput(false);
+                        setNewTaskName("");
+                      }}
+                      className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                    >
+                      <X className="w-4 h-4 text-zinc-500" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setShowNewTaskInput(true)}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-600 text-zinc-400 hover:border-violet-300 hover:text-violet-500 transition-colors"
+                  >
+                    <Plus className="w-5 h-5" />
+                    <span>Add a task</span>
+                  </button>
+                )}
+              </div>
+            )}
+
             {selectedList && selectedListTasks.length > 0 ? (
               <div className="space-y-3">
                 {selectedListTasks.map((task) => (
@@ -780,7 +865,10 @@ export function DashboardPage() {
                 <p className="text-zinc-500 dark:text-zinc-400 mb-6">
                   Get started by creating your first task
                 </p>
-                <Button className="gap-2">
+                <Button
+                  onClick={() => setShowNewTaskInput(true)}
+                  className="gap-2"
+                >
                   <Plus className="w-4 h-4" />
                   <span>Create Task</span>
                 </Button>

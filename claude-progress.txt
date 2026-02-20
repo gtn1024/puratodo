@@ -1,5 +1,56 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 20: Task Creation Implementation
+**Date:** 2026-02-20
+**Agent:** Claude Code (GLM-5)
+
+### Completed
+- Implemented task create API in tasks.ts:
+  - Added CreateTaskInput and UpdateTaskInput interfaces
+  - Added create(), update(), delete() methods to tasksApi
+- Added task actions to dataStore:
+  - createTask: creates task and updates local state
+  - updateTask: updates task and syncs local state
+  - deleteTask: removes task from local state
+- Implemented task creation UI in DashboardPage:
+  - Added "Add a task" input field above task list
+  - Task input shows when "Add Task" clicked or "Create Task" button clicked
+  - Enter key or checkmark button saves task
+  - Escape key cancels task creation
+- Verified Test #27 with real backend API on http://localhost:3000
+- Playwright test verified:
+  - Expanded "API Test Group"
+  - Selected "Test List 21 - Edited"
+  - Clicked "Add a task"
+  - Entered "Test Task 27"
+  - Pressed Enter
+  - Task appeared in task list
+  - POST /api/v1/tasks returned 201 Created
+
+### Verification Performed
+- `npm run build` passed
+- API request successful: POST /api/v1/tasks => [201] Created
+
+### Current Status
+- 27/209 test cases passing
+
+### Tests Now Passing
+- Test #27: User can create a new task ✓
+
+### Files Created/Modified
+- src/lib/api/tasks.ts (added create, update, delete methods)
+- src/stores/dataStore.ts (added createTask, updateTask, deleteTask actions)
+- src/pages/DashboardPage.tsx (added task creation UI)
+- feature_list.json (marked Test #27 as passing)
+- claude-progress.txt (this session log)
+
+### Next Steps
+1. Implement Test #28 (edit a task)
+2. Implement Test #29 (delete a task)
+3. Continue with remaining task CRUD features
+
+---
+
 ## Session 19: List Move and Reorder Implementation
 **Date:** 2026-02-20
 **Agent:** Claude Code (GLM-5)

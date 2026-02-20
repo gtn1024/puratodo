@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { groupsApi, type Group, type CreateGroupInput, type UpdateGroupInput } from "@/lib/api/groups";
 import { listsApi, type List, type CreateListInput, type UpdateListInput } from "@/lib/api/lists";
-import { tasksApi, type Task } from "@/lib/api/tasks";
+import { tasksApi, type Task, type CreateTaskInput, type UpdateTaskInput } from "@/lib/api/tasks";
 
 interface DataState {
   groups: Group[];
@@ -27,6 +27,9 @@ interface DataState {
 
   // Task actions
   fetchTasks: () => Promise<void>;
+  createTask: (input: CreateTaskInput) => Promise<Task>;
+  updateTask: (id: string, input: UpdateTaskInput) => Promise<Task>;
+  deleteTask: (id: string) => Promise<void>;
 
   // Combined
   fetchAll: () => Promise<void>;
@@ -277,6 +280,50 @@ export const useDataStore = create<DataState>((set, get) => ({
       set({ tasks, error: null });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to fetch tasks";
+      set({ error: message });
+      throw error;
+    }
+  },
+
+  createTask: async (input) => {
+    try {
+      const newTask = await tasksApi.create(input);
+      set((state) => ({
+        tasks: [...state.tasks, newTask],
+        error: null,
+      }));
+      return newTask;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to create task";
+      set({ error: message });
+      throw error;
+    }
+  },
+
+  updateTask: async (id, input) => {
+    try {
+      const updatedTask = await tasksApi.update(id, input);
+      set((state) => ({
+        tasks: state.tasks.map((t) => (t.id === id ? updatedTask : t)),
+        error: null,
+      }));
+      return updatedTask;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to update task";
+      set({ error: message });
+      throw error;
+    }
+  },
+
+  deleteTask: async (id) => {
+    try {
+      await tasksApi.delete(id);
+      set((state) => ({
+        tasks: state.tasks.filter((t) => t.id !== id),
+        error: null,
+      }));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to delete task";
       set({ error: message });
       throw error;
     }
