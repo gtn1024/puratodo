@@ -470,7 +470,7 @@
       "Verify duration is displayed on task",
       "Verify duration is saved to backend"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 37,

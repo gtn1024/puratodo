@@ -454,6 +454,19 @@ export function DashboardPage() {
     }
   };
 
+  // Update task duration
+  const updateTaskDuration = async (taskId: string, duration: number | null) => {
+    try {
+      await updateTask(taskId, { duration_minutes: duration });
+      // Update local selectedTask state if it matches
+      if (selectedTask && selectedTask.id === taskId) {
+        setSelectedTask({ ...selectedTask, duration_minutes: duration });
+      }
+    } catch (err) {
+      console.error("Failed to update task duration:", err);
+    }
+  };
+
   // Open move list dialog
   const openMoveListDialog = (list: ListType) => {
     setListContextMenu(null);
@@ -1382,6 +1395,41 @@ export function DashboardPage() {
                   rows={3}
                   className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 resize-none"
                 />
+              </div>
+
+              {/* Duration */}
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                  Duration (minutes)
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    value={selectedTask.duration_minutes || ""}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const duration = value ? parseInt(value, 10) : null;
+                      updateTaskDuration(selectedTask.id, duration);
+                    }}
+                    onBlur={(e) => {
+                      const value = e.target.value;
+                      const duration = value ? parseInt(value, 10) : null;
+                      updateTaskDuration(selectedTask.id, duration);
+                    }}
+                    placeholder="e.g. 30"
+                    className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                  />
+                  {selectedTask.duration_minutes && (
+                    <button
+                      onClick={() => updateTaskDuration(selectedTask.id, null)}
+                      className="p-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                      title="Clear duration"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Starred Status */}
