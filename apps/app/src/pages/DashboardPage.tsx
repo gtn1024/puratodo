@@ -17,6 +17,8 @@ import {
   Move,
   Calendar,
   Search,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +31,7 @@ import {
 import { ApiServerSettingsDialog } from "@/components/ApiServerSettingsDialog";
 import { AccountSettingsDialog } from "@/components/AccountSettingsDialog";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/hooks/useTheme";
 import { useAuthStore } from "@/stores/authStore";
 import { useDataStore } from "@/stores/dataStore";
 import type { List as ListType } from "@/lib/api/lists";
@@ -49,6 +52,7 @@ const GROUP_COLORS = [
 
 export function DashboardPage() {
   const { logout } = useAuth();
+  const { resolvedTheme, setTheme } = useTheme();
   const { user, activeAccountId } = useAuthStore();
   const {
     groups,
@@ -1328,6 +1332,19 @@ export function DashboardPage() {
                   </Button>
                 )}
               />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+                title={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              >
+                {resolvedTheme === "dark" ? (
+                  <Sun className="w-4 h-4" />
+                ) : (
+                  <Moon className="w-4 h-4" />
+                )}
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"

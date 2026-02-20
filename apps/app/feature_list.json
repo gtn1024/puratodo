@@ -618,7 +618,7 @@
       "Click theme toggle again",
       "Verify theme changes from dark to light"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 49,

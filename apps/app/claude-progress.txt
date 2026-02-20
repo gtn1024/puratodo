@@ -1,5 +1,43 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 28: Theme Toggle Implementation
+**Date:** 2026-02-20
+**Agent:** Claude Code (GLM-5)
+
+### Completed
+- Added theme toggle button to sidebar:
+  - Shows Moon icon in light mode, Sun icon in dark mode
+  - Uses existing useTheme hook from hooks/useTheme.tsx
+  - Button title indicates current action ("Switch to dark/light mode")
+- Theme is persisted in localStorage
+- Tailwind dark: classes already implemented throughout the app
+
+### Verification Performed
+- `npm run build` passed (app)
+- Playwright verification confirmed:
+  - Theme toggle button visible in sidebar
+  - Clicking toggle switches from light to dark mode
+  - Clicking again switches from dark to light mode
+  - Theme persisted in localStorage
+
+### Current Status
+- 48/209 test cases passing
+- Test #48 verified
+
+### Tests Now Passing
+- Test #48: Theme toggle switches between light and dark mode ✓
+
+### Files Created/Modified
+- src/pages/DashboardPage.tsx (added theme toggle button, useTheme hook)
+- feature_list.json (marked Test #48 as passing)
+- claude-progress.txt (this session log)
+
+### Next Steps
+1. Continue with Test #49 (Keyboard shortcuts)
+2. Continue with remaining features
+
+---
+
 ## Session 27: Today and Starred Views Implementation
 **Date:** 2026-02-20
 **Agent:** Claude Code (GLM-5)
