@@ -535,7 +535,7 @@
       "Verify task moves to new list",
       "Verify task appears in correct list"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 42,

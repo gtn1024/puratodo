@@ -30,6 +30,7 @@ interface DataState {
   createTask: (input: CreateTaskInput) => Promise<Task>;
   updateTask: (id: string, input: UpdateTaskInput) => Promise<Task>;
   deleteTask: (id: string) => Promise<void>;
+  moveTask: (id: string, list_id: string) => Promise<Task>;
   reorderTasks: (orderedTaskIds: string[]) => Promise<void>;
 
   // Combined
@@ -325,6 +326,21 @@ export const useDataStore = create<DataState>((set, get) => ({
       }));
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to delete task";
+      set({ error: message });
+      throw error;
+    }
+  },
+
+  moveTask: async (id, list_id) => {
+    try {
+      const updatedTask = await tasksApi.update(id, { list_id });
+      set((state) => ({
+        tasks: state.tasks.map((t) => (t.id === id ? updatedTask : t)),
+        error: null,
+      }));
+      return updatedTask;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to move task";
       set({ error: message });
       throw error;
     }

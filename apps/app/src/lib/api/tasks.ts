@@ -11,6 +11,7 @@ export interface CreateTaskInput {
 }
 
 export interface UpdateTaskInput {
+  list_id?: string;
   name?: string;
   completed?: boolean;
   starred?: boolean;

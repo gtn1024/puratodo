@@ -69,6 +69,7 @@ export function DashboardPage() {
     createTask,
     updateTask,
     deleteTask,
+    moveTask,
     reorderTasks,
     clear,
   } = useDataStore();
@@ -112,6 +113,7 @@ export function DashboardPage() {
   // Task drag-and-drop state
   const [draggingTaskId, setDraggingTaskId] = React.useState<string | null>(null);
   const [dropTargetTaskId, setDropTargetTaskId] = React.useState<string | null>(null);
+  const [dropTargetListForTask, setDropTargetListForTask] = React.useState<string | null>(null);
 
   // Create task state
   const [showNewTaskInput, setShowNewTaskInput] = React.useState(false);
@@ -217,12 +219,14 @@ export function DashboardPage() {
             if (!isDraggable) return;
             e.dataTransfer.effectAllowed = "move";
             e.dataTransfer.setData("text/plain", task.id);
+            e.dataTransfer.setData("application/task-id", task.id);
             e.dataTransfer.setData("application/list-id", task.list_id);
             setDraggingTaskId(task.id);
           }}
           onDragEnd={() => {
             setDraggingTaskId(null);
             setDropTargetTaskId(null);
+            setDropTargetListForTask(null);
           }}
           onDragOver={(e) => {
             if (!isDraggable) return;
@@ -491,6 +495,15 @@ export function DashboardPage() {
       await reorderTasks(nextTasks.map((task) => task.id));
     } catch (err) {
       console.error("Failed to reorder tasks:", err);
+    }
+  };
+
+  // Handle moving a task to a different list
+  const handleMoveTask = async (taskId: string, targetListId: string) => {
+    try {
+      await moveTask(taskId, targetListId);
+    } catch (err) {
+      console.error("Failed to move task:", err);
     }
   };
 
@@ -977,23 +990,41 @@ export function DashboardPage() {
                             onDragEnd={() => {
                               setDraggingListId(null);
                               setDropTargetListId(null);
+                              setDropTargetListForTask(null);
                             }}
                             onDragOver={(e) => {
                               e.preventDefault();
+                              // Handle list reordering
                               if (draggingListId && draggingListId !== list.id) {
                                 e.dataTransfer.dropEffect = "move";
                                 setDropTargetListId(list.id);
                               }
+                              // Handle task drop to move to different list
+                              if (draggingTaskId) {
+                                e.dataTransfer.dropEffect = "move";
+                                setDropTargetListForTask(list.id);
+                              }
+                            }}
+                            onDragLeave={() => {
+                              setDropTargetListForTask(null);
                             }}
                             onDrop={(e) => {
                               e.preventDefault();
+                              // Handle list reorder
                               const sourceListId = e.dataTransfer.getData("text/plain") || draggingListId;
                               const sourceGroupId = e.dataTransfer.getData("application/group-id");
-                              if (sourceListId && sourceGroupId === group.id) {
+                              if (sourceListId && sourceGroupId === group.id && draggingListId) {
                                 void handleReorderLists(sourceListId, list.id, group.id);
+                              }
+                              // Handle task move to different list
+                              const sourceTaskId = e.dataTransfer.getData("application/task-id");
+                              const sourceTaskListId = e.dataTransfer.getData("application/list-id");
+                              if (sourceTaskId && sourceTaskListId !== list.id) {
+                                void handleMoveTask(sourceTaskId, list.id);
                               }
                               setDraggingListId(null);
                               setDropTargetListId(null);
+                              setDropTargetListForTask(null);
                             }}
                             onClick={() => setSelectedListId(list.id)}
                             onContextMenu={(e) => handleListContextMenu(e, list)}
@@ -1002,6 +1033,10 @@ export function DashboardPage() {
                             } ${
                               dropTargetListId === list.id && draggingListId !== list.id
                                 ? "ring-2 ring-violet-300 dark:ring-violet-700"
+                                : ""
+                            } ${
+                              dropTargetListForTask === list.id && draggingTaskId
+                                ? "ring-2 ring-green-300 dark:ring-green-700 bg-green-50 dark:bg-green-900/20"
                                 : ""
                             } ${
                               selectedListId === list.id

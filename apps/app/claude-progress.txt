@@ -1,5 +1,53 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 24: Task Move to Different List Implementation
+**Date:** 2026-02-20
+**Agent:** Claude Code (GLM-5)
+
+### Completed
+- Implemented task move to different list functionality:
+  - Added moveTask action to dataStore
+  - Added dropTargetListForTask state for tracking drop target
+  - Updated sidebar list items to accept task drops
+  - Visual feedback when task is dragged over list (green ring)
+  - Task is removed from source list and added to target list
+- Added list_id support to backend API:
+  - Updated UpdateTaskInput to include list_id
+  - Updated backend PATCH /api/v1/tasks/[id] to accept list_id
+- Verified Test #41 with real backend API on localhost:3000:
+  - Dragged "Test task 1" from "List C" to "List B"
+  - Verified PATCH API call returned 200 OK
+  - Verified task appears in "List B" after move
+  - Verified task is no longer in "List C" after move
+
+### Verification Performed
+- `npm run build` passed (app)
+- `pnpm build:web` passed (web backend)
+- Playwright verification confirmed:
+  - Task "Test task 1" moved from List C to List B
+  - PATCH /api/v1/tasks/ce1c05f4... => [200] OK
+
+### Current Status
+- 41/209 test cases passing
+- Test #41 verified with real backend API on localhost:3000
+
+### Tests Now Passing
+- Test #41: User can move a task to a different list ✓
+
+### Files Created/Modified
+- src/stores/dataStore.ts (added moveTask action)
+- src/pages/DashboardPage.tsx (added task-to-list drop handlers)
+- src/lib/api/tasks.ts (added list_id to UpdateTaskInput)
+- apps/web/src/app/api/v1/tasks/[id]/route.ts (added list_id support)
+- feature_list.json (marked Test #41 as passing)
+- claude-progress.txt (this session log)
+
+### Next Steps
+1. Continue with Test #42 (reorder subtasks via drag and drop)
+2. Continue with remaining task features
+
+---
+
 ## Session 23: Task Drag and Drop Reorder Implementation
 **Date:** 2026-02-20
 **Agent:** Claude Code (MiniMax-M2.5)
