@@ -278,7 +278,7 @@
       "Click save button",
       "Verify new list appears under the group"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 22,

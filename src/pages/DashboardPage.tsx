@@ -57,6 +57,7 @@ export function DashboardPage() {
     updateGroup,
     reorderGroups,
     deleteGroup,
+    createList,
     clear,
   } = useDataStore();
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
@@ -75,6 +76,11 @@ export function DashboardPage() {
   const [isUpdatingGroup, setIsUpdatingGroup] = React.useState(false);
   const [draggingGroupId, setDraggingGroupId] = React.useState<string | null>(null);
   const [dropTargetGroupId, setDropTargetGroupId] = React.useState<string | null>(null);
+
+  // Create list state
+  const [showNewListInput, setShowNewListInput] = React.useState<string | null>(null); // group_id
+  const [newListName, setNewListName] = React.useState("");
+  const [isCreatingList, setIsCreatingList] = React.useState(false);
 
   // Context menu state
   const [contextMenu, setContextMenu] = React.useState<{
@@ -190,6 +196,25 @@ export function DashboardPage() {
       await reorderGroups(nextGroups.map((group) => group.id));
     } catch (err) {
       console.error("Failed to reorder groups:", err);
+    }
+  };
+
+  // Handle creating new list
+  const handleCreateList = async (groupId: string) => {
+    if (!newListName.trim()) return;
+
+    setIsCreatingList(true);
+    try {
+      await createList({
+        group_id: groupId,
+        name: newListName.trim(),
+      });
+      setNewListName("");
+      setShowNewListInput(null);
+    } catch (err) {
+      console.error("Failed to create list:", err);
+    } finally {
+      setIsCreatingList(false);
     }
   };
 
@@ -414,7 +439,7 @@ export function DashboardPage() {
                     </button>
 
                     {/* Lists under group */}
-                    {isExpanded && groupLists.length > 0 && (
+                    {isExpanded && (
                       <div className="ml-6 mt-1 space-y-1">
                         {groupLists.map((list) => (
                           <button
@@ -430,6 +455,53 @@ export function DashboardPage() {
                             <span className="truncate">{list.name}</span>
                           </button>
                         ))}
+
+                        {/* New list input */}
+                        {showNewListInput === group.id ? (
+                          <div className="px-3 py-2 bg-white dark:bg-zinc-700 rounded-lg border border-zinc-200 dark:border-zinc-600">
+                            <input
+                              type="text"
+                              value={newListName}
+                              onChange={(e) => setNewListName(e.target.value)}
+                              placeholder="List name"
+                              className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-zinc-900 dark:text-white placeholder-zinc-400"
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") handleCreateList(group.id);
+                                if (e.key === "Escape") {
+                                  setShowNewListInput(null);
+                                  setNewListName("");
+                                }
+                              }}
+                            />
+                            <div className="flex items-center justify-end gap-2 mt-2">
+                              <button
+                                onClick={() => {
+                                  setShowNewListInput(null);
+                                  setNewListName("");
+                                }}
+                                className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-600 text-zinc-400"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleCreateList(group.id)}
+                                disabled={isCreatingList || !newListName.trim()}
+                                className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-600 text-green-500 disabled:opacity-50"
+                              >
+                                <Check className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setShowNewListInput(group.id)}
+                            className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-zinc-400 dark:text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+                          >
+                            <Plus className="w-4 h-4" />
+                            <span>Add list</span>
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>

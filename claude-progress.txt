@@ -1,5 +1,50 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 17: List Creation Verification
+**Date:** 2026-02-20
+**Agent:** Claude Code (GLM-5)
+
+### Completed
+- Implemented list creation UI in DashboardPage:
+  - Added "Add list" button under each expanded group
+  - Added new list input with name field and save/cancel buttons
+  - Integrated with dataStore's `createList` action
+- Verified Test #21 with backend API on `http://localhost:3000`
+- Confirmed creating a list from sidebar add flow renders the new list immediately under the group
+- Confirmed clicking the new list updates main header to list name
+
+### Verification Performed
+- `npm run build` passed
+- Playwright flow verified Test #21:
+  - Logged in as `foo@example.com`
+  - Expanded `API Test Group` in sidebar
+  - Clicked `Add list` button
+  - Entered list name `Test List 21`
+  - Clicked save button (green checkmark)
+  - Verified new list `Test List 21` appears under `API Test Group`
+  - Clicked the new list and verified main header changed to `Test List 21`
+
+### Current Status
+- 24/209 test cases passing
+- List creation flow is implemented and verified
+
+### Tests Now Passing
+- Test #21: User can create a new list ✓
+
+### Files Created/Modified
+- src/pages/DashboardPage.tsx (added list creation UI and logic)
+- feature_list.json (marked Test #21 as passing)
+- claude-progress.txt (this session log)
+
+### Next Steps
+1. Verify Test #22 (edit a list)
+2. Verify Test #23 (delete a list)
+3. Verify Test #24 (move a list to different group)
+4. Verify Test #25 (reorder lists via drag and drop)
+5. Continue task CRUD verification (#27+)
+
+---
+
 ## Session 16: Group Drag-and-Drop Reorder Verification
 **Date:** 2026-02-20
 **Agent:** Codex (GPT-5)
