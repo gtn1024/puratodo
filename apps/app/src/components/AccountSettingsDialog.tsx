@@ -16,13 +16,17 @@ import { DEFAULT_API_URL, isValidApiUrl, normalizeApiUrl } from "@/lib/api/confi
 import { useAuthStore, AccountSession } from "@/stores/authStore";
 
 interface AccountSettingsDialogProps {
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   onAccountChanged?: () => Promise<void> | void;
   defaultIsAdding?: boolean;
 }
 
 export function AccountSettingsDialog({
   trigger,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
   onAccountChanged,
   defaultIsAdding = false,
 }: AccountSettingsDialogProps) {
@@ -35,7 +39,7 @@ export function AccountSettingsDialog({
     setCurrentServerUrl,
   } = useAuthStore();
 
-  const [open, setOpen] = React.useState(false);
+  const [internalOpen, setInternalOpen] = React.useState(false);
   const [isAdding, setIsAdding] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -45,6 +49,11 @@ export function AccountSettingsDialog({
   const [success, setSuccess] = React.useState<string | null>(null);
   const [editingServerUrlAccountId, setEditingServerUrlAccountId] = React.useState<string | null>(null);
   const [editingServerUrlValue, setEditingServerUrlValue] = React.useState("");
+
+  // Support both controlled and uncontrolled modes
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = isControlled ? controlledOnOpenChange! : setInternalOpen;
 
   const sortedAccounts = React.useMemo(
     () =>
@@ -73,6 +82,16 @@ export function AccountSettingsDialog({
       resetForm();
     }
   };
+
+  // When controlled mode and dialog opens, set isAdding if defaultIsAdding
+  React.useEffect(() => {
+    if (isControlled && open && defaultIsAdding) {
+      setIsAdding(true);
+    }
+    if (isControlled && !open) {
+      resetForm();
+    }
+  }, [isControlled, open, defaultIsAdding, resetForm]);
 
   const handleAddAccount = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -185,8 +204,8 @@ export function AccountSettingsDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+      <DialogContent className="sm:max-w-lg" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
