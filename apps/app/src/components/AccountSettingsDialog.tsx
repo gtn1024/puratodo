@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AlertCircle, Check, Lock, Mail, Trash2, UserPlus, Users } from "lucide-react";
+import { AlertCircle, Check, Lock, Mail, Server, Trash2, UserPlus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/dialog";
 import { authApi } from "@/lib/api/auth";
 import { ApiException } from "@/lib/api/client";
-import { useAuthStore } from "@/stores/authStore";
+import { DEFAULT_API_URL, isValidApiUrl, normalizeApiUrl } from "@/lib/api/config";
+import { useAuthStore, AccountSession } from "@/stores/authStore";
 
 interface AccountSettingsDialogProps {
   trigger: React.ReactNode;
@@ -29,15 +30,19 @@ export function AccountSettingsDialog({
     addAccount,
     switchAccount,
     removeAccount,
+    setCurrentServerUrl,
   } = useAuthStore();
 
   const [open, setOpen] = React.useState(false);
   const [isAdding, setIsAdding] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [serverUrl, setServerUrl] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
+  const [editingServerUrlAccountId, setEditingServerUrlAccountId] = React.useState<string | null>(null);
+  const [editingServerUrlValue, setEditingServerUrlValue] = React.useState("");
 
   const sortedAccounts = React.useMemo(
     () =>
@@ -49,9 +54,12 @@ export function AccountSettingsDialog({
     setIsAdding(false);
     setEmail("");
     setPassword("");
+    setServerUrl("");
     setIsSubmitting(false);
     setError(null);
     setSuccess(null);
+    setEditingServerUrlAccountId(null);
+    setEditingServerUrlValue("");
   }, []);
 
   const handleOpenChange = (nextOpen: boolean) => {
@@ -68,6 +76,13 @@ export function AccountSettingsDialog({
       return;
     }
 
+    // Validate server URL if provided
+    const normalizedServerUrl = serverUrl.trim() ? normalizeApiUrl(serverUrl) : "";
+    if (normalizedServerUrl && !isValidApiUrl(normalizedServerUrl)) {
+      setError("Please enter a valid server URL starting with http:// or https://");
+      return;
+    }
+
     setIsSubmitting(true);
     setError(null);
     setSuccess(null);
@@ -78,11 +93,22 @@ export function AccountSettingsDialog({
         password,
       });
 
-      addAccount(response.user, response.token, false);
+      // Temporarily switch to the new account to set its server URL
+      const previousAccountId = activeAccountId;
+      addAccount(response.user, response.token, true);
+
+      // Set server URL for the new account
+      if (normalizedServerUrl) {
+        setCurrentServerUrl(normalizedServerUrl);
+      }
+
       setSuccess("Account added successfully");
       setEmail("");
       setPassword("");
+      setServerUrl("");
       setIsAdding(false);
+
+      await onAccountChanged?.();
     } catch (err) {
       const message =
         err instanceof ApiException
@@ -116,6 +142,42 @@ export function AccountSettingsDialog({
     setSuccess("Account removed");
   };
 
+  const startEditServerUrl = (account: AccountSession) => {
+    setEditingServerUrlAccountId(account.id);
+    setEditingServerUrlValue(account.serverUrl ?? DEFAULT_API_URL);
+  };
+
+  const cancelEditServerUrl = () => {
+    setEditingServerUrlAccountId(null);
+    setEditingServerUrlValue("");
+  };
+
+  const saveServerUrl = (account: AccountSession) => {
+    const normalizedUrl = normalizeApiUrl(editingServerUrlValue);
+    const shouldUseDefault = normalizedUrl.length === 0 || normalizedUrl === DEFAULT_API_URL;
+
+    if (!shouldUseDefault && !isValidApiUrl(normalizedUrl)) {
+      setError("Invalid server URL");
+      return;
+    }
+
+    // Need to temporarily switch to this account to set its server URL
+    const wasActive = account.id === activeAccountId;
+
+    if (!wasActive) {
+      switchAccount(account.id);
+    }
+
+    setCurrentServerUrl(shouldUseDefault ? null : normalizedUrl);
+
+    // Update the local account object for immediate display
+    account.serverUrl = shouldUseDefault ? null : normalizedUrl;
+
+    setEditingServerUrlAccountId(null);
+    setEditingServerUrlValue("");
+    setSuccess("Server URL updated");
+  };
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
@@ -126,7 +188,7 @@ export function AccountSettingsDialog({
             <span>Account Settings</span>
           </DialogTitle>
           <DialogDescription>
-            Manage multiple signed-in accounts for this device.
+            Manage multiple signed-in accounts. Each account has its own API server URL.
           </DialogDescription>
         </DialogHeader>
 
@@ -140,45 +202,101 @@ export function AccountSettingsDialog({
 
             {sortedAccounts.map((account) => {
               const isActive = account.id === activeAccountId;
+              const isEditingServer = editingServerUrlAccountId === account.id;
+
               return (
                 <div
                   key={account.id}
-                  className="flex items-center justify-between rounded-lg border border-zinc-200 px-3 py-2 dark:border-zinc-700"
+                  className="rounded-lg border border-zinc-200 px-3 py-2 dark:border-zinc-700"
                 >
-                  <div>
-                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                      {account.user.email}
-                    </p>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      {isActive ? "Current account" : "Saved account"}
-                    </p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                        {account.user.email}
+                      </p>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                        {isActive ? "Current account" : "Saved account"}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {!isActive && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSwitchAccount(account.id)}
+                        >
+                          Switch
+                        </Button>
+                      )}
+                      {isActive && (
+                        <span className="inline-flex items-center rounded-md bg-green-100 px-2 py-1 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                          Active
+                        </span>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-zinc-400 hover:text-red-500"
+                        onClick={() => handleRemoveAccount(account.id)}
+                        disabled={sortedAccounts.length === 1}
+                        title={sortedAccounts.length === 1 ? "At least one account is required" : "Remove account"}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    {!isActive && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleSwitchAccount(account.id)}
-                      >
-                        Switch
-                      </Button>
+                  {/* Server URL display/edit */}
+                  <div className="mt-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+                    <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+                      <Server className="h-3 w-3" />
+                      <span>Server:</span>
+                    </div>
+                    {isEditingServer ? (
+                      <div className="flex items-center gap-2 mt-1">
+                        <input
+                          type="url"
+                          value={editingServerUrlValue}
+                          onChange={(e) => setEditingServerUrlValue(e.target.value)}
+                          placeholder={DEFAULT_API_URL}
+                          className="flex-1 px-2 py-1 text-xs border border-zinc-300 dark:border-zinc-600 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") saveServerUrl(account);
+                            if (e.key === "Escape") cancelEditServerUrl();
+                          }}
+                        />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-green-500"
+                          onClick={() => saveServerUrl(account)}
+                        >
+                          <Check className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-zinc-400"
+                          onClick={cancelEditServerUrl}
+                        >
+                          ×
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-xs text-zinc-700 dark:text-zinc-300 truncate">
+                          {account.serverUrl || DEFAULT_API_URL}
+                        </span>
+                        <button
+                          onClick={() => startEditServerUrl(account)}
+                          className="text-xs text-violet-600 hover:text-violet-700 dark:text-violet-400"
+                        >
+                          Edit
+                        </button>
+                      </div>
                     )}
-                    {isActive && (
-                      <span className="inline-flex items-center rounded-md bg-green-100 px-2 py-1 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-300">
-                        Active
-                      </span>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-zinc-400 hover:text-red-500"
-                      onClick={() => handleRemoveAccount(account.id)}
-                      disabled={sortedAccounts.length === 1}
-                      title={sortedAccounts.length === 1 ? "At least one account is required" : "Remove account"}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
                   </div>
                 </div>
               );
@@ -219,6 +337,14 @@ export function AccountSettingsDialog({
                 icon={<Lock className="h-4 w-4" />}
                 disabled={isSubmitting}
               />
+              <Input
+                type="url"
+                value={serverUrl}
+                onChange={(e) => setServerUrl(e.target.value)}
+                placeholder={`API Server URL (default: ${DEFAULT_API_URL})`}
+                icon={<Server className="h-4 w-4" />}
+                disabled={isSubmitting}
+              />
 
               <div className="flex justify-end gap-2">
                 <Button
@@ -228,6 +354,7 @@ export function AccountSettingsDialog({
                     setIsAdding(false);
                     setEmail("");
                     setPassword("");
+                    setServerUrl("");
                     setError(null);
                     setSuccess(null);
                   }}

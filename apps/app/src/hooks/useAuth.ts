@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { authApi, type LoginCredentials, type RegisterCredentials } from "@/lib/api/auth";
 import { ApiException } from "@/lib/api/client";
+import { getPendingApiUrl, setPendingApiUrl } from "@/lib/api/config";
 
 interface UseAuthReturn {
   login: (credentials: LoginCredentials) => Promise<{ success: boolean; error?: string }>;
@@ -13,7 +14,7 @@ interface UseAuthReturn {
 }
 
 export function useAuth(): UseAuthReturn {
-  const { login: setLogin, logout: setLogout } = useAuthStore();
+  const { login: setLogin, logout: setLogout, setCurrentServerUrl } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,7 +24,18 @@ export function useAuth(): UseAuthReturn {
 
     try {
       const response = await authApi.login(credentials);
+
+      // Get the pending API URL before login completes
+      const pendingUrl = getPendingApiUrl();
+
       setLogin(response.user, response.token);
+
+      // If there was a pending API URL, bind it to the new account
+      if (pendingUrl !== null) {
+        setCurrentServerUrl(pendingUrl);
+        setPendingApiUrl(null);
+      }
+
       return { success: true };
     } catch (err) {
       const message =
@@ -35,7 +47,7 @@ export function useAuth(): UseAuthReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [setLogin]);
+  }, [setLogin, setCurrentServerUrl]);
 
   const register = useCallback(async (credentials: RegisterCredentials) => {
     setIsLoading(true);
@@ -43,7 +55,18 @@ export function useAuth(): UseAuthReturn {
 
     try {
       const response = await authApi.register(credentials);
+
+      // Get the pending API URL before registration completes
+      const pendingUrl = getPendingApiUrl();
+
       setLogin(response.user, response.token);
+
+      // If there was a pending API URL, bind it to the new account
+      if (pendingUrl !== null) {
+        setCurrentServerUrl(pendingUrl);
+        setPendingApiUrl(null);
+      }
+
       return { success: true };
     } catch (err) {
       const message =
@@ -55,7 +78,7 @@ export function useAuth(): UseAuthReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [setLogin]);
+  }, [setLogin, setCurrentServerUrl]);
 
   const logout = useCallback(async () => {
     setIsLoading(true);

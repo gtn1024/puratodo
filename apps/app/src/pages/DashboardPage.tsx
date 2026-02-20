@@ -12,7 +12,6 @@ import {
   Check,
   Pencil,
   Trash2,
-  Settings,
   Users,
   Move,
   Calendar,
@@ -28,7 +27,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { ApiServerSettingsDialog } from "@/components/ApiServerSettingsDialog";
 import { AccountSettingsDialog } from "@/components/AccountSettingsDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
@@ -1316,19 +1314,6 @@ export function DashboardPage() {
                     title="Account Settings"
                   >
                     <Users className="w-4 h-4" />
-                  </Button>
-                )}
-              />
-              <ApiServerSettingsDialog
-                onSaved={fetchAll}
-                trigger={(
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
-                    title="API Server Settings"
-                  >
-                    <Settings className="w-4 h-4" />
                   </Button>
                 )}
               />
