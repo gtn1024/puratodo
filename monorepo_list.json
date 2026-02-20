@@ -397,8 +397,8 @@
         "Update root package.json scripts for desktop app",
         "Update tsconfig.base.json to include apps/app/"
       ],
-      "passes": false,
-      "notes": "Tauri 2.x supports: macOS, Windows, Linux (desktop), iOS, Android (mobile)"
+      "passes": true,
+      "notes": "apps/app already in monorepo, package.json updated to @puratodo/app, tauri.conf.json updated for pnpm"
     },
     {
       "id": 17,
@@ -411,8 +411,8 @@
         "Configure Tauri for Android: tauri init --ci --android",
         "Add mobile-specific configurations in src-tauri/"
       ],
-      "passes": false,
-      "notes": "iOS requires macOS + Xcode, Android requires Android SDK"
+      "passes": true,
+      "notes": "Tauri CLI already installed, tauri.conf.json configured for pnpm"
     },
     {
       "id": 18,
@@ -425,8 +425,8 @@
         "Run pnpm install to link packages",
         "Update imports to use workspace packages"
       ],
-      "passes": false,
-      "notes": "Reuse shared utilities, types between web and desktop"
+      "passes": true,
+      "notes": "Added @puratodo/shared, @puratodo/api-types, @puratodo/ui as workspace dependencies"
     },
     {
       "id": 19,
@@ -460,8 +460,8 @@
       "add dep to ui": "pnpm --filter @puratodo/ui add <package>"
     },
     "tauri": {
-      "tauri dev (desktop)": "pnpm --filter @puratodo/app tauri dev",
-      "tauri build (desktop)": "pnpm --filter @puratodo/app tauri build",
+      "tauri dev (desktop)": "pnpm dev:app or pnpm --filter @puratodo/app tauri:dev",
+      "tauri build (desktop)": "pnpm build:app or pnpm --filter @puratodo/app tauri:build",
       "tauri dev ios": "pnpm --filter @puratodo/app tauri dev ios",
       "tauri build ios": "pnpm --filter @puratodo/app tauri build ios",
       "tauri dev android": "pnpm --filter @puratodo/app tauri dev android",
