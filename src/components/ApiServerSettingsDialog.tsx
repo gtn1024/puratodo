@@ -18,6 +18,7 @@ import {
   normalizeApiUrl,
   setApiUrl,
 } from "@/lib/api/config";
+import { useAuthStore } from "@/stores/authStore";
 
 interface ApiServerSettingsDialogProps {
   trigger: React.ReactNode;
@@ -30,13 +31,21 @@ export function ApiServerSettingsDialog({ trigger, onSaved }: ApiServerSettingsD
   const [isSaving, setIsSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
+  const { getCurrentServerUrl, setCurrentServerUrl, isAuthenticated } = useAuthStore();
 
   const resetForm = React.useCallback(() => {
-    const storedApiUrl = getStoredApiUrl();
-    setApiUrlInput(storedApiUrl ?? DEFAULT_API_URL);
+    // Priority 1: Get from current account
+    const currentAccountServerUrl = getCurrentServerUrl();
+    if (currentAccountServerUrl !== null) {
+      setApiUrlInput(currentAccountServerUrl);
+    } else {
+      // Priority 2: Fallback to global storage
+      const storedApiUrl = getStoredApiUrl();
+      setApiUrlInput(storedApiUrl ?? DEFAULT_API_URL);
+    }
     setError(null);
     setSuccess(null);
-  }, []);
+  }, [getCurrentServerUrl]);
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (nextOpen) {
@@ -60,10 +69,22 @@ export function ApiServerSettingsDialog({ trigger, onSaved }: ApiServerSettingsD
     setSuccess(null);
 
     try {
-      if (shouldUseDefault) {
-        clearApiUrl();
+      if (isAuthenticated) {
+        // Save to current account
+        const urlToSave = shouldUseDefault ? null : normalizedApiUrl;
+        setCurrentServerUrl(urlToSave);
+
+        // If using default, also clear the global storage
+        if (shouldUseDefault) {
+          clearApiUrl();
+        }
       } else {
-        setApiUrl(normalizedApiUrl);
+        // Fallback to global storage if not logged in
+        if (shouldUseDefault) {
+          clearApiUrl();
+        } else {
+          setApiUrl(normalizedApiUrl);
+        }
       }
 
       await onSaved?.();

@@ -39,3 +39,5 @@ coverage/
 *.temp
 
 .credentials.local
+
+.playwright-mcp/

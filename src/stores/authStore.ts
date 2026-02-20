@@ -8,6 +8,7 @@ export interface AccountSession {
   token: string;
   addedAt: string;
   lastUsedAt: string;
+  serverUrl: string | null;
 }
 
 interface AuthState {
@@ -27,6 +28,8 @@ interface AuthState {
   removeAccount: (accountId: string) => void;
   login: (user: User, token: string) => void;
   logout: () => void;
+  getCurrentServerUrl: () => string | null;
+  setCurrentServerUrl: (url: string | null) => void;
 }
 
 function syncAuthToken(token: string | null) {
@@ -50,7 +53,8 @@ function getActiveAccount(
 function upsertAccount(
   accounts: AccountSession[],
   user: User,
-  token: string
+  token: string,
+  serverUrl: string | null = null
 ): AccountSession[] {
   const now = new Date().toISOString();
   const existing = accounts.find((account) => account.id === user.id);
@@ -64,6 +68,7 @@ function upsertAccount(
         token,
         addedAt: now,
         lastUsedAt: now,
+        serverUrl,
       },
     ];
   }
@@ -75,6 +80,7 @@ function upsertAccount(
           user,
           token,
           lastUsedAt: now,
+          serverUrl: serverUrl !== null ? serverUrl : account.serverUrl,
         }
       : account
   );
@@ -215,6 +221,29 @@ export const useAuthStore = create<AuthState>()(
           activeAccountId: null,
           isAuthenticated: false,
           isLoading: false,
+        });
+      },
+
+      getCurrentServerUrl: () => {
+        const state = get();
+        const activeAccount = getActiveAccount(state.accounts, state.activeAccountId);
+        return activeAccount?.serverUrl ?? null;
+      },
+
+      setCurrentServerUrl: (url: string | null) => {
+        set((state) => {
+          if (!state.activeAccountId) return {};
+
+          const accounts = state.accounts.map((account) =>
+            account.id === state.activeAccountId
+              ? {
+                  ...account,
+                  serverUrl: url,
+                }
+              : account
+          );
+
+          return { accounts };
         });
       },
     }),

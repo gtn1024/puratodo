@@ -43,10 +43,39 @@ export function getStoredApiUrl(): string | null {
   return normalizedUrl.length > 0 ? normalizedUrl : null;
 }
 
+// Get the current account's server URL from authStore
+// Uses dynamic import to avoid circular dependency
+let authStoreGetter: (() => string | null) | null = null;
+
+export function setAuthStoreServerUrlGetter(getter: () => string | null): void {
+  authStoreGetter = getter;
+}
+
+export function getCurrentAccountServerUrl(): string | null {
+  if (authStoreGetter) {
+    return authStoreGetter();
+  }
+
+  // Fallback: try to get from authStore directly if getter not set
+  // This handles the case where authStore is imported before setter is called
+  return null;
+}
+
 // Get the stored API URL or return default
 export function getApiUrl(): string {
   if (typeof window === "undefined") return DEFAULT_API_URL;
 
+  // Priority 1: Use current account's server URL
+  const currentAccountServerUrl = getCurrentAccountServerUrl();
+  if (currentAccountServerUrl !== null) {
+    // In browser dev mode, use empty string to leverage Vite proxy
+    if (isBrowserDevMode()) {
+      return "";
+    }
+    return currentAccountServerUrl;
+  }
+
+  // Priority 2: Fallback to global stored API URL
   const storedApiUrl = getStoredApiUrl();
 
   // In browser dev mode, use empty string to leverage Vite proxy
