@@ -1,15 +1,7 @@
 import { api } from "./client";
+import type { Group, ApiResponse } from "@puratodo/api-types";
 
-export interface Group {
-  id: string;
-  user_id: string;
-  name: string;
-  color: string | null;
-  sort_order: number;
-  created_at: string;
-  updated_at: string;
-}
-
+// Client-specific input types (backend adds user_id automatically)
 export interface CreateGroupInput {
   name: string;
   color?: string;
@@ -21,26 +13,22 @@ export interface UpdateGroupInput {
   sort_order?: number;
 }
 
-// Backend API response wrapper
-interface ApiDataResponse<T> {
-  success: boolean;
-  data: T;
-}
+export type { Group };
 
 export const groupsApi = {
   async list(): Promise<Group[]> {
-    const response = await api.get<ApiDataResponse<Group[]>>("/api/v1/groups");
-    return response.data;
+    const response = await api.get<ApiResponse<Group[]>>("/api/v1/groups");
+    return response.data ?? [];
   },
 
   async create(input: CreateGroupInput): Promise<Group> {
-    const response = await api.post<ApiDataResponse<Group>>("/api/v1/groups", input);
-    return response.data;
+    const response = await api.post<ApiResponse<Group>>("/api/v1/groups", input);
+    return response.data!;
   },
 
   async update(id: string, input: UpdateGroupInput): Promise<Group> {
-    const response = await api.patch<ApiDataResponse<Group>>(`/api/v1/groups/${id}`, input);
-    return response.data;
+    const response = await api.patch<ApiResponse<Group>>(`/api/v1/groups/${id}`, input);
+    return response.data!;
   },
 
   async delete(id: string): Promise<void> {

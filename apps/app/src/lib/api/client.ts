@@ -6,7 +6,8 @@ export interface ApiError {
   errors?: Record<string, string[]>;
 }
 
-export interface ApiResponse<T> {
+// Internal client response wrapper
+export interface ClientResponse<T> {
   data: T | null;
   error: ApiError | null;
 }
