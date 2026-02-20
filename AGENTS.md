@@ -102,12 +102,23 @@ This project follows a "long-running agent" methodology with daily progress logg
 6. Make sure project can be built successfully (`pnpm build:web` or `cd apps/app && npm run tauri build`)
 7. Update the feature_list.json - set `passes: true` for completed feature
 8. Update the corresponding claude-progress.txt (append new log for current session, what has done, what does not work, next steps)
-9. **Git commit** - Always commit your changes after testing passes and updating the progress files
+9. **Git commit** - Commit ONLY after testing passes (see "Testing" section below). Never commit untested code.
 
-### Testing App vs Web
+### Testing (REQUIRED before commit)
 
-- **Web app**: Test in browser using Playwright MCP
+**All changes MUST be tested before committing.** Use one of the following tools:
+
+- **agent-browser skill**: Browser automation for testing web flows (login, UI interactions, etc.)
+  - Example: Use `agent-browser` skill to navigate pages, fill forms, click buttons, take screenshots
+- **Playwright MCP**: End-to-end testing with programmatic browser control
+  - Test credentials are in `.credentials.local` at project root
+
+#### Testing App vs Web
+
+- **Web app**: Test in browser using `agent-browser` skill or Playwright MCP
 - **Tauri app**: Test by running `cd apps/app && npm run tauri dev` and manually verifying features
+
+**DO NOT commit until tests pass and the feature works as expected.**
 
 ### init.sh Script
 
