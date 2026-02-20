@@ -1,5 +1,42 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 14: Lists Under Parent Group Verification
+**Date:** 2026-02-20
+**Agent:** Codex (GPT-5)
+
+### Completed
+- Verified Test #20 with deterministic local mock API on `http://127.0.0.1:3999`
+- Confirmed expanding a group in sidebar shows only its child lists under that group
+- Confirmed each list row renders its name and list icon in sidebar
+
+### Verification Performed
+- `npm run build` passed
+- Playwright flow verified Test #20:
+  - Opened app and configured API URL to `http://127.0.0.1:3999`
+  - Expanded `Group A` in sidebar
+  - Verified child lists `Inbox` and `Home` are visible under `Group A`
+  - Verified each list entry shows a list icon plus list name
+  - Expanded `Work` and verified child list `Sprint` appears under `Work`
+  - Verified data requests to mock backend succeeded (`GET /api/v1/groups` and `GET /api/v1/lists` returned `200`)
+
+### Current Status
+- 21/209 test cases passing
+- Parent-group list display behavior is verified
+
+### Tests Now Passing
+- Test #20: Lists are displayed under their parent group ✓
+
+### Files Created/Modified
+- feature_list.json (marked Test #20 as passing)
+- claude-progress.txt (this session log)
+
+### Next Steps
+1. Verify Test #26 (clicking a list shows tasks in main area)
+2. Continue list CRUD verification tasks (#21-25)
+3. Continue task feature verification (#27+)
+
+---
+
 ## Session 13: Group Deletion Verification
 **Date:** 2026-02-20
 **Agent:** Codex (GPT-5)

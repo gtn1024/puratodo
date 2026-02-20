@@ -265,7 +265,7 @@
       "Verify lists are visible under the group",
       "Verify each list shows its name and icon"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 21,
