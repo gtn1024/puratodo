@@ -180,7 +180,7 @@ export default function LoginPage() {
 
             <Button
               type="submit"
-              className="w-full bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200 transition-all duration-200 shadow-lg shadow-stone-900/20 dark:shadow-stone-900/40"
+              className="w-full bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-700 dark:hover:bg-stone-600 dark:text-stone-100 transition-all duration-200 shadow-lg shadow-stone-900/20 dark:shadow-stone-900/40"
               disabled={isLoading}
             >
               {isLoading ? (
