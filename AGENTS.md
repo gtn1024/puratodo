@@ -65,9 +65,11 @@ cd apps/app && npm run tauri build   # Build for production
 
 ## Tech Stack
 
-- **Framework**: Next.js 16 (App Router) + React 19
+- **Web Framework**: Next.js 16 (App Router) + React 19
+- **Desktop/Mobile Framework**: Tauri 2.0 + React + Vite
 - **Styling**: Tailwind CSS 4 + shadcn/ui
 - **Backend**: Supabase (PostgreSQL, Auth, Realtime, RLS)
+- **API**: REST API for Tauri client (web app also exposes API endpoints)
 - **Testing**: Playwright MCP (end-to-end)
 - **Language**: TypeScript (strict mode)
 - **Package Manager**: pnpm 9+ with workspaces
@@ -97,10 +99,15 @@ This project follows a "long-running agent" methodology with daily progress logg
 3. Run `./init.sh web` (or `./init.sh app` for Tauri) to start dev environment
 4. Implement the feature
 5. Test with Playwright MCP (the credentials of accounts in `.credentials.local`)
-6. Make sure project can be built successfully (`pnpm build:web`)
-7. Update `apps/web/feature_list.json` (set `passes: true` for completed feature)
-8. Update `apps/web/claude-progress.txt` (append new log for current session, what has done, what does not work, next steps)
+6. Make sure project can be built successfully (`pnpm build:web` or `cd apps/app && npm run tauri build`)
+7. Update the feature_list.json - set `passes: true` for completed feature
+8. Update the corresponding claude-progress.txt (append new log for current session, what has done, what does not work, next steps)
 9. **Git commit** - Always commit your changes after testing passes and updating the progress files
+
+### Testing App vs Web
+
+- **Web app**: Test in browser using Playwright MCP
+- **Tauri app**: Test by running `cd apps/app && npm run tauri dev` and manually verifying features
 
 ### init.sh Script
 
@@ -125,9 +132,9 @@ The `init.sh` script standardizes development server startup:
 
 ### apps/app (Tauri Desktop App)
 - Cross-platform desktop/mobile app (Tauri 2.0)
-- Has **separate** `apps/app/feature_list.json` (209 test cases) and `apps/app/claude-progress.txt`
+- Has **separate** `apps/app/feature_list.json` (~80 features) and `apps/app/claude-progress.txt`
 - Target: Desktop (macOS, Windows, Linux), Mobile (iOS, Android)
-- Connects to web app's API backend
+- Connects to web app's API backend via REST API
 
 ## Architecture
 
