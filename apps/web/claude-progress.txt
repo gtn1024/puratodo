@@ -1,0 +1,316 @@
+# PuraToDo Web - Development Progress
+
+## Project Overview
+Next.js web application - the primary interface for PuraToDo.
+Built with Next.js 16+, Supabase, and Tailwind CSS.
+Supports groups, lists, and infinitely nested tasks.
+
+## Tech Stack
+- Frontend: Next.js 16+ (App Router) + TypeScript + Tailwind CSS v4 + shadcn/ui
+- Backend: Supabase (PostgreSQL + Auth + Realtime + RLS)
+- Testing: Playwright MCP (E2E)
+
+## Data Model
+
+```
+users (Supabase Auth)
+    └── groups (1:N)
+            └── lists (1:N)
+                    └── tasks (1:N, self-referencing for subtasks)
+```
+
+All tables include user_id for RLS policies and query optimization.
+
+---
+
+### 2026-02-20
+
+#### 完成
+- Feature #71: 日历视图（Calendar View）
+  - 添加 `showCalendarView` 状态到 `dashboard-content.tsx`，与其他视图状态互斥
+  - 在 Sidebar 添加 "日历/Calendar" 入口（紫色高亮）
+  - 创建 `src/components/dashboard/calendar-panel.tsx` 日历面板组件：
+    - 月视图 7 列网格（Sun-Sat）
+    - 上/下月导航和 "今天" 快捷按钮
+    - 日期格子显示任务预览（最多3个，显示 "+X more"）
+    - 列表筛选下拉（所有列表/指定列表）
+    - 右侧 "未安排" 任务侧边栏（桌面端可见）
+  - 添加 `src/actions/tasks.ts` 查询函数：
+    - `getTasksInDateRange`：按日期范围获取任务
+    - `getUnscheduledTasks`：获取无 plan_date 的任务
+  - 中英文翻译：添加 `calendar.*` 翻译键（title/month/week/today/unscheduled/noTasks/allLists）
+  - Header 显示 "Calendar" 标题和紫色图标
+  - 构建验证通过：`npm run build`
+  - Playwright 测试验证：
+    - 点击 "日历" 按钮切换到日历视图
+    - 月份导航正常工作
+    - 日历网格正确渲染
+    - 列表筛选下拉正常工作
+  - 说明：拖拽功能暂时未实现（保留 @dnd-kit 上下文供后续扩展）
+- Feature #70: 批量操作（多选任务管理）
+  - TaskPanel 新增多选模式：点击 "Select" 按钮进入选择模式
+  - 每行任务显示选择框（Square/CheckSquare 图标）
+  - 批量操作栏显示已选任务数量和操作按钮：
+    - 全选/取消全选
+    - 批量完成/未完成
+    - 批量星标/取消星标
+    - 批量删除（带确认对话框）
+    - 批量设置截止日期（日期选择器）
+  - 添加 `bulkUpdateTasks` 和 `bulkDeleteTasks` Server Actions
+  - 支持乐观更新：本地状态立即更新，后台同步服务器
+  - 中英文翻译：添加 `taskPanel.select/selected/selectAll/deselect/complete/incomplete/star/unstar/delete/setDate/cancel/tasksSelected`
+  - 构建验证通过：`npm run build`
+- Feature #69 (Step 1): 添加 reminder 字段到数据库
+  - 创建迁移文件 `supabase/migrations/20260220000001_add_reminder_fields.sql`
+  - 添加字段：`remind_at` (timestamptz), `reminder_sent_at` (timestamptz)
+  - 添加索引：`idx_tasks_remind_at_pending`, `idx_tasks_remind_at_completed`
+  - 更新 `database.types.ts` 中的类型定义
+  - 更新 `src/actions/tasks.ts` 中的 Task 类型和 TaskUpdatePayload
+- Feature #69 (Step 2): 浏览器通知权限流程
+  - 创建 `src/lib/notifications.ts`：通知权限检查、请求、显示、调度工具函数
+  - 支持 `scheduleNotification`, `scheduleTaskReminder`, `clearScheduledNotification` 等 API
+  - 创建 `src/hooks/use-reminders.ts`：React hook 管理提醒调度
+- Feature #69 (Step 4): 提醒设置 UI
+  - 创建 `src/components/dashboard/reminder-fields.tsx`：提醒设置组件
+  - 支持预设提醒（到期时、5分钟前、15分钟前、30分钟前、1小时前、1天前）
+  - 支持自定义提醒时间
+  - 集成到 `task-detail-panel.tsx` 和 `task-detail-sheet.tsx`
+  - 创建 `src/components/dashboard/reminder-scheduler.tsx`：后台提醒调度组件
+  - 集成到 `dashboard-content.tsx`
+- Feature #69 (API): 更新 REST API 支持提醒字段
+  - 更新 `src/app/api/v1/tasks/route.ts`：Task 类型添加 remind_at
+  - 更新 `src/app/api/v1/tasks/[id]/route.ts`：PATCH 支持 remind_at
+  - 更新 `src/app/api/openapi/route.ts`：OpenAPI 文档添加 remind_at/reminder_sent_at
+- 中英文翻译：添加 `reminder.*` 翻译键
+- 构建验证通过：`npm run build`
+- 说明：
+  - 数据库迁移需要手动在 Supabase 控制台运行或使用 `supabase db push`
+  - 浏览器通知需要用户授权
+  - 目前使用客户端定时器实现提醒，服务端推送通知可后续扩展
+
+#### 下一步
+- Feature #72: Natural language task creation with date and intent parsing
+- Feature #73: Auto-generate weekly/monthly review reports from completed work
+
+---
+
+### 2026-02-20 (Earlier)
+
+#### 完成
+- Feature #68 (Step 1): Smart Views 入口与 Dashboard 视图状态
+  - `Sidebar` 新增 Smart Views 分区与四个入口：`Starred / Overdue / Next 7 Days / No Date`
+  - `DashboardContent` 新增 `selectedSmartView` 视图状态，并与 Today/Inbox/Group/List 切换互斥
+  - 在切换 Group/List/Today/Inbox/Search 跳转时，统一清空 Smart View 状态，避免状态串扰
+  - 主区域与顶部标题接入 Smart View 路由状态（当前为占位面板）
+  - 新增中英文文案：
+    - `sidebar.smartViews`
+    - `sidebar.starred`
+    - `sidebar.overdue`
+    - `sidebar.next7Days`
+    - `sidebar.noDate`
+  - 构建验证通过：`npm run build`
+  - 说明：Smart View 的数据查询与实时刷新将在 Feature #68 后续步骤实现
+- Feature #68 (Step 2): 实现 Smart View 查询层（含索引优化）
+  - `src/actions/tasks.ts` 新增 Smart View 查询 action：
+    - `getStarredTasks`
+    - `getOverdueTasks`
+    - `getNext7DaysTasks`
+    - `getNoDateTasks`
+  - 查询策略：
+    - Starred：`user_id + parent_id is null + starred=true`
+    - Overdue：`user_id + parent_id is null + completed=false + due_date < today`
+    - Next 7 Days：`user_id + parent_id is null + completed=false + due_date between today and today+7`
+    - No Date：`user_id + parent_id is null + completed=false + due_date is null + plan_date is null`
+  - 抽取公共上下文拼装：`attachTaskContext`，统一补齐 `list_name/list_icon/group_name/group_color`
+  - `searchTasks` 与 `getTodayTasks` 改为复用公共上下文拼装逻辑，去除重复代码
+  - `supabase/schema.sql` 新增 Smart View 相关 partial indexes：
+    - `idx_tasks_starred_top_level`
+    - `idx_tasks_due_date_open_top_level`
+    - `idx_tasks_nodate_open_top_level`
+  - 构建验证通过：`npm run build`
+- Feature #68 (Step 3): 复用任务面板渲染 Smart Views + 上下文标签
+  - `TaskPanel` 新增 `smartView` 模式，支持直接加载并展示：
+    - `Starred / Overdue / Next 7 Days / No Date`
+  - `DashboardContent` 中 Smart View 分支由占位卡片改为复用 `TaskPanel`
+  - `TaskPanel` 头部可根据 Smart View 自动切换标题/图标/空状态文案
+  - Smart View 模式下复用任务操作（完成、星标、编辑、删除、详情打开）
+  - Smart View 模式下禁用不适用能力（新建任务、子任务新增、拖拽排序、Inbox move）
+  - 在任务行新增跨列表上下文标签（列表图标+列表名+分组色点+分组名），满足 Smart View 可追溯性
+  - 构建验证通过：`npm run build`
+- Feature #68 (Step 4): Smart Views 实时刷新订阅
+  - `TaskPanel` 的 realtime 订阅扩展到 Smart View 模式：不再仅限选中 list
+  - 在 Smart View 模式订阅 `tasks` 变更（INSERT/UPDATE/DELETE）后自动 `reloadTasks`
+  - 新增 Smart View 下 `lists/groups` 变更订阅，用于列表名/分组名/颜色变化时自动刷新上下文标签
+  - 为日期驱动视图（`Overdue` / `Next 7 Days`）新增本地午夜自动刷新定时器，避免跨天无变更时视图滞后
+  - 任务过滤中的"今天"判断改为本地日期字符串（替代 UTC `toISOString`），减少时区偏差
+  - 构建验证通过：`npm run build`
+- Feature #68 (Step 5-6): 行为验证状态
+  - 已尝试使用 Playwright 执行 Smart View 端到端验证（登录 + 视图切换 + 任务编辑触发出入视图）
+  - 已绕过 MCP 持久会话限制，使用独立 Playwright（非持久上下文）完成补充验收
+  - 验证通过（UI 编辑路径）：
+    - 在 `Starred` 视图中通过任务行星标按钮取消星标，任务可在视图内自动消失（约 5-6 秒内）
+    - 日期边界校验正确（本地日期 `2026-02-20`）：
+      - `Overdue` 包含 `2026-02-19`
+      - `Next 7 Days` 包含 `2026-02-20` 与 `2026-02-27`，不包含 `2026-02-28`
+      - `No Date` 包含 `due_date/plan_date` 均为空的任务
+  - 发现失败场景（已修复）：
+    - 在 Smart View 打开状态下，若通过外部通道（API PATCH，模拟"其他设备/会话编辑"）修改任务字段，当前页面未触发自动出入视图
+    - 复现：`Starred` 视图中将任务改为 `starred=false`，30 秒内仍停留；手动刷新页面后即消失
+  - 修复：
+    - `useRealtime` 改为稳定 Supabase client + handler ref，避免因组件重渲染导致 channel 频繁重建
+    - `TaskPanel` 在 Smart View 模式新增可见页轮询兜底刷新（3 秒）+ `focus/visibilitychange` 触发即时刷新
+  - 修复后验证：
+    - 通过外部 API 将 `Starred` 任务改为 `starred=false` 后，任务约 1.5 秒内从当前视图消失（无需手动刷新）
+  - Step 6 补充验证（本地跨天）：
+    - 使用独立 Playwright 脚本将浏览器本地时间模拟到 `2026-02-20 23:59:59`
+    - 临时禁用 Smart View 3 秒轮询（仅保留午夜 `setTimeout`）后，在 `Overdue` 视图观测到跨天后自动触发一次数据刷新请求（`/dashboard`），验证午夜刷新定时器生效
+    - 日期视图动态校验：外部 API 修改日期后，`Overdue` 约 1.0 秒自动纳入任务，`Next 7 Days` 约 3.0 秒自动纳入任务
+  - 结论：Feature #68 Step 5-6 验证完成，`feature_list.json` 已更新为 `passes: true`
+
+#### 下一步
+- Feature #69: Add reminders and notifications for plan/due dates
+
+---
+
+### 2026-02-19
+
+#### 完成
+- Feature #66 (Step 1): Inbox 快速收集入口
+  - 在侧边栏新增 Inbox 智能入口（桌面端/移动端 Sheet 均支持）
+  - 在 `dashboard-content.tsx` 新增 Inbox 视图状态，支持与 Today/Group/List 互斥切换
+  - 支持 Inbox 视图下按 `N` 快捷键直接触发新建任务
+  - 新增 `getOrCreateInboxList` server action：首次进入 Inbox 时自动创建并返回可用 Inbox 列表
+  - 若用户尚无分组，会自动创建默认 `Inbox` 分组承载 Inbox 列表
+  - 新增中英文文案：`sidebar.inbox`
+  - 构建验证通过：`npm run build`
+  - 说明：全量 `npm run lint` 当前仍有历史遗留错误（非本次改动引入）
+- Feature #66 (Step 3): Inbox 专用任务 CRUD（Server Action + API）
+  - 新增 `src/lib/inbox.ts`，统一封装 `getOrCreateInboxListForUser` 逻辑
+  - 重构 `src/actions/lists.ts`：复用 `lib/inbox`，避免 Inbox 创建逻辑重复
+  - 新增 `src/actions/tasks.ts` Inbox 专用 action：
+    - `getInboxTasksWithSubtasks`
+    - `createInboxTask`
+    - `updateInboxTask`
+    - `deleteInboxTask`
+  - 新增 Inbox API 端点：
+    - `GET/POST /api/v1/tasks/inbox`
+    - `GET/PATCH/DELETE /api/v1/tasks/inbox/{id}`
+  - 更新 OpenAPI 文档，新增 Inbox tasks 路径定义
+- Feature #66 (Step 4): Inbox 任务一键移动到目标列表
+  - 新增 `moveInboxTaskToList` server action（`src/actions/tasks.ts`）
+  - 增加移动校验：仅允许移动 Inbox 顶层任务、目标列表必须属于当前用户且不能是 Inbox
+  - 移动时保留子任务树关系：整棵子树同步更新到目标列表，根任务在目标列表追加到末尾
+  - `TaskPanel` 在 Inbox 模式新增 `Move to...` 菜单，按分组/列表展示可选目标
+  - 移动后自动刷新 Inbox 数据，任务即时从 Inbox 消失
+- Feature #66 (Step 5-6): 桌面/移动端与移动流程验证
+  - 桌面端验证：Inbox 新建任务成功，刷新后数据仍在
+  - 桌面端验证：任务从 Inbox 移动到目标列表后，Inbox 消失且目标列表可见
+  - 移动端视口验证：Inbox 任务创建后刷新仍可见（持久化正常）
+  - 构建验证通过：`npm run build`
+- Feature #67 (Step 1): 为任务模型添加 recurrence 字段
+  - `supabase/schema.sql`：为 `tasks` 新增 `recurrence_frequency / recurrence_interval / recurrence_weekdays / recurrence_end_date / recurrence_end_count / recurrence_rule / recurrence_timezone / recurrence_source_task_id`
+  - 同步补充 `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`，兼容已有数据库
+  - `src/lib/supabase/database.types.ts`：同步 Row/Insert/Update 类型
+  - 新增 `src/lib/recurrence.ts`：统一解析与校验 recurrence 请求字段
+  - `src/app/api/v1/tasks*` 与 `src/app/api/v1/tasks/inbox*`：POST/PATCH 接入 recurrence 字段写入与更新
+  - `src/app/api/v1/search/tasks/route.ts`：补充搜索结果类型中的 recurrence 字段
+  - `src/actions/tasks.ts`：扩展 Task/TaskUpdatePayload 的 recurrence 字段
+  - `src/app/api/openapi/route.ts`：更新 Task schema 与任务创建/更新请求体文档
+  - 构建验证通过：`npm run build`
+- Feature #67 (Step 2): 任务详情支持配置重复规则
+  - 新增 `src/components/dashboard/recurrence-fields.tsx`，统一渲染重复设置 UI
+  - 详情面板支持设置：
+    - 频率（不重复/每天/每周/每月/自定义）
+    - 间隔（interval）
+    - 每周重复日（weekly/custom）
+    - 结束条件（永不结束/结束日期/重复次数）
+    - 时区（timezone）与自定义 RRULE（custom）
+  - `TaskDetailPanel` 与 `TaskDetailSheet` 同步接入，桌面端/移动端行为一致
+  - 保存时将 recurrence 字段写入 `updateTask` payload，取消重复时回写为 `null`
+  - 新增中英文文案：`src/messages/en.json`、`src/messages/zh.json`
+  - 构建验证通过：`npm run build`
+- Feature #67 (Step 3-4): 完成任务时按重复规则生成下一次，并保持 series linkage
+  - 新增 `src/lib/recurrence-runtime.ts` 统一处理 recurring runtime：
+    - 识别 `completed: false -> true` 状态跃迁并按需生成下一次 occurrence
+    - 支持 `daily / weekly / monthly / custom(RRULE 子集)` 计算下一日期
+    - 支持 `recurrence_end_date / recurrence_end_count` 截止条件
+    - 自动维护 `recurrence_source_task_id`（首个 occurrence 自链接，后续 occurrence 统一指向 series root）
+    - 避免重复生成（已存在未来 occurrence 时不重复创建）
+  - `src/actions/tasks.ts` 的 `updateTask/updateInboxTask` 改为复用该 runtime
+  - `src/app/api/v1/tasks/[id]/route.ts` 与 `src/app/api/v1/tasks/inbox/[id]/route.ts` PATCH 也复用同一逻辑，App 与 API 行为一致
+- Feature #67 (Step 5): 时区边界与日期推进逻辑
+  - recurrence runtime 采用 timezone-aware 的"今日"解析（`Intl.DateTimeFormat(..., { timeZone })`）作为无锚点任务的推进基准
+  - 周重复计算基于日期字符串与 UTC 日历运算，规避本地时区解析偏移导致的跨日错误
+  - `custom` 规则支持解析 `FREQ/INTERVAL/BYDAY/UNTIL/COUNT`，并与字段截止条件协同
+- Feature #67 (Step 6): 编辑重复规则作用范围（single/future）
+  - 任务详情 recurrence UI 新增作用范围选择：
+    - `This occurrence only` / `This and future occurrences`
+    - 中文：`仅当前任务` / `当前及未来任务`
+  - 新增请求字段 `recurrence_update_scope`（`single | future`）
+  - 当 scope=`future` 时，仅 recurrence 字段会批量应用到同 series 的当前及未来 occurrence，非 recurrence 字段仍只更新当前任务
+  - OpenAPI 文档同步：PATCH task/inbox task 请求体新增 `recurrence_update_scope`
+  - 构建验证通过：`npm run build`
+
+#### 下一步
+- Feature #68: Create smart views (Starred, Overdue, Next 7 Days, No Date)
+
+---
+
+### 2026-02-17
+
+#### 完成
+- Bug Fix: 窄屏幕点击任务时中间内容区白屏问题
+  - 问题原因：移动端选中任务时，main 元素被 `hidden` 隐藏，但详情是通过 Sheet 叠加层显示的
+  - 修复：移除移动端隐藏中间内容区的逻辑，让 Sheet 叠加在上面显示
+  - 修改文件：src/app/dashboard/dashboard-content.tsx
+  - 测试通过：窄屏幕点击任务，任务列表保持可见，详情 Sheet 正确显示
+
+- Feature #65: Polish three-column layout styling and interactions
+  - 添加平滑过渡动画 (transition-all duration-300 ease-in-out)
+  - 详情面板打开/关闭时的宽度和透明度动画
+  - 视觉分隔符 (border-l) 已存在于详情面板
+  - 空状态提示 "No Task Selected" 已存在
+  - Escape 键快捷键已存在并正常工作
+  - 每列独立滚动 (overflow-y-auto)
+  - 测试通过：平滑动画、键盘导航、深色模式
+
+- Feature #64: Three-column layout
+  - 创建 src/components/dashboard/task-detail-panel.tsx - 固定右侧面板组件
+  - 更新 src/actions/tasks.ts - 添加 getTaskById 函数
+  - 更新 src/components/dashboard/task-panel.tsx - 添加 selectedTaskId 和 onTaskSelect props
+  - 更新 src/components/dashboard/task-detail-sheet.tsx - 支持 taskId prop 从 ID 加载任务
+  - 重构 src/app/dashboard/dashboard-content.tsx - 实现三栏布局
+  - 桌面端：侧边栏 (w-64) + 主内容区 (flex-1) + 详情面板 (w-96)
+  - 移动端：点击任务时显示 Sheet 叠加层
+  - Escape 键关闭详情面板
+  - 测试通过：三栏布局、任务选择、编辑保存、关闭面板、移动端响应式
+
+#### 下一步
+- 所有已规划功能已完成
+
+---
+
+### 2026-02-16 (continued)
+
+#### 完成
+- Feature #57: API Documentation
+  - 创建 src/app/api/openapi/route.ts - OpenAPI 3.0 规范 (18 个端点)
+  - 创建 src/app/api-docs/page.tsx - Swagger UI 页面
+  - 文档包含所有端点的请求/响应 schema
+  - 支持 Bearer token 认证说明
+  - 测试通过：GET /api/openapi 返回有效 JSON，/api-docs 渲染 Swagger UI
+
+#### 下一步
+- REST API 模块完成
+
+---
+
+（历史记录省略，完整记录见 git history）
+
+---
+
+## Notes
+- Using Tailwind CSS v4 (latest)
+- Next.js 16.1.6 with App Router
+- shadcn/ui with new-york style, neutral color scheme
+- All features tested with Playwright MCP

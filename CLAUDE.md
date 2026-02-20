@@ -17,16 +17,21 @@ puratodo/
 │   │   ├── src/             # App source code
 │   │   ├── public/          # Static assets
 │   │   ├── supabase/        # Database migrations
+│   │   ├── feature_list.json
+│   │   ├── claude-progress.txt
 │   │   └── package.json
 │   └── app/                 # Tauri desktop app (@puratodo/app)
 │       ├── src/             # React frontend (Vite)
 │       ├── src-tauri/       # Tauri Rust backend
+│       ├── feature_list.json
+│       ├── claude-progress.txt
 │       ├── package.json
 │       └── app_spec.txt
 ├── packages/
 │   ├── ui/                  # Shared UI components (@puratodo/ui)
 │   ├── api-types/           # API type definitions (@puratodo/api-types)
 │   └── shared/              # Shared utilities (@puratodo/shared)
+├── init.sh                  # Development server startup script
 ├── pnpm-workspace.yaml      # Workspace configuration
 ├── package.json             # Root package with scripts
 └── tsconfig.base.json       # Shared TypeScript config
@@ -87,15 +92,24 @@ Key fields:
 
 This project follows a "long-running agent" methodology with daily progress logging:
 
-1. Read `claude-progress.txt` - check current status and next steps
-2. Read `feature_list.json` - get feature details and test steps. Note that one step MUST do one task, unless it's very small or closely related to another step. If a step is too big, break it down into smaller steps.
-3. Run `pnpm dev` to start dev environment
+1. Read `apps/web/claude-progress.txt` (for web) or `apps/app/claude-progress.txt` (for Tauri) - check current status and next steps
+2. Read `apps/web/feature_list.json` (for web) or `apps/app/feature_list.json` (for Tauri) - get feature details and test steps. Note that one step MUST do one task, unless it's very small or closely related to another step. If a step is too big, break it down into smaller steps.
+3. Run `./init.sh web` (or `./init.sh app` for Tauri) to start dev environment
 4. Implement the feature
 5. Test with Playwright MCP (the credentials of accounts in `.credentials.local`)
 6. Make sure project can be built successfully (`pnpm build:web`)
-7. Update `feature_list.json` (set `passes: true` for completed feature)
-8. Update `claude-progress.txt` (append new log for current session, what has done, what does not work, next steps)
+7. Update `apps/web/feature_list.json` (set `passes: true` for completed feature)
+8. Update `apps/web/claude-progress.txt` (append new log for current session, what has done, what does not work, next steps)
 9. Git commit
+
+### init.sh Script
+
+The `init.sh` script standardizes development server startup:
+
+```bash
+./init.sh web   # Start Next.js web dev server (default)
+./init.sh app   # Start Tauri desktop app
+```
 
 **NOTE:**
 
@@ -106,12 +120,12 @@ This project follows a "long-running agent" methodology with daily progress logg
 
 ### apps/web (Next.js Web App)
 - Primary web application
-- Uses root `feature_list.json` and `claude-progress.txt`
+- Has `apps/web/feature_list.json` and `apps/web/claude-progress.txt`
 - Target: Browser, Vercel deployment
 
 ### apps/app (Tauri Desktop App)
 - Cross-platform desktop/mobile app (Tauri 2.0)
-- Has **separate** `feature_list.json` (209 test cases) and `claude-progress.txt`
+- Has **separate** `apps/app/feature_list.json` (209 test cases) and `apps/app/claude-progress.txt`
 - Target: Desktop (macOS, Windows, Linux), Mobile (iOS, Android)
 - Connects to web app's API backend
 
