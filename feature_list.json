@@ -367,7 +367,7 @@
       "Verify task name is updated",
       "Verify changes are saved to backend"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 29,
@@ -380,7 +380,7 @@
       "Verify task is removed from list",
       "Verify task is deleted from backend"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 30,
@@ -392,7 +392,7 @@
       "Verify task is marked as completed (strikethrough or visual indicator)",
       "Verify completion status is saved to backend"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 31,
@@ -404,7 +404,7 @@
       "Verify task is marked as incomplete",
       "Verify status is updated in backend"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 32,

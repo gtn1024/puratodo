@@ -64,6 +64,8 @@ export function DashboardPage() {
     reorderLists,
     deleteList,
     createTask,
+    updateTask,
+    deleteTask,
     clear,
   } = useDataStore();
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
@@ -106,6 +108,18 @@ export function DashboardPage() {
   const [showNewTaskInput, setShowNewTaskInput] = React.useState(false);
   const [newTaskName, setNewTaskName] = React.useState("");
   const [isCreatingTask, setIsCreatingTask] = React.useState(false);
+
+  // Edit task state
+  const [editingTaskId, setEditingTaskId] = React.useState<string | null>(null);
+  const [editingTaskName, setEditingTaskName] = React.useState("");
+
+  // Context menu state for tasks
+  const [taskContextMenu, setTaskContextMenu] = React.useState<{
+    x: number;
+    y: number;
+    taskId: string;
+    taskName: string;
+  } | null>(null);
 
   // Context menu state for groups
   const [contextMenu, setContextMenu] = React.useState<{
@@ -337,6 +351,65 @@ export function DashboardPage() {
     }
   };
 
+  // Start editing a task
+  const startEditTask = (taskId: string, taskName: string) => {
+    setEditingTaskId(taskId);
+    setEditingTaskName(taskName);
+  };
+
+  // Save edited task
+  const saveEditTask = async () => {
+    if (!editingTaskId || !editingTaskName.trim()) {
+      setEditingTaskId(null);
+      setEditingTaskName("");
+      return;
+    }
+
+    try {
+      await updateTask(editingTaskId, { name: editingTaskName.trim() });
+    } catch (err) {
+      console.error("Failed to update task:", err);
+    } finally {
+      setEditingTaskId(null);
+      setEditingTaskName("");
+    }
+  };
+
+  // Cancel editing a task
+  const cancelEditTask = () => {
+    setEditingTaskId(null);
+    setEditingTaskName("");
+  };
+
+  // Handle delete task
+  const handleDeleteTask = async (taskId: string) => {
+    if (!confirm("Delete this task?")) return;
+    try {
+      await deleteTask(taskId);
+      setTaskContextMenu(null);
+    } catch (err) {
+      console.error("Failed to delete task:", err);
+    }
+  };
+
+  // Toggle task completion
+  const toggleTaskComplete = async (taskId: string, currentCompleted: boolean) => {
+    try {
+      await updateTask(taskId, { completed: !currentCompleted });
+    } catch (err) {
+      console.error("Failed to toggle task completion:", err);
+    }
+  };
+
+  // Toggle task star
+  const toggleTaskStar = async (taskId: string, currentStarred: boolean) => {
+    try {
+      await updateTask(taskId, { starred: !currentStarred });
+    } catch (err) {
+      console.error("Failed to toggle task star:", err);
+    }
+  };
+
   // Open move list dialog
   const openMoveListDialog = (list: ListType) => {
     setListContextMenu(null);
@@ -367,12 +440,13 @@ export function DashboardPage() {
     const handleClick = () => {
       setContextMenu(null);
       setListContextMenu(null);
+      setTaskContextMenu(null);
     };
-    if (contextMenu || listContextMenu) {
+    if (contextMenu || listContextMenu || taskContextMenu) {
       document.addEventListener("click", handleClick);
       return () => document.removeEventListener("click", handleClick);
     }
-  }, [contextMenu, listContextMenu]);
+  }, [contextMenu, listContextMenu, taskContextMenu]);
 
   // Handle logout
   const handleLogout = async () => {
@@ -832,25 +906,75 @@ export function DashboardPage() {
                   <div
                     key={task.id}
                     className="flex items-center gap-3 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
+                    onContextMenu={(e) => {
+                      e.preventDefault();
+                      setTaskContextMenu({
+                        x: e.clientX,
+                        y: e.clientY,
+                        taskId: task.id,
+                        taskName: task.name,
+                      });
+                    }}
                   >
                     <div
-                      className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                      className={`w-5 h-5 rounded-full border flex items-center justify-center cursor-pointer hover:border-green-500 ${
                         task.completed
                           ? "border-green-500 bg-green-500 text-white"
                           : "border-zinc-300 dark:border-zinc-600"
                       }`}
+                      onClick={() => toggleTaskComplete(task.id, task.completed)}
                     >
                       {task.completed ? <Check className="w-3 h-3" /> : null}
                     </div>
-                    <span
-                      className={`text-sm ${
-                        task.completed
-                          ? "line-through text-zinc-400 dark:text-zinc-500"
-                          : "text-zinc-800 dark:text-zinc-100"
-                      }`}
-                    >
-                      {task.name}
-                    </span>
+                    {editingTaskId === task.id ? (
+                      <div className="flex-1 flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={editingTaskName}
+                          onChange={(e) => setEditingTaskName(e.target.value)}
+                          className="flex-1 bg-transparent border border-zinc-300 dark:border-zinc-600 rounded px-2 py-1 text-sm text-zinc-800 dark:text-zinc-100 outline-none focus:border-violet-500"
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") saveEditTask();
+                            if (e.key === "Escape") cancelEditTask();
+                          }}
+                          onBlur={saveEditTask}
+                        />
+                        <button
+                          onClick={saveEditTask}
+                          className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                        >
+                          <Check className="w-4 h-4 text-green-500" />
+                        </button>
+                        <button
+                          onClick={cancelEditTask}
+                          className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                        >
+                          <X className="w-4 h-4 text-zinc-500" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <span
+                          className={`flex-1 text-sm cursor-pointer hover:text-violet-600 ${
+                            task.completed
+                              ? "line-through text-zinc-400 dark:text-zinc-500"
+                              : "text-zinc-800 dark:text-zinc-100"
+                          }`}
+                          onClick={() => startEditTask(task.id, task.name)}
+                        >
+                          {task.name}
+                        </span>
+                        <button
+                          onClick={() => toggleTaskStar(task.id, task.starred)}
+                          className={`p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700 ${
+                            task.starred ? "text-yellow-500" : "text-zinc-300 dark:text-zinc-600"
+                          }`}
+                        >
+                          <Star className="w-4 h-4" fill={task.starred ? "currentColor" : "none"} />
+                        </button>
+                      </>
+                    )}
                   </div>
                 ))}
               </div>
@@ -925,6 +1049,33 @@ export function DashboardPage() {
           </button>
           <button
             onClick={() => handleDeleteList(listContextMenu.list.id)}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-zinc-100 dark:hover:bg-zinc-600"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span>Delete</span>
+          </button>
+        </div>
+      )}
+
+      {/* Context Menu for Tasks */}
+      {taskContextMenu && (
+        <div
+          className="fixed z-50 min-w-32 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-lg shadow-lg py-1"
+          style={{ left: taskContextMenu.x, top: taskContextMenu.y }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={() => {
+              startEditTask(taskContextMenu.taskId, taskContextMenu.taskName);
+              setTaskContextMenu(null);
+            }}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-600"
+          >
+            <Pencil className="w-4 h-4" />
+            <span>Edit</span>
+          </button>
+          <button
+            onClick={() => handleDeleteTask(taskContextMenu.taskId)}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-zinc-100 dark:hover:bg-zinc-600"
           >
             <Trash2 className="w-4 h-4" />

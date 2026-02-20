@@ -1,5 +1,60 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 21: Task Edit, Delete, and Completion Implementation
+**Date:** 2026-02-20
+**Agent:** Claude Code (GLM-5)
+
+### Completed
+- Implemented task edit functionality in DashboardPage:
+  - Added editingTaskId and editingTaskName state
+  - Added startEditTask, saveEditTask, cancelEditTask functions
+  - Task name becomes clickable - clicking opens inline edit input
+  - Save on Enter key or onBlur, cancel on Escape key
+  - Shows checkmark and X buttons for save/cancel
+- Implemented task delete functionality:
+  - Added taskContextMenu state for right-click context menu
+  - Added handleDeleteTask function with confirmation dialog
+  - Context menu shows Edit and Delete options
+  - Delete calls deleteTask API and removes from local state
+- Implemented task completion toggle:
+  - Added toggleTaskComplete function
+  - Clicking checkbox toggles completed status
+  - Checkbox shows green check when completed
+- Implemented task star toggle (Test #32):
+  - Added toggleTaskStar function
+  - Star button shows next to task name
+  - Clicking star toggles starred status
+- Verified Tests #28-31 with real backend API on https://puratodo.top
+- Test #32 implemented (star/unstar UI added)
+
+### Verification Performed
+- `npm run build` passed
+- Test #28: PATCH /api/v1/tasks/... => [200] OK
+- Test #29: DELETE /api/v1/tasks/... => [200] OK, task removed from UI
+- Test #30: PATCH /api/v1/tasks/... with completed:true => [200] OK
+- Test #31: PATCH /api/v1/tasks/... with completed:false => [200] OK
+
+### Current Status
+- 31/209 test cases passing
+- Test #32 star/unstar UI implemented (network issues prevented browser testing)
+
+### Tests Now Passing
+- Test #28: User can edit a task ✓
+- Test #29: User can delete a task ✓
+- Test #30: User can mark a task as complete ✓
+- Test #31: User can mark a completed task as incomplete ✓
+
+### Files Created/Modified
+- src/pages/DashboardPage.tsx (added task edit, delete, completion, star UI)
+- feature_list.json (marked Tests #28-31 as passing)
+- claude-progress.txt (this session log)
+
+### Next Steps
+1. Verify Test #32 (star/unstar a task) when network is stable
+2. Continue with remaining task features
+
+---
+
 ## Session 20: Task Creation Implementation
 **Date:** 2026-02-20
 **Agent:** Claude Code (GLM-5)
