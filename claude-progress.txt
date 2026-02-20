@@ -1,5 +1,50 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 19: List Move and Reorder Implementation
+**Date:** 2026-02-20
+**Agent:** Claude Code (GLM-5)
+
+### Completed
+- Implemented list move UI in DashboardPage:
+  - Added "Move" option to list context menu
+  - Added Move List dialog with target group dropdown selector
+  - Integrated with dataStore's `updateList` action
+- Implemented list drag-and-drop reordering:
+  - Added `reorderLists` action to dataStore
+  - Added drag event handlers to list items
+  - Visual feedback during drag (opacity, ring highlight)
+  - Optimistic UI update with rollback on error
+
+### Backend Limitations Discovered
+Both Test #24 and Test #25 are blocked by backend API limitations:
+1. **group_id**: Backend PATCH /api/v1/lists/:id ignores `group_id` field
+2. **sort_order**: Backend PATCH /api/v1/lists/:id ignores `sort_order` field
+- API returns 200 OK but does not persist these field changes
+- This is a backend limitation, not a frontend issue
+
+### Verification Performed
+- `npm run build` passed
+- Tested move list UI flow - UI works correctly
+- Tested drag-and-drop reorder - UI provides visual feedback
+- Direct API testing confirmed backend ignores `sort_order` updates
+
+### Current Status
+- 26/209 test cases passing
+- Tests #24 and #25 blocked by backend API limitations
+- Frontend implementation complete for both features
+
+### Files Created/Modified
+- src/stores/dataStore.ts (added reorderLists action)
+- src/pages/DashboardPage.tsx (added move dialog and drag-drop handlers)
+- claude-progress.txt (this session log)
+
+### Next Steps
+1. Continue with Test #27 (create a new task) - CRUD operations should work
+2. Skip Tests #24, #25 until backend supports `group_id` and `sort_order` updates
+3. Contact backend team about API update support
+
+---
+
 ## Session 18: List Edit and Delete Implementation
 **Date:** 2026-02-20
 **Agent:** Claude Code (GLM-5)

@@ -21,6 +21,7 @@ interface DataState {
   fetchLists: () => Promise<void>;
   createList: (input: CreateListInput) => Promise<List>;
   updateList: (id: string, input: UpdateListInput) => Promise<List>;
+  reorderLists: (orderedListIds: string[]) => Promise<void>;
   deleteList: (id: string) => Promise<void>;
 
   // Task actions
@@ -177,6 +178,61 @@ export const useDataStore = create<DataState>((set, get) => ({
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to update list";
       set({ error: message });
+      throw error;
+    }
+  },
+
+  reorderLists: async (orderedListIds) => {
+    const previousLists = [...get().lists];
+    if (previousLists.length <= 1) return;
+
+    const listMap = new Map(previousLists.map((list) => [list.id, list]));
+    const reorderedLists = orderedListIds
+      .map((listId) => listMap.get(listId))
+      .filter((list): list is List => Boolean(list));
+
+    if (reorderedLists.length !== orderedListIds.length) return;
+
+    // Calculate new sort_order values based on position
+    const minSortOrder = reorderedLists.reduce(
+      (min, list) => Math.min(min, list.sort_order),
+      reorderedLists[0]?.sort_order ?? 0,
+    );
+
+    const nextLists = reorderedLists.map((list, index) => ({
+      ...list,
+      sort_order: minSortOrder + index,
+    }));
+
+    const changedLists = nextLists.filter((list) => {
+      const previous = listMap.get(list.id);
+      return previous ? previous.sort_order !== list.sort_order : false;
+    });
+
+    if (changedLists.length === 0) return;
+
+    // Optimistic update
+    const allLists = get().lists.map((list) => {
+      const updated = nextLists.find((l) => l.id === list.id);
+      return updated ?? list;
+    });
+    allLists.sort((a, b) => a.sort_order - b.sort_order);
+    set({ lists: allLists, error: null });
+
+    try {
+      const updatedLists = await Promise.all(
+        changedLists.map((list) =>
+          listsApi.update(list.id, { name: list.name, sort_order: list.sort_order }),
+        ),
+      );
+
+      const updatedMap = new Map(updatedLists.map((list) => [list.id, list]));
+      const mergedLists = get().lists.map((list) => updatedMap.get(list.id) ?? list);
+      mergedLists.sort((a, b) => a.sort_order - b.sort_order);
+      set({ lists: mergedLists, error: null });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to reorder lists";
+      set({ lists: previousLists, error: message });
       throw error;
     }
   },

@@ -13,6 +13,7 @@ import {
   Trash2,
   Settings,
   Users,
+  Move,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -59,6 +60,7 @@ export function DashboardPage() {
     deleteGroup,
     createList,
     updateList,
+    reorderLists,
     deleteList,
     clear,
   } = useDataStore();
@@ -88,6 +90,15 @@ export function DashboardPage() {
   const [editingList, setEditingList] = React.useState<ListType | null>(null);
   const [editListName, setEditListName] = React.useState("");
   const [isUpdatingList, setIsUpdatingList] = React.useState(false);
+
+  // Move list state
+  const [movingList, setMovingList] = React.useState<ListType | null>(null);
+  const [targetGroupId, setTargetGroupId] = React.useState<string>("");
+  const [isMovingList, setIsMovingList] = React.useState(false);
+
+  // List drag-and-drop state
+  const [draggingListId, setDraggingListId] = React.useState<string | null>(null);
+  const [dropTargetListId, setDropTargetListId] = React.useState<string | null>(null);
 
   // Context menu state for groups
   const [contextMenu, setContextMenu] = React.useState<{
@@ -213,6 +224,28 @@ export function DashboardPage() {
     }
   };
 
+  // Handle reordering lists within a group
+  const handleReorderLists = async (fromListId: string, toListId: string, groupId: string) => {
+    if (fromListId === toListId) return;
+
+    // Get lists within the same group
+    const groupLists = lists.filter((list) => list.group_id === groupId);
+    const fromIndex = groupLists.findIndex((list) => list.id === fromListId);
+    const toIndex = groupLists.findIndex((list) => list.id === toListId);
+    if (fromIndex < 0 || toIndex < 0) return;
+
+    // Reorder within the group
+    const nextLists = [...groupLists];
+    const [movedList] = nextLists.splice(fromIndex, 1);
+    nextLists.splice(toIndex, 0, movedList);
+
+    try {
+      await reorderLists(nextLists.map((list) => list.id));
+    } catch (err) {
+      console.error("Failed to reorder lists:", err);
+    }
+  };
+
   // Handle creating new list
   const handleCreateList = async (groupId: string) => {
     if (!newListName.trim()) return;
@@ -275,6 +308,34 @@ export function DashboardPage() {
       }
     } catch (err) {
       console.error("Failed to delete list:", err);
+    }
+  };
+
+  // Open move list dialog
+  const openMoveListDialog = (list: ListType) => {
+    setListContextMenu(null);
+    setMovingList(list);
+    setTargetGroupId(list.group_id);
+  };
+
+  // Handle move list to different group
+  const handleMoveList = async () => {
+    if (!movingList || !targetGroupId || targetGroupId === movingList.group_id) {
+      setMovingList(null);
+      return;
+    }
+
+    setIsMovingList(true);
+    try {
+      await updateList(movingList.id, {
+        name: movingList.name,
+        group_id: targetGroupId,
+      });
+      setMovingList(null);
+    } catch (err) {
+      console.error("Failed to move list:", err);
+    } finally {
+      setIsMovingList(false);
     }
   };
 
@@ -507,9 +568,43 @@ export function DashboardPage() {
                         {groupLists.map((list) => (
                           <button
                             key={list.id}
+                            draggable
+                            onDragStart={(e) => {
+                              e.dataTransfer.effectAllowed = "move";
+                              e.dataTransfer.setData("text/plain", list.id);
+                              e.dataTransfer.setData("application/group-id", group.id);
+                              setDraggingListId(list.id);
+                            }}
+                            onDragEnd={() => {
+                              setDraggingListId(null);
+                              setDropTargetListId(null);
+                            }}
+                            onDragOver={(e) => {
+                              e.preventDefault();
+                              if (draggingListId && draggingListId !== list.id) {
+                                e.dataTransfer.dropEffect = "move";
+                                setDropTargetListId(list.id);
+                              }
+                            }}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              const sourceListId = e.dataTransfer.getData("text/plain") || draggingListId;
+                              const sourceGroupId = e.dataTransfer.getData("application/group-id");
+                              if (sourceListId && sourceGroupId === group.id) {
+                                void handleReorderLists(sourceListId, list.id, group.id);
+                              }
+                              setDraggingListId(null);
+                              setDropTargetListId(null);
+                            }}
                             onClick={() => setSelectedListId(list.id)}
                             onContextMenu={(e) => handleListContextMenu(e, list)}
                             className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                              draggingListId === list.id ? "opacity-60" : ""
+                            } ${
+                              dropTargetListId === list.id && draggingListId !== list.id
+                                ? "ring-2 ring-violet-300 dark:ring-violet-700"
+                                : ""
+                            } ${
                               selectedListId === list.id
                                 ? "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300"
                                 : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
@@ -736,6 +831,13 @@ export function DashboardPage() {
             <span>Edit</span>
           </button>
           <button
+            onClick={() => openMoveListDialog(listContextMenu.list)}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-600"
+          >
+            <Move className="w-4 h-4" />
+            <span>Move</span>
+          </button>
+          <button
             onClick={() => handleDeleteList(listContextMenu.list.id)}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-zinc-100 dark:hover:bg-zinc-600"
           >
@@ -839,6 +941,50 @@ export function DashboardPage() {
               disabled={isUpdatingList || !editListName.trim()}
             >
               {isUpdatingList ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Move List Dialog */}
+      <Dialog open={!!movingList} onOpenChange={(open) => !open && setMovingList(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Move List</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              Move <strong>{movingList?.name}</strong> to a different group:
+            </p>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Target Group
+              </label>
+              <select
+                value={targetGroupId}
+                onChange={(e) => setTargetGroupId(e.target.value)}
+                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+              >
+                {groups.map((group) => (
+                  <option key={group.id} value={group.id}>
+                    {group.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => setMovingList(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleMoveList}
+              disabled={isMovingList || !targetGroupId || targetGroupId === movingList?.group_id}
+            >
+              {isMovingList ? "Moving..." : "Move List"}
             </Button>
           </DialogFooter>
         </DialogContent>
