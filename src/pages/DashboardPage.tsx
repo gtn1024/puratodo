@@ -125,6 +125,8 @@ export function DashboardPage() {
 
   // Task detail panel state
   const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
+  const [showAddSubtask, setShowAddSubtask] = React.useState(false);
+  const [newSubtaskName, setNewSubtaskName] = React.useState("");
 
   // Context menu state for groups
   const [contextMenu, setContextMenu] = React.useState<{
@@ -464,6 +466,24 @@ export function DashboardPage() {
       }
     } catch (err) {
       console.error("Failed to update task duration:", err);
+    }
+  };
+
+  // Create subtask
+  const handleCreateSubtask = async () => {
+    if (!selectedTask || !newSubtaskName.trim()) return;
+    try {
+      await createTask({
+        list_id: selectedTask.list_id,
+        name: newSubtaskName.trim(),
+        parent_id: selectedTask.id,
+      });
+      setNewSubtaskName("");
+      setShowAddSubtask(false);
+      // Refresh tasks to show the new subtask
+      await fetchTasks();
+    } catch (err) {
+      console.error("Failed to create subtask:", err);
     }
   };
 
@@ -1305,6 +1325,91 @@ export function DashboardPage() {
                   Task Name
                 </label>
                 <div className="text-zinc-900 dark:text-zinc-100">{selectedTask.name}</div>
+              </div>
+
+              {/* Subtasks */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    Subtasks
+                  </label>
+                  {!showAddSubtask && (
+                    <button
+                      onClick={() => setShowAddSubtask(true)}
+                      className="text-xs text-violet-600 hover:text-violet-700"
+                    >
+                      + Add subtask
+                    </button>
+                  )}
+                </div>
+                {showAddSubtask && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={newSubtaskName}
+                      onChange={(e) => setNewSubtaskName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleCreateSubtask();
+                        if (e.key === "Escape") {
+                          setShowAddSubtask(false);
+                          setNewSubtaskName("");
+                        }
+                      }}
+                      placeholder="Subtask name..."
+                      className="flex-1 px-3 py-1 text-sm border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                      autoFocus
+                    />
+                    <button
+                      onClick={handleCreateSubtask}
+                      className="p-1 text-green-500 hover:text-green-600"
+                    >
+                      <Check className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowAddSubtask(false);
+                        setNewSubtaskName("");
+                      }}
+                      className="p-1 text-zinc-500 hover:text-zinc-600"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+                {/* List subtasks */}
+                {tasks
+                  .filter((t) => t.parent_id === selectedTask.id)
+                  .sort((a, b) => a.sort_order - b.sort_order)
+                  .map((subtask) => (
+                    <div
+                      key={subtask.id}
+                      className="flex items-center gap-2 py-1 px-2 bg-zinc-50 dark:bg-zinc-800 rounded"
+                    >
+                      <div
+                        className={`w-4 h-4 rounded-full border flex items-center justify-center cursor-pointer ${
+                          subtask.completed
+                            ? "border-green-500 bg-green-500 text-white"
+                            : "border-zinc-300 dark:border-zinc-600"
+                        }`}
+                        onClick={() => toggleTaskComplete(subtask.id, subtask.completed)}
+                      >
+                        {subtask.completed ? <Check className="w-3 h-3" /> : null}
+                      </div>
+                      <span
+                        className={`flex-1 text-sm ${
+                          subtask.completed
+                            ? "line-through text-zinc-400"
+                            : "text-zinc-800 dark:text-zinc-100"
+                        }`}
+                      >
+                        {subtask.name}
+                      </span>
+                    </div>
+                  ))}
+                {tasks.filter((t) => t.parent_id === selectedTask.id).length === 0 &&
+                  !showAddSubtask && (
+                    <div className="text-sm text-zinc-400 italic">No subtasks yet</div>
+                  )}
               </div>
 
               {/* Due Date */}

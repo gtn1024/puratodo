@@ -484,7 +484,7 @@
       "Verify subtask appears under parent task",
       "Verify subtask is indented under parent"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 38,
