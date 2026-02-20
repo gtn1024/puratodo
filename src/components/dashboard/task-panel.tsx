@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, forwardRef, useImperativeHandle, useR
 import { useI18n } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Calendar } from "@/components/ui/calendar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +29,8 @@ import {
   getStarredTasks,
   moveInboxTaskToList,
   reorderTasks,
+  bulkUpdateTasks,
+  bulkDeleteTasks,
   type Task,
   type TaskSearchResult,
 } from "@/actions/tasks";
@@ -41,6 +44,11 @@ import {
   ChevronRight,
   ChevronDown,
   Filter,
+  CheckSquare,
+  Square,
+  Trash2,
+  Star as StarIcon,
+  X,
 } from "lucide-react";
 import { TaskPanelSkeleton } from "./skeletons";
 import type { List } from "@/actions/lists";
@@ -125,6 +133,10 @@ interface TaskItemProps {
   allowSubtaskActions?: boolean;
   contextMeta?: TaskContextMeta;
   renderSubtasks: (task: Task, level: number) => React.ReactNode;
+  // Multi-select props
+  isSelectionMode?: boolean;
+  isSelected?: boolean;
+  onToggleSelect?: (taskId: string) => void;
 }
 
 function TaskItem({
@@ -150,6 +162,9 @@ function TaskItem({
   allowSubtaskActions,
   contextMeta,
   renderSubtasks,
+  isSelectionMode,
+  isSelected,
+  onToggleSelect,
 }: TaskItemProps) {
   const {
     attributes,
@@ -220,6 +235,20 @@ function TaskItem({
             className="cursor-grab active:cursor-grabbing text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 opacity-0 group-hover:opacity-100 transition-opacity"
           >
             <GripVertical className="h-4 w-4" />
+          </button>
+        )}
+
+        {/* Selection Checkbox (shown in selection mode) */}
+        {isSelectionMode && (
+          <button
+            onClick={() => onToggleSelect?.(task.id)}
+            className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
+          >
+            {isSelected ? (
+              <CheckSquare className="h-4 w-4 text-blue-500" />
+            ) : (
+              <Square className="h-4 w-4" />
+            )}
           </button>
         )}
 
@@ -451,6 +480,10 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
     star: "all",
     date: "all",
   });
+
+  // Multi-select state
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
 
   const newTaskInputRef = useRef<HTMLInputElement>(null);
   const smartViewPollingInFlightRef = useRef(false);
@@ -904,6 +937,162 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
           )
       : [];
 
+  // Multi-select handlers
+  const handleToggleSelectionMode = () => {
+    setIsSelectionMode((prev) => !prev);
+    if (isSelectionMode) {
+      setSelectedTaskIds(new Set());
+    }
+  };
+
+  const handleToggleSelect = (taskId: string) => {
+    setSelectedTaskIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(taskId)) {
+        next.delete(taskId);
+      } else {
+        next.add(taskId);
+      }
+      return next;
+    });
+  };
+
+  const handleSelectAll = () => {
+    const allTopLevelTaskIds = filteredTasks.map((t) => t.id);
+    setSelectedTaskIds(new Set(allTopLevelTaskIds));
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedTaskIds(new Set());
+  };
+
+  const selectedCount = selectedTaskIds.size;
+
+  // Bulk operation handlers
+  const handleBulkComplete = async (completed: boolean) => {
+    const taskIds = Array.from(selectedTaskIds);
+    setIsLoading(true);
+
+    // Optimistic update
+    const updateInList = (tasks: Task[]): Task[] => {
+      return tasks.map(t => {
+        if (selectedTaskIds.has(t.id)) {
+          return { ...t, completed };
+        }
+        if (t.subtasks) {
+          return { ...t, subtasks: updateInList(t.subtasks) };
+        }
+        return t;
+      });
+    };
+    setTasks(prev => updateInList(prev));
+
+    try {
+      await bulkUpdateTasks(taskIds, { completed });
+      await reloadTasks();
+    } catch (error) {
+      console.error('Failed to bulk update tasks:', error);
+      await reloadTasks();
+    }
+    setIsLoading(false);
+  };
+
+  const handleBulkStar = async (starred: boolean) => {
+    const taskIds = Array.from(selectedTaskIds);
+    setIsLoading(true);
+
+    // Optimistic update
+    const updateInList = (tasks: Task[]): Task[] => {
+      return tasks.map(t => {
+        if (selectedTaskIds.has(t.id)) {
+          return { ...t, starred };
+        }
+        if (t.subtasks) {
+          return { ...t, subtasks: updateInList(t.subtasks) };
+        }
+        return t;
+      });
+    };
+    setTasks(prev => updateInList(prev));
+
+    try {
+      await bulkUpdateTasks(taskIds, { starred });
+      await reloadTasks();
+    } catch (error) {
+      console.error('Failed to bulk update tasks:', error);
+      await reloadTasks();
+    }
+    setIsLoading(false);
+  };
+
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
+
+  const openBulkDeleteDialog = () => {
+    setIsBulkDeleteOpen(true);
+  };
+
+  const handleBulkDelete = async () => {
+    const taskIds = Array.from(selectedTaskIds);
+    setIsLoading(true);
+    setIsBulkDeleteOpen(false);
+
+    // Optimistic update - remove deleted tasks from local state
+    const removeFromList = (tasks: Task[]): Task[] => {
+      return tasks.filter(t => !selectedTaskIds.has(t.id)).map(t => {
+        if (t.subtasks) {
+          return { ...t, subtasks: removeFromList(t.subtasks) };
+        }
+        return t;
+      });
+    };
+    setTasks(prev => removeFromList(prev));
+    setSelectedTaskIds(new Set());
+
+    try {
+      await bulkDeleteTasks(taskIds);
+      await reloadTasks();
+    } catch (error) {
+      console.error('Failed to bulk delete tasks:', error);
+      await reloadTasks();
+    }
+    setIsLoading(false);
+  };
+
+  const [isBulkDateDialogOpen, setIsBulkDateDialogOpen] = useState(false);
+  const [bulkDateValue, setBulkDateValue] = useState<Date | undefined>(undefined);
+
+  const handleBulkSetDate = async () => {
+    const taskIds = Array.from(selectedTaskIds);
+    const dateStr = bulkDateValue ? toLocalDateString(bulkDateValue) : null;
+    setIsLoading(true);
+    setIsBulkDateDialogOpen(false);
+
+    // Optimistic update
+    const updateInList = (tasks: Task[]): Task[] => {
+      return tasks.map(t => {
+        if (selectedTaskIds.has(t.id)) {
+          return { ...t, due_date: dateStr };
+        }
+        if (t.subtasks) {
+          return { ...t, subtasks: updateInList(t.subtasks) };
+        }
+        return t;
+      });
+    };
+    setTasks(prev => updateInList(prev));
+    setSelectedTaskIds(new Set());
+
+    try {
+      await bulkUpdateTasks(taskIds, { due_date: dateStr });
+      await reloadTasks();
+    } catch (error) {
+      console.error('Failed to bulk update tasks:', error);
+      await reloadTasks();
+    }
+    setIsLoading(false);
+    setBulkDateValue(undefined);
+  };
+
   const startAddSubtask = (task: Task) => {
     setAddingSubtaskTo(task.id);
     setNewSubtaskName("");
@@ -959,6 +1148,9 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
               moveTargets={inboxMoveTargets}
               onMoveToList={handleMoveToList}
               disableSorting={isSmartViewMode}
+              isSelectionMode={isSelectionMode}
+              isSelected={selectedTaskIds.has(subtask.id)}
+              onToggleSelect={handleToggleSelect}
               allowSubtaskActions={!isSmartViewMode}
               renderSubtasks={renderSubtasks}
             />
@@ -1068,6 +1260,18 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
           )}
         </div>
         <div className="flex items-center gap-2">
+          {/* Selection Mode Toggle */}
+          {!isSmartViewMode && (
+            <Button
+              variant={isSelectionMode ? "default" : "outline"}
+              size="sm"
+              onClick={handleToggleSelectionMode}
+              className={isSelectionMode ? "bg-blue-500 hover:bg-blue-600" : ""}
+            >
+              <CheckSquare className="h-4 w-4 mr-1" />
+              {isSelectionMode ? `${selectedCount} ${t("taskPanel.selected")}` : t("taskPanel.select")}
+            </Button>
+          )}
           {/* Filter Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -1196,6 +1400,86 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
           )}
         </div>
       </div>
+
+      {/* Bulk Action Bar */}
+      {isSelectionMode && selectedCount > 0 && (
+        <div className="flex items-center justify-between px-6 py-3 bg-blue-50 dark:bg-blue-900/20 border-t border-b border-blue-200 dark:border-blue-800">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+              {selectedCount} {t("taskPanel.tasksSelected")}
+            </span>
+            <Button variant="ghost" size="sm" onClick={handleSelectAll}>
+              {t("taskPanel.selectAll")}
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleDeselectAll}>
+              Deselect
+            </Button>
+          </div>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleBulkComplete(true)}
+              className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300"
+            >
+              <CheckCircle className="h-4 w-4 mr-1" />
+              {t("taskPanel.complete")}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleBulkComplete(false)}
+              className="text-stone-600 dark:text-stone-400"
+            >
+              <Circle className="h-4 w-4 mr-1" />
+              {t("taskPanel.incomplete")}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleBulkStar(true)}
+              className="text-yellow-600 dark:text-yellow-400 hover:text-yellow-700 dark:hover:text-yellow-300"
+            >
+              <StarIcon className="h-4 w-4 mr-1" />
+              {t("taskPanel.star")}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleBulkStar(false)}
+              className="text-stone-600 dark:text-stone-400"
+            >
+              <StarIcon className="h-4 w-4 mr-1" />
+              {t("taskPanel.unstar")}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={openBulkDeleteDialog}
+              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+            >
+              <Trash2 className="h-4 w-4 mr-1" />
+              {t("taskPanel.delete")}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsBulkDateDialogOpen(true)}
+            >
+              <Calendar className="h-4 w-4 mr-1" />
+              {t("taskPanel.setDate")}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleToggleSelectionMode}
+            >
+              <X className="h-4 w-4 mr-1" />
+              {t("taskPanel.cancel")}
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Task List */}
       <div className="p-4">
@@ -1336,6 +1620,9 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
                   allowSubtaskActions={false}
                   contextMeta={taskContextById.get(task.id)}
                   renderSubtasks={renderSubtasks}
+                  isSelectionMode={isSelectionMode}
+                  isSelected={selectedTaskIds.has(task.id)}
+                  onToggleSelect={handleToggleSelect}
                 />
               ))}
             </ul>
@@ -1389,6 +1676,9 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
                       allowSubtaskActions
                       contextMeta={undefined}
                       renderSubtasks={renderSubtasks}
+                      isSelectionMode={isSelectionMode}
+                      isSelected={selectedTaskIds.has(task.id)}
+                      onToggleSelect={handleToggleSelect}
                     />
                   ))}
                 </ul>
@@ -1418,6 +1708,70 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
               disabled={isLoading}
             >
               Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <Dialog open={isBulkDeleteOpen} onOpenChange={setIsBulkDeleteOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Delete {selectedCount} Tasks</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-stone-500 dark:text-stone-400">
+            Are you sure you want to delete {selectedCount} {selectedCount === 1 ? "task" : "tasks"}?
+            Any subtasks will also be deleted. This action cannot be undone.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsBulkDeleteOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleBulkDelete}
+              disabled={isLoading}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Set Date Dialog */}
+      <Dialog open={isBulkDateDialogOpen} onOpenChange={setIsBulkDateDialogOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Set Due Date for {selectedCount} Tasks</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <Calendar
+              mode="single"
+              selected={bulkDateValue}
+              onSelect={setBulkDateValue}
+              className="rounded-md border"
+            />
+            <div className="mt-4 flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setBulkDateValue(undefined);
+                }}
+              >
+                Clear date
+              </Button>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsBulkDateDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleBulkSetDate}
+              disabled={isLoading}
+            >
+              Set Date
             </Button>
           </DialogFooter>
         </DialogContent>

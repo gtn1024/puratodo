@@ -77,7 +77,19 @@
     "taskName": "任务名称",
     "addSubtask": "添加子任务",
     "noTasksMatchFilters": "没有符合筛选条件的任务",
-    "clearFilters": "清除筛选"
+    "clearFilters": "清除筛选",
+    "select": "选择",
+    "selected": "已选择",
+    "selectAll": "全选",
+    "deselect": "取消选择",
+    "complete": "完成",
+    "incomplete": "未完成",
+    "star": "星标",
+    "unstar": "取消星标",
+    "delete": "删除",
+    "setDate": "设置日期",
+    "cancel": "取消",
+    "tasksSelected": "个任务已选择"
   },
   "taskDetail": {
     "taskDetails": "任务详情",

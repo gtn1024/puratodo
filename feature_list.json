@@ -867,7 +867,7 @@
         "5. Test: Apply bulk operations to mixed tasks and verify all selected tasks update correctly",
         "6. Test: Large selection performance remains responsive (100+ tasks)"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 71,

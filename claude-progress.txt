@@ -25,6 +25,19 @@ All tables include user_id for RLS policies and query optimization.
 ### 2026-02-20
 
 #### 完成
+- Feature #70: 批量操作（多选任务管理）
+  - TaskPanel 新增多选模式：点击 "Select" 按钮进入选择模式
+  - 每行任务显示选择框（Square/CheckSquare 图标）
+  - 批量操作栏显示已选任务数量和操作按钮：
+    - 全选/取消全选
+    - 批量完成/未完成
+    - 批量星标/取消星标
+    - 批量删除（带确认对话框）
+    - 批量设置截止日期（日期选择器）
+  - 添加 `bulkUpdateTasks` 和 `bulkDeleteTasks` Server Actions
+  - 支持乐观更新：本地状态立即更新，后台同步服务器
+  - 中英文翻译：添加 `taskPanel.select/selected/selectAll/deselect/complete/incomplete/star/unstar/delete/setDate/cancel/tasksSelected`
+  - 构建验证通过：`npm run build`
 - Feature #69 (Step 1): 添加 reminder 字段到数据库
   - 创建迁移文件 `supabase/migrations/20260220000001_add_reminder_fields.sql`
   - 添加字段：`remind_at` (timestamptz), `reminder_sent_at` (timestamptz)
@@ -54,7 +67,7 @@ All tables include user_id for RLS policies and query optimization.
   - 目前使用客户端定时器实现提醒，服务端推送通知可后续扩展
 
 #### 下一步
-- Feature #70: Implement bulk actions for multi-select task management
+- Feature #71: Add calendar view for scheduling and drag-to-plan
 
 ---
 

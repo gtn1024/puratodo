@@ -191,6 +191,67 @@ export async function deleteTask(
   return { success: true };
 }
 
+export async function bulkUpdateTasks(
+  taskIds: string[],
+  data: TaskUpdatePayload
+): Promise<{ success: boolean; error?: string }> {
+  if (taskIds.length === 0) {
+    return { success: true };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  const { error } = await supabase
+    .from("tasks")
+    .update(data)
+    .eq("user_id", user.id)
+    .in("id", taskIds);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
+export async function bulkDeleteTasks(
+  taskIds: string[]
+): Promise<{ success: boolean; error?: string }> {
+  if (taskIds.length === 0) {
+    return { success: true };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  const { error } = await supabase
+    .from("tasks")
+    .delete()
+    .eq("user_id", user.id)
+    .in("id", taskIds);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
 export async function getInboxTasksWithSubtasks(): Promise<Task[]> {
   const supabase = await createClient();
   const {

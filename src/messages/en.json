@@ -77,7 +77,19 @@
     "taskName": "Task name",
     "addSubtask": "Add subtask",
     "noTasksMatchFilters": "No tasks match your filters",
-    "clearFilters": "Clear filters"
+    "clearFilters": "Clear filters",
+    "select": "Select",
+    "selected": "selected",
+    "selectAll": "Select all",
+    "deselect": "Deselect",
+    "complete": "Complete",
+    "incomplete": "Incomplete",
+    "star": "Star",
+    "unstar": "Unstar",
+    "delete": "Delete",
+    "setDate": "Set date",
+    "cancel": "Cancel",
+    "tasksSelected": "tasks selected"
   },
   "taskDetail": {
     "taskDetails": "Task Details",
