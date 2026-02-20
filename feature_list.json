@@ -853,7 +853,7 @@
         "5. Test: Reminder triggers at expected local time and only once per reminder",
         "6. Test: Failed sends are retried and logged without duplicate notifications"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 70,

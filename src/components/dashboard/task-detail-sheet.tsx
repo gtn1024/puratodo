@@ -26,6 +26,7 @@ import {
   type RecurrenceFrequency,
   type RecurrenceUpdateScope,
 } from "@/components/dashboard/recurrence-fields";
+import { ReminderFields } from "@/components/dashboard/reminder-fields";
 import { CalendarIcon, Clock, FileText, X, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -99,6 +100,7 @@ export function TaskDetailSheet({
   });
   const [recurrenceScope, setRecurrenceScope] =
     useState<RecurrenceUpdateScope>("single");
+  const [remindAt, setRemindAt] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -120,6 +122,7 @@ export function TaskDetailSheet({
           setDurationMinutes(loadedTask.duration_minutes?.toString() || "");
           setRecurrence(createRecurrenceEditorValue(loadedTask));
           setRecurrenceScope("single");
+          setRemindAt(loadedTask.remind_at);
         }
         setIsLoading(false);
       } else if (initialTask) {
@@ -131,6 +134,7 @@ export function TaskDetailSheet({
         setDurationMinutes(initialTask.duration_minutes?.toString() || "");
         setRecurrence(createRecurrenceEditorValue(initialTask));
         setRecurrenceScope("single");
+        setRemindAt(initialTask.remind_at);
       }
     }
 
@@ -203,6 +207,7 @@ export function TaskDetailSheet({
       duration_minutes: durationMinutes ? parseInt(durationMinutes, 10) : null,
       ...recurrencePayload,
       recurrence_update_scope: recurrenceScope,
+      remind_at: remindAt,
     });
 
     setIsSaving(false);
@@ -357,6 +362,14 @@ export function TaskDetailSheet({
               onChange={setRecurrence}
               updateScope={recurrenceScope}
               onUpdateScopeChange={setRecurrenceScope}
+            />
+
+            {/* Reminder */}
+            <ReminderFields
+              remindAt={remindAt}
+              dueDate={dueDate ? toLocalDateString(dueDate) : null}
+              planDate={planDate ? toLocalDateString(planDate) : null}
+              onChange={({ remindAt: newRemindAt }) => setRemindAt(newRemindAt)}
             />
 
             {/* Comment */}

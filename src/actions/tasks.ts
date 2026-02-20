@@ -28,6 +28,8 @@ export type Task = {
   recurrence_rule: string | null;
   recurrence_timezone: string | null;
   recurrence_source_task_id: string | null;
+  remind_at: string | null;
+  reminder_sent_at: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -51,6 +53,8 @@ type TaskUpdatePayload = Partial<{
   recurrence_timezone: string | null;
   recurrence_source_task_id: string | null;
   recurrence_update_scope: RecurrenceUpdateScope;
+  remind_at: string | null;
+  reminder_sent_at: string | null;
 }>;
 
 export async function getTasks(listId?: string): Promise<Task[]> {

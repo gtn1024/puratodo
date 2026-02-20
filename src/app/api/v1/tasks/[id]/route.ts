@@ -105,6 +105,7 @@ export async function PATCH(
       plan_date,
       comment,
       duration_minutes,
+      remind_at,
     } = body;
 
     const recurrenceScopeRaw = body.recurrence_update_scope;
@@ -143,6 +144,9 @@ export async function PATCH(
     }
     if (duration_minutes !== undefined) {
       updateData.duration_minutes = duration_minutes ? Number(duration_minutes) : null;
+    }
+    if (remind_at !== undefined) {
+      updateData.remind_at = remind_at || null;
     }
 
     const recurrenceResult = parseRecurrenceFields(

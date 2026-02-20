@@ -91,6 +91,8 @@ export interface Database {
           recurrence_rule: string | null;
           recurrence_timezone: string | null;
           recurrence_source_task_id: string | null;
+          remind_at: string | null;
+          reminder_sent_at: string | null;
           sort_order: number;
           created_at: string;
           updated_at: string;
@@ -115,6 +117,8 @@ export interface Database {
           recurrence_rule?: string | null;
           recurrence_timezone?: string | null;
           recurrence_source_task_id?: string | null;
+          remind_at?: string | null;
+          reminder_sent_at?: string | null;
           sort_order?: number;
           created_at?: string;
           updated_at?: string;
@@ -139,6 +143,8 @@ export interface Database {
           recurrence_rule?: string | null;
           recurrence_timezone?: string | null;
           recurrence_source_task_id?: string | null;
+          remind_at?: string | null;
+          reminder_sent_at?: string | null;
           sort_order?: number;
           created_at?: string;
           updated_at?: string;

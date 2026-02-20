@@ -94,6 +94,18 @@ const openApiSpec = {
             format: "uuid",
             nullable: true,
           },
+          remind_at: {
+            type: "string",
+            format: "date-time",
+            nullable: true,
+            description: "When to send a reminder notification",
+          },
+          reminder_sent_at: {
+            type: "string",
+            format: "date-time",
+            nullable: true,
+            description: "When the reminder was sent",
+          },
           sort_order: { type: "integer" },
           created_at: { type: "string", format: "date-time" },
           updated_at: { type: "string", format: "date-time" },

@@ -29,6 +29,8 @@ export type Task = {
   recurrence_rule: string | null;
   recurrence_timezone: string | null;
   recurrence_source_task_id: string | null;
+  remind_at: string | null;
+  reminder_sent_at: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -114,6 +116,7 @@ export async function POST(request: NextRequest) {
       plan_date,
       comment,
       duration_minutes,
+      remind_at,
     } = body;
 
     const recurrenceResult = parseRecurrenceFields(body as Record<string, unknown>);
@@ -192,6 +195,7 @@ export async function POST(request: NextRequest) {
         plan_date: plan_date || null,
         comment: comment || null,
         duration_minutes: duration_minutes || null,
+        remind_at: remind_at || null,
         ...recurrenceResult.data,
         sort_order: maxOrder + 1,
       })

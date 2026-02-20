@@ -150,5 +150,24 @@
     "language": "Language",
     "english": "English",
     "chinese": "中文"
+  },
+  "reminder": {
+    "title": "Reminder",
+    "enable": "Enable Notifications",
+    "notSupported": "Browser notifications are not supported in this environment",
+    "denied": "Notifications are blocked. Please enable them in your browser settings.",
+    "selectPreset": "Select reminder time",
+    "willRemindAt": "Reminder set for:",
+    "noDateWarning": "Set a due date or plan date to use preset reminders",
+    "presets": {
+      "none": "No reminder",
+      "atTime": "At due time (9:00 AM)",
+      "5min": "5 minutes before",
+      "15min": "15 minutes before",
+      "30min": "30 minutes before",
+      "1hour": "1 hour before",
+      "1day": "1 day before",
+      "custom": "Custom time"
+    }
   }
 }

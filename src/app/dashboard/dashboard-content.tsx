@@ -27,6 +27,7 @@ import {
 import { SearchDialog } from "@/components/search-dialog";
 import { useKeyboardShortcuts, type KeyboardShortcut } from "@/hooks/use-keyboard-shortcuts";
 import { useRealtime } from "@/hooks/use-realtime";
+import { ReminderScheduler } from "@/components/dashboard/reminder-scheduler";
 
 interface DashboardContentProps {
   initialGroups: Group[];
@@ -304,6 +305,9 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
 
   return (
     <div className="flex h-screen bg-stone-50 dark:bg-stone-950">
+      {/* Reminder scheduler - handles browser notifications */}
+      <ReminderScheduler enabled={true} />
+
       {/* Desktop Sidebar - hidden on mobile */}
       <div className="hidden md:block w-64 flex-shrink-0">
         <Sidebar

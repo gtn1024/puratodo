@@ -25,6 +25,42 @@ All tables include user_id for RLS policies and query optimization.
 ### 2026-02-20
 
 #### 完成
+- Feature #69 (Step 1): 添加 reminder 字段到数据库
+  - 创建迁移文件 `supabase/migrations/20260220000001_add_reminder_fields.sql`
+  - 添加字段：`remind_at` (timestamptz), `reminder_sent_at` (timestamptz)
+  - 添加索引：`idx_tasks_remind_at_pending`, `idx_tasks_remind_at_completed`
+  - 更新 `database.types.ts` 中的类型定义
+  - 更新 `src/actions/tasks.ts` 中的 Task 类型和 TaskUpdatePayload
+- Feature #69 (Step 2): 浏览器通知权限流程
+  - 创建 `src/lib/notifications.ts`：通知权限检查、请求、显示、调度工具函数
+  - 支持 `scheduleNotification`, `scheduleTaskReminder`, `clearScheduledNotification` 等 API
+  - 创建 `src/hooks/use-reminders.ts`：React hook 管理提醒调度
+- Feature #69 (Step 4): 提醒设置 UI
+  - 创建 `src/components/dashboard/reminder-fields.tsx`：提醒设置组件
+  - 支持预设提醒（到期时、5分钟前、15分钟前、30分钟前、1小时前、1天前）
+  - 支持自定义提醒时间
+  - 集成到 `task-detail-panel.tsx` 和 `task-detail-sheet.tsx`
+  - 创建 `src/components/dashboard/reminder-scheduler.tsx`：后台提醒调度组件
+  - 集成到 `dashboard-content.tsx`
+- Feature #69 (API): 更新 REST API 支持提醒字段
+  - 更新 `src/app/api/v1/tasks/route.ts`：Task 类型添加 remind_at
+  - 更新 `src/app/api/v1/tasks/[id]/route.ts`：PATCH 支持 remind_at
+  - 更新 `src/app/api/openapi/route.ts`：OpenAPI 文档添加 remind_at/reminder_sent_at
+- 中英文翻译：添加 `reminder.*` 翻译键
+- 构建验证通过：`npm run build`
+- 说明：
+  - 数据库迁移需要手动在 Supabase 控制台运行或使用 `supabase db push`
+  - 浏览器通知需要用户授权
+  - 目前使用客户端定时器实现提醒，服务端推送通知可后续扩展
+
+#### 下一步
+- Feature #70: Implement bulk actions for multi-select task management
+
+---
+
+### 2026-02-20 (Earlier)
+
+#### 完成
 - Feature #68 (Step 1): Smart Views 入口与 Dashboard 视图状态
   - `Sidebar` 新增 Smart Views 分区与四个入口：`Starred / Overdue / Next 7 Days / No Date`
   - `DashboardContent` 新增 `selectedSmartView` 视图状态，并与 Today/Inbox/Group/List 切换互斥

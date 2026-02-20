@@ -19,6 +19,7 @@ import {
   type RecurrenceFrequency,
   type RecurrenceUpdateScope,
 } from "@/components/dashboard/recurrence-fields";
+import { ReminderFields } from "@/components/dashboard/reminder-fields";
 import { CalendarIcon, Clock, FileText, X, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -84,6 +85,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
   });
   const [recurrenceScope, setRecurrenceScope] =
     useState<RecurrenceUpdateScope>("single");
+  const [remindAt, setRemindAt] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -106,6 +108,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
         setDurationMinutes(result.duration_minutes?.toString() || "");
         setRecurrence(createRecurrenceEditorValue(result));
         setRecurrenceScope("single");
+        setRemindAt(result.remind_at);
       } else {
         setTask(null);
       }
@@ -178,6 +181,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
       duration_minutes: durationMinutes ? parseInt(durationMinutes, 10) : null,
       ...recurrencePayload,
       recurrence_update_scope: recurrenceScope,
+      remind_at: remindAt,
     });
 
     setIsSaving(false);
@@ -375,6 +379,14 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
             onChange={setRecurrence}
             updateScope={recurrenceScope}
             onUpdateScopeChange={setRecurrenceScope}
+          />
+
+          {/* Reminder */}
+          <ReminderFields
+            remindAt={remindAt}
+            dueDate={dueDate ? toLocalDateString(dueDate) : null}
+            planDate={planDate ? toLocalDateString(planDate) : null}
+            onChange={({ remindAt: newRemindAt }) => setRemindAt(newRemindAt)}
           />
 
           {/* Comment */}

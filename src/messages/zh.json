@@ -150,5 +150,24 @@
     "language": "语言",
     "english": "English",
     "chinese": "中文"
+  },
+  "reminder": {
+    "title": "提醒",
+    "enable": "启用通知",
+    "notSupported": "当前环境不支持浏览器通知",
+    "denied": "通知已被阻止。请在浏览器设置中启用。",
+    "selectPreset": "选择提醒时间",
+    "willRemindAt": "提醒时间：",
+    "noDateWarning": "设置截止日期或计划日期以使用预设提醒",
+    "presets": {
+      "none": "无提醒",
+      "atTime": "到期时（上午 9:00）",
+      "5min": "提前 5 分钟",
+      "15min": "提前 15 分钟",
+      "30min": "提前 30 分钟",
+      "1hour": "提前 1 小时",
+      "1day": "提前 1 天",
+      "custom": "自定义时间"
+    }
   }
 }
