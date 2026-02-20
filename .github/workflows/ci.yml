@@ -42,6 +42,10 @@ jobs:
           supabase start
           sleep 20
 
+      - name: Run database migrations
+        working-directory: apps/web
+        run: supabase db push
+
       - name: Get Supabase credentials
         working-directory: apps/web
         run: |
