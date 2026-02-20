@@ -1,6 +1,5 @@
 import * as React from "react";
-import { Check, ChevronDown, UserPlus, Users, LogOut, Server, X } from "lucide-react";
-import { Button } from "@puratodo/ui";
+import { Check, ChevronDown, UserPlus, Users, LogOut, Server } from "lucide-react";
 import { AccountSettingsDialog } from "@/components/AccountSettingsDialog";
 import { useAuthStore } from "@/stores/authStore";
 import { useAuth } from "@/hooks/useAuth";
@@ -38,11 +37,6 @@ export function AccountSwitcher({
   const { user, accounts, activeAccountId, switchAccount, getCurrentServerUrl } = useAuthStore();
   const { logout } = useAuth();
 
-  const currentAccount = React.useMemo(
-    () => accounts.find((account) => account.id === activeAccountId),
-    [accounts, activeAccountId]
-  );
-
   const currentServerUrl = getCurrentServerUrl();
 
   // Close dropdown when clicking outside
@@ -72,13 +66,6 @@ export function AccountSwitcher({
     setIsOpen(false);
     // Sign out completely (removes all accounts) - goes to login page
     await logout();
-  };
-
-  const handleAddAccount = async () => {
-    setIsOpen(false);
-    // Sign out of current account but keep other accounts for later switching
-    // This will go to login page if there are no other accounts, or switch to another account
-    useAuthStore.getState().signOutCurrentAccount();
   };
 
   // Sort accounts by last used
@@ -175,13 +162,16 @@ export function AccountSwitcher({
           <div className="h-px bg-stone-200 dark:bg-stone-700 my-1" />
 
           {/* Add new account */}
-          <button
-            onClick={handleAddAccount}
-            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors"
-          >
-            <UserPlus className="w-4 h-4" />
-            <span>Add new account</span>
-          </button>
+          <AccountSettingsDialog
+            onAccountChanged={onAccountChanged}
+            defaultIsAdding={true}
+            trigger={
+              <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors">
+                <UserPlus className="w-4 h-4" />
+                <span>Add new account</span>
+              </button>
+            }
+          />
 
           {/* Manage accounts */}
           <AccountSettingsDialog

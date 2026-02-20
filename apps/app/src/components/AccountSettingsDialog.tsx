@@ -18,11 +18,13 @@ import { useAuthStore, AccountSession } from "@/stores/authStore";
 interface AccountSettingsDialogProps {
   trigger: React.ReactNode;
   onAccountChanged?: () => Promise<void> | void;
+  defaultIsAdding?: boolean;
 }
 
 export function AccountSettingsDialog({
   trigger,
   onAccountChanged,
+  defaultIsAdding = false,
 }: AccountSettingsDialogProps) {
   const {
     accounts,
@@ -64,6 +66,9 @@ export function AccountSettingsDialog({
 
   const handleOpenChange = (nextOpen: boolean) => {
     setOpen(nextOpen);
+    if (nextOpen && defaultIsAdding) {
+      setIsAdding(true);
+    }
     if (!nextOpen) {
       resetForm();
     }
