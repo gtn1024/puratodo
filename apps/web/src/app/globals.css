@@ -2,6 +2,9 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Include classes from shared workspace package */
+@source "../../../../packages/ui/src";
+
 /* Import shared design tokens from @puratodo/ui */
 @import "@puratodo/ui/styles/tokens.css";
 
