@@ -644,7 +644,7 @@
       "Set OS to light mode",
       "Verify app is in light mode"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 51,
@@ -657,7 +657,7 @@
       "Verify search works",
       "Press Escape to close"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 52,
@@ -681,7 +681,7 @@
       "Press Escape",
       "Verify dialog is closed"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 54,

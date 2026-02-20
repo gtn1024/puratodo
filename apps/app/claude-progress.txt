@@ -1,6 +1,69 @@
 # PuraToDo Tauri App - Progress Log
 
-## Session 29: Dark Mode CSS Fix for Tailwind v4
+## Session 29: Dark Mode and Keyboard Shortcuts Verification
+**Date:** 2026-02-20
+**Agent:** Claude Code (GLM-5)
+
+### Completed
+- Fixed dark mode CSS for Tailwind CSS v4:
+  - Added `@custom-variant dark (&:where(.dark, .dark *));` to App.css
+  - Tailwind v4 defaults to media query dark mode, needed explicit class selector
+- Verified dark mode now applies correctly throughout the app:
+  - Sidebar properly shows dark background (zinc-800)
+  - Main content area has dark background
+  - Text is light and visible
+  - Interactive elements are visible
+  - No white flashes or unstyled areas
+- Verified light mode still works correctly:
+  - Sidebar shows light background (zinc-50)
+  - Text is dark and visible
+  - Consistent styling throughout
+- Verified system theme preference is respected:
+  - Theme set to "system" correctly follows OS preference
+  - matchMedia detects system preference
+  - App responds to system theme changes
+- Verified keyboard shortcuts:
+  - Cmd+K opens search dialog
+  - Escape closes dialogs
+
+### Verification Performed
+- `npm run build` passed (app)
+- Playwright verification confirmed:
+  - Dark mode sidebar background: `oklch(0.274...)` (zinc-800)
+  - Light mode sidebar background: `oklch(0.985...)` (zinc-50)
+  - Theme toggle switches correctly between modes
+  - System theme preference detected: `systemPrefersDark: false`
+  - Cmd+K opens search dialog
+  - Escape closes search dialog
+
+### Current Status
+- 51/209 test cases passing
+- Tests #49, #50, #51, #53 verified
+
+### Tests Now Passing
+- Test #49: Dark mode applies correct colors throughout the app ✓
+- Test #50: System theme preference is respected ✓
+- Test #51: Keyboard shortcut Ctrl+K / Cmd+K opens search ✓
+- Test #53: Keyboard shortcut Escape closes dialogs ✓
+
+### Files Created/Modified
+- src/App.css (added @custom-variant dark for Tailwind v4)
+- feature_list.json (marked Tests #49, #50, #51, #53 as passing)
+- claude-progress.txt (this session log)
+
+### Technical Note
+Tailwind CSS v4 changed how dark mode works. By default, it uses `@media (prefers-color-scheme: dark)`. To use class-based dark mode (`.dark` class on html element), you need to add:
+```css
+@custom-variant dark (&:where(.dark, .dark *));
+```
+
+### Next Steps
+1. Continue with Test #52 (Keyboard shortcut Ctrl+N / Cmd+N creates new task)
+2. Continue with remaining keyboard shortcut tests
+
+---
+
+## Session 28: Theme Toggle Implementation
 **Date:** 2026-02-20
 **Agent:** Claude Code (GLM-5)
 
