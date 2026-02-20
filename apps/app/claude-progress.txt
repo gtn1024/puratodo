@@ -1,5 +1,49 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 23: Task Drag and Drop Reorder Implementation
+**Date:** 2026-02-20
+**Agent:** Claude Code (MiniMax-M2.5)
+
+### Completed
+- Implemented task drag-and-drop reordering:
+  - Added reorderTasks action to dataStore
+  - Added handleReorderTasks function in DashboardPage
+  - Added draggingTaskId and dropTargetTaskId state
+  - Tasks can be dragged and reordered within a list
+  - Visual feedback during drag (opacity, ring highlight)
+  - Optimistic UI update with rollback on error
+- Verified Test #40 with real backend API on localhost:3000:
+  - Dragged "Test Task 30" onto "Test Task Complete"
+  - Verified PATCH API calls were made successfully
+  - Both PATCH requests returned 200 OK
+
+### Verification Performed
+- `npm run build` passed
+- Playwright verification confirmed:
+  - Drag and drop functionality works correctly
+  - API requests successful:
+    - PATCH /api/v1/tasks/c177bc4f => [200] OK
+    - PATCH /api/v1/tasks/53cab980 => [200] OK
+
+### Current Status
+- 40/209 test cases passing
+- Test #40 verified with real backend API on localhost:3000
+
+### Tests Now Passing
+- Test #40: User can reorder tasks via drag and drop ✓
+
+### Files Created/Modified
+- src/stores/dataStore.ts (added reorderTasks action)
+- src/pages/DashboardPage.tsx (added drag-and-drop handlers)
+- feature_list.json (marked Test #40 as passing)
+- claude-progress.txt (this session log)
+
+### Next Steps
+1. Continue with Test #41 (move a task to a different list)
+2. Continue with remaining task features
+
+---
+
 ## Session 22: Infinite Nested Subtasks Implementation
 **Date:** 2026-02-20
 **Agent:** Claude Code (MiniMax-M2.5)

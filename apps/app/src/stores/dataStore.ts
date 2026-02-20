@@ -30,6 +30,7 @@ interface DataState {
   createTask: (input: CreateTaskInput) => Promise<Task>;
   updateTask: (id: string, input: UpdateTaskInput) => Promise<Task>;
   deleteTask: (id: string) => Promise<void>;
+  reorderTasks: (orderedTaskIds: string[]) => Promise<void>;
 
   // Combined
   fetchAll: () => Promise<void>;
@@ -325,6 +326,61 @@ export const useDataStore = create<DataState>((set, get) => ({
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to delete task";
       set({ error: message });
+      throw error;
+    }
+  },
+
+  reorderTasks: async (orderedTaskIds) => {
+    const previousTasks = [...get().tasks];
+    if (previousTasks.length <= 1) return;
+
+    const taskMap = new Map(previousTasks.map((task) => [task.id, task]));
+    const reorderedTasks = orderedTaskIds
+      .map((taskId) => taskMap.get(taskId))
+      .filter((task): task is Task => Boolean(task));
+
+    if (reorderedTasks.length !== orderedTaskIds.length) return;
+
+    // Calculate new sort_order values based on position
+    const minSortOrder = reorderedTasks.reduce(
+      (min, task) => Math.min(min, task.sort_order),
+      reorderedTasks[0]?.sort_order ?? 0,
+    );
+
+    const nextTasks = reorderedTasks.map((task, index) => ({
+      ...task,
+      sort_order: minSortOrder + index,
+    }));
+
+    const changedTasks = nextTasks.filter((task) => {
+      const previous = taskMap.get(task.id);
+      return previous ? previous.sort_order !== task.sort_order : false;
+    });
+
+    if (changedTasks.length === 0) return;
+
+    // Optimistic update
+    const allTasks = get().tasks.map((task) => {
+      const updated = nextTasks.find((t) => t.id === task.id);
+      return updated ?? task;
+    });
+    allTasks.sort((a, b) => a.sort_order - b.sort_order);
+    set({ tasks: allTasks, error: null });
+
+    try {
+      const updatedTasks = await Promise.all(
+        changedTasks.map((task) =>
+          tasksApi.update(task.id, { name: task.name, sort_order: task.sort_order }),
+        ),
+      );
+
+      const updatedMap = new Map(updatedTasks.map((task) => [task.id, task]));
+      const mergedTasks = get().tasks.map((task) => updatedMap.get(task.id) ?? task);
+      mergedTasks.sort((a, b) => a.sort_order - b.sort_order);
+      set({ tasks: mergedTasks, error: null });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to reorder tasks";
+      set({ tasks: previousTasks, error: message });
       throw error;
     }
   },

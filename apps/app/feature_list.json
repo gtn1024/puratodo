@@ -523,7 +523,7 @@
       "Verify task order is updated",
       "Verify new order persists after page refresh"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 41,

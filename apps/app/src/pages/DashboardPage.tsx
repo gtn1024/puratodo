@@ -69,6 +69,7 @@ export function DashboardPage() {
     createTask,
     updateTask,
     deleteTask,
+    reorderTasks,
     clear,
   } = useDataStore();
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
@@ -107,6 +108,10 @@ export function DashboardPage() {
   // List drag-and-drop state
   const [draggingListId, setDraggingListId] = React.useState<string | null>(null);
   const [dropTargetListId, setDropTargetListId] = React.useState<string | null>(null);
+
+  // Task drag-and-drop state
+  const [draggingTaskId, setDraggingTaskId] = React.useState<string | null>(null);
+  const [dropTargetTaskId, setDropTargetTaskId] = React.useState<string | null>(null);
 
   // Create task state
   const [showNewTaskInput, setShowNewTaskInput] = React.useState(false);
@@ -201,10 +206,50 @@ export function DashboardPage() {
     const hasIncompleteSubtasks = hasSubtasks && subtasks.some((st) => !st.completed);
     const allSubtasksCompleted = hasSubtasks && subtasks.every((st) => st.completed);
 
+    // Only root level tasks (depth === 0) can be dragged for reordering
+    const isDraggable = depth === 0;
+
     return (
       <div key={task.id}>
         <div
-          className="flex items-center gap-3 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
+          draggable={isDraggable}
+          onDragStart={(e) => {
+            if (!isDraggable) return;
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData("text/plain", task.id);
+            e.dataTransfer.setData("application/list-id", task.list_id);
+            setDraggingTaskId(task.id);
+          }}
+          onDragEnd={() => {
+            setDraggingTaskId(null);
+            setDropTargetTaskId(null);
+          }}
+          onDragOver={(e) => {
+            if (!isDraggable) return;
+            e.preventDefault();
+            if (draggingTaskId && draggingTaskId !== task.id) {
+              e.dataTransfer.dropEffect = "move";
+              setDropTargetTaskId(task.id);
+            }
+          }}
+          onDrop={(e) => {
+            if (!isDraggable) return;
+            e.preventDefault();
+            const sourceTaskId = e.dataTransfer.getData("text/plain") || draggingTaskId;
+            const sourceListId = e.dataTransfer.getData("application/list-id");
+            if (sourceTaskId && sourceListId === task.list_id) {
+              void handleReorderTasks(sourceTaskId, task.id, task.list_id);
+            }
+            setDraggingTaskId(null);
+            setDropTargetTaskId(null);
+          }}
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 ${
+            draggingTaskId === task.id ? "opacity-60" : ""
+          } ${
+            dropTargetTaskId === task.id && draggingTaskId !== task.id
+              ? "ring-2 ring-violet-300 dark:ring-violet-700"
+              : ""
+          }`}
           style={{ marginLeft: indentPadding }}
           onContextMenu={(e) => {
             e.preventDefault();
@@ -424,6 +469,28 @@ export function DashboardPage() {
       await reorderLists(nextLists.map((list) => list.id));
     } catch (err) {
       console.error("Failed to reorder lists:", err);
+    }
+  };
+
+  // Handle reordering tasks within a list
+  const handleReorderTasks = async (fromTaskId: string, toTaskId: string, listId: string) => {
+    if (fromTaskId === toTaskId) return;
+
+    // Get root tasks (no parent) for the list
+    const listTasks = tasks.filter((task) => task.list_id === listId && !task.parent_id);
+    const fromIndex = listTasks.findIndex((task) => task.id === fromTaskId);
+    const toIndex = listTasks.findIndex((task) => task.id === toTaskId);
+    if (fromIndex < 0 || toIndex < 0) return;
+
+    // Reorder within the list
+    const nextTasks = [...listTasks];
+    const [movedTask] = nextTasks.splice(fromIndex, 1);
+    nextTasks.splice(toIndex, 0, movedTask);
+
+    try {
+      await reorderTasks(nextTasks.map((task) => task.id));
+    } catch (err) {
+      console.error("Failed to reorder tasks:", err);
     }
   };
 
