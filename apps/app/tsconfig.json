@@ -9,7 +9,9 @@
     /* Path aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@puratodo/ui": ["../../packages/ui/src"],
+      "@puratodo/ui/*": ["../../packages/ui/src/*"]
     },
 
     /* Linting */

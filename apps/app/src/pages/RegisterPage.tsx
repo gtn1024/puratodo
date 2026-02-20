@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Mail, Lock, User, ArrowRight, CheckCircle2, AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button, Input } from "@puratodo/ui";
 import { ApiServerSettingsDialog } from "@/components/ApiServerSettingsDialog";
 import { useAuth } from "@/hooks/useAuth";
 

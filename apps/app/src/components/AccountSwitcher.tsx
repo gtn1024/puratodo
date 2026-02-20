@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Check, ChevronDown, UserPlus, Users, LogOut, Server, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@puratodo/ui";
 import { AccountSettingsDialog } from "@/components/AccountSettingsDialog";
 import { useAuthStore } from "@/stores/authStore";
 import { useAuth } from "@/hooks/useAuth";

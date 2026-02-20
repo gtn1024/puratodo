@@ -1,15 +1,15 @@
 import * as React from "react";
 import { AlertCircle, Check, Lock, Mail, Server, Trash2, UserPlus, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
+  Button,
+  Input,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@puratodo/ui";
 import { authApi } from "@/lib/api/auth";
 import { ApiException } from "@/lib/api/client";
 import { DEFAULT_API_URL, isValidApiUrl, normalizeApiUrl } from "@/lib/api/config";

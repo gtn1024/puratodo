@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Mail, Lock, ArrowRight, CheckCircle2, AlertCircle, Server } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button, Input } from "@puratodo/ui";
 import { useAuth } from "@/hooks/useAuth";
 import { DEFAULT_API_URL, getPendingApiUrl, setPendingApiUrl, isValidApiUrl, normalizeApiUrl } from "@/lib/api/config";
 

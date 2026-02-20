@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Server } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@puratodo/ui";
 import {
   DEFAULT_API_URL,
   isValidApiUrl,

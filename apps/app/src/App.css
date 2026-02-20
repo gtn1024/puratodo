@@ -3,6 +3,9 @@
 
 @import "tailwindcss";
 
+/* Import shared design tokens from @puratodo/ui */
+@import "@puratodo/ui/styles/tokens.css";
+
 /* Configure dark mode to use class selector instead of media query */
 @custom-variant dark (&:where(.dark, .dark *));
 

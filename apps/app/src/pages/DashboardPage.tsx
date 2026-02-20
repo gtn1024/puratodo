@@ -19,14 +19,14 @@ import {
   Moon,
   Sun,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
+} from "@puratodo/ui";
 import { AccountSettingsDialog } from "@/components/AccountSettingsDialog";
 import { AccountSwitcher } from "@/components/AccountSwitcher";
 import { useAuth } from "@/hooks/useAuth";
