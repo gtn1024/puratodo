@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      docker:
+        image: docker:dind
+        options: --privileged
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Supabase CLI
+        run: npm install -g supabase
+
+      - name: Start Supabase Local
+        working-directory: apps/web
+        run: |
+          supabase start
+          sleep 20
+
+      - name: Get Supabase credentials
+        working-directory: apps/web
+        run: |
+          echo "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(supabase anon_key)" >> $GITHUB_ENV
+
+      - name: Build web app
+        working-directory: apps/web
+        run: pnpm build
+
+      - name: Run E2E Tests
+        working-directory: apps/web
+        run: npx playwright test
