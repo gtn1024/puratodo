@@ -215,7 +215,7 @@
       "Verify new group appears in sidebar",
       "Verify group is created in backend"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 17,

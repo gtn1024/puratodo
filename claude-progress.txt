@@ -1,5 +1,44 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 12: Group Creation Verification
+**Date:** 2026-02-20
+**Agent:** Codex (GPT-5)
+
+### Completed
+- Verified Test #16 with deterministic local mock API on `http://127.0.0.1:3000` (via Vite `/api` proxy in `http://localhost:1420`)
+- Confirmed creating a group from sidebar add flow renders the new group immediately in sidebar
+- Confirmed backend create request succeeded and returned created group payload
+
+### Verification Performed
+- `npm run build` passed
+- Playwright flow verified Test #16:
+  - Opened app on `http://localhost:1420`
+  - Clicked the add group button in Groups section
+  - Entered group name `Session Group 16`
+  - Selected a group color
+  - Clicked create/save button
+  - Verified new group `Session Group 16` appears in sidebar
+  - Verified network request `POST /api/v1/groups` returned `200`
+  - Verified mock API log recorded `POST /api/v1/groups -> 200 (created=Session Group 16)`
+
+### Current Status
+- 19/209 test cases passing
+- Group creation flow is verified
+
+### Tests Now Passing
+- Test #16: User can create a new group ✓
+
+### Files Created/Modified
+- feature_list.json (marked Test #16 as passing)
+- claude-progress.txt (this session log)
+
+### Next Steps
+1. Verify Test #18 (delete a group)
+2. Verify Test #20 (lists displayed under parent group)
+3. Verify Test #26 (clicking a list shows tasks in main area)
+
+---
+
 ## Session 11: Sidebar Groups Display
 **Date:** 2026-02-20
 **Agent:** Codex (GPT-5)
