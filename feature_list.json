@@ -457,7 +457,7 @@
       "Verify comment is displayed",
       "Verify comment is saved to backend"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 36,

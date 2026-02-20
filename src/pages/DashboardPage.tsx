@@ -441,6 +441,19 @@ export function DashboardPage() {
     }
   };
 
+  // Update task comment
+  const updateTaskComment = async (taskId: string, comment: string) => {
+    try {
+      await updateTask(taskId, { comment });
+      // Update local selectedTask state if it matches
+      if (selectedTask && selectedTask.id === taskId) {
+        setSelectedTask({ ...selectedTask, comment });
+      }
+    } catch (err) {
+      console.error("Failed to update task comment:", err);
+    }
+  };
+
   // Open move list dialog
   const openMoveListDialog = (list: ListType) => {
     setListContextMenu(null);
@@ -1347,6 +1360,28 @@ export function DashboardPage() {
                 <label htmlFor="task-completed" className="text-sm text-zinc-700 dark:text-zinc-300">
                   Marked as completed
                 </label>
+              </div>
+
+              {/* Comment/Notes */}
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                  Notes
+                </label>
+                <textarea
+                  value={selectedTask.comment || ""}
+                  onChange={(e) => {
+                    const newComment = e.target.value;
+                    // Auto-save on blur
+                    updateTaskComment(selectedTask.id, newComment);
+                  }}
+                  onBlur={(e) => {
+                    const newComment = e.target.value;
+                    updateTaskComment(selectedTask.id, newComment);
+                  }}
+                  placeholder="Add notes..."
+                  rows={3}
+                  className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 resize-none"
+                />
               </div>
 
               {/* Starred Status */}

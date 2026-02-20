@@ -43,8 +43,8 @@
 - Test #33: PATCH /api/v1/tasks/... with due_date:"2026-02-25" => [200] OK
 
 ### Current Status
-- 34/209 test cases passing
-- Test #32, #33, #34 verified with real backend API on localhost:3000
+- 35/209 test cases passing
+- Test #32, #33, #34, #35 verified with real backend API on localhost:3000
 
 ### Tests Now Passing
 - Test #28: User can edit a task ✓
@@ -54,14 +54,15 @@
 - Test #32: User can star/unstar a task ✓
 - Test #33: User can set a due date on a task ✓
 - Test #34: User can set a planned date on a task ✓
+- Test #35: User can add comments/notes to a task ✓
 
 ### Files Created/Modified
-- src/pages/DashboardPage.tsx (added task edit, delete, completion, star UI, due date, planned date panel)
-- feature_list.json (marked Tests #28-34 as passing)
+- src/pages/DashboardPage.tsx (added task edit, delete, completion, star UI, due date, planned date, notes panel)
+- feature_list.json (marked Tests #28-35 as passing)
 - claude-progress.txt (this session log)
 
 ### Next Steps
-1. Continue with Test #35 (add comments/notes to a task)
+1. Continue with Test #36 (set task duration)
 2. Continue with remaining task features
 
 ---
