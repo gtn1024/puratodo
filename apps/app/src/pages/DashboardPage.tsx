@@ -974,7 +974,7 @@ export function DashboardPage() {
   }, [selectedListId, fetchTasks]);
 
   return (
-    <div className="min-h-screen flex">
+    <div className="h-screen overflow-hidden flex">
       {/* Sidebar */}
       <aside className="w-64 bg-stone-50 dark:bg-stone-900 border-r border-stone-200 dark:border-stone-700 flex flex-col">
         {/* Logo */}
@@ -1376,7 +1376,7 @@ export function DashboardPage() {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <header className="h-16 border-b border-stone-200 dark:border-stone-700 flex items-center justify-between px-6">
           <h1 className="text-xl font-semibold text-stone-900 dark:text-stone-100">
@@ -1398,7 +1398,7 @@ export function DashboardPage() {
         </header>
 
         {/* Content */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-2xl mx-auto">
             {/* New task input */}
             {selectedList && (

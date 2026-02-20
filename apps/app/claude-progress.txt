@@ -1,5 +1,20 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 3: Scrollbar Fix
+**Date:** 2026-02-20
+
+### What was done
+Fixed page scrollbar issue where the entire page (including header and sidebar) would scroll when there were many tasks, instead of just the task list area.
+
+**Changes made to `DashboardPage.tsx`:**
+1. Line 977: Changed outer container from `min-h-screen flex` to `h-screen overflow-hidden flex`
+2. Line 1379: Added `overflow-hidden` to main area
+3. Line 1401: Added `overflow-y-auto` to content area
+
+**Result:** Now only the task list content area scrolls, while header and sidebar remain fixed.
+
+---
+
 ## Session 2: Multi-Account UI Improvements
 **Date:** 2026-02-20
 
