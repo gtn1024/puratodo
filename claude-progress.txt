@@ -22,6 +22,67 @@ All tables include user_id for RLS policies and query optimization.
 
 ---
 
+### 2026-02-20
+
+#### 完成
+- Feature #68 (Step 1): Smart Views 入口与 Dashboard 视图状态
+  - `Sidebar` 新增 Smart Views 分区与四个入口：`Starred / Overdue / Next 7 Days / No Date`
+  - `DashboardContent` 新增 `selectedSmartView` 视图状态，并与 Today/Inbox/Group/List 切换互斥
+  - 在切换 Group/List/Today/Inbox/Search 跳转时，统一清空 Smart View 状态，避免状态串扰
+  - 主区域与顶部标题接入 Smart View 路由状态（当前为占位面板）
+  - 新增中英文文案：
+    - `sidebar.smartViews`
+    - `sidebar.starred`
+    - `sidebar.overdue`
+    - `sidebar.next7Days`
+    - `sidebar.noDate`
+  - 构建验证通过：`npm run build`
+  - 说明：Smart View 的数据查询与实时刷新将在 Feature #68 后续步骤实现
+- Feature #68 (Step 2): 实现 Smart View 查询层（含索引优化）
+  - `src/actions/tasks.ts` 新增 Smart View 查询 action：
+    - `getStarredTasks`
+    - `getOverdueTasks`
+    - `getNext7DaysTasks`
+    - `getNoDateTasks`
+  - 查询策略：
+    - Starred：`user_id + parent_id is null + starred=true`
+    - Overdue：`user_id + parent_id is null + completed=false + due_date < today`
+    - Next 7 Days：`user_id + parent_id is null + completed=false + due_date between today and today+7`
+    - No Date：`user_id + parent_id is null + completed=false + due_date is null + plan_date is null`
+  - 抽取公共上下文拼装：`attachTaskContext`，统一补齐 `list_name/list_icon/group_name/group_color`
+  - `searchTasks` 与 `getTodayTasks` 改为复用公共上下文拼装逻辑，去除重复代码
+  - `supabase/schema.sql` 新增 Smart View 相关 partial indexes：
+    - `idx_tasks_starred_top_level`
+    - `idx_tasks_due_date_open_top_level`
+    - `idx_tasks_nodate_open_top_level`
+  - 构建验证通过：`npm run build`
+- Feature #68 (Step 3): 复用任务面板渲染 Smart Views + 上下文标签
+  - `TaskPanel` 新增 `smartView` 模式，支持直接加载并展示：
+    - `Starred / Overdue / Next 7 Days / No Date`
+  - `DashboardContent` 中 Smart View 分支由占位卡片改为复用 `TaskPanel`
+  - `TaskPanel` 头部可根据 Smart View 自动切换标题/图标/空状态文案
+  - Smart View 模式下复用任务操作（完成、星标、编辑、删除、详情打开）
+  - Smart View 模式下禁用不适用能力（新建任务、子任务新增、拖拽排序、Inbox move）
+  - 在任务行新增跨列表上下文标签（列表图标+列表名+分组色点+分组名），满足 Smart View 可追溯性
+  - 构建验证通过：`npm run build`
+- Feature #68 (Step 4): Smart Views 实时刷新订阅
+  - `TaskPanel` 的 realtime 订阅扩展到 Smart View 模式：不再仅限选中 list
+  - 在 Smart View 模式订阅 `tasks` 变更（INSERT/UPDATE/DELETE）后自动 `reloadTasks`
+  - 新增 Smart View 下 `lists/groups` 变更订阅，用于列表名/分组名/颜色变化时自动刷新上下文标签
+  - 为日期驱动视图（`Overdue` / `Next 7 Days`）新增本地午夜自动刷新定时器，避免跨天无变更时视图滞后
+  - 任务过滤中的“今天”判断改为本地日期字符串（替代 UTC `toISOString`），减少时区偏差
+  - 构建验证通过：`npm run build`
+- Feature #68 (Step 5-6): 行为验证状态
+  - 已尝试使用 Playwright 执行 Smart View 端到端验证（登录 + 视图切换 + 任务编辑触发出入视图）
+  - 当前环境阻塞：Playwright Chrome persistent context 被现有会话锁定（报错：`正在现有的浏览器会话中打开`），导致脚本无法稳定连续执行
+  - 代码侧已完成 Step 6 关键保障：本地日期计算 + 本地午夜自动刷新
+  - 后续需在可用浏览器上下文中补齐 Step 5-6 的完整自动化验收
+
+#### 下一步
+- Feature #68 (Step 5-6): 在可用 Playwright 浏览器上下文中完成自动化验收（编辑后即时出入视图 + 本地跨天正确性）
+
+---
+
 ### 2026-02-19
 
 #### 完成

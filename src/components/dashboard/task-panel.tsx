@@ -22,9 +22,14 @@ import {
   createTask,
   updateTask,
   deleteTask,
+  getNext7DaysTasks,
+  getNoDateTasks,
+  getOverdueTasks,
+  getStarredTasks,
   moveInboxTaskToList,
   reorderTasks,
   type Task,
+  type TaskSearchResult,
 } from "@/actions/tasks";
 import {
   MoreHorizontal,
@@ -75,6 +80,21 @@ type GroupOption = {
   name: string;
 };
 
+type SmartViewType = "starred" | "overdue" | "next7days" | "nodate";
+
+type TaskContextMeta = {
+  listName: string;
+  listIcon: string;
+  groupName: string;
+  groupColor: string;
+};
+
+function toLocalDateString(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
+    date.getDate()
+  ).padStart(2, "0")}`;
+}
+
 interface InboxMoveTarget {
   listId: string;
   listName: string;
@@ -101,6 +121,9 @@ interface TaskItemProps {
   canMoveFromInbox?: boolean;
   moveTargets?: InboxMoveTarget[];
   onMoveToList?: (task: Task, targetListId: string) => void;
+  disableSorting?: boolean;
+  allowSubtaskActions?: boolean;
+  contextMeta?: TaskContextMeta;
   renderSubtasks: (task: Task, level: number) => React.ReactNode;
 }
 
@@ -123,6 +146,9 @@ function TaskItem({
   canMoveFromInbox,
   moveTargets,
   onMoveToList,
+  disableSorting,
+  allowSubtaskActions,
+  contextMeta,
   renderSubtasks,
 }: TaskItemProps) {
   const {
@@ -132,7 +158,7 @@ function TaskItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: task.id });
+  } = useSortable({ id: task.id, disabled: disableSorting });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -180,14 +206,22 @@ function TaskItem({
         </button>
 
         {/* Drag Handle */}
-        <button
-          {...attributes}
-          {...listeners}
-          style={{ marginLeft: paddingLeft }}
-          className="cursor-grab active:cursor-grabbing text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 opacity-0 group-hover:opacity-100 transition-opacity"
-        >
-          <GripVertical className="h-4 w-4" />
-        </button>
+        {disableSorting ? (
+          <span
+            style={{ marginLeft: paddingLeft }}
+            className="w-4 h-4"
+            aria-hidden
+          />
+        ) : (
+          <button
+            {...attributes}
+            {...listeners}
+            style={{ marginLeft: paddingLeft }}
+            className="cursor-grab active:cursor-grabbing text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <GripVertical className="h-4 w-4" />
+          </button>
+        )}
 
         {/* Checkbox */}
         <Checkbox
@@ -216,6 +250,18 @@ function TaskItem({
             }`}
           >
             {task.name}
+          </span>
+        )}
+
+        {contextMeta && level === 0 && (
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300">
+            <span>{contextMeta.listIcon || "📋"}</span>
+            <span className="max-w-[10rem] truncate">{contextMeta.listName}</span>
+            <span
+              className="w-1.5 h-1.5 rounded-full"
+              style={{ backgroundColor: contextMeta.groupColor || "#6b7280" }}
+            />
+            <span className="max-w-[7rem] truncate">{contextMeta.groupName}</span>
           </span>
         )}
 
@@ -248,10 +294,12 @@ function TaskItem({
             <DropdownMenuItem onClick={() => onEdit(task)}>
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onAddSubtask(task)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Subtask
-            </DropdownMenuItem>
+            {allowSubtaskActions !== false && (
+              <DropdownMenuItem onClick={() => onAddSubtask(task)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Subtask
+              </DropdownMenuItem>
+            )}
             {showInboxMoveMenu && (
               <>
                 <DropdownMenuItem disabled className="text-xs text-stone-500">
@@ -294,6 +342,7 @@ interface TaskPanelProps {
   allLists?: List[];
   allGroups?: GroupOption[];
   isInboxMode?: boolean;
+  smartView?: SmartViewType | null;
   onTaskSelect?: (taskId: string | null) => void;
 }
 
@@ -380,7 +429,7 @@ function reorderSiblingTasks(
 
 export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
   function TaskPanel(
-    { list, selectedTaskId, allLists, allGroups, isInboxMode, onTaskSelect },
+    { list, selectedTaskId, allLists, allGroups, isInboxMode, smartView, onTaskSelect },
     ref
   ) {
   const { t } = useI18n();
@@ -396,6 +445,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
   const [addingSubtaskTo, setAddingSubtaskTo] = useState<string | null>(null);
   const [newSubtaskName, setNewSubtaskName] = useState("");
+  const [taskContextById, setTaskContextById] = useState<Map<string, TaskContextMeta>>(new Map());
   const [filters, setFilters] = useState<TaskFilters>({
     status: "all",
     star: "all",
@@ -403,27 +453,89 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
   });
 
   const newTaskInputRef = useRef<HTMLInputElement>(null);
+  const isSmartViewMode = Boolean(smartView);
+  const isDateDrivenSmartView = smartView === "overdue" || smartView === "next7days";
+  const canCreateTasks = Boolean(list) && !isSmartViewMode;
+
+  const applySmartViewResults = useCallback((items: TaskSearchResult[]) => {
+    setTasks(items as Task[]);
+    const context = new Map<string, TaskContextMeta>();
+    items.forEach((task) => {
+      context.set(task.id, {
+        listName: task.list_name,
+        listIcon: task.list_icon,
+        groupName: task.group_name,
+        groupColor: task.group_color,
+      });
+    });
+    setTaskContextById(context);
+  }, []);
+
+  const loadSmartViewTasks = useCallback(async (view: SmartViewType): Promise<TaskSearchResult[]> => {
+    if (view === "starred") return getStarredTasks();
+    if (view === "overdue") return getOverdueTasks();
+    if (view === "next7days") return getNext7DaysTasks();
+    return getNoDateTasks();
+  }, []);
+
+  const reloadTasks = useCallback(async () => {
+    if (smartView) {
+      const data = await loadSmartViewTasks(smartView);
+      applySmartViewResults(data);
+      return;
+    }
+
+    if (list) {
+      const data = await getTasksWithSubtasks(list.id);
+      setTasks(data);
+      setTaskContextById(new Map());
+      return;
+    }
+
+    setTasks([]);
+    setTaskContextById(new Map());
+  }, [applySmartViewResults, list, loadSmartViewTasks, smartView]);
 
   // Realtime subscription for tasks
   useRealtime({
-    channel: `tasks-${list?.id || "none"}`,
+    channel: smartView ? `smart-view-tasks-${smartView}` : `tasks-${list?.id || "none"}`,
     table: "tasks",
     onInsert: () => reloadTasks(),
     onUpdate: () => reloadTasks(),
     onDelete: () => reloadTasks(),
-    enabled: !!list,
+    enabled: !!list || isSmartViewMode,
+  });
+
+  // Keep smart-view labels fresh when lists/groups are renamed.
+  useRealtime({
+    channel: `smart-view-lists-${smartView || "none"}`,
+    table: "lists",
+    onInsert: () => reloadTasks(),
+    onUpdate: () => reloadTasks(),
+    onDelete: () => reloadTasks(),
+    enabled: isSmartViewMode,
+  });
+
+  useRealtime({
+    channel: `smart-view-groups-${smartView || "none"}`,
+    table: "groups",
+    onInsert: () => reloadTasks(),
+    onUpdate: () => reloadTasks(),
+    onDelete: () => reloadTasks(),
+    enabled: isSmartViewMode,
   });
 
   // Expose methods to parent via ref
   useImperativeHandle(ref, () => ({
     triggerCreateTask: () => {
+      if (!canCreateTasks) return;
       setIsAdding(true);
       // Focus the input after a brief delay to ensure it's rendered
       setTimeout(() => {
         newTaskInputRef.current?.focus();
       }, 50);
     },
-  }), []);
+  }), [canCreateTasks]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -437,26 +549,47 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
   useEffect(() => {
     async function loadTasks() {
       setIsLoadingTasks(true);
-      if (list) {
-        const data = await getTasksWithSubtasks(list.id);
-        setTasks(data);
-      } else {
-        setTasks([]);
-      }
+      setIsAdding(false);
+      setAddingSubtaskTo(null);
+      setNewTaskName("");
+      setNewSubtaskName("");
+      await reloadTasks();
       setIsLoadingTasks(false);
     }
     loadTasks();
-  }, [list]);
+  }, [reloadTasks]);
 
-  const reloadTasks = async () => {
-    if (list) {
-      const data = await getTasksWithSubtasks(list.id);
-      setTasks(data);
+  // Date-based smart views need a local-midnight refresh even without DB changes.
+  useEffect(() => {
+    if (!isDateDrivenSmartView) {
+      return;
     }
-  };
+
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    const scheduleNextMidnightReload = () => {
+      const now = new Date();
+      const nextMidnight = new Date(now);
+      nextMidnight.setHours(24, 0, 2, 0);
+      const delay = Math.max(1000, nextMidnight.getTime() - now.getTime());
+
+      timeoutId = setTimeout(async () => {
+        await reloadTasks();
+        scheduleNextMidnightReload();
+      }, delay);
+    };
+
+    scheduleNextMidnightReload();
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isDateDrivenSmartView, reloadTasks]);
 
   const handleAddTask = async () => {
-    if (!list || !newTaskName.trim()) return;
+    if (!canCreateTasks || !list || !newTaskName.trim()) return;
     setIsLoading(true);
     const result = await createTask(list.id, newTaskName.trim());
     if (result.success) {
@@ -468,7 +601,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
   };
 
   const handleAddSubtask = async (parentId: string) => {
-    if (!list || !newSubtaskName.trim()) return;
+    if (!canCreateTasks || !list || !newSubtaskName.trim()) return;
     setIsLoading(true);
     const result = await createTask(list.id, newSubtaskName.trim(), parentId);
     if (result.success) {
@@ -658,7 +791,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
 
   // Filter tasks based on current filters
   const filterTasks = useCallback((taskList: Task[]): Task[] => {
-    const today = new Date().toISOString().split("T")[0];
+    const today = toLocalDateString(new Date());
 
     const matchesFilter = (task: Task): boolean => {
       // Status filter
@@ -767,6 +900,8 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
               canMoveFromInbox={false}
               moveTargets={inboxMoveTargets}
               onMoveToList={handleMoveToList}
+              disableSorting={isSmartViewMode}
+              allowSubtaskActions={!isSmartViewMode}
               renderSubtasks={renderSubtasks}
             />
           ))}
@@ -785,10 +920,11 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
       handleOpenDetail,
       handleSaveEdit,
       handleCancelEdit,
+      isSmartViewMode,
     ]
   );
 
-  if (!list) {
+  if (!list && !smartView) {
     return (
       <div className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-12 text-center">
         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center">
@@ -822,19 +958,56 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
   }
 
   const totalTasks = countAllTasks(tasks);
+  const smartViewTitle = smartView
+    ? smartView === "starred"
+      ? t("sidebar.starred")
+      : smartView === "overdue"
+        ? t("sidebar.overdue")
+        : smartView === "next7days"
+          ? t("sidebar.next7Days")
+          : t("sidebar.noDate")
+    : "";
+  const panelTitle = smartView ? smartViewTitle : list?.name || t("taskPanel.tasks");
+  const panelIcon = smartView
+    ? smartView === "starred"
+      ? "⭐"
+      : smartView === "overdue"
+        ? "⚠️"
+        : smartView === "next7days"
+          ? "🗓️"
+          : "◯"
+    : list?.icon || "📋";
+  const smartViewEmptyTitle = smartView
+    ? smartView === "starred"
+      ? "No starred tasks"
+      : smartView === "overdue"
+        ? "No overdue tasks"
+        : smartView === "next7days"
+          ? "No tasks in the next 7 days"
+          : "No no-date tasks"
+    : t("taskPanel.noTasks");
+  const smartViewEmptyHint = smartView
+    ? "Tasks from all lists will appear here when they match this view."
+    : "";
+  const displayedCount = hasActiveFilters ? countAllTasks(filteredTasks) : totalTasks;
 
   return (
     <div className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200 dark:border-stone-800">
         <div className="flex items-center gap-3">
-          <span className="text-2xl">{list.icon || "📋"}</span>
+          <span className="text-2xl">{panelIcon}</span>
           <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-            {list.name}
+            {panelTitle}
           </h2>
           <span className="text-sm text-stone-500 dark:text-stone-400">
-            {hasActiveFilters ? `${filteredTasks.length} of ${totalTasks}` : totalTasks} {totalTasks === 1 ? "task" : "tasks"}
+            {hasActiveFilters ? `${displayedCount} of ${totalTasks}` : totalTasks} {totalTasks === 1 ? "task" : "tasks"}
           </span>
+          {smartView && (
+            <span className="hidden md:inline text-xs text-stone-500 dark:text-stone-400 rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5">
+              Cross-list view
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2">
           {/* Filter Dropdown */}
@@ -952,22 +1125,24 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsAdding(true)}
-            disabled={isAdding}
-          >
-            <Plus className="h-4 w-4 mr-1" />
-            {t("taskPanel.addTask")}
-          </Button>
+          {canCreateTasks && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsAdding(true)}
+              disabled={isAdding}
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              {t("taskPanel.addTask")}
+            </Button>
+          )}
         </div>
       </div>
 
       {/* Task List */}
       <div className="p-4">
         {/* Add Task Input */}
-        {isAdding && (
+        {canCreateTasks && isAdding && (
           <div className="flex items-center gap-3 px-4 py-3 mb-2 rounded-lg border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/50">
             <Circle className="h-5 w-5 text-stone-300" />
             <input
@@ -1002,7 +1177,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
         )}
 
         {/* Add Subtask Input (appears after parent task) */}
-        {addingSubtaskTo && (
+        {canCreateTasks && addingSubtaskTo && (
           <div className="flex items-center gap-3 px-4 py-3 mb-2 ml-6 rounded-lg border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/50">
             <Circle className="h-5 w-5 text-stone-300" />
             <input
@@ -1042,16 +1217,22 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
               <CheckCircle className="h-6 w-6 text-stone-400" />
             </div>
             <p className="text-stone-500 dark:text-stone-400 mb-4">
-              {t("taskPanel.noTasks")}
+              {smartView ? smartViewEmptyTitle : t("taskPanel.noTasks")}
             </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsAdding(true)}
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              {t("taskPanel.createFirstTask")}
-            </Button>
+            {smartView ? (
+              <p className="text-sm text-stone-400 dark:text-stone-500">
+                {smartViewEmptyHint}
+              </p>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsAdding(true)}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                {t("taskPanel.createFirstTask")}
+              </Button>
+            )}
           </div>
         ) : filteredTasks.length === 0 && !isAdding ? (
           <div className="py-12 text-center">
@@ -1070,57 +1251,92 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
             </Button>
           </div>
         ) : (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={({ droppableContainers, ...args }) => {
-              // First try pointer within, then fall back to closest center
-              const pointerCollisions = pointerWithin({
-                droppableContainers,
-                ...args,
-              });
-              if (pointerCollisions.length > 0) {
-                return pointerCollisions;
-              }
-              return closestCenter({
-                droppableContainers,
-                ...args,
-              });
-            }}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              id={ROOT_SORTABLE_ID}
-              items={filteredTasks.map((t) => t.id)}
-              strategy={verticalListSortingStrategy}
+          isSmartViewMode ? (
+            <ul className="space-y-1">
+              {filteredTasks.map((task) => (
+                <TaskItem
+                  key={task.id}
+                  task={task}
+                  level={0}
+                  expandedTasks={expandedTasks}
+                  onToggleExpand={handleToggleExpand}
+                  onToggleComplete={handleToggleComplete}
+                  onToggleStar={handleToggleStar}
+                  onEdit={handleEdit}
+                  onDelete={openDeleteDialog}
+                  onAddSubtask={startAddSubtask}
+                  onOpenDetail={handleOpenDetail}
+                  editingTaskId={editingTaskId}
+                  editName={editName}
+                  onEditNameChange={setEditName}
+                  onSaveEdit={handleSaveEdit}
+                  onCancelEdit={handleCancelEdit}
+                  canMoveFromInbox={false}
+                  moveTargets={[]}
+                  onMoveToList={undefined}
+                  disableSorting
+                  allowSubtaskActions={false}
+                  contextMeta={taskContextById.get(task.id)}
+                  renderSubtasks={renderSubtasks}
+                />
+              ))}
+            </ul>
+          ) : (
+            <DndContext
+              sensors={sensors}
+              collisionDetection={({ droppableContainers, ...args }) => {
+                // First try pointer within, then fall back to closest center
+                const pointerCollisions = pointerWithin({
+                  droppableContainers,
+                  ...args,
+                });
+                if (pointerCollisions.length > 0) {
+                  return pointerCollisions;
+                }
+                return closestCenter({
+                  droppableContainers,
+                  ...args,
+                });
+              }}
+              onDragEnd={handleDragEnd}
             >
-              <ul className="space-y-1">
-                {filteredTasks.map((task) => (
-                  <TaskItem
-                    key={task.id}
-                    task={task}
-                    level={0}
-                    expandedTasks={expandedTasks}
-                    onToggleExpand={handleToggleExpand}
-                    onToggleComplete={handleToggleComplete}
-                    onToggleStar={handleToggleStar}
-                    onEdit={handleEdit}
-                    onDelete={openDeleteDialog}
-                    onAddSubtask={startAddSubtask}
-                    onOpenDetail={handleOpenDetail}
-                    editingTaskId={editingTaskId}
-                    editName={editName}
-                    onEditNameChange={setEditName}
-                    onSaveEdit={handleSaveEdit}
-                    onCancelEdit={handleCancelEdit}
-                    canMoveFromInbox={isInboxMode}
-                    moveTargets={inboxMoveTargets}
-                    onMoveToList={handleMoveToList}
-                    renderSubtasks={renderSubtasks}
-                  />
-                ))}
-              </ul>
-            </SortableContext>
-          </DndContext>
+              <SortableContext
+                id={ROOT_SORTABLE_ID}
+                items={filteredTasks.map((t) => t.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <ul className="space-y-1">
+                  {filteredTasks.map((task) => (
+                    <TaskItem
+                      key={task.id}
+                      task={task}
+                      level={0}
+                      expandedTasks={expandedTasks}
+                      onToggleExpand={handleToggleExpand}
+                      onToggleComplete={handleToggleComplete}
+                      onToggleStar={handleToggleStar}
+                      onEdit={handleEdit}
+                      onDelete={openDeleteDialog}
+                      onAddSubtask={startAddSubtask}
+                      onOpenDetail={handleOpenDetail}
+                      editingTaskId={editingTaskId}
+                      editName={editName}
+                      onEditNameChange={setEditName}
+                      onSaveEdit={handleSaveEdit}
+                      onCancelEdit={handleCancelEdit}
+                      canMoveFromInbox={isInboxMode}
+                      moveTargets={inboxMoveTargets}
+                      onMoveToList={handleMoveToList}
+                      disableSorting={false}
+                      allowSubtaskActions
+                      contextMeta={undefined}
+                      renderSubtasks={renderSubtasks}
+                    />
+                  ))}
+                </ul>
+              </SortableContext>
+            </DndContext>
+          )
         )}
       </div>
 

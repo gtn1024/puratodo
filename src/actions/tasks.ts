@@ -581,6 +581,63 @@ export type TaskSearchResult = Task & {
   group_color: string;
 };
 
+type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
+
+function toLocalDateString(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
+    date.getDate()
+  ).padStart(2, "0")}`;
+}
+
+async function attachTaskContext(
+  supabase: SupabaseServerClient,
+  tasks: Task[]
+): Promise<TaskSearchResult[]> {
+  if (tasks.length === 0) {
+    return [];
+  }
+
+  const listIds = [...new Set(tasks.map((task) => task.list_id))];
+  const { data: listsData, error: listsError } = await supabase
+    .from("lists")
+    .select("id, name, icon, group_id")
+    .in("id", listIds);
+
+  if (listsError) {
+    console.error("Error fetching lists for task context:", listsError);
+  }
+
+  const lists = listsData || [];
+  const groupIds = [...new Set(lists.map((list) => list.group_id))];
+
+  let groups: { id: string; name: string; color: string | null }[] = [];
+  if (groupIds.length > 0) {
+    const { data: groupsData, error: groupsError } = await supabase
+      .from("groups")
+      .select("id, name, color")
+      .in("id", groupIds);
+
+    if (groupsError) {
+      console.error("Error fetching groups for task context:", groupsError);
+    } else {
+      groups = groupsData || [];
+    }
+  }
+
+  return tasks.map((task) => {
+    const list = lists.find((item) => item.id === task.list_id);
+    const group = groups.find((item) => item.id === list?.group_id);
+
+    return {
+      ...task,
+      list_name: list?.name || "Unknown List",
+      list_icon: list?.icon || "📋",
+      group_name: group?.name || "Unknown Group",
+      group_color: group?.color || "#6b7280",
+    };
+  });
+}
+
 export async function searchTasks(query: string): Promise<TaskSearchResult[]> {
   const supabase = await createClient();
   const {
@@ -605,33 +662,7 @@ export async function searchTasks(query: string): Promise<TaskSearchResult[]> {
     return [];
   }
 
-  // Get all list and group info for the results
-  const listIds = [...new Set(tasks.map((t) => t.list_id))];
-  const { data: lists } = await supabase
-    .from("lists")
-    .select("id, name, icon, group_id")
-    .in("id", listIds);
-
-  const groupIds = [...new Set(lists?.map((l) => l.group_id) || [])];
-  const { data: groups } = await supabase
-    .from("groups")
-    .select("id, name, color")
-    .in("id", groupIds);
-
-  // Combine data
-  const results: TaskSearchResult[] = tasks.map((task) => {
-    const list = lists?.find((l) => l.id === task.list_id);
-    const group = groups?.find((g) => g.id === list?.group_id);
-    return {
-      ...task,
-      list_name: list?.name || "Unknown List",
-      list_icon: list?.icon || "📋",
-      group_name: group?.name || "Unknown Group",
-      group_color: group?.color || "#6b7280",
-    };
-  });
-
-  return results;
+  return attachTaskContext(supabase, tasks as Task[]);
 }
 
 export async function getTaskById(id: string): Promise<Task | null> {
@@ -669,9 +700,7 @@ export async function getTodayTasks(): Promise<TaskSearchResult[]> {
     return [];
   }
 
-  // Get today's date in local YYYY-MM-DD format (avoiding timezone issues)
-  const now = new Date();
-  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const today = toLocalDateString(new Date());
 
   // Get tasks with plan_date = today
   const { data: tasks, error } = await supabase
@@ -686,31 +715,126 @@ export async function getTodayTasks(): Promise<TaskSearchResult[]> {
     return [];
   }
 
-  // Get all list and group info for the results
-  const listIds = [...new Set(tasks.map((t) => t.list_id))];
-  const { data: lists } = await supabase
-    .from("lists")
-    .select("id, name, icon, group_id")
-    .in("id", listIds);
+  return attachTaskContext(supabase, tasks as Task[]);
+}
 
-  const groupIds = [...new Set(lists?.map((l) => l.group_id) || [])];
-  const { data: groups } = await supabase
-    .from("groups")
-    .select("id, name, color")
-    .in("id", groupIds);
+export async function getStarredTasks(): Promise<TaskSearchResult[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // Combine data
-  const results: TaskSearchResult[] = tasks.map((task) => {
-    const list = lists?.find((l) => l.id === task.list_id);
-    const group = groups?.find((g) => g.id === list?.group_id);
-    return {
-      ...task,
-      list_name: list?.name || "Unknown List",
-      list_icon: list?.icon || "📋",
-      group_name: group?.name || "Unknown Group",
-      group_color: group?.color || "#6b7280",
-    };
-  });
+  if (!user) {
+    return [];
+  }
 
-  return results;
+  const { data: tasks, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .eq("user_id", user.id)
+    .is("parent_id", null)
+    .eq("starred", true)
+    .order("updated_at", { ascending: false });
+
+  if (error || !tasks) {
+    console.error("Error fetching starred tasks:", error);
+    return [];
+  }
+
+  return attachTaskContext(supabase, tasks as Task[]);
+}
+
+export async function getOverdueTasks(): Promise<TaskSearchResult[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return [];
+  }
+
+  const today = toLocalDateString(new Date());
+
+  const { data: tasks, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .eq("user_id", user.id)
+    .is("parent_id", null)
+    .eq("completed", false)
+    .not("due_date", "is", null)
+    .lt("due_date", today)
+    .order("due_date", { ascending: true })
+    .order("sort_order", { ascending: true });
+
+  if (error || !tasks) {
+    console.error("Error fetching overdue tasks:", error);
+    return [];
+  }
+
+  return attachTaskContext(supabase, tasks as Task[]);
+}
+
+export async function getNext7DaysTasks(): Promise<TaskSearchResult[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return [];
+  }
+
+  const now = new Date();
+  const startDate = toLocalDateString(now);
+  const end = new Date(now);
+  end.setDate(end.getDate() + 7);
+  const endDate = toLocalDateString(end);
+
+  const { data: tasks, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .eq("user_id", user.id)
+    .is("parent_id", null)
+    .eq("completed", false)
+    .not("due_date", "is", null)
+    .gte("due_date", startDate)
+    .lte("due_date", endDate)
+    .order("due_date", { ascending: true })
+    .order("sort_order", { ascending: true });
+
+  if (error || !tasks) {
+    console.error("Error fetching next 7 days tasks:", error);
+    return [];
+  }
+
+  return attachTaskContext(supabase, tasks as Task[]);
+}
+
+export async function getNoDateTasks(): Promise<TaskSearchResult[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return [];
+  }
+
+  const { data: tasks, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .eq("user_id", user.id)
+    .is("parent_id", null)
+    .eq("completed", false)
+    .is("due_date", null)
+    .is("plan_date", null)
+    .order("updated_at", { ascending: false });
+
+  if (error || !tasks) {
+    console.error("Error fetching no-date tasks:", error);
+    return [];
+  }
+
+  return attachTaskContext(supabase, tasks as Task[]);
 }

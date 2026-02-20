@@ -20,7 +20,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createGroup, updateGroup, deleteGroup, reorderGroups, type Group } from "@/actions/groups";
 import { reorderLists, type List } from "@/actions/lists";
-import { MoreHorizontal, Plus, Folder, GripVertical, ChevronRight, ChevronDown, Inbox, Sun } from "lucide-react";
+import {
+  AlertTriangle,
+  CalendarDays,
+  ChevronDown,
+  ChevronRight,
+  Circle,
+  Folder,
+  GripVertical,
+  Inbox,
+  MoreHorizontal,
+  Plus,
+  Star,
+  Sun,
+} from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import {
@@ -48,10 +61,12 @@ interface SidebarProps {
   selectedListId: string | null;
   showTodayView: boolean;
   showInboxView: boolean;
+  selectedSmartView: "starred" | "overdue" | "next7days" | "nodate" | null;
   onGroupSelect: (groupId: string | null) => void;
   onListSelect: (listId: string | null, groupId: string) => void;
   onTodaySelect: () => void;
   onInboxSelect: () => void;
+  onSmartViewSelect: (view: "starred" | "overdue" | "next7days" | "nodate") => void;
   onDataChange: () => void;
   onAddListRequest: (groupId: string) => void;
 }
@@ -346,10 +361,12 @@ export function Sidebar({
   selectedListId,
   showTodayView,
   showInboxView,
+  selectedSmartView,
   onGroupSelect,
   onListSelect,
   onTodaySelect,
   onInboxSelect,
+  onSmartViewSelect,
   onDataChange,
   onAddListRequest,
 }: SidebarProps) {
@@ -515,6 +532,57 @@ export function Sidebar({
           >
             <Inbox className={`h-4 w-4 ${showInboxView ? "text-sky-500" : ""}`} />
             <span className="text-sm font-medium">{t("sidebar.inbox")}</span>
+          </button>
+        </div>
+
+        {/* Smart Views */}
+        <div className="px-2 pb-1">
+          <div className="px-3 py-1 text-xs font-medium text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+            {t("sidebar.smartViews")}
+          </div>
+          <button
+            onClick={() => onSmartViewSelect("starred")}
+            className={`w-full flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
+              selectedSmartView === "starred"
+                ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300"
+                : "hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300"
+            }`}
+          >
+            <Star className={`h-4 w-4 ${selectedSmartView === "starred" ? "text-yellow-500" : ""}`} />
+            <span className="text-sm">{t("sidebar.starred")}</span>
+          </button>
+          <button
+            onClick={() => onSmartViewSelect("overdue")}
+            className={`mt-1 w-full flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
+              selectedSmartView === "overdue"
+                ? "bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300"
+                : "hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300"
+            }`}
+          >
+            <AlertTriangle className={`h-4 w-4 ${selectedSmartView === "overdue" ? "text-rose-500" : ""}`} />
+            <span className="text-sm">{t("sidebar.overdue")}</span>
+          </button>
+          <button
+            onClick={() => onSmartViewSelect("next7days")}
+            className={`mt-1 w-full flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
+              selectedSmartView === "next7days"
+                ? "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
+                : "hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300"
+            }`}
+          >
+            <CalendarDays className={`h-4 w-4 ${selectedSmartView === "next7days" ? "text-indigo-500" : ""}`} />
+            <span className="text-sm">{t("sidebar.next7Days")}</span>
+          </button>
+          <button
+            onClick={() => onSmartViewSelect("nodate")}
+            className={`mt-1 w-full flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
+              selectedSmartView === "nodate"
+                ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+                : "hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300"
+            }`}
+          >
+            <Circle className={`h-4 w-4 ${selectedSmartView === "nodate" ? "text-slate-500" : ""}`} />
+            <span className="text-sm">{t("sidebar.noDate")}</span>
           </button>
         </div>
 

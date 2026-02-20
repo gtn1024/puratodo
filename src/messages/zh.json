@@ -52,6 +52,11 @@
     "groups": "分组",
     "today": "今天",
     "inbox": "收件箱",
+    "smartViews": "智能视图",
+    "starred": "已星标",
+    "overdue": "已过期",
+    "next7Days": "未来 7 天",
+    "noDate": "无日期",
     "addGroup": "添加分组",
     "noGroups": "暂无分组",
     "createFirstGroup": "创建你的第一个分组"

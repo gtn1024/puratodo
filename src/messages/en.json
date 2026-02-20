@@ -52,6 +52,11 @@
     "groups": "Groups",
     "today": "Today",
     "inbox": "Inbox",
+    "smartViews": "Smart Views",
+    "starred": "Starred",
+    "overdue": "Overdue",
+    "next7Days": "Next 7 Days",
+    "noDate": "No Date",
     "addGroup": "Add Group",
     "noGroups": "No groups yet",
     "createFirstGroup": "Create your first group"

@@ -11,7 +11,7 @@ import { TaskDetailSheet } from "@/components/dashboard/task-detail-sheet";
 import { LogoutButton } from "./logout-button";
 import { getLists, getOrCreateInboxList, type List } from "@/actions/lists";
 import type { Group } from "@/actions/groups";
-import { Inbox, Menu, Search, Sun } from "lucide-react";
+import { AlertTriangle, CalendarDays, Circle, Inbox, Menu, Search, Star, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -33,6 +33,8 @@ interface DashboardContentProps {
   allLists: List[];
 }
 
+type SmartViewType = "starred" | "overdue" | "next7days" | "nodate";
+
 export function DashboardContent({ initialGroups, allLists }: DashboardContentProps) {
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(
     initialGroups.length > 0 ? initialGroups[0].id : null
@@ -47,6 +49,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
   const [showTodayView, setShowTodayView] = useState(false);
   const [showInboxView, setShowInboxView] = useState(false);
+  const [selectedSmartView, setSelectedSmartView] = useState<SmartViewType | null>(null);
   const [inboxListId, setInboxListId] = useState<string | null>(
     allLists.find((list) => list.name === "Inbox")?.id || null
   );
@@ -87,6 +90,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     setSelectedTaskId(null); // Deselect task when changing list
     setShowTodayView(false); // Exit today view when selecting list
     setShowInboxView(false); // Exit inbox view when selecting list
+    setSelectedSmartView(null); // Exit smart view when selecting list
     setMobileMenuOpen(false); // Close mobile menu on selection
   };
 
@@ -99,6 +103,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     }
     setShowTodayView(false); // Exit today view when selecting group
     setShowInboxView(false); // Exit inbox view when selecting group
+    setSelectedSmartView(null); // Exit smart view when selecting group
     setMobileMenuOpen(false); // Close mobile menu on selection
   };
 
@@ -108,6 +113,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     setSelectedGroupId(null);
     setSelectedListId(null);
     setSelectedTaskId(null);
+    setSelectedSmartView(null);
     setMobileMenuOpen(false);
   };
 
@@ -117,6 +123,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     setSelectedGroupId(null);
     setSelectedListId(null);
     setSelectedTaskId(null);
+    setSelectedSmartView(null);
     setMobileMenuOpen(false);
     setIsLoadingInbox(true);
 
@@ -137,12 +144,23 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     setIsLoadingInbox(false);
   };
 
+  const handleSmartViewSelect = (view: SmartViewType) => {
+    setShowTodayView(false);
+    setShowInboxView(false);
+    setSelectedGroupId(null);
+    setSelectedListId(null);
+    setSelectedTaskId(null);
+    setSelectedSmartView(view);
+    setMobileMenuOpen(false);
+  };
+
   const handleSidebarAddList = (groupId: string) => {
     setSelectedGroupId(groupId);
     setSelectedListId(null);
     setSelectedTaskId(null);
     setShowTodayView(false);
     setShowInboxView(false);
+    setSelectedSmartView(null);
     setMobileMenuOpen(false);
     pendingCreateListGroupIdRef.current = groupId;
     setAddListRequestKey((k) => k + 1);
@@ -167,6 +185,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     setSelectedTaskId(taskId);
     setShowTodayView(false);
     setShowInboxView(false);
+    setSelectedSmartView(null);
     // On mobile, open the detail sheet
     if (window.innerWidth < 768) {
       setMobileDetailOpen(true);
@@ -247,7 +266,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     const pendingGroupId = pendingCreateListGroupIdRef.current;
     if (!pendingGroupId) return;
     if (selectedGroupId !== pendingGroupId) return;
-    if (selectedListId || showTodayView || showInboxView) return;
+    if (selectedListId || showTodayView || showInboxView || selectedSmartView) return;
 
     if (listPanelRef.current) {
       listPanelRef.current.triggerCreateList();
@@ -259,6 +278,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     selectedListId,
     showTodayView,
     showInboxView,
+    selectedSmartView,
   ]);
 
   // Realtime subscriptions
@@ -293,10 +313,12 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
           selectedListId={selectedListId}
           showTodayView={showTodayView}
           showInboxView={showInboxView}
+          selectedSmartView={selectedSmartView}
           onGroupSelect={handleGroupSelect}
           onListSelect={handleListSelect}
           onTodaySelect={handleTodaySelect}
           onInboxSelect={handleInboxSelect}
+          onSmartViewSelect={handleSmartViewSelect}
           onDataChange={handleListsChange}
           onAddListRequest={handleSidebarAddList}
         />
@@ -316,10 +338,12 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
             selectedListId={selectedListId}
             showTodayView={showTodayView}
             showInboxView={showInboxView}
+            selectedSmartView={selectedSmartView}
             onGroupSelect={handleGroupSelect}
             onListSelect={handleListSelect}
             onTodaySelect={handleTodaySelect}
             onInboxSelect={handleInboxSelect}
+            onSmartViewSelect={handleSmartViewSelect}
             onDataChange={handleListsChange}
             onAddListRequest={handleSidebarAddList}
           />
@@ -358,6 +382,42 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                   </div>
                   <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
                     Inbox
+                  </h1>
+                </>
+              ) : selectedSmartView === "starred" ? (
+                <>
+                  <div className="w-8 h-8 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+                    <Star className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                  </div>
+                  <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
+                    Starred
+                  </h1>
+                </>
+              ) : selectedSmartView === "overdue" ? (
+                <>
+                  <div className="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
+                    <AlertTriangle className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+                  </div>
+                  <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
+                    Overdue
+                  </h1>
+                </>
+              ) : selectedSmartView === "next7days" ? (
+                <>
+                  <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                    <CalendarDays className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
+                    Next 7 Days
+                  </h1>
+                </>
+              ) : selectedSmartView === "nodate" ? (
+                <>
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                    <Circle className="h-4 w-4 text-slate-600 dark:text-slate-300" />
+                  </div>
+                  <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
+                    No Date
                   </h1>
                 </>
               ) : selectedList ? (
@@ -443,6 +503,14 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                   allLists={lists}
                   allGroups={initialGroups.map((group) => ({ id: group.id, name: group.name }))}
                   isInboxMode={false}
+                  onTaskSelect={handleTaskSelect}
+                />
+              ) : selectedSmartView ? (
+                <TaskPanel
+                  ref={taskPanelRef}
+                  list={null}
+                  selectedTaskId={selectedTaskId}
+                  smartView={selectedSmartView}
                   onTaskSelect={handleTaskSelect}
                 />
               ) : (

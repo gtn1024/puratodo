@@ -72,6 +72,15 @@ CREATE INDEX IF NOT EXISTS idx_tasks_user_id ON public.tasks(user_id);
 CREATE INDEX IF NOT EXISTS idx_tasks_list_id ON public.tasks(list_id);
 CREATE INDEX IF NOT EXISTS idx_tasks_parent_id ON public.tasks(parent_id);
 CREATE INDEX IF NOT EXISTS idx_tasks_recurrence_source_task_id ON public.tasks(recurrence_source_task_id);
+CREATE INDEX IF NOT EXISTS idx_tasks_starred_top_level
+  ON public.tasks(user_id, updated_at DESC)
+  WHERE parent_id IS NULL AND starred = TRUE;
+CREATE INDEX IF NOT EXISTS idx_tasks_due_date_open_top_level
+  ON public.tasks(user_id, due_date)
+  WHERE parent_id IS NULL AND completed = FALSE AND due_date IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_tasks_nodate_open_top_level
+  ON public.tasks(user_id, updated_at DESC)
+  WHERE parent_id IS NULL AND completed = FALSE AND due_date IS NULL AND plan_date IS NULL;
 
 -- Enable Row Level Security
 ALTER TABLE public.groups ENABLE ROW LEVEL SECURITY;
