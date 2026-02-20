@@ -45,8 +45,21 @@ const GROUP_COLORS = [
 export function DashboardPage() {
   const { logout } = useAuth();
   const { user, activeAccountId } = useAuthStore();
-  const { groups, lists, isLoading, error, fetchAll, createGroup, updateGroup, deleteGroup, clear } = useDataStore();
+  const {
+    groups,
+    lists,
+    tasks,
+    isLoading,
+    error,
+    fetchAll,
+    fetchTasks,
+    createGroup,
+    updateGroup,
+    deleteGroup,
+    clear,
+  } = useDataStore();
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
+  const [isLoadingTasks, setIsLoadingTasks] = React.useState(false);
   const [selectedListId, setSelectedListId] = React.useState<string | null>(null);
   const [expandedGroups, setExpandedGroups] = React.useState<Set<string>>(new Set());
   const [showNewGroupInput, setShowNewGroupInput] = React.useState(false);
@@ -182,6 +195,32 @@ export function DashboardPage() {
 
   // Get selected list
   const selectedList = selectedListId ? lists.find((l) => l.id === selectedListId) : null;
+  const selectedListTasks = selectedList
+    ? tasks
+        .filter((task) => task.list_id === selectedList.id)
+        .sort((a, b) => a.sort_order - b.sort_order)
+    : [];
+
+  React.useEffect(() => {
+    if (!selectedListId) return;
+
+    let isCancelled = false;
+    setIsLoadingTasks(true);
+
+    void fetchTasks()
+      .catch((err) => {
+        console.error("Failed to fetch tasks:", err);
+      })
+      .finally(() => {
+        if (!isCancelled) {
+          setIsLoadingTasks(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [selectedListId, fetchTasks]);
 
   return (
     <div className="min-h-screen flex">
@@ -418,22 +457,51 @@ export function DashboardPage() {
         {/* Content */}
         <div className="flex-1 p-6">
           <div className="max-w-2xl mx-auto">
-            {/* Empty state */}
-            <div className="text-center py-16">
-              <div className="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mx-auto mb-4">
-                <CheckCircle2 className="w-8 h-8 text-zinc-400 dark:text-zinc-500" />
+            {selectedList && selectedListTasks.length > 0 ? (
+              <div className="space-y-3">
+                {selectedListTasks.map((task) => (
+                  <div
+                    key={task.id}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
+                  >
+                    <div
+                      className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                        task.completed
+                          ? "border-green-500 bg-green-500 text-white"
+                          : "border-zinc-300 dark:border-zinc-600"
+                      }`}
+                    >
+                      {task.completed ? <Check className="w-3 h-3" /> : null}
+                    </div>
+                    <span
+                      className={`text-sm ${
+                        task.completed
+                          ? "line-through text-zinc-400 dark:text-zinc-500"
+                          : "text-zinc-800 dark:text-zinc-100"
+                      }`}
+                    >
+                      {task.name}
+                    </span>
+                  </div>
+                ))}
               </div>
-              <h2 className="text-lg font-medium text-zinc-900 dark:text-white mb-2">
-                {selectedList ? `No tasks in "${selectedList.name}"` : "No tasks yet"}
-              </h2>
-              <p className="text-zinc-500 dark:text-zinc-400 mb-6">
-                Get started by creating your first task
-              </p>
-              <Button className="gap-2">
-                <Plus className="w-4 h-4" />
-                <span>Create Task</span>
-              </Button>
-            </div>
+            ) : (
+              <div className="text-center py-16">
+                <div className="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle2 className="w-8 h-8 text-zinc-400 dark:text-zinc-500" />
+                </div>
+                <h2 className="text-lg font-medium text-zinc-900 dark:text-white mb-2">
+                  {isLoadingTasks && selectedList ? "Loading tasks..." : selectedList ? `No tasks in "${selectedList.name}"` : "No tasks yet"}
+                </h2>
+                <p className="text-zinc-500 dark:text-zinc-400 mb-6">
+                  Get started by creating your first task
+                </p>
+                <Button className="gap-2">
+                  <Plus className="w-4 h-4" />
+                  <span>Create Task</span>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </main>

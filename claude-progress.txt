@@ -1,5 +1,49 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 15: List Selection Task Display Verification
+**Date:** 2026-02-20
+**Agent:** Codex (GPT-5)
+
+### Completed
+- Implemented task read flow for dashboard list selection:
+  - Added `tasksApi.list()` client for `/api/v1/tasks`
+  - Extended data store with `tasks` state and `fetchTasks()`
+  - Updated dashboard main content to fetch tasks when a list is selected and render task rows
+- Verified Test #26 with deterministic local mock API on `http://127.0.0.1:3999`
+- Confirmed clicking a list updates main header to selected list name and renders its tasks
+
+### Verification Performed
+- `npm run build` passed
+- Playwright flow verified Test #26:
+  - Opened app on `http://127.0.0.1:4173`
+  - Set API URL to `http://127.0.0.1:3999`
+  - Logged in with test account `foo@example.com`
+  - Expanded `Group A` and clicked list `Inbox`
+  - Verified main header changed to `Inbox`
+  - Verified tasks `Buy groceries` and `Finish report` are visible in main area
+  - Verified `GET /api/v1/tasks` returned `200`
+
+### Current Status
+- 22/209 test cases passing
+- List selection now displays task content in main area
+
+### Tests Now Passing
+- Test #26: Clicking a list shows its tasks in main area ✓
+
+### Files Created/Modified
+- src/lib/api/tasks.ts (new)
+- src/stores/dataStore.ts (added task state and fetch action)
+- src/pages/DashboardPage.tsx (list-selected task loading and rendering)
+- feature_list.json (marked Test #26 as passing)
+- claude-progress.txt (this session log)
+
+### Next Steps
+1. Verify list CRUD tasks (#21-25) in order
+2. Continue task CRUD verification (#27+)
+3. Address remaining sidebar interaction robustness issues during list/group actions
+
+---
+
 ## Session 14: Lists Under Parent Group Verification
 **Date:** 2026-02-20
 **Agent:** Codex (GPT-5)

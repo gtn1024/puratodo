@@ -1,10 +1,12 @@
 import { create } from "zustand";
 import { groupsApi, type Group, type CreateGroupInput, type UpdateGroupInput } from "@/lib/api/groups";
 import { listsApi, type List, type CreateListInput, type UpdateListInput } from "@/lib/api/lists";
+import { tasksApi, type Task } from "@/lib/api/tasks";
 
 interface DataState {
   groups: Group[];
   lists: List[];
+  tasks: Task[];
   isLoading: boolean;
   error: string | null;
 
@@ -20,6 +22,9 @@ interface DataState {
   updateList: (id: string, input: UpdateListInput) => Promise<List>;
   deleteList: (id: string) => Promise<void>;
 
+  // Task actions
+  fetchTasks: () => Promise<void>;
+
   // Combined
   fetchAll: () => Promise<void>;
   clear: () => void;
@@ -28,6 +33,7 @@ interface DataState {
 export const useDataStore = create<DataState>((set, get) => ({
   groups: [],
   lists: [],
+  tasks: [],
   isLoading: false,
   error: null,
 
@@ -138,6 +144,24 @@ export const useDataStore = create<DataState>((set, get) => ({
     }
   },
 
+  fetchTasks: async () => {
+    try {
+      const tasks = await tasksApi.list();
+      // Sort by list first, then within a list by sort_order
+      tasks.sort((a, b) => {
+        if (a.list_id === b.list_id) {
+          return a.sort_order - b.sort_order;
+        }
+        return a.list_id.localeCompare(b.list_id);
+      });
+      set({ tasks, error: null });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to fetch tasks";
+      set({ error: message });
+      throw error;
+    }
+  },
+
   fetchAll: async () => {
     set({ isLoading: true, error: null });
     try {
@@ -148,6 +172,6 @@ export const useDataStore = create<DataState>((set, get) => ({
   },
 
   clear: () => {
-    set({ groups: [], lists: [], error: null });
+    set({ groups: [], lists: [], tasks: [], error: null });
   },
 }));

@@ -341,7 +341,7 @@
       "Verify main area shows list name as header",
       "Verify tasks are displayed in the list"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 27,
