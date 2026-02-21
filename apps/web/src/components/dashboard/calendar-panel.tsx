@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useI18n } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import type { TaskSearchResult } from "@/actions/tasks";
 import type { List } from "@/actions/lists";
+import { getTasksInDateRange, getUnscheduledTasks } from "@/actions/tasks";
 
 interface CalendarPanelProps {
   selectedTaskId: string | null;
@@ -122,16 +123,57 @@ function DateCell({
 export function CalendarPanel({
   selectedTaskId,
   allLists,
+  filterListId,
   onTaskSelect,
 }: CalendarPanelProps) {
   const { t } = useI18n();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
+  const [tasks, setTasks] = useState<TaskSearchResult[]>([]);
+  const [unscheduledTasks, setUnscheduledTasks] = useState<TaskSearchResult[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Get first day of month
   const firstDayOfMonth = useMemo(() => {
     return new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
   }, [currentDate]);
+
+  // Get last day of calendar view (6 weeks from start)
+  const lastDayOfCalendar = useMemo(() => {
+    const startDay = firstDayOfMonth.getDay();
+    const startDate = new Date(firstDayOfMonth);
+    startDate.setDate(startDate.getDate() - startDay);
+    const lastDate = new Date(startDate);
+    lastDate.setDate(lastDate.getDate() + 41); // 42 days total (6 weeks)
+    return lastDate;
+  }, [firstDayOfMonth]);
+
+  // Load tasks when date range or filter changes
+  useEffect(() => {
+    async function loadTasks() {
+      setIsLoading(true);
+      try {
+        const startDate = firstDayOfMonth.toISOString().split('T')[0];
+        const endDate = lastDayOfCalendar.toISOString().split('T')[0];
+
+        const listId = selectedFilter === "all" ? undefined : selectedFilter;
+
+        const [rangeTasks, unscheduled] = await Promise.all([
+          getTasksInDateRange(startDate, endDate, listId),
+          getUnscheduledTasks(listId),
+        ]);
+
+        setTasks(rangeTasks);
+        setUnscheduledTasks(unscheduled);
+      } catch (error) {
+        console.error("Error loading calendar tasks:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadTasks();
+  }, [firstDayOfMonth, lastDayOfCalendar, selectedFilter]);
 
   // Calendar grid - start from Sunday of the first week
   const calendarDays = useMemo(() => {
@@ -175,6 +217,16 @@ export function CalendarPanel({
   // Check if date is in current month
   const isCurrentMonth = (date: Date) => {
     return date.getMonth() === currentDate.getMonth();
+  };
+
+  // Get tasks for a specific date
+  const getTasksForDate = (date: Date): TaskSearchResult[] => {
+    const dateStr = date.toISOString().split('T')[0];
+    return tasks.filter((task) => {
+      const planDate = task.plan_date;
+      const dueDate = task.due_date;
+      return planDate === dateStr || dueDate === dateStr;
+    });
   };
 
   // Handle filter change
@@ -247,7 +299,7 @@ export function CalendarPanel({
               date={date}
               isCurrentMonth={isCurrentMonth(date)}
               isToday={isToday(date)}
-              tasks={[]}
+              tasks={getTasksForDate(date)}
               selectedTaskId={selectedTaskId}
               onTaskSelect={onTaskSelect}
             />
@@ -260,10 +312,25 @@ export function CalendarPanel({
         <h3 className="text-sm font-medium text-stone-700 dark:text-stone-300 mb-3">
           {t("calendar.unscheduled")}
         </h3>
-        <div className="h-[calc(100vh-280px)] overflow-y-auto">
-          <p className="text-sm text-stone-500 dark:text-stone-400">
-            {t("calendar.noTasks")}
-          </p>
+        <div className="h-[calc(100vh-280px)] overflow-y-auto space-y-1">
+          {isLoading ? (
+            <p className="text-sm text-stone-500 dark:text-stone-400">
+              {t("calendar.loading")}
+            </p>
+          ) : unscheduledTasks.length === 0 ? (
+            <p className="text-sm text-stone-500 dark:text-stone-400">
+              {t("calendar.noTasks")}
+            </p>
+          ) : (
+            unscheduledTasks.map((task) => (
+              <TaskChip
+                key={task.id}
+                task={task}
+                isSelected={selectedTaskId === task.id}
+                onSelect={() => onTaskSelect(task.id)}
+              />
+            ))
+          )}
         </div>
       </div>
     </div>

@@ -170,7 +170,8 @@
     "today": "Today",
     "unscheduled": "Unscheduled",
     "noTasks": "No tasks",
-    "allLists": "All Lists"
+    "allLists": "All Lists",
+    "loading": "Loading..."
   },
   "reminder": {
     "title": "Reminder",

@@ -23,6 +23,33 @@ All tables include user_id for RLS policies and query optimization.
 
 ---
 
+### 2026-02-21
+
+#### 完成
+- Bug Fix: 日历视图不显示任务
+  - 问题原因：`CalendarPanel` 组件中 `tasks={}` 被硬编码为空数组
+  - 修复内容：
+    - 添加 `useEffect` 钩子调用 `getTasksInDateRange` 和 `getUnscheduledTasks` 获取任务数据
+    - 添加 `getTasksForDate` 辅助函数根据日期筛选任务
+    - 更新 `DateCell` 组件传递实际任务数据
+    - 更新"未安排"侧边栏显示实际未安排任务列表
+    - 添加 `loading` 状态和翻译键
+  - 修改文件：
+    - `src/components/dashboard/calendar-panel.tsx`：添加任务加载逻辑
+    - `src/messages/en.json` 和 `src/messages/zh.json`：添加 `calendar.loading` 翻译
+  - 测试通过：
+    - 日历网格正确显示有 plan_date 或 due_date 的任务
+    - 右侧侧边栏显示未安排任务（无 plan_date）
+    - 点击任务可打开详情面板
+    - 列表筛选功能正常工作
+    - 构建验证通过：`pnpm build:web`
+
+#### 下一步
+- Feature #72: Natural language task creation with date and intent parsing
+- Feature #73: Auto-generate weekly/monthly review reports from completed work
+
+---
+
 ### 2026-02-20
 
 #### 完成
