@@ -49,7 +49,8 @@
         "Create TaskItem component in packages/task-ui",
         "Accept adapter via props or context",
         "Support expand/collapse, complete toggle, star, menu",
-        "Test in web app"
+        "Ensure component exports correctly",
+        "Run pnpm build to verify TypeScript compilation"
       ],
       "passes": true
     },
@@ -62,7 +63,8 @@
         "Support nested subtask rendering",
         "Integrate with TaskItem",
         "Support drag-and-drop reordering",
-        "Test in web app"
+        "Ensure component exports correctly",
+        "Run pnpm build to verify TypeScript compilation"
       ],
       "passes": true
     },
@@ -74,7 +76,8 @@
         "Create TaskDetailForm for editing task fields",
         "Support name, dueDate, planDate, duration, comment",
         "Use adapter for save operations",
-        "Test in web app"
+        "Ensure component exports correctly",
+        "Run pnpm build to verify TypeScript compilation"
       ],
       "passes": true
     },
@@ -86,7 +89,8 @@
         "Create TaskFilters component with status/star/date filters",
         "Use dropdown menu for filter options",
         "Return filter state via onChange callback",
-        "Test in web app"
+        "Ensure component exports correctly",
+        "Run pnpm build to verify TypeScript compilation"
       ],
       "passes": true
     },
@@ -98,7 +102,8 @@
         "Create TaskBulkActions bar component",
         "Support bulk complete/incomplete/star/unstar/delete/setDate",
         "Show selection count and action buttons",
-        "Test in web app"
+        "Ensure component exports correctly",
+        "Run pnpm build to verify TypeScript compilation"
       ],
       "passes": true
     },
@@ -110,7 +115,8 @@
         "Create RecurrenceEditor for recurrence pattern configuration",
         "Support frequency, interval, weekdays, end conditions",
         "Use Calendar and Select components from ui package",
-        "Test in web app"
+        "Ensure component exports correctly",
+        "Run pnpm build to verify TypeScript compilation"
       ],
       "passes": false
     },
@@ -122,7 +128,8 @@
         "Create ReminderEditor for reminder configuration",
         "Support remind_at datetime selection",
         "Integrate with task detail form",
-        "Test in web app"
+        "Ensure component exports correctly",
+        "Run pnpm build to verify TypeScript compilation"
       ],
       "passes": false
     },
@@ -135,7 +142,8 @@
         "Support expand/collapse groups",
         "Support drag-and-drop reordering",
         "Support create/edit/delete actions via callbacks",
-        "Test in web app"
+        "Ensure component exports correctly",
+        "Run pnpm build to verify TypeScript compilation"
       ],
       "passes": false
     },
@@ -148,7 +156,8 @@
         "Support keyboard shortcut activation",
         "Support search results with highlighting",
         "Support navigation to tasks/lists",
-        "Test in web app"
+        "Ensure component exports correctly",
+        "Run pnpm build to verify TypeScript compilation"
       ],
       "passes": false
     },
@@ -160,7 +169,8 @@
         "Create EmptyState component with icon, title, description, action",
         "Create LoadingState/Skeleton components",
         "Make them reusable across apps",
-        "Test in web app"
+        "Ensure components export correctly",
+        "Run pnpm build to verify TypeScript compilation"
       ],
       "passes": false
     },
@@ -185,7 +195,8 @@
         "Replace TaskList with shared component",
         "Replace TaskDetailSheet with shared TaskDetailForm",
         "Replace TaskFilters with shared component",
-        "Verify all functionality works"
+        "Replace TaskBulkActions with shared component",
+        "Test all task operations in web app (create, edit, complete, star, filter, bulk actions)"
       ],
       "passes": false
     },
@@ -209,7 +220,9 @@
         "Replace TaskItem with shared component",
         "Replace TaskList with shared component",
         "Replace TaskDetailSheet with shared TaskDetailForm",
-        "Verify all functionality works"
+        "Replace TaskFilters with shared component",
+        "Replace TaskBulkActions with shared component",
+        "Test all task operations in Tauri app (create, edit, complete, star, filter, bulk actions)"
       ],
       "passes": false
     },
