@@ -53,6 +53,7 @@ import { useDataStore } from "@/stores/dataStore";
 import type { List as ListType } from "@/lib/api/lists";
 import type { Group } from "@/lib/api/groups";
 import type { Task } from "@/lib/api/tasks";
+import type { TaskWithSubtasks } from "@puratodo/api-types";
 import {
   DndContext,
   closestCenter,
@@ -678,6 +679,48 @@ export function DashboardPage() {
   // Get selected list
   const selectedList = selectedListId ? lists.find((l) => l.id === selectedListId) : null;
 
+  // Build nested task tree from flat task list
+  const buildTaskTree = (rootTasks: Task[]): TaskWithSubtasks[] => {
+    const taskMap = new Map<string, TaskWithSubtasks>();
+
+    // First pass: create all task objects from the global tasks array
+    tasks.forEach(task => {
+      taskMap.set(task.id, { ...task, subtasks: [] });
+    });
+
+    // Second pass: build tree structure
+    tasks.forEach(task => {
+      const taskWithSubtasks = taskMap.get(task.id)!;
+      if (task.parent_id) {
+        const parent = taskMap.get(task.parent_id);
+        if (parent) {
+          if (!parent.subtasks) {
+            parent.subtasks = [];
+          }
+          parent.subtasks.push(taskWithSubtasks);
+        }
+      }
+    });
+
+    // Get only the specified root tasks with their subtasks
+    const result = rootTasks
+      .map(task => taskMap.get(task.id))
+      .filter((task): task is TaskWithSubtasks => task !== undefined);
+
+    // Sort subtasks recursively
+    const sortSubtasks = (taskList: TaskWithSubtasks[]) => {
+      taskList.forEach(task => {
+        if (task.subtasks && task.subtasks.length > 0) {
+          task.subtasks.sort((a, b) => a.sort_order - b.sort_order);
+          sortSubtasks(task.subtasks);
+        }
+      });
+    };
+
+    sortSubtasks(result);
+    return result;
+  };
+
   // Get today's tasks (due_date or plan_date = today)
   const getTodayTasks = (): Task[] => {
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
@@ -694,7 +737,7 @@ export function DashboardPage() {
   };
 
   // Get display tasks based on current view
-  const getDisplayTasks = (): Task[] => {
+  const getDisplayTasks = (): TaskWithSubtasks[] => {
     let tasks: Task[];
     if (currentView === 'today') {
       tasks = getTodayTasks();
@@ -706,8 +749,8 @@ export function DashboardPage() {
       tasks = [];
     }
 
-    // Apply filters
-    return filterTasksByFilterValue(tasks, filterValues);
+    // Build tree structure for all tasks
+    return buildTaskTree(tasks);
   };
 
   // Get header title based on current view
