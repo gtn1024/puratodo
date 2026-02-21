@@ -17,6 +17,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@puratodo/api-types": "workspace:*",
     "@puratodo/shared": "workspace:*",
+    "@puratodo/task-ui": "workspace:*",
     "@puratodo/ui": "workspace:*",
     "@radix-ui/react-dialog": "^1.1.15",
     "@tailwindcss/vite": "^4.1.18",

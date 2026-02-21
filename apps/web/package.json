@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@puratodo/ui": "workspace:*",
+    "@puratodo/task-ui": "workspace:*",
     "@puratodo/api-types": "workspace:*",
     "@puratodo/shared": "workspace:*",
     "@dnd-kit/core": "^6.3.1",

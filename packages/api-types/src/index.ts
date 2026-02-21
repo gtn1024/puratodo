@@ -176,6 +176,10 @@ export type UpdateTables<T extends keyof Database["public"]["Tables"]> =
 export type Group = Tables<"groups">;
 export type List = Tables<"lists">;
 export type Task = Tables<"tasks">;
+// Extended Task type with nested subtasks (client-side computed)
+export type TaskWithSubtasks = Task & {
+  subtasks?: TaskWithSubtasks[];
+};
 
 export type GroupInsert = InsertTables<"groups">;
 export type ListInsert = InsertTables<"lists">;
@@ -199,3 +203,6 @@ export interface PaginatedResponse<T> {
   limit: number;
   total_pages: number;
 }
+
+// Adapter interfaces
+export * from './adapters';

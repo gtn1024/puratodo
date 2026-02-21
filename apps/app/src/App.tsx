@@ -2,6 +2,7 @@ import { useAuthStore } from "@/stores/authStore";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
+import { RestAdapterProvider } from "./adapters/RestAdapterProvider";
 import { useEffect, useState } from "react";
 import "./App.css";
 
@@ -47,7 +48,11 @@ function App() {
   }
 
   // Show dashboard if authenticated
-  return <DashboardPage />;
+  return (
+    <RestAdapterProvider>
+      <DashboardPage />
+    </RestAdapterProvider>
+  );
 }
 
 export default App;

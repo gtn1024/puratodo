@@ -33,24 +33,14 @@ import {
   DragHandle,
 } from "@puratodo/ui";
 import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-  type DragStartEvent,
-  type UniqueIdentifier,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+  TaskFilters,
+  TaskBulkActions,
+  TaskList,
+  type TaskFiltersValue,
+  type TaskContextMeta,
+  type InboxMoveTarget,
+  filterTasksByFilterValue,
+} from "@puratodo/task-ui";
 import { AccountSettingsDialog } from "@/components/AccountSettingsDialog";
 import { AccountSwitcher } from "@/components/AccountSwitcher";
 import { TaskDetailPanel } from "@/components/TaskDetailPanel";
@@ -63,6 +53,26 @@ import { useDataStore } from "@/stores/dataStore";
 import type { List as ListType } from "@/lib/api/lists";
 import type { Group } from "@/lib/api/groups";
 import type { Task } from "@/lib/api/tasks";
+import type { TaskWithSubtasks } from "@puratodo/api-types";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragStartEvent,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  useSortable,
+  SortableContext,
+  verticalListSortingStrategy,
+  sortableKeyboardCoordinates,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import type { UniqueIdentifier } from "@dnd-kit/core";
 
 // Color options for groups
 const GROUP_COLORS = [
@@ -138,13 +148,29 @@ export function DashboardPage() {
   // DnD state for tracking active item (setters are used in handlers)
   const [, setActiveGroupId] = React.useState<UniqueIdentifier | null>(null);
   const [, setActiveListId] = React.useState<UniqueIdentifier | null>(null);
-  const [, setActiveTaskId] = React.useState<UniqueIdentifier | null>(null);
-  const [, setActiveTaskParentId] = React.useState<string | null>(null);
 
   // Create task state
   const [showNewTaskInput, setShowNewTaskInput] = React.useState(false);
   const [newTaskName, setNewTaskName] = React.useState("");
   const [isCreatingTask, setIsCreatingTask] = React.useState(false);
+
+  // Filter state
+  const [filterValues, setFilterValues] = React.useState<TaskFiltersValue>({
+    status: 'all',
+    star: 'all',
+    date: 'all',
+  });
+
+  // Multi-select state
+  const [isSelectionMode, setIsSelectionMode] = React.useState(false);
+  const [selectedTaskIds, setSelectedTaskIds] = React.useState<Set<string>>(new Set());
+
+  // Bulk date dialog state
+  const [isBulkDateDialogOpen, setIsBulkDateDialogOpen] = React.useState(false);
+  const [bulkDateValue, setBulkDateValue] = React.useState<Date | undefined>(undefined);
+
+  // Bulk delete dialog state
+  const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = React.useState(false);
 
   // Edit task state
   const [editingTaskId, setEditingTaskId] = React.useState<string | null>(null);
@@ -434,6 +460,7 @@ export function DashboardPage() {
     const parentTask = tasks.find((t) => t.id === parentId);
     if (!parentTask) return;
 
+    setIsCreatingTask(true);
     try {
       await createTask({
         list_id: parentTask.list_id,
@@ -442,8 +469,14 @@ export function DashboardPage() {
       });
       setNewSubtaskName("");
       setAddingSubtaskTo(null);
+      // Expand parent task to show new subtask
+      if (!expandedTasks.has(parentId)) {
+        setExpandedTasks(new Set(expandedTasks).add(parentId));
+      }
     } catch (err) {
       console.error("Failed to create subtask:", err);
+    } finally {
+      setIsCreatingTask(false);
     }
   };
 
@@ -481,6 +514,81 @@ export function DashboardPage() {
       console.error("Failed to toggle task star:", err);
     }
   };
+
+  // Multi-select handlers
+  const handleToggleSelect = (taskId: string) => {
+    setSelectedTaskIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(taskId)) {
+        next.delete(taskId);
+      } else {
+        next.add(taskId);
+      }
+      return next;
+    });
+  };
+
+  const handleSelectAll = () => {
+    const allTaskIds = getDisplayTasks().map(t => t.id);
+    setSelectedTaskIds(new Set(allTaskIds));
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedTaskIds(new Set());
+  };
+
+  const handleExitSelectionMode = () => {
+    setIsSelectionMode(false);
+    setSelectedTaskIds(new Set());
+  };
+
+  // Bulk operation handlers
+  const handleBulkComplete = async (completed: boolean) => {
+    const taskIds = Array.from(selectedTaskIds);
+    try {
+      await Promise.all(taskIds.map(id => updateTask(id, { completed })));
+      setSelectedTaskIds(new Set());
+    } catch (err) {
+      console.error("Failed to bulk complete tasks:", err);
+    }
+  };
+
+  const handleBulkStar = async (starred: boolean) => {
+    const taskIds = Array.from(selectedTaskIds);
+    try {
+      await Promise.all(taskIds.map(id => updateTask(id, { starred })));
+      setSelectedTaskIds(new Set());
+    } catch (err) {
+      console.error("Failed to bulk star tasks:", err);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    const taskIds = Array.from(selectedTaskIds);
+    setIsBulkDeleteDialogOpen(false);
+    try {
+      await Promise.all(taskIds.map(id => deleteTask(id)));
+      setSelectedTaskIds(new Set());
+      setIsSelectionMode(false);
+    } catch (err) {
+      console.error("Failed to bulk delete tasks:", err);
+    }
+  };
+
+  const handleBulkSetDate = async () => {
+    const taskIds = Array.from(selectedTaskIds);
+    const dateStr = bulkDateValue ? bulkDateValue.toISOString().split('T')[0] : null;
+    setIsBulkDateDialogOpen(false);
+    try {
+      await Promise.all(taskIds.map(id => updateTask(id, { due_date: dateStr })));
+      setBulkDateValue(undefined);
+      setSelectedTaskIds(new Set());
+    } catch (err) {
+      console.error("Failed to bulk set date:", err);
+    }
+  };
+
+  const selectedCount = selectedTaskIds.size;
 
   // Open move list dialog
   const openMoveListDialog = (list: ListType) => {
@@ -571,6 +679,48 @@ export function DashboardPage() {
   // Get selected list
   const selectedList = selectedListId ? lists.find((l) => l.id === selectedListId) : null;
 
+  // Build nested task tree from flat task list
+  const buildTaskTree = (rootTasks: Task[]): TaskWithSubtasks[] => {
+    const taskMap = new Map<string, TaskWithSubtasks>();
+
+    // First pass: create all task objects from the global tasks array
+    tasks.forEach(task => {
+      taskMap.set(task.id, { ...task, subtasks: [] });
+    });
+
+    // Second pass: build tree structure
+    tasks.forEach(task => {
+      const taskWithSubtasks = taskMap.get(task.id)!;
+      if (task.parent_id) {
+        const parent = taskMap.get(task.parent_id);
+        if (parent) {
+          if (!parent.subtasks) {
+            parent.subtasks = [];
+          }
+          parent.subtasks.push(taskWithSubtasks);
+        }
+      }
+    });
+
+    // Get only the specified root tasks with their subtasks
+    const result = rootTasks
+      .map(task => taskMap.get(task.id))
+      .filter((task): task is TaskWithSubtasks => task !== undefined);
+
+    // Sort subtasks recursively
+    const sortSubtasks = (taskList: TaskWithSubtasks[]) => {
+      taskList.forEach(task => {
+        if (task.subtasks && task.subtasks.length > 0) {
+          task.subtasks.sort((a, b) => a.sort_order - b.sort_order);
+          sortSubtasks(task.subtasks);
+        }
+      });
+    };
+
+    sortSubtasks(result);
+    return result;
+  };
+
   // Get today's tasks (due_date or plan_date = today)
   const getTodayTasks = (): Task[] => {
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
@@ -587,15 +737,20 @@ export function DashboardPage() {
   };
 
   // Get display tasks based on current view
-  const getDisplayTasks = (): Task[] => {
+  const getDisplayTasks = (): TaskWithSubtasks[] => {
+    let tasks: Task[];
     if (currentView === 'today') {
-      return getTodayTasks();
+      tasks = getTodayTasks();
     } else if (currentView === 'starred') {
-      return getStarredTasks();
+      tasks = getStarredTasks();
     } else if (selectedListId) {
-      return getRootTasks(selectedListId);
+      tasks = getRootTasks(selectedListId);
+    } else {
+      tasks = [];
     }
-    return [];
+
+    // Build tree structure for all tasks
+    return buildTaskTree(tasks);
   };
 
   // Get header title based on current view
@@ -672,15 +827,6 @@ export function DashboardPage() {
     })
   );
 
-  const taskSensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 5 },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
   // Group drag handlers
   const handleGroupDragStart = (event: DragStartEvent) => {
     setActiveGroupId(event.active.id);
@@ -720,38 +866,9 @@ export function DashboardPage() {
     }
   };
 
-  // Task drag handlers
-  const handleTaskDragStart = (event: DragStartEvent, parentId: string | null) => {
-    setActiveTaskId(event.active.id);
-    setActiveTaskParentId(parentId);
-  };
-
-  const handleTaskDragEnd = (event: DragEndEvent, listId: string, parentId: string | null) => {
-    const { active, over } = event;
-    setActiveTaskId(null);
-    setActiveTaskParentId(null);
-
-    if (over && active.id !== over.id) {
-      if (parentId) {
-        // Reordering subtasks within same parent
-        const siblingSubtasks = tasks.filter((t) => t.parent_id === parentId);
-        const fromIndex = siblingSubtasks.findIndex((t) => t.id === active.id);
-        const toIndex = siblingSubtasks.findIndex((t) => t.id === over.id);
-        if (fromIndex !== -1 && toIndex !== -1) {
-          const nextSubtasks = arrayMove(siblingSubtasks, fromIndex, toIndex);
-          void reorderTasks(nextSubtasks.map((t) => t.id));
-        }
-      } else {
-        // Reordering root tasks within same list
-        const listTasks = tasks.filter((t) => t.list_id === listId && !t.parent_id);
-        const fromIndex = listTasks.findIndex((t) => t.id === active.id);
-        const toIndex = listTasks.findIndex((t) => t.id === over.id);
-        if (fromIndex !== -1 && toIndex !== -1) {
-          const nextTasks = arrayMove(listTasks, fromIndex, toIndex);
-          void reorderTasks(nextTasks.map((t) => t.id));
-        }
-      }
-    }
+  // Handle task reordering from TaskList component
+  const handleReorder = async (listId: string, orderedIds: string[], parentId?: string) => {
+    await reorderTasks(orderedIds);
   };
 
   // Sortable Group Item component
@@ -851,216 +968,6 @@ export function DashboardPage() {
           <List className="w-4 h-4" />
           <span className="truncate flex-1">{list.name}</span>
         </div>
-      </div>
-    );
-  }
-
-  // Sortable Task Item component
-  interface SortableTaskItemProps {
-    task: Task;
-    depth: number;
-    parentId?: string;
-  }
-
-  function SortableTaskItem({ task, depth, parentId: _parentId }: SortableTaskItemProps) {
-    const subtasks = getSubtasks(task.id);
-    const hasSubtasks = subtasks.length > 0;
-    const isExpanded = expandedTasks.has(task.id);
-    const indentPadding = depth * 24;
-    const hasIncompleteSubtasks = hasSubtasks && subtasks.some((st) => !st.completed);
-    const listId = task.list_id;
-
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      transform,
-      transition,
-      isDragging,
-    } = useSortable({ id: task.id });
-
-    const style: React.CSSProperties = {
-      transform: CSS.Transform.toString(transform),
-      transition,
-      opacity: isDragging ? 0.5 : 1,
-      marginLeft: indentPadding,
-      zIndex: isDragging ? 50 : undefined,
-    };
-
-    return (
-      <div className="space-y-2">
-        <div
-          ref={setNodeRef}
-          style={style}
-          className={`flex items-center gap-3 px-4 py-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 select-none group ${
-            isDragging ? "z-50 shadow-lg" : ""
-          }`}
-          onContextMenu={(e) => {
-            e.preventDefault();
-            setTaskContextMenu({
-              x: e.clientX,
-              y: e.clientY,
-              taskId: task.id,
-              taskName: task.name,
-            });
-          }}
-        >
-          {/* Drag Handle */}
-          <DragHandle attributes={attributes} listeners={listeners} iconSize="sm" />
-          {/* Expand/collapse button for tasks with subtasks */}
-          {hasSubtasks ? (
-            <button
-              onClick={() => toggleTaskExpand(task.id)}
-              className="p-0.5 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
-            >
-              {isExpanded ? (
-                <ChevronDown className="w-4 h-4" />
-              ) : (
-                <ChevronRight className="w-4 h-4" />
-              )}
-            </button>
-          ) : (
-            <div className="w-5" />
-          )}
-          <div
-            className={`w-5 h-5 rounded-full border flex items-center justify-center cursor-pointer hover:border-green-500 ${
-              task.completed
-                ? "border-green-500 bg-green-500 text-white"
-                : hasIncompleteSubtasks
-                ? "border-stone-400 bg-stone-100 dark:bg-stone-700"
-                : "border-stone-300 dark:border-stone-600"
-            }`}
-            onClick={() => toggleTaskComplete(task.id, task.completed)}
-          >
-            {task.completed ? (
-              <Check className="w-3 h-3" />
-            ) : hasIncompleteSubtasks ? (
-              <div className="w-2 h-2 rounded-full bg-stone-500" />
-            ) : null}
-          </div>
-          {editingTaskId === task.id ? (
-            <div className="flex-1 flex items-center gap-2">
-              <input
-                type="text"
-                value={editingTaskName}
-                onChange={(e) => setEditingTaskName(e.target.value)}
-                className="flex-1 bg-transparent border border-stone-300 dark:border-stone-600 rounded px-2 py-1 text-sm text-stone-800 dark:text-stone-100 outline-none focus:border-stone-400"
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") saveEditTask();
-                  if (e.key === "Escape") cancelEditTask();
-                }}
-                onBlur={saveEditTask}
-              />
-              <button
-                onClick={saveEditTask}
-                className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700"
-              >
-                <Check className="w-4 h-4 text-green-500" />
-              </button>
-              <button
-                onClick={cancelEditTask}
-                className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700"
-              >
-                <X className="w-4 h-4 text-stone-500" />
-              </button>
-            </div>
-          ) : (
-            <>
-              <span
-                className={`flex-1 text-sm cursor-pointer hover:text-stone-600 dark:hover:text-stone-300 ${
-                  task.completed
-                    ? "line-through text-stone-400 dark:text-stone-500"
-                    : "text-stone-800 dark:text-stone-100"
-                }`}
-                onClick={() => startEditTask(task.id, task.name)}
-              >
-                {task.name}
-              </span>
-              <button
-                onClick={() => toggleTaskStar(task.id, task.starred)}
-                className={`p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 ${
-                  task.starred ? "text-yellow-500" : "text-stone-300 dark:text-stone-600"
-                }`}
-              >
-                <Star className="w-4 h-4" fill={task.starred ? "currentColor" : "none"} />
-              </button>
-              <button
-                onClick={() => {
-                  setSelectedTaskId(task.id);
-                  if (!showDetailPanel) {
-                    setMobileDetailOpen(true);
-                  }
-                }}
-                className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
-                title="Task details"
-              >
-                <Calendar className="w-4 h-4" />
-              </button>
-            </>
-          )}
-        </div>
-        {/* Render subtasks recursively with DndContext */}
-        {hasSubtasks && isExpanded && (
-          <DndContext
-            sensors={taskSensors}
-            collisionDetection={closestCenter}
-            onDragStart={(e) => handleTaskDragStart(e, task.id)}
-            onDragEnd={(e) => handleTaskDragEnd(e, listId, task.id)}
-          >
-            <SortableContext
-              items={subtasks.map((s) => s.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              <div className="space-y-2 mt-1">
-                {subtasks
-                  .sort((a, b) => a.sort_order - b.sort_order)
-                  .map((subtask) => (
-                    <SortableTaskItem
-                      key={subtask.id}
-                      task={subtask}
-                      depth={depth + 1}
-                      parentId={task.id}
-                    />
-                  ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        )}
-        {/* Inline subtask input */}
-        {addingSubtaskTo === task.id && (
-          <div
-            className="flex items-center gap-3 px-4 py-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800"
-            style={{ marginLeft: indentPadding + 24 }}
-          >
-            <Circle className="w-5 h-5 text-stone-300 dark:text-stone-600" />
-            <input
-              type="text"
-              value={newSubtaskName}
-              onChange={(e) => setNewSubtaskName(e.target.value)}
-              placeholder="Subtask name..."
-              className="flex-1 bg-transparent border-none outline-none text-stone-800 dark:text-stone-100 placeholder-stone-400 text-sm"
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleAddSubtask(task.id);
-                if (e.key === "Escape") cancelAddSubtask();
-              }}
-            />
-            <button
-              onClick={() => handleAddSubtask(task.id)}
-              disabled={!newSubtaskName.trim()}
-              className="p-1.5 rounded-lg bg-stone-900 dark:bg-stone-700 text-white dark:text-stone-100 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-800 dark:hover:bg-stone-600"
-            >
-              <Check className="w-4 h-4" />
-            </button>
-            <button
-              onClick={cancelAddSubtask}
-              className="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-700"
-            >
-              <X className="w-4 h-4 text-stone-500" />
-            </button>
-          </div>
-        )}
       </div>
     );
   }
@@ -1718,6 +1625,47 @@ export function DashboardPage() {
             </h1>
           </div>
           <div className="flex items-center gap-4">
+            <TaskFilters
+              value={filterValues}
+              onChange={setFilterValues}
+              labels={{
+                filter: "Filter",
+                status: "Status",
+                star: "Star",
+                date: "Date",
+                statusAll: "All",
+                statusIncomplete: "Incomplete",
+                statusCompleted: "Completed",
+                starAll: "All",
+                starred: "Starred",
+                unstarred: "Unstarred",
+                dateAll: "All",
+                overdue: "Overdue",
+                today: "Today",
+                next7Days: "Next 7 Days",
+                noDate: "No Date",
+                clearFilters: "Clear filters",
+              }}
+            />
+            {/* Select mode button */}
+            {isSelectionMode ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExitSelectionMode}
+                className="text-blue-600 dark:text-blue-400"
+              >
+                {selectedCount} selected
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsSelectionMode(true)}
+              >
+                Select
+              </Button>
+            )}
             <AccountSwitcher onAccountChanged={handleAccountChanged} />
             <button
               onClick={() => setShowSearch(true)}
@@ -1731,6 +1679,34 @@ export function DashboardPage() {
             </button>
           </div>
         </header>
+
+        {/* Bulk Action Bar */}
+        {isSelectionMode && selectedCount > 0 && (
+          <TaskBulkActions
+            selectedCount={selectedCount}
+            onSelectAll={handleSelectAll}
+            onDeselectAll={handleDeselectAll}
+            onComplete={() => handleBulkComplete(true)}
+            onIncomplete={() => handleBulkComplete(false)}
+            onStar={() => handleBulkStar(true)}
+            onUnstar={() => handleBulkStar(false)}
+            onDelete={() => setIsBulkDeleteDialogOpen(true)}
+            onSetDate={() => setIsBulkDateDialogOpen(true)}
+            onCancel={handleExitSelectionMode}
+            labels={{
+              tasksSelected: "tasks selected",
+              selectAll: "Select All",
+              deselect: "Deselect",
+              complete: "Complete",
+              incomplete: "Incomplete",
+              star: "Star",
+              unstar: "Unstar",
+              delete: "Delete",
+              setDate: "Set Date",
+              cancel: "Cancel",
+            }}
+          />
+        )}
 
         {/* Content */}
         <div className="flex-1 p-6 overflow-y-auto">
@@ -1786,6 +1762,47 @@ export function DashboardPage() {
               </div>
             )}
 
+            {/* Add Subtask Input - appears when user clicks "Add Subtask" */}
+            {addingSubtaskTo && (
+              <div className="flex items-center gap-2 px-4 py-3 mb-4 ml-6 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800">
+                <div className="w-5 h-5 rounded-full border border-stone-300 dark:border-stone-600" />
+                <input
+                  type="text"
+                  value={newSubtaskName}
+                  onChange={(e) => setNewSubtaskName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddSubtask(addingSubtaskTo);
+                    } else if (e.key === "Escape") {
+                      setNewSubtaskName("");
+                      setAddingSubtaskTo(null);
+                    }
+                  }}
+                  placeholder="Subtask name..."
+                  className="flex-1 bg-transparent outline-none text-stone-900 dark:text-stone-100 placeholder:text-stone-400"
+                  autoFocus
+                  disabled={isCreatingTask}
+                />
+                <button
+                  onClick={() => handleAddSubtask(addingSubtaskTo)}
+                  disabled={isCreatingTask || !newSubtaskName.trim()}
+                  className="px-3 py-1.5 text-sm font-medium rounded-lg bg-stone-900 dark:bg-stone-700 text-white hover:bg-stone-800 dark:hover:bg-stone-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Add
+                </button>
+                <button
+                  onClick={() => {
+                    setNewSubtaskName("");
+                    setAddingSubtaskTo(null);
+                  }}
+                  className="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-700"
+                >
+                  <X className="w-4 h-4 text-stone-500" />
+                </button>
+              </div>
+            )}
+
             {(() => {
               const displayTasks = getDisplayTasks();
               const showAddTask = currentView === 'list' && selectedList;
@@ -1793,27 +1810,34 @@ export function DashboardPage() {
               if (displayTasks.length > 0) {
                 const listId = selectedList?.id ?? '';
                 return (
-                  <DndContext
-                    sensors={taskSensors}
-                    collisionDetection={closestCenter}
-                    onDragStart={(e) => handleTaskDragStart(e, null)}
-                    onDragEnd={(e) => handleTaskDragEnd(e, listId, null)}
-                  >
-                    <SortableContext
-                      items={displayTasks.map((t) => t.id)}
-                      strategy={verticalListSortingStrategy}
-                    >
-                      <div className="space-y-2">
-                        {displayTasks.map((task) => (
-                          <SortableTaskItem
-                            key={task.id}
-                            task={task}
-                            depth={0}
-                          />
-                        ))}
-                      </div>
-                    </SortableContext>
-                  </DndContext>
+                  <TaskList
+                    tasks={displayTasks}
+                    expandedTasks={expandedTasks}
+                    onToggleExpand={toggleTaskExpand}
+                    onToggleComplete={(task) => toggleTaskComplete(task.id, task.completed)}
+                    onToggleStar={(task) => toggleTaskStar(task.id, task.starred)}
+                    onEdit={(task) => startEditTask(task.id, task.name)}
+                    onDelete={(task) => handleDeleteTask(task.id)}
+                    onAddSubtask={(task) => startAddSubtask(task.id)}
+                    onOpenDetail={(task) => {
+                      setSelectedTaskId(task.id);
+                      if (!showDetailPanel) {
+                        setMobileDetailOpen(true);
+                      }
+                    }}
+                    editingTaskId={editingTaskId}
+                    editName={editingTaskName}
+                    onEditNameChange={setEditingTaskName}
+                    onSaveEdit={saveEditTask}
+                    onCancelEdit={cancelEditTask}
+                    disableSorting={currentView !== 'list'}
+                    allowSubtaskActions={currentView === 'list'}
+                    onReorder={handleReorder}
+                    listId={listId}
+                    isSelectionMode={isSelectionMode}
+                    selectedTaskIds={selectedTaskIds}
+                    onToggleSelect={handleToggleSelect}
+                  />
                 );
               }
 
@@ -2203,6 +2227,68 @@ export function DashboardPage() {
           <DialogFooter>
             <Button variant="ghost" onClick={() => setShowSearch(false)}>
               Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Set Date Dialog */}
+      <Dialog open={isBulkDateDialogOpen} onOpenChange={setIsBulkDateDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Set Due Date</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-stone-500 dark:text-stone-400">
+              Set a due date for {selectedCount} selected task{selectedCount !== 1 ? 's' : ''}.
+            </p>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
+                Due Date
+              </label>
+              <input
+                type="date"
+                value={bulkDateValue ? bulkDateValue.toISOString().split('T')[0] : ''}
+                onChange={(e) => setBulkDateValue(e.target.value ? new Date(e.target.value) : undefined)}
+                className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-stone-400"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => {
+              setIsBulkDateDialogOpen(false);
+              setBulkDateValue(undefined);
+            }}>
+              Cancel
+            </Button>
+            <Button onClick={handleBulkSetDate}>
+              Set Date
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <Dialog open={isBulkDeleteDialogOpen} onOpenChange={setIsBulkDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Tasks</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-stone-500 dark:text-stone-400">
+              Are you sure you want to delete {selectedCount} task{selectedCount !== 1 ? 's' : ''}? This action cannot be undone.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setIsBulkDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleBulkDelete}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Delete
             </Button>
           </DialogFooter>
         </DialogContent>

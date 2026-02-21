@@ -477,7 +477,7 @@
         "Click again to collapse",
         "Verify subtasks are hidden"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 40,

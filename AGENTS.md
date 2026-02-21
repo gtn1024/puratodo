@@ -29,6 +29,7 @@ puratodo/
 │       └── app_spec.txt
 ├── packages/
 │   ├── ui/                  # Shared UI components (@puratodo/ui)
+│   ├── task-ui/             # Shared business components (@puratodo/task-ui)
 │   ├── api-types/           # API type definitions (@puratodo/api-types)
 │   └── shared/              # Shared utilities (@puratodo/shared)
 ├── init.sh                  # Development server startup script
@@ -94,15 +95,20 @@ Key fields:
 
 This project follows a "long-running agent" methodology with daily progress logging:
 
-1. Read `apps/web/claude-progress.txt` (for web) or `apps/app/claude-progress.txt` (for Tauri) - check current status and next steps
-2. Read `apps/web/feature_list.json` (for web) or `apps/app/feature_list.json` (for Tauri) - get feature details and test steps. Note that one step MUST do one task, unless it's very small or closely related to another step. If a step is too big, break it down into smaller steps.
+### For App-Specific Tasks (feature_list.json)
+
+1. Read `apps/web/claude-progress.txt` (for web) or `apps/app/claude-progress.txt` (for Tauri) - check current status
+2. Read `apps/web/feature_list.json` (for web) or `apps/app/feature_list.json` (for Tauri) - get feature details
+   - Note that one step MUST do one task, unless it's very small or closely related to another step
+   - If a step is too big, break it down into smaller steps
 3. Run `./init.sh web` (or `./init.sh app` for Tauri) to start dev environment
 4. Implement the feature
-5. Test with Playwright MCP (the credentials of accounts in `.credentials.local`)
+5. **Test with Playwright MCP** (the credentials of accounts in `.credentials.local`)
 6. Make sure project can be built successfully (`pnpm build:web` or `cd apps/app && npm run tauri build`)
 7. Update the feature_list.json - set `passes: true` for completed feature
 8. Update the corresponding claude-progress.txt (append new log for current session, what has done, what does not work, next steps)
 9. **Git commit** - Commit ONLY after testing passes (see "Testing" section below). Never commit untested code.
+10. Output `<promise>DONE</promise>` to signal completion
 
 ### Testing (REQUIRED before commit)
 
@@ -154,7 +160,7 @@ The `init.sh` script standardizes development server startup:
 - **Components**: UI components in `apps/web/src/components/`, dashboard components in `apps/web/src/components/dashboard/`
 - **Supabase**: Client in `apps/web/src/lib/supabase/` (browser client + server client for SSR)
 - **Path Alias**: `@/*` maps to `./src/*` (in apps/web)
-- **Workspace Packages**: Import as `@puratodo/ui`, `@puratodo/api-types`, `@puratodo/shared`
+- **Workspace Packages**: Import as `@puratodo/ui`, `@puratodo/task-ui`, `@puratodo/api-types`, `@puratodo/shared`
 
 ## Environment Variables
 
