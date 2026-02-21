@@ -1,6 +1,6 @@
 {
   "name": "puratodo-monorepo",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "private": true,
   "scripts": {
     "dev": "pnpm --filter @puratodo/web dev",
@@ -17,6 +17,7 @@
     "db:diff": "pnpm --filter @puratodo/web db:diff"
   },
   "devDependencies": {
+    "sharp": "^0.33.0",
     "typescript": "^5"
   },
   "engines": {
