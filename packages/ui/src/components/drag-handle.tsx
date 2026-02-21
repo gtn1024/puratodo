@@ -1,3 +1,5 @@
+"use client";
+
 import { GripVertical } from "lucide-react";
 import type { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 import type { DraggableAttributes } from "@dnd-kit/core";
