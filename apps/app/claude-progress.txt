@@ -1,5 +1,58 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 6: @dnd-kit Drag-and-Drop Unification
+**Date:** 2026-02-21
+
+### What was done
+Unified drag-and-drop functionality between Tauri app and web app by replacing HTML5 native drag with @dnd-kit:
+
+1. **Created shared components in @puratodo/ui:**
+   - `packages/ui/src/components/drag-handle.tsx` - Reusable DragHandle component with GripVertical icon
+   - `packages/ui/src/components/sortable-item.tsx` - SortableItem wrapper using @dnd-kit's useSortable hook
+   - Exported both components from `packages/ui/src/index.ts`
+
+2. **Added @dnd-kit dependencies:**
+   - Added @dnd-kit/core, @dnd-kit/sortable, @dnd-kit/utilities to packages/ui
+   - Added same dependencies to apps/app
+
+3. **Refactored DashboardPage.tsx:**
+   - Replaced HTML5 native drag-and-drop with @dnd-kit
+   - Created SortableGroupItem, SortableListItem, SortableTaskItem components
+   - Added DndContext and SortableContext wrappers for groups, lists, and tasks
+   - Added drag handlers (handleGroupDragStart/End, handleListDragStart/End, handleTaskDragStart/End)
+   - Removed old HTML5 drag state variables and functions
+   - Drag handles now show on hover (matching web app behavior)
+
+### Key Changes
+- Groups can be reordered via drag-and-drop with visible drag handle
+- Lists can be reordered within their group via drag-and-drop
+- Tasks can be reordered within their list via drag-and-drop
+- Subtasks can be reordered within their parent task
+- All drag operations use GripVertical drag handle that appears on hover
+
+### Features Updated
+- id 22: Reorder groups via drag and drop (needs manual testing)
+- id 30: Reorder lists via drag and drop (needs manual testing)
+- id 36: Reorder tasks via drag and drop (needs manual testing)
+
+### Technical Notes
+- @dnd-kit provides better cross-platform compatibility than HTML5 drag
+- Uses PointerSensor with 5px activation constraint for touch/pointer devices
+- Uses KeyboardSensor for accessibility
+- arrayMove from @dnd-kit/sortable handles reordering logic
+
+### Build Status
+- packages/ui: Builds successfully
+- apps/app: Builds successfully
+- Tauri dev: Starts successfully
+
+### Next Steps
+- Manual testing of drag-and-drop in Tauri app
+- Test keyboard accessibility of drag operations
+- Verify order persistence after app restart
+
+---
+
 ## Session 5: Three-Column Responsive Layout
 **Date:** 2026-02-21
 

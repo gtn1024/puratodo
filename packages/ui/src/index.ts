@@ -94,3 +94,7 @@ export {
   CommandSeparator,
 } from './components/command';
 export { Calendar, CalendarDayButton } from './components/calendar';
+
+// DnD Components
+export { DragHandle } from './components/drag-handle';
+export { SortableItem } from './components/sortable-item';

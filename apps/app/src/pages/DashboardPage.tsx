@@ -29,7 +29,27 @@ import {
   DialogFooter,
   Sheet,
   SheetContent,
+  DragHandle,
 } from "@puratodo/ui";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+  type UniqueIdentifier,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { AccountSettingsDialog } from "@/components/AccountSettingsDialog";
 import { AccountSwitcher } from "@/components/AccountSwitcher";
 import { TaskDetailPanel } from "@/components/TaskDetailPanel";
@@ -79,7 +99,6 @@ export function DashboardPage() {
     createTask,
     updateTask,
     deleteTask,
-    moveTask,
     reorderTasks,
     clear,
   } = useDataStore();
@@ -99,8 +118,6 @@ export function DashboardPage() {
   const [editGroupName, setEditGroupName] = React.useState("");
   const [editGroupColor, setEditGroupColor] = React.useState("");
   const [isUpdatingGroup, setIsUpdatingGroup] = React.useState(false);
-  const [draggingGroupId, setDraggingGroupId] = React.useState<string | null>(null);
-  const [dropTargetGroupId, setDropTargetGroupId] = React.useState<string | null>(null);
 
   // Create list state
   const [showNewListInput, setShowNewListInput] = React.useState<string | null>(null); // group_id
@@ -117,31 +134,11 @@ export function DashboardPage() {
   const [targetGroupId, setTargetGroupId] = React.useState<string>("");
   const [isMovingList, setIsMovingList] = React.useState(false);
 
-  // List drag-and-drop state
-  const [draggingListId, setDraggingListId] = React.useState<string | null>(null);
-  const [dropTargetListId, setDropTargetListId] = React.useState<string | null>(null);
-
-  // Task drag-and-drop state
-  const [draggingTaskId, setDraggingTaskId] = React.useState<string | null>(null);
-  const [dropTargetTaskId, setDropTargetTaskId] = React.useState<string | null>(null);
-  const [dropTargetListForTask, setDropTargetListForTask] = React.useState<string | null>(null);
-  // For subtask drag-and-drop
-  const [draggingSubtaskParentId, setDraggingSubtaskParentId] = React.useState<string | null>(null);
-  // Store drag source info in state (needed for webview compatibility)
-  const [dragSourceInfo, setDragSourceInfo] = React.useState<{
-    depth: number;
-    parentId: string | null;
-    listId: string;
-  } | null>(null);
-  // Group drag source info
-  const [dragGroupSourceInfo, setDragGroupSourceInfo] = React.useState<{
-    groupId: string;
-  } | null>(null);
-  // List drag source info
-  const [dragListSourceInfo, setDragListSourceInfo] = React.useState<{
-    listId: string;
-    groupId: string;
-  } | null>(null);
+  // DnD state for tracking active item (setters are used in handlers)
+  const [, setActiveGroupId] = React.useState<UniqueIdentifier | null>(null);
+  const [, setActiveListId] = React.useState<UniqueIdentifier | null>(null);
+  const [, setActiveTaskId] = React.useState<UniqueIdentifier | null>(null);
+  const [, setActiveTaskParentId] = React.useState<string | null>(null);
 
   // Create task state
   const [showNewTaskInput, setShowNewTaskInput] = React.useState(false);
@@ -159,9 +156,6 @@ export function DashboardPage() {
     taskId: string;
     taskName: string;
   } | null>(null);
-
-  // Task detail panel state (legacy - keeping for potential future use)
-  const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
 
   // Responsive three-column layout state
   const { showDetailPanel, showSidebarSheet, isXs } = useBreakpoint();
@@ -233,235 +227,6 @@ export function DashboardPage() {
       .sort((a, b) => a.sort_order - b.sort_order);
   };
 
-  // Handle reordering subtasks within a parent task
-  const handleReorderSubtasks = async (fromTaskId: string, toTaskId: string, parentId: string) => {
-    if (fromTaskId === toTaskId) return;
-
-    // Get subtasks with the same parent
-    const siblingSubtasks = tasks.filter((task) => task.parent_id === parentId);
-    const fromIndex = siblingSubtasks.findIndex((task) => task.id === fromTaskId);
-    const toIndex = siblingSubtasks.findIndex((task) => task.id === toTaskId);
-    if (fromIndex < 0 || toIndex < 0) return;
-
-    // Reorder within siblings
-    const nextSubtasks = [...siblingSubtasks];
-    const [movedTask] = nextSubtasks.splice(fromIndex, 1);
-    nextSubtasks.splice(toIndex, 0, movedTask);
-
-    try {
-      await reorderTasks(nextSubtasks.map((task) => task.id));
-    } catch (err) {
-      console.error("Failed to reorder subtasks:", err);
-    }
-  };
-
-  // Recursively render task with subtasks
-  const renderTaskItem = (task: Task, depth: number, parentId?: string): React.ReactNode => {
-    const subtasks = getSubtasks(task.id);
-    const hasSubtasks = subtasks.length > 0;
-    const isExpanded = expandedTasks.has(task.id);
-    const indentPadding = depth * 24; // 24px per level
-
-    // Check if any subtasks are incomplete (for parent task indicator)
-    const hasIncompleteSubtasks = hasSubtasks && subtasks.some((st) => !st.completed);
-    const allSubtasksCompleted = hasSubtasks && subtasks.every((st) => st.completed);
-
-    // All tasks (root and subtasks) can be dragged for reordering
-    const isDraggable = true;
-    const isSubtask = depth > 0;
-
-    return (
-      <div key={task.id}>
-        <div
-          draggable={isDraggable}
-          onDragStart={(e) => {
-            e.dataTransfer.effectAllowed = "move";
-            e.dataTransfer.setData("text/plain", task.id);
-            // Store source info in state for webview compatibility
-            setDragSourceInfo({ depth, parentId: parentId ?? null, listId: task.list_id });
-            setDraggingTaskId(task.id);
-            if (isSubtask && parentId) {
-              setDraggingSubtaskParentId(parentId);
-            } else {
-              setDraggingSubtaskParentId(null);
-            }
-          }}
-          onDragEnd={() => {
-            setDraggingTaskId(null);
-            setDropTargetTaskId(null);
-            setDropTargetListForTask(null);
-            setDraggingSubtaskParentId(null);
-            setDragSourceInfo(null);
-          }}
-          onDragOver={(e) => {
-            e.preventDefault();
-            // Use state for drag source info (webview compatible)
-            const sourceDepth = dragSourceInfo?.depth ?? 0;
-            const sourceParentId = dragSourceInfo?.parentId ?? null;
-            const sourceListId = dragSourceInfo?.listId ?? "";
-
-            if (draggingTaskId && draggingTaskId !== task.id) {
-              // For subtasks: only allow drop if same parent
-              if (sourceDepth > 0 && sourceParentId) {
-                // Dragging a subtask - only allow drop on siblings
-                if (isSubtask && parentId === sourceParentId) {
-                  e.dataTransfer.dropEffect = "move";
-                  setDropTargetTaskId(task.id);
-                }
-              } else {
-                // Dragging a root task - only allow drop on root tasks in same list
-                if (!isSubtask && task.list_id === sourceListId) {
-                  e.dataTransfer.dropEffect = "move";
-                  setDropTargetTaskId(task.id);
-                }
-              }
-            }
-          }}
-          onDrop={(e) => {
-            e.preventDefault();
-            const sourceTaskId = draggingTaskId;
-            const sourceDepth = dragSourceInfo?.depth ?? 0;
-            const sourceParentId = dragSourceInfo?.parentId ?? null;
-
-            if (isSubtask && sourceParentId && parentId && parentId === sourceParentId && sourceTaskId) {
-              // Reordering subtasks within same parent
-              void handleReorderSubtasks(sourceTaskId, task.id, parentId);
-            } else if (!isSubtask && sourceDepth === 0 && sourceTaskId) {
-              // Reordering root tasks within same list
-              const sourceListId = dragSourceInfo?.listId;
-              if (sourceListId === task.list_id) {
-                void handleReorderTasks(sourceTaskId, task.id, task.list_id);
-              }
-            }
-            setDraggingTaskId(null);
-            setDropTargetTaskId(null);
-            setDraggingSubtaskParentId(null);
-            setDragSourceInfo(null);
-          }}
-          className={`flex items-center gap-3 px-4 py-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 select-none cursor-grab active:cursor-grabbing ${
-            draggingTaskId === task.id ? "opacity-60" : ""
-          } ${
-            dropTargetTaskId === task.id && draggingTaskId !== task.id
-              ? "ring-2 ring-stone-300 dark:ring-stone-700"
-              : ""
-          }`}
-          style={{ marginLeft: indentPadding }}
-          onContextMenu={(e) => {
-            e.preventDefault();
-            setTaskContextMenu({
-              x: e.clientX,
-              y: e.clientY,
-              taskId: task.id,
-              taskName: task.name,
-            });
-          }}
-        >
-          {/* Expand/collapse button for tasks with subtasks */}
-          {hasSubtasks ? (
-            <button
-              onClick={() => toggleTaskExpand(task.id)}
-              className="p-0.5 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
-            >
-              {isExpanded ? (
-                <ChevronDown className="w-4 h-4" />
-              ) : (
-                <ChevronRight className="w-4 h-4" />
-              )}
-            </button>
-          ) : (
-            <div className="w-5" /> // Spacer
-          )}
-          <div
-            className={`w-5 h-5 rounded-full border flex items-center justify-center cursor-pointer hover:border-green-500 ${
-              task.completed
-                ? "border-green-500 bg-green-500 text-white"
-                : hasIncompleteSubtasks
-                ? "border-stone-400 bg-stone-100 dark:bg-stone-700"
-                : "border-stone-300 dark:border-stone-600"
-            }`}
-            onClick={() => toggleTaskComplete(task.id, task.completed)}
-          >
-            {task.completed ? (
-              <Check className="w-3 h-3" />
-            ) : hasIncompleteSubtasks ? (
-              <div className="w-2 h-2 rounded-full bg-stone-500" />
-            ) : null}
-          </div>
-          {editingTaskId === task.id ? (
-            <div className="flex-1 flex items-center gap-2">
-              <input
-                type="text"
-                value={editingTaskName}
-                onChange={(e) => setEditingTaskName(e.target.value)}
-                className="flex-1 bg-transparent border border-stone-300 dark:border-stone-600 rounded px-2 py-1 text-sm text-stone-800 dark:text-stone-100 outline-none focus:border-stone-400"
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") saveEditTask();
-                  if (e.key === "Escape") cancelEditTask();
-                }}
-                onBlur={saveEditTask}
-              />
-              <button
-                onClick={saveEditTask}
-                className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700"
-              >
-                <Check className="w-4 h-4 text-green-500" />
-              </button>
-              <button
-                onClick={cancelEditTask}
-                className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700"
-              >
-                <X className="w-4 h-4 text-stone-500" />
-              </button>
-            </div>
-          ) : (
-            <>
-              <span
-                className={`flex-1 text-sm cursor-pointer hover:text-stone-600 dark:hover:text-stone-300 ${
-                  task.completed
-                    ? "line-through text-stone-400 dark:text-stone-500"
-                    : "text-stone-800 dark:text-stone-100"
-                }`}
-                onClick={() => startEditTask(task.id, task.name)}
-              >
-                {task.name}
-              </span>
-              <button
-                onClick={() => toggleTaskStar(task.id, task.starred)}
-                className={`p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 ${
-                  task.starred ? "text-yellow-500" : "text-stone-300 dark:text-stone-600"
-                }`}
-              >
-                <Star className="w-4 h-4" fill={task.starred ? "currentColor" : "none"} />
-              </button>
-              <button
-                onClick={() => {
-                  setSelectedTaskId(task.id);
-                  // On smaller screens (not xl), open the detail sheet
-                  if (!showDetailPanel) {
-                    setMobileDetailOpen(true);
-                  }
-                }}
-                className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
-                title="Task details"
-              >
-                <Calendar className="w-4 h-4" />
-              </button>
-            </>
-          )}
-        </div>
-        {/* Render subtasks recursively */}
-        {hasSubtasks && isExpanded && (
-          <div className="space-y-2 mt-1">
-            {subtasks
-              .sort((a, b) => a.sort_order - b.sort_order)
-              .map((subtask) => renderTaskItem(subtask, depth + 1, task.id))}
-          </div>
-        )}
-      </div>
-    );
-  };
-
   // Get lists for a group
   const getListsForGroup = (groupId: string): ListType[] => {
     return lists.filter((list) => list.group_id === groupId);
@@ -530,77 +295,6 @@ export function DashboardPage() {
       console.error("Failed to update group:", err);
     } finally {
       setIsUpdatingGroup(false);
-    }
-  };
-
-  const handleReorderGroups = async (fromGroupId: string, toGroupId: string) => {
-    if (fromGroupId === toGroupId) return;
-
-    const fromIndex = groups.findIndex((group) => group.id === fromGroupId);
-    const toIndex = groups.findIndex((group) => group.id === toGroupId);
-    if (fromIndex < 0 || toIndex < 0) return;
-
-    const nextGroups = [...groups];
-    const [movedGroup] = nextGroups.splice(fromIndex, 1);
-    nextGroups.splice(toIndex, 0, movedGroup);
-
-    try {
-      await reorderGroups(nextGroups.map((group) => group.id));
-    } catch (err) {
-      console.error("Failed to reorder groups:", err);
-    }
-  };
-
-  // Handle reordering lists within a group
-  const handleReorderLists = async (fromListId: string, toListId: string, groupId: string) => {
-    if (fromListId === toListId) return;
-
-    // Get lists within the same group
-    const groupLists = lists.filter((list) => list.group_id === groupId);
-    const fromIndex = groupLists.findIndex((list) => list.id === fromListId);
-    const toIndex = groupLists.findIndex((list) => list.id === toListId);
-    if (fromIndex < 0 || toIndex < 0) return;
-
-    // Reorder within the group
-    const nextLists = [...groupLists];
-    const [movedList] = nextLists.splice(fromIndex, 1);
-    nextLists.splice(toIndex, 0, movedList);
-
-    try {
-      await reorderLists(nextLists.map((list) => list.id));
-    } catch (err) {
-      console.error("Failed to reorder lists:", err);
-    }
-  };
-
-  // Handle reordering tasks within a list
-  const handleReorderTasks = async (fromTaskId: string, toTaskId: string, listId: string) => {
-    if (fromTaskId === toTaskId) return;
-
-    // Get root tasks (no parent) for the list
-    const listTasks = tasks.filter((task) => task.list_id === listId && !task.parent_id);
-    const fromIndex = listTasks.findIndex((task) => task.id === fromTaskId);
-    const toIndex = listTasks.findIndex((task) => task.id === toTaskId);
-    if (fromIndex < 0 || toIndex < 0) return;
-
-    // Reorder within the list
-    const nextTasks = [...listTasks];
-    const [movedTask] = nextTasks.splice(fromIndex, 1);
-    nextTasks.splice(toIndex, 0, movedTask);
-
-    try {
-      await reorderTasks(nextTasks.map((task) => task.id));
-    } catch (err) {
-      console.error("Failed to reorder tasks:", err);
-    }
-  };
-
-  // Handle moving a task to a different list
-  const handleMoveTask = async (taskId: string, targetListId: string) => {
-    try {
-      await moveTask(taskId, targetListId);
-    } catch (err) {
-      console.error("Failed to move task:", err);
     }
   };
 
@@ -835,7 +529,6 @@ export function DashboardPage() {
 
   // Get selected list
   const selectedList = selectedListId ? lists.find((l) => l.id === selectedListId) : null;
-  const selectedListTasks = selectedList ? getRootTasks(selectedList.id) : [];
 
   // Get today's tasks (due_date or plan_date = today)
   const getTodayTasks = (): Task[] => {
@@ -918,6 +611,384 @@ export function DashboardPage() {
       isCancelled = true;
     };
   }, [selectedListId, fetchTasks]);
+
+  // Configure sensors for @dnd-kit
+  const groupSensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const listSensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const taskSensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Group drag handlers
+  const handleGroupDragStart = (event: DragStartEvent) => {
+    setActiveGroupId(event.active.id);
+  };
+
+  const handleGroupDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveGroupId(null);
+
+    if (over && active.id !== over.id) {
+      const fromIndex = groups.findIndex((g) => g.id === active.id);
+      const toIndex = groups.findIndex((g) => g.id === over.id);
+      if (fromIndex !== -1 && toIndex !== -1) {
+        const nextGroups = arrayMove(groups, fromIndex, toIndex);
+        void reorderGroups(nextGroups.map((g) => g.id));
+      }
+    }
+  };
+
+  // List drag handlers
+  const handleListDragStart = (event: DragStartEvent, _groupId: string) => {
+    setActiveListId(event.active.id);
+  };
+
+  const handleListDragEnd = (event: DragEndEvent, groupId: string) => {
+    const { active, over } = event;
+    setActiveListId(null);
+
+    if (over && active.id !== over.id) {
+      const groupLists = lists.filter((l) => l.group_id === groupId);
+      const fromIndex = groupLists.findIndex((l) => l.id === active.id);
+      const toIndex = groupLists.findIndex((l) => l.id === over.id);
+      if (fromIndex !== -1 && toIndex !== -1) {
+        const nextLists = arrayMove(groupLists, fromIndex, toIndex);
+        void reorderLists(nextLists.map((l) => l.id));
+      }
+    }
+  };
+
+  // Task drag handlers
+  const handleTaskDragStart = (event: DragStartEvent, parentId: string | null) => {
+    setActiveTaskId(event.active.id);
+    setActiveTaskParentId(parentId);
+  };
+
+  const handleTaskDragEnd = (event: DragEndEvent, listId: string, parentId: string | null) => {
+    const { active, over } = event;
+    setActiveTaskId(null);
+    setActiveTaskParentId(null);
+
+    if (over && active.id !== over.id) {
+      if (parentId) {
+        // Reordering subtasks within same parent
+        const siblingSubtasks = tasks.filter((t) => t.parent_id === parentId);
+        const fromIndex = siblingSubtasks.findIndex((t) => t.id === active.id);
+        const toIndex = siblingSubtasks.findIndex((t) => t.id === over.id);
+        if (fromIndex !== -1 && toIndex !== -1) {
+          const nextSubtasks = arrayMove(siblingSubtasks, fromIndex, toIndex);
+          void reorderTasks(nextSubtasks.map((t) => t.id));
+        }
+      } else {
+        // Reordering root tasks within same list
+        const listTasks = tasks.filter((t) => t.list_id === listId && !t.parent_id);
+        const fromIndex = listTasks.findIndex((t) => t.id === active.id);
+        const toIndex = listTasks.findIndex((t) => t.id === over.id);
+        if (fromIndex !== -1 && toIndex !== -1) {
+          const nextTasks = arrayMove(listTasks, fromIndex, toIndex);
+          void reorderTasks(nextTasks.map((t) => t.id));
+        }
+      }
+    }
+  };
+
+  // Sortable Group Item component
+  interface SortableGroupItemProps {
+    group: Group;
+    isExpanded: boolean;
+    onToggleExpand: () => void;
+    onContextMenu: (e: React.MouseEvent, group: Group) => void;
+    onDelete: (groupId: string, e?: React.MouseEvent) => void;
+  }
+
+  function SortableGroupItem({ group, isExpanded, onToggleExpand, onContextMenu, onDelete }: SortableGroupItemProps) {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: group.id });
+
+    const style: React.CSSProperties = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging ? 0.5 : 1,
+      zIndex: isDragging ? 50 : undefined,
+    };
+
+    return (
+      <div ref={setNodeRef} style={style} className={isDragging ? "z-50" : ""}>
+        <div
+          className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors group select-none ${
+            isDragging ? "bg-stone-100 dark:bg-stone-800" : ""
+          }`}
+          onClick={onToggleExpand}
+          onContextMenu={(e) => onContextMenu(e, group)}
+        >
+          {/* Drag Handle */}
+          <DragHandle attributes={attributes} listeners={listeners} iconSize="sm" />
+          <ChevronDown
+            className={`w-4 h-4 transition-transform ${isExpanded ? "" : "-rotate-90"}`}
+          />
+          <Folder className="w-5 h-5" style={{ color: group.color ?? undefined }} />
+          <span className="flex-1 text-left truncate">{group.name}</span>
+          <button
+            onClick={(e) => onDelete(group.id, e)}
+            className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-stone-300 dark:hover:bg-stone-600 text-stone-400 hover:text-red-500"
+          >
+            <X className="w-3 h-3" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Sortable List Item component
+  interface SortableListItemProps {
+    list: ListType;
+    isSelected: boolean;
+    onSelect: (listId: string, groupId: string) => void;
+    onContextMenu: (e: React.MouseEvent, list: ListType) => void;
+    groupId: string;
+  }
+
+  function SortableListItem({ list, isSelected, onSelect, onContextMenu, groupId }: SortableListItemProps) {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: list.id });
+
+    const style: React.CSSProperties = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging ? 0.5 : 1,
+      zIndex: isDragging ? 50 : undefined,
+    };
+
+    return (
+      <div ref={setNodeRef} style={style} className={isDragging ? "z-50" : ""}>
+        <div
+          className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors select-none group ${
+            isDragging ? "bg-stone-100 dark:bg-stone-800" : ""
+          } ${
+            isSelected
+              ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
+              : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
+          }`}
+          onClick={() => onSelect(list.id, groupId)}
+          onContextMenu={(e) => onContextMenu(e, list)}
+        >
+          {/* Drag Handle */}
+          <DragHandle attributes={attributes} listeners={listeners} iconSize="sm" />
+          <List className="w-4 h-4" />
+          <span className="truncate flex-1">{list.name}</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Sortable Task Item component
+  interface SortableTaskItemProps {
+    task: Task;
+    depth: number;
+    parentId?: string;
+  }
+
+  function SortableTaskItem({ task, depth, parentId: _parentId }: SortableTaskItemProps) {
+    const subtasks = getSubtasks(task.id);
+    const hasSubtasks = subtasks.length > 0;
+    const isExpanded = expandedTasks.has(task.id);
+    const indentPadding = depth * 24;
+    const hasIncompleteSubtasks = hasSubtasks && subtasks.some((st) => !st.completed);
+    const listId = task.list_id;
+
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: task.id });
+
+    const style: React.CSSProperties = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging ? 0.5 : 1,
+      marginLeft: indentPadding,
+      zIndex: isDragging ? 50 : undefined,
+    };
+
+    return (
+      <div className="space-y-2">
+        <div
+          ref={setNodeRef}
+          style={style}
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 select-none group ${
+            isDragging ? "z-50 shadow-lg" : ""
+          }`}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            setTaskContextMenu({
+              x: e.clientX,
+              y: e.clientY,
+              taskId: task.id,
+              taskName: task.name,
+            });
+          }}
+        >
+          {/* Drag Handle */}
+          <DragHandle attributes={attributes} listeners={listeners} iconSize="sm" />
+          {/* Expand/collapse button for tasks with subtasks */}
+          {hasSubtasks ? (
+            <button
+              onClick={() => toggleTaskExpand(task.id)}
+              className="p-0.5 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
+            >
+              {isExpanded ? (
+                <ChevronDown className="w-4 h-4" />
+              ) : (
+                <ChevronRight className="w-4 h-4" />
+              )}
+            </button>
+          ) : (
+            <div className="w-5" />
+          )}
+          <div
+            className={`w-5 h-5 rounded-full border flex items-center justify-center cursor-pointer hover:border-green-500 ${
+              task.completed
+                ? "border-green-500 bg-green-500 text-white"
+                : hasIncompleteSubtasks
+                ? "border-stone-400 bg-stone-100 dark:bg-stone-700"
+                : "border-stone-300 dark:border-stone-600"
+            }`}
+            onClick={() => toggleTaskComplete(task.id, task.completed)}
+          >
+            {task.completed ? (
+              <Check className="w-3 h-3" />
+            ) : hasIncompleteSubtasks ? (
+              <div className="w-2 h-2 rounded-full bg-stone-500" />
+            ) : null}
+          </div>
+          {editingTaskId === task.id ? (
+            <div className="flex-1 flex items-center gap-2">
+              <input
+                type="text"
+                value={editingTaskName}
+                onChange={(e) => setEditingTaskName(e.target.value)}
+                className="flex-1 bg-transparent border border-stone-300 dark:border-stone-600 rounded px-2 py-1 text-sm text-stone-800 dark:text-stone-100 outline-none focus:border-stone-400"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") saveEditTask();
+                  if (e.key === "Escape") cancelEditTask();
+                }}
+                onBlur={saveEditTask}
+              />
+              <button
+                onClick={saveEditTask}
+                className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700"
+              >
+                <Check className="w-4 h-4 text-green-500" />
+              </button>
+              <button
+                onClick={cancelEditTask}
+                className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700"
+              >
+                <X className="w-4 h-4 text-stone-500" />
+              </button>
+            </div>
+          ) : (
+            <>
+              <span
+                className={`flex-1 text-sm cursor-pointer hover:text-stone-600 dark:hover:text-stone-300 ${
+                  task.completed
+                    ? "line-through text-stone-400 dark:text-stone-500"
+                    : "text-stone-800 dark:text-stone-100"
+                }`}
+                onClick={() => startEditTask(task.id, task.name)}
+              >
+                {task.name}
+              </span>
+              <button
+                onClick={() => toggleTaskStar(task.id, task.starred)}
+                className={`p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 ${
+                  task.starred ? "text-yellow-500" : "text-stone-300 dark:text-stone-600"
+                }`}
+              >
+                <Star className="w-4 h-4" fill={task.starred ? "currentColor" : "none"} />
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedTaskId(task.id);
+                  if (!showDetailPanel) {
+                    setMobileDetailOpen(true);
+                  }
+                }}
+                className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
+                title="Task details"
+              >
+                <Calendar className="w-4 h-4" />
+              </button>
+            </>
+          )}
+        </div>
+        {/* Render subtasks recursively with DndContext */}
+        {hasSubtasks && isExpanded && (
+          <DndContext
+            sensors={taskSensors}
+            collisionDetection={closestCenter}
+            onDragStart={(e) => handleTaskDragStart(e, task.id)}
+            onDragEnd={(e) => handleTaskDragEnd(e, listId, task.id)}
+          >
+            <SortableContext
+              items={subtasks.map((s) => s.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-2 mt-1">
+                {subtasks
+                  .sort((a, b) => a.sort_order - b.sort_order)
+                  .map((subtask) => (
+                    <SortableTaskItem
+                      key={subtask.id}
+                      task={subtask}
+                      depth={depth + 1}
+                      parentId={task.id}
+                    />
+                  ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen overflow-hidden flex">
@@ -1063,203 +1134,114 @@ export function DashboardPage() {
             )}
 
             {/* Groups list */}
-            <div className="space-y-1">
-              {groups.map((group) => {
-                const groupLists = getListsForGroup(group.id);
-                const isExpanded = expandedGroups.has(group.id);
+            <DndContext
+              sensors={groupSensors}
+              collisionDetection={closestCenter}
+              onDragStart={handleGroupDragStart}
+              onDragEnd={handleGroupDragEnd}
+            >
+              <SortableContext
+                items={groups.map((g) => g.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-1">
+                  {groups.map((group) => {
+                    const groupLists = getListsForGroup(group.id);
+                    const isExpanded = expandedGroups.has(group.id);
 
-                return (
-                  <div
-                    key={group.id}
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      if (draggingGroupId && draggingGroupId !== group.id) {
-                        e.dataTransfer.dropEffect = "move";
-                        setDropTargetGroupId(group.id);
-                      }
-                    }}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      const sourceGroupId = draggingGroupId;
-                      if (sourceGroupId) {
-                        void handleReorderGroups(sourceGroupId, group.id);
-                      }
-                      setDraggingGroupId(null);
-                      setDropTargetGroupId(null);
-                      setDragGroupSourceInfo(null);
-                    }}
-                  >
-                    <button
-                      draggable
-                      onDragStart={(e) => {
-                        e.dataTransfer.effectAllowed = "move";
-                        e.dataTransfer.setData("text/plain", group.id);
-                        setDragGroupSourceInfo({ groupId: group.id });
-                        setDraggingGroupId(group.id);
-                      }}
-                      onDragEnd={() => {
-                        setDraggingGroupId(null);
-                        setDropTargetGroupId(null);
-                        setDragGroupSourceInfo(null);
-                      }}
-                      onClick={() => toggleGroup(group.id)}
-                      onContextMenu={(e) => handleContextMenu(e, group)}
-                      className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors group select-none cursor-grab active:cursor-grabbing ${
-                        draggingGroupId === group.id ? "opacity-60" : ""
-                      } ${
-                        dropTargetGroupId === group.id && draggingGroupId !== group.id
-                          ? "ring-2 ring-stone-300 dark:ring-stone-700"
-                          : ""
-                      }`}
-                    >
-                      <ChevronDown
-                        className={`w-4 h-4 transition-transform ${isExpanded ? "" : "-rotate-90"}`}
-                      />
-                      <Folder className="w-5 h-5" style={{ color: group.color ?? undefined }} />
-                      <span className="flex-1 text-left truncate">{group.name}</span>
-                      <button
-                        onClick={(e) => handleDeleteGroup(group.id, e)}
-                        className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-stone-300 dark:hover:bg-stone-600 text-stone-400 hover:text-red-500"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </button>
+                    return (
+                      <div key={group.id}>
+                        <SortableGroupItem
+                          group={group}
+                          isExpanded={isExpanded}
+                          onToggleExpand={() => toggleGroup(group.id)}
+                          onContextMenu={handleContextMenu}
+                          onDelete={handleDeleteGroup}
+                        />
 
-                    {/* Lists under group */}
-                    {isExpanded && (
-                      <div className="ml-6 mt-1 space-y-1">
-                        {groupLists.map((list) => (
-                          <button
-                            key={list.id}
-                            draggable
-                            onDragStart={(e) => {
-                              e.dataTransfer.effectAllowed = "move";
-                              e.dataTransfer.setData("text/plain", list.id);
-                              e.dataTransfer.setData("application/group-id", group.id);
-                              setDragListSourceInfo({ listId: list.id, groupId: group.id });
-                              setDraggingListId(list.id);
-                            }}
-                            onDragEnd={() => {
-                              setDraggingListId(null);
-                              setDropTargetListId(null);
-                              setDropTargetListForTask(null);
-                              setDragListSourceInfo(null);
-                            }}
-                            onDragOver={(e) => {
-                              e.preventDefault();
-                              // Handle list reordering
-                              if (draggingListId && draggingListId !== list.id) {
-                                e.dataTransfer.dropEffect = "move";
-                                setDropTargetListId(list.id);
-                              }
-                              // Handle task drop to move to different list
-                              if (draggingTaskId) {
-                                e.dataTransfer.dropEffect = "move";
-                                setDropTargetListForTask(list.id);
-                              }
-                            }}
-                            onDragLeave={() => {
-                              setDropTargetListForTask(null);
-                            }}
-                            onDrop={(e) => {
-                              e.preventDefault();
-                              // Handle list reorder using state
-                              const sourceListId = draggingListId;
-                              const sourceGroupId = dragListSourceInfo?.groupId;
-                              if (sourceListId && sourceGroupId === group.id && draggingListId) {
-                                void handleReorderLists(sourceListId, list.id, group.id);
-                              }
-                              // Handle task move to different list using state
-                              if (draggingTaskId && dragSourceInfo) {
-                                const sourceTaskListId = dragSourceInfo.listId;
-                                if (sourceTaskListId !== list.id) {
-                                  void handleMoveTask(draggingTaskId, list.id);
-                                }
-                              }
-                              setDraggingListId(null);
-                              setDraggingTaskId(null);
-                              setDropTargetListId(null);
-                              setDropTargetListForTask(null);
-                              setDragListSourceInfo(null);
-                              setDragSourceInfo(null);
-                            }}
-                            onClick={() => {
-                              setSelectedListId(list.id);
-                              setCurrentView('list');
-                            }}
-                            onContextMenu={(e) => handleListContextMenu(e, list)}
-                            className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors select-none cursor-grab active:cursor-grabbing ${
-                              draggingListId === list.id ? "opacity-60" : ""
-                            } ${
-                              dropTargetListId === list.id && draggingListId !== list.id
-                                ? "ring-2 ring-stone-300 dark:ring-stone-700"
-                                : ""
-                            } ${
-                              dropTargetListForTask === list.id && draggingTaskId
-                                ? "ring-2 ring-green-300 dark:ring-green-700 bg-green-50 dark:bg-green-900/20"
-                                : ""
-                            } ${
-                              selectedListId === list.id
-                                ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
-                                : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
-                            }`}
+                        {/* Lists under group */}
+                        {isExpanded && (
+                          <DndContext
+                            sensors={listSensors}
+                            collisionDetection={closestCenter}
+                            onDragStart={(e) => handleListDragStart(e, group.id)}
+                            onDragEnd={(e) => handleListDragEnd(e, group.id)}
                           >
-                            <List className="w-4 h-4" />
-                            <span className="truncate">{list.name}</span>
-                          </button>
-                        ))}
+                            <SortableContext
+                              items={groupLists.map((l) => l.id)}
+                              strategy={verticalListSortingStrategy}
+                            >
+                              <div className="ml-6 mt-1 space-y-1">
+                                {groupLists.map((list) => (
+                                  <SortableListItem
+                                    key={list.id}
+                                    list={list}
+                                    groupId={group.id}
+                                    isSelected={selectedListId === list.id}
+                                    onSelect={(listId) => {
+                                      setSelectedListId(listId);
+                                      setCurrentView('list');
+                                    }}
+                                    onContextMenu={handleListContextMenu}
+                                  />
+                                ))}
 
-                        {/* New list input */}
-                        {showNewListInput === group.id ? (
-                          <div className="px-3 py-2 bg-white dark:bg-stone-800 rounded-lg border border-stone-200 dark:border-stone-600">
-                            <input
-                              type="text"
-                              value={newListName}
-                              onChange={(e) => setNewListName(e.target.value)}
-                              placeholder="List name"
-                              className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-stone-900 dark:text-stone-100 placeholder-stone-400"
-                              autoFocus
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") handleCreateList(group.id);
-                                if (e.key === "Escape") {
-                                  setShowNewListInput(null);
-                                  setNewListName("");
-                                }
-                              }}
-                            />
-                            <div className="flex items-center justify-end gap-2 mt-2">
-                              <button
-                                onClick={() => {
-                                  setShowNewListInput(null);
-                                  setNewListName("");
-                                }}
-                                className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
-                              >
-                                <X className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleCreateList(group.id)}
-                                disabled={isCreatingList || !newListName.trim()}
-                                className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-green-500 disabled:opacity-50"
-                              >
-                                <Check className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => setShowNewListInput(group.id)}
-                            className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-stone-400 dark:text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
-                          >
-                            <Plus className="w-4 h-4" />
-                            <span>Add list</span>
-                          </button>
+                                {/* New list input */}
+                                {showNewListInput === group.id ? (
+                                  <div className="px-3 py-2 bg-white dark:bg-stone-800 rounded-lg border border-stone-200 dark:border-stone-600">
+                                    <input
+                                      type="text"
+                                      value={newListName}
+                                      onChange={(e) => setNewListName(e.target.value)}
+                                      placeholder="List name"
+                                      className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-stone-900 dark:text-stone-100 placeholder-stone-400"
+                                      autoFocus
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Enter") handleCreateList(group.id);
+                                        if (e.key === "Escape") {
+                                          setShowNewListInput(null);
+                                          setNewListName("");
+                                        }
+                                      }}
+                                    />
+                                    <div className="flex items-center justify-end gap-2 mt-2">
+                                      <button
+                                        onClick={() => {
+                                          setShowNewListInput(null);
+                                          setNewListName("");
+                                        }}
+                                        className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
+                                      >
+                                        <X className="w-4 h-4" />
+                                      </button>
+                                      <button
+                                        onClick={() => handleCreateList(group.id)}
+                                        disabled={isCreatingList || !newListName.trim()}
+                                        className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-green-500 disabled:opacity-50"
+                                      >
+                                        <Check className="w-4 h-4" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <button
+                                    onClick={() => setShowNewListInput(group.id)}
+                                    className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-stone-400 dark:text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
+                                  >
+                                    <Plus className="w-4 h-4" />
+                                    <span>Add list</span>
+                                  </button>
+                                )}
+                              </div>
+                            </SortableContext>
+                          </DndContext>
                         )}
                       </div>
-                    )}
-                  </div>
-                );
-              })}
+                    );
+                  })}
+                </div>
+              </SortableContext>
+            </DndContext>
 
               {/* Empty state */}
               {!isLoading && groups.length === 0 && !showNewGroupInput && (
@@ -1268,7 +1250,6 @@ export function DashboardPage() {
                 </div>
               )}
             </div>
-          </div>
         </nav>
 
         {/* User section */}
@@ -1467,212 +1448,122 @@ export function DashboardPage() {
             )}
 
             {/* Groups list */}
-            <div className="space-y-1">
-              {groups.map((group) => {
-                const groupLists = getListsForGroup(group.id);
-                const isExpanded = expandedGroups.has(group.id);
+            <DndContext
+              sensors={groupSensors}
+              collisionDetection={closestCenter}
+              onDragStart={handleGroupDragStart}
+              onDragEnd={handleGroupDragEnd}
+            >
+              <SortableContext
+                items={groups.map((g) => g.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-1">
+                  {groups.map((group) => {
+                    const groupLists = getListsForGroup(group.id);
+                    const isExpanded = expandedGroups.has(group.id);
 
-                return (
-                  <div
-                    key={group.id}
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      if (draggingGroupId && draggingGroupId !== group.id) {
-                        e.dataTransfer.dropEffect = "move";
-                        setDropTargetGroupId(group.id);
-                      }
-                    }}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      const sourceGroupId = draggingGroupId;
-                      if (sourceGroupId) {
-                        void handleReorderGroups(sourceGroupId, group.id);
-                      }
-                      setDraggingGroupId(null);
-                      setDropTargetGroupId(null);
-                      setDragGroupSourceInfo(null);
-                    }}
-                  >
-                    <button
-                      draggable
-                      onDragStart={(e) => {
-                        e.dataTransfer.effectAllowed = "move";
-                        e.dataTransfer.setData("text/plain", group.id);
-                        setDragGroupSourceInfo({ groupId: group.id });
-                        setDraggingGroupId(group.id);
-                      }}
-                      onDragEnd={() => {
-                        setDraggingGroupId(null);
-                        setDropTargetGroupId(null);
-                        setDragGroupSourceInfo(null);
-                      }}
-                      onClick={() => toggleGroup(group.id)}
-                      onContextMenu={(e) => handleContextMenu(e, group)}
-                      className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors group select-none cursor-grab active:cursor-grabbing ${
-                        draggingGroupId === group.id ? "opacity-60" : ""
-                      } ${
-                        dropTargetGroupId === group.id && draggingGroupId !== group.id
-                          ? "ring-2 ring-stone-300 dark:ring-stone-700"
-                          : ""
-                      }`}
-                    >
-                      <ChevronDown
-                        className={`w-4 h-4 transition-transform ${isExpanded ? "" : "-rotate-90"}`}
-                      />
-                      <Folder className="w-5 h-5" style={{ color: group.color ?? undefined }} />
-                      <span className="flex-1 text-left truncate">{group.name}</span>
-                      <button
-                        onClick={(e) => handleDeleteGroup(group.id, e)}
-                        className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-stone-300 dark:hover:bg-stone-600 text-stone-400 hover:text-red-500"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </button>
+                    return (
+                      <div key={group.id}>
+                        <SortableGroupItem
+                          group={group}
+                          isExpanded={isExpanded}
+                          onToggleExpand={() => toggleGroup(group.id)}
+                          onContextMenu={handleContextMenu}
+                          onDelete={handleDeleteGroup}
+                        />
 
-                    {/* Lists under group */}
-                    {isExpanded && (
-                      <div className="ml-6 mt-1 space-y-1">
-                        {groupLists.map((list) => (
-                          <button
-                            key={list.id}
-                            draggable
-                            onDragStart={(e) => {
-                              e.dataTransfer.effectAllowed = "move";
-                              e.dataTransfer.setData("text/plain", list.id);
-                              e.dataTransfer.setData("application/group-id", group.id);
-                              setDragListSourceInfo({ listId: list.id, groupId: group.id });
-                              setDraggingListId(list.id);
-                            }}
-                            onDragEnd={() => {
-                              setDraggingListId(null);
-                              setDropTargetListId(null);
-                              setDropTargetListForTask(null);
-                              setDragListSourceInfo(null);
-                            }}
-                            onDragOver={(e) => {
-                              e.preventDefault();
-                              // Handle list reordering
-                              if (draggingListId && draggingListId !== list.id) {
-                                e.dataTransfer.dropEffect = "move";
-                                setDropTargetListId(list.id);
-                              }
-                              // Handle task drop to move to different list
-                              if (draggingTaskId) {
-                                e.dataTransfer.dropEffect = "move";
-                                setDropTargetListForTask(list.id);
-                              }
-                            }}
-                            onDragLeave={() => {
-                              setDropTargetListForTask(null);
-                            }}
-                            onDrop={(e) => {
-                              e.preventDefault();
-                              // Handle list reorder using state
-                              const sourceListId = draggingListId;
-                              const sourceGroupId = dragListSourceInfo?.groupId;
-                              if (sourceListId && sourceGroupId === group.id && draggingListId) {
-                                void handleReorderLists(sourceListId, list.id, group.id);
-                              }
-                              // Handle task move to different list using state
-                              if (draggingTaskId && dragSourceInfo) {
-                                const sourceTaskListId = dragSourceInfo.listId;
-                                if (sourceTaskListId !== list.id) {
-                                  void handleMoveTask(draggingTaskId, list.id);
-                                }
-                              }
-                              setDraggingListId(null);
-                              setDraggingTaskId(null);
-                              setDropTargetListId(null);
-                              setDropTargetListForTask(null);
-                              setDragListSourceInfo(null);
-                              setDragSourceInfo(null);
-                            }}
-                            onClick={() => {
-                              setSelectedListId(list.id);
-                              setCurrentView('list');
-                              setSidebarOpen(false); // Close mobile sidebar on selection
-                            }}
-                            onContextMenu={(e) => handleListContextMenu(e, list)}
-                            className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors select-none cursor-grab active:cursor-grabbing ${
-                              draggingListId === list.id ? "opacity-60" : ""
-                            } ${
-                              dropTargetListId === list.id && draggingListId !== list.id
-                                ? "ring-2 ring-stone-300 dark:ring-stone-700"
-                                : ""
-                            } ${
-                              dropTargetListForTask === list.id && draggingTaskId
-                                ? "ring-2 ring-green-300 dark:ring-green-700 bg-green-50 dark:bg-green-900/20"
-                                : ""
-                            } ${
-                              selectedListId === list.id
-                                ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
-                                : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
-                            }`}
+                        {/* Lists under group */}
+                        {isExpanded && (
+                          <DndContext
+                            sensors={listSensors}
+                            collisionDetection={closestCenter}
+                            onDragStart={(e) => handleListDragStart(e, group.id)}
+                            onDragEnd={(e) => handleListDragEnd(e, group.id)}
                           >
-                            <List className="w-4 h-4" />
-                            <span className="truncate">{list.name}</span>
-                          </button>
-                        ))}
+                            <SortableContext
+                              items={groupLists.map((l) => l.id)}
+                              strategy={verticalListSortingStrategy}
+                            >
+                              <div className="ml-6 mt-1 space-y-1">
+                                {groupLists.map((list) => (
+                                  <SortableListItem
+                                    key={list.id}
+                                    list={list}
+                                    groupId={group.id}
+                                    isSelected={selectedListId === list.id}
+                                    onSelect={(listId) => {
+                                      setSelectedListId(listId);
+                                      setCurrentView('list');
+                                      setSidebarOpen(false); // Close mobile sidebar on selection
+                                    }}
+                                    onContextMenu={handleListContextMenu}
+                                  />
+                                ))}
 
-                        {/* New list input */}
-                        {showNewListInput === group.id ? (
-                          <div className="px-3 py-2 bg-white dark:bg-stone-800 rounded-lg border border-stone-200 dark:border-stone-600">
-                            <input
-                              type="text"
-                              value={newListName}
-                              onChange={(e) => setNewListName(e.target.value)}
-                              placeholder="List name"
-                              className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-stone-900 dark:text-stone-100 placeholder-stone-400"
-                              autoFocus
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") handleCreateList(group.id);
-                                if (e.key === "Escape") {
-                                  setShowNewListInput(null);
-                                  setNewListName("");
-                                }
-                              }}
-                            />
-                            <div className="flex items-center justify-end gap-2 mt-2">
-                              <button
-                                onClick={() => {
-                                  setShowNewListInput(null);
-                                  setNewListName("");
-                                }}
-                                className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
-                              >
-                                <X className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleCreateList(group.id)}
-                                disabled={isCreatingList || !newListName.trim()}
-                                className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-green-500 disabled:opacity-50"
-                              >
-                                <Check className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => setShowNewListInput(group.id)}
-                            className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-stone-400 dark:text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
-                          >
-                            <Plus className="w-4 h-4" />
-                            <span>Add list</span>
-                          </button>
+                                {/* New list input */}
+                                {showNewListInput === group.id ? (
+                                  <div className="px-3 py-2 bg-white dark:bg-stone-800 rounded-lg border border-stone-200 dark:border-stone-600">
+                                    <input
+                                      type="text"
+                                      value={newListName}
+                                      onChange={(e) => setNewListName(e.target.value)}
+                                      placeholder="List name"
+                                      className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-stone-900 dark:text-stone-100 placeholder-stone-400"
+                                      autoFocus
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Enter") handleCreateList(group.id);
+                                        if (e.key === "Escape") {
+                                          setShowNewListInput(null);
+                                          setNewListName("");
+                                        }
+                                      }}
+                                    />
+                                    <div className="flex items-center justify-end gap-2 mt-2">
+                                      <button
+                                        onClick={() => {
+                                          setShowNewListInput(null);
+                                          setNewListName("");
+                                        }}
+                                        className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
+                                      >
+                                        <X className="w-4 h-4" />
+                                      </button>
+                                      <button
+                                        onClick={() => handleCreateList(group.id)}
+                                        disabled={isCreatingList || !newListName.trim()}
+                                        className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-green-500 disabled:opacity-50"
+                                      >
+                                        <Check className="w-4 h-4" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <button
+                                    onClick={() => setShowNewListInput(group.id)}
+                                    className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-stone-400 dark:text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
+                                  >
+                                    <Plus className="w-4 h-4" />
+                                    <span>Add list</span>
+                                  </button>
+                                )}
+                              </div>
+                            </SortableContext>
+                          </DndContext>
                         )}
                       </div>
-                    )}
-                  </div>
-                );
-              })}
+                    );
+                  })}
 
-              {/* Empty state */}
-              {!isLoading && groups.length === 0 && !showNewGroupInput && (
-                <div className="px-3 py-4 text-sm text-stone-400 dark:text-stone-500">
-                  No groups yet. Click + to create one.
+                  {/* Empty state */}
+                  {!isLoading && groups.length === 0 && !showNewGroupInput && (
+                    <div className="px-3 py-4 text-sm text-stone-400 dark:text-stone-500">
+                      No groups yet. Click + to create one.
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </SortableContext>
+            </DndContext>
           </div>
         </nav>
 
@@ -1825,10 +1716,29 @@ export function DashboardPage() {
               const showAddTask = currentView === 'list' && selectedList;
 
               if (displayTasks.length > 0) {
+                const listId = selectedList?.id ?? '';
                 return (
-                  <div className="space-y-2">
-                    {displayTasks.map((task) => renderTaskItem(task, 0))}
-                  </div>
+                  <DndContext
+                    sensors={taskSensors}
+                    collisionDetection={closestCenter}
+                    onDragStart={(e) => handleTaskDragStart(e, null)}
+                    onDragEnd={(e) => handleTaskDragEnd(e, listId, null)}
+                  >
+                    <SortableContext
+                      items={displayTasks.map((t) => t.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <div className="space-y-2">
+                        {displayTasks.map((task) => (
+                          <SortableTaskItem
+                            key={task.id}
+                            task={task}
+                            depth={0}
+                          />
+                        ))}
+                      </div>
+                    </SortableContext>
+                  </DndContext>
                 );
               }
 
