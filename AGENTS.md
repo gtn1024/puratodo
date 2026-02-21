@@ -97,17 +97,33 @@ Key fields:
 
 This project follows a "long-running agent" methodology with daily progress logging:
 
-1. Read `share-list.json` - check UI sharing features to work on (for shared UI between web and app)
-2. Read `share-progress.txt` - check current session progress for UI sharing
-3. Read `apps/web/claude-progress.txt` (for web) or `apps/app/claude-progress.txt` (for Tauri) - check current status and next steps
-3. Read `apps/web/feature_list.json` (for web) or `apps/app/feature_list.json` (for Tauri) - get feature details and test steps. Note that one step MUST do one task, unless it's very small or closely related to another step. If a step is too big, break it down into smaller steps.
-4. Run `./init.sh web` (or `./init.sh app` for Tauri) to start dev environment
-5. Implement the feature
-6. Test with Playwright MCP (the credentials of accounts in `.credentials.local`)
-7. Make sure project can be built successfully (`pnpm build:web` or `cd apps/app && npm run tauri build`)
-8. Update the share-list.json or feature_list.json - set `passes: true` for completed feature
-9. Update the corresponding claude-progress.txt (append new log for current session, what has done, what does not work, next steps)
-10. **Git commit** - Commit ONLY after testing passes (see "Testing" section below). Never commit untested code.
+### For UI Sharing Tasks (share-list.json)
+
+**IMPORTANT: Complete ONE feature at a time, then commit and exit.**
+
+1. Read `share-list.json` - find the FIRST feature with `passes: false`
+2. Read `share-progress.txt` - check current session progress
+3. Implement the feature (follow the steps in share-list.json)
+4. **Test the implementation** - verify it works as expected
+5. Run `pnpm build` to ensure the monorepo builds successfully
+6. Update `share-list.json` - set `passes: true` for completed feature
+7. Update `share-progress.txt` - document what was completed
+8. **Git commit** with descriptive message
+9. **EXIT** - The loop will continue in the next iteration
+
+### For App-Specific Tasks (feature_list.json)
+
+1. Read `apps/web/claude-progress.txt` (for web) or `apps/app/claude-progress.txt` (for Tauri) - check current status
+2. Read `apps/web/feature_list.json` (for web) or `apps/app/feature_list.json` (for Tauri) - get feature details
+   - Note that one step MUST do one task, unless it's very small or closely related to another step
+   - If a step is too big, break it down into smaller steps
+3. Run `./init.sh web` (or `./init.sh app` for Tauri) to start dev environment
+4. Implement the feature
+5. **Test with Playwright MCP** (the credentials of accounts in `.credentials.local`)
+6. Make sure project can be built successfully (`pnpm build:web` or `cd apps/app && npm run tauri build`)
+7. Update the feature_list.json - set `passes: true` for completed feature
+8. Update the corresponding claude-progress.txt (append new log for current session, what has done, what does not work, next steps)
+9. **Git commit** - Commit ONLY after testing passes (see "Testing" section below). Never commit untested code.
 
 ### Testing (REQUIRED before commit)
 

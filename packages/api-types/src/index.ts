@@ -199,3 +199,6 @@ export interface PaginatedResponse<T> {
   limit: number;
   total_pages: number;
 }
+
+// Adapter interfaces
+export * from './adapters';
