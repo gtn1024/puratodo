@@ -59,29 +59,59 @@ export const useDataStore = create<DataState>((set, get) => ({
   },
 
   createGroup: async (input) => {
+    // Optimistic: create temp group
+    const tempId = `temp-${Date.now()}`;
+    const optimisticGroup: Group = {
+      id: tempId,
+      name: input.name,
+      color: input.color ?? null,
+      sort_order: input.sort_order ?? 0,
+      created_at: new Date().toISOString(),
+      user_id: "",
+    };
+
+    const previousGroups = [...get().groups];
+    const groups = [...previousGroups, optimisticGroup];
+    groups.sort((a, b) => a.sort_order - b.sort_order);
+    set({ groups, error: null });
+
     try {
       const group = await groupsApi.create(input);
-      const groups = [...get().groups, group];
-      groups.sort((a, b) => a.sort_order - b.sort_order);
-      set({ groups, error: null });
+      // Replace temp group with real one
+      const updatedGroups = get()
+        .groups.map((g) => (g.id === tempId ? group : g))
+        .sort((a, b) => a.sort_order - b.sort_order);
+      set({ groups: updatedGroups, error: null });
       return group;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to create group";
-      set({ error: message });
+      // Rollback: remove temp group
+      set({ groups: previousGroups, error: message });
       throw error;
     }
   },
 
   updateGroup: async (id, input) => {
+    const previousGroups = [...get().groups];
+
+    // Optimistic: update group immediately
+    const optimisticGroups = previousGroups.map((g) =>
+      g.id === id ? { ...g, ...input } : g
+    );
+    optimisticGroups.sort((a, b) => a.sort_order - b.sort_order);
+    set({ groups: optimisticGroups, error: null });
+
     try {
       const updatedGroup = await groupsApi.update(id, input);
-      const groups = get().groups.map((g) => (g.id === id ? updatedGroup : g));
-      groups.sort((a, b) => a.sort_order - b.sort_order);
+      const groups = get()
+        .groups.map((g) => (g.id === id ? updatedGroup : g))
+        .sort((a, b) => a.sort_order - b.sort_order);
       set({ groups, error: null });
       return updatedGroup;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to update group";
-      set({ error: message });
+      // Rollback: restore previous groups
+      set({ groups: previousGroups, error: message });
       throw error;
     }
   },
@@ -135,14 +165,28 @@ export const useDataStore = create<DataState>((set, get) => ({
   },
 
   deleteGroup: async (id) => {
+    // Save previous state for rollback
+    const previousGroups = [...get().groups];
+    const previousLists = [...get().lists];
+    const previousTasks = [...get().tasks];
+
+    // Get IDs of lists to be deleted
+    const listIdsToDelete = previousLists
+      .filter((l) => l.group_id === id)
+      .map((l) => l.id);
+
+    // Optimistic: remove group, associated lists, and tasks
+    const groups = previousGroups.filter((g) => g.id !== id);
+    const lists = previousLists.filter((l) => l.group_id !== id);
+    const tasks = previousTasks.filter((t) => !listIdsToDelete.includes(t.list_id));
+    set({ groups, lists, tasks, error: null });
+
     try {
       await groupsApi.delete(id);
-      const groups = get().groups.filter((g) => g.id !== id);
-      const lists = get().lists.filter((l) => l.group_id !== id);
-      set({ groups, lists, error: null });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to delete group";
-      set({ error: message });
+      // Rollback: restore all deleted items
+      set({ groups: previousGroups, lists: previousLists, tasks: previousTasks, error: message });
       throw error;
     }
   },
@@ -161,43 +205,85 @@ export const useDataStore = create<DataState>((set, get) => ({
   },
 
   createList: async (input) => {
+    // Optimistic: create temp list
+    const tempId = `temp-${Date.now()}`;
+    const optimisticList: List = {
+      id: tempId,
+      name: input.name,
+      group_id: input.group_id,
+      icon: input.icon ?? null,
+      sort_order: input.sort_order ?? 0,
+      created_at: new Date().toISOString(),
+      user_id: "",
+    };
+
+    const previousLists = [...get().lists];
+    const lists = [...previousLists, optimisticList];
+    lists.sort((a, b) => a.sort_order - b.sort_order);
+    set({ lists, error: null });
+
     try {
       const list = await listsApi.create(input);
-      const lists = [...get().lists, list];
-      lists.sort((a, b) => a.sort_order - b.sort_order);
-      set({ lists, error: null });
+      // Replace temp list with real one
+      const updatedLists = get()
+        .lists.map((l) => (l.id === tempId ? list : l))
+        .sort((a, b) => a.sort_order - b.sort_order);
+      set({ lists: updatedLists, error: null });
       return list;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to create list";
-      set({ error: message });
+      // Rollback: remove temp list
+      set({ lists: previousLists, error: message });
       throw error;
     }
   },
 
   updateList: async (id, input) => {
+    const previousLists = [...get().lists];
+
+    // Optimistic: update list immediately
+    const optimisticLists = previousLists.map((l) =>
+      l.id === id ? { ...l, ...input } : l
+    );
+    optimisticLists.sort((a, b) => a.sort_order - b.sort_order);
+    set({ lists: optimisticLists, error: null });
+
     try {
       const updatedList = await listsApi.update(id, input);
-      const lists = get().lists.map((l) => (l.id === id ? updatedList : l));
-      lists.sort((a, b) => a.sort_order - b.sort_order);
+      const lists = get()
+        .lists.map((l) => (l.id === id ? updatedList : l))
+        .sort((a, b) => a.sort_order - b.sort_order);
       set({ lists, error: null });
       return updatedList;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to update list";
-      set({ error: message });
+      // Rollback: restore previous lists
+      set({ lists: previousLists, error: message });
       throw error;
     }
   },
 
   moveList: async (id, group_id) => {
+    const previousLists = [...get().lists];
+
+    // Optimistic: move list to new group immediately
+    const optimisticLists = previousLists.map((l) =>
+      l.id === id ? { ...l, group_id } : l
+    );
+    optimisticLists.sort((a, b) => a.sort_order - b.sort_order);
+    set({ lists: optimisticLists, error: null });
+
     try {
       const updatedList = await listsApi.move(id, group_id);
-      const lists = get().lists.map((l) => (l.id === id ? updatedList : l));
-      lists.sort((a, b) => a.sort_order - b.sort_order);
+      const lists = get()
+        .lists.map((l) => (l.id === id ? updatedList : l))
+        .sort((a, b) => a.sort_order - b.sort_order);
       set({ lists, error: null });
       return updatedList;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to move list";
-      set({ error: message });
+      // Rollback: restore previous lists
+      set({ lists: previousLists, error: message });
       throw error;
     }
   },
@@ -258,13 +344,21 @@ export const useDataStore = create<DataState>((set, get) => ({
   },
 
   deleteList: async (id) => {
+    // Save previous state for rollback
+    const previousLists = [...get().lists];
+    const previousTasks = [...get().tasks];
+
+    // Optimistic: remove list and associated tasks
+    const lists = previousLists.filter((l) => l.id !== id);
+    const tasks = previousTasks.filter((t) => t.list_id !== id);
+    set({ lists, tasks, error: null });
+
     try {
       await listsApi.delete(id);
-      const lists = get().lists.filter((l) => l.id !== id);
-      set({ lists, error: null });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to delete list";
-      set({ error: message });
+      // Rollback: restore list and tasks
+      set({ lists: previousLists, tasks: previousTasks, error: message });
       throw error;
     }
   },
@@ -288,60 +382,99 @@ export const useDataStore = create<DataState>((set, get) => ({
   },
 
   createTask: async (input) => {
+    // Optimistic: create temp task
+    const tempId = `temp-${Date.now()}`;
+    const optimisticTask: Task = {
+      id: tempId,
+      name: input.name,
+      list_id: input.list_id,
+      parent_id: input.parent_id ?? null,
+      completed: input.completed ?? false,
+      starred: input.starred ?? false,
+      due_date: input.due_date ?? null,
+      plan_date: input.plan_date ?? null,
+      comment: input.comment ?? null,
+      duration_minutes: input.duration_minutes ?? null,
+      sort_order: input.sort_order ?? 0,
+      created_at: new Date().toISOString(),
+      user_id: "",
+    };
+
+    const previousTasks = [...get().tasks];
+    const tasks = [...previousTasks, optimisticTask];
+    set({ tasks, error: null });
+
     try {
       const newTask = await tasksApi.create(input);
-      set((state) => ({
-        tasks: [...state.tasks, newTask],
-        error: null,
-      }));
+      // Replace temp task with real one
+      const updatedTasks = get().tasks.map((t) => (t.id === tempId ? newTask : t));
+      set({ tasks: updatedTasks, error: null });
       return newTask;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to create task";
-      set({ error: message });
+      // Rollback: remove temp task
+      set({ tasks: previousTasks, error: message });
       throw error;
     }
   },
 
   updateTask: async (id, input) => {
+    const previousTasks = [...get().tasks];
+
+    // Optimistic: update task immediately
+    const optimisticTasks = previousTasks.map((t) =>
+      t.id === id ? { ...t, ...input } : t
+    );
+    set({ tasks: optimisticTasks, error: null });
+
     try {
       const updatedTask = await tasksApi.update(id, input);
-      set((state) => ({
-        tasks: state.tasks.map((t) => (t.id === id ? updatedTask : t)),
-        error: null,
-      }));
+      const tasks = get().tasks.map((t) => (t.id === id ? updatedTask : t));
+      set({ tasks, error: null });
       return updatedTask;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to update task";
-      set({ error: message });
+      // Rollback: restore previous tasks
+      set({ tasks: previousTasks, error: message });
       throw error;
     }
   },
 
   deleteTask: async (id) => {
+    const previousTasks = [...get().tasks];
+
+    // Optimistic: remove task immediately
+    const tasks = previousTasks.filter((t) => t.id !== id);
+    set({ tasks, error: null });
+
     try {
       await tasksApi.delete(id);
-      set((state) => ({
-        tasks: state.tasks.filter((t) => t.id !== id),
-        error: null,
-      }));
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to delete task";
-      set({ error: message });
+      // Rollback: restore previous tasks
+      set({ tasks: previousTasks, error: message });
       throw error;
     }
   },
 
   moveTask: async (id, list_id) => {
+    const previousTasks = [...get().tasks];
+
+    // Optimistic: move task to new list immediately
+    const optimisticTasks = previousTasks.map((t) =>
+      t.id === id ? { ...t, list_id } : t
+    );
+    set({ tasks: optimisticTasks, error: null });
+
     try {
       const updatedTask = await tasksApi.update(id, { list_id });
-      set((state) => ({
-        tasks: state.tasks.map((t) => (t.id === id ? updatedTask : t)),
-        error: null,
-      }));
+      const tasks = get().tasks.map((t) => (t.id === id ? updatedTask : t));
+      set({ tasks, error: null });
       return updatedTask;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to move task";
-      set({ error: message });
+      // Rollback: restore previous tasks
+      set({ tasks: previousTasks, error: message });
       throw error;
     }
   },
