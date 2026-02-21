@@ -1,5 +1,59 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 7: Add Subtask Feature
+**Date:** 2026-02-21
+
+### What was done
+Added "Add Subtask" functionality to the Tauri app to match the web app's feature:
+
+1. **Added state management (DashboardPage.tsx):**
+   - `addingSubtaskTo` - tracks which task is being added a subtask to
+   - `newSubtaskName` - holds the new subtask name input
+
+2. **Added handler functions:**
+   - `startAddSubtask(taskId)` - opens inline input and expands parent task
+   - `handleAddSubtask(parentId)` - creates subtask with parent_id via API
+   - `cancelAddSubtask()` - cancels the subtask input
+
+3. **Modified task context menu:**
+   - Added "Add Subtask" option between "Edit" and "Delete"
+   - Uses Plus icon from lucide-react
+
+4. **Added inline subtask input UI:**
+   - Shows below the task when adding subtask
+   - Indented appropriately based on task depth
+   - Has Circle icon, input field, confirm button, cancel button
+   - Supports Enter to confirm, Escape to cancel
+
+5. **Added Circle icon import** from lucide-react
+
+### Key Changes
+- Right-click on task shows "Add Subtask" option
+- Clicking "Add Subtask" shows inline input below the task
+- Parent task auto-expands when adding subtask
+- Subtask is created via `createTask({ list_id, name, parent_id })`
+
+### Features Updated
+- id 44: User can create a subtask under a task (needs manual testing)
+
+### Build Status
+- apps/app: Builds successfully (vite build)
+
+### Verification Steps
+1. Run `cd apps/app && npm run tauri dev`
+2. Login to the app
+3. Select a list with tasks
+4. Right-click a task → should see "Add Subtask" option
+5. Click "Add Subtask" → should see inline input
+6. Enter subtask name, press Enter → subtask should be created
+7. Parent task should auto-expand showing the new subtask
+
+### Next Steps
+- Manual testing of add subtask feature in Tauri app
+- Test unlimited subtask nesting (feature #45)
+
+---
+
 ## Session 6: @dnd-kit Drag-and-Drop Unification
 **Date:** 2026-02-21
 

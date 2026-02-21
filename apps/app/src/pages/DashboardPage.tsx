@@ -19,6 +19,7 @@ import {
   Moon,
   Sun,
   Menu,
+  Circle,
 } from "lucide-react";
 import {
   Button,
@@ -148,6 +149,10 @@ export function DashboardPage() {
   // Edit task state
   const [editingTaskId, setEditingTaskId] = React.useState<string | null>(null);
   const [editingTaskName, setEditingTaskName] = React.useState("");
+
+  // Add subtask state
+  const [addingSubtaskTo, setAddingSubtaskTo] = React.useState<string | null>(null);
+  const [newSubtaskName, setNewSubtaskName] = React.useState("");
 
   // Context menu state for tasks
   const [taskContextMenu, setTaskContextMenu] = React.useState<{
@@ -410,6 +415,42 @@ export function DashboardPage() {
   const cancelEditTask = () => {
     setEditingTaskId(null);
     setEditingTaskName("");
+  };
+
+  // Start adding subtask to a task
+  const startAddSubtask = (taskId: string) => {
+    setAddingSubtaskTo(taskId);
+    setNewSubtaskName("");
+    // Expand parent task
+    if (!expandedTasks.has(taskId)) {
+      setExpandedTasks(new Set(expandedTasks).add(taskId));
+    }
+    setTaskContextMenu(null);
+  };
+
+  // Handle adding subtask
+  const handleAddSubtask = async (parentId: string) => {
+    if (!newSubtaskName.trim()) return;
+    const parentTask = tasks.find((t) => t.id === parentId);
+    if (!parentTask) return;
+
+    try {
+      await createTask({
+        list_id: parentTask.list_id,
+        name: newSubtaskName.trim(),
+        parent_id: parentId,
+      });
+      setNewSubtaskName("");
+      setAddingSubtaskTo(null);
+    } catch (err) {
+      console.error("Failed to create subtask:", err);
+    }
+  };
+
+  // Cancel adding subtask
+  const cancelAddSubtask = () => {
+    setNewSubtaskName("");
+    setAddingSubtaskTo(null);
   };
 
   // Handle delete task
@@ -985,6 +1026,40 @@ export function DashboardPage() {
               </div>
             </SortableContext>
           </DndContext>
+        )}
+        {/* Inline subtask input */}
+        {addingSubtaskTo === task.id && (
+          <div
+            className="flex items-center gap-3 px-4 py-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800"
+            style={{ marginLeft: indentPadding + 24 }}
+          >
+            <Circle className="w-5 h-5 text-stone-300 dark:text-stone-600" />
+            <input
+              type="text"
+              value={newSubtaskName}
+              onChange={(e) => setNewSubtaskName(e.target.value)}
+              placeholder="Subtask name..."
+              className="flex-1 bg-transparent border-none outline-none text-stone-800 dark:text-stone-100 placeholder-stone-400 text-sm"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleAddSubtask(task.id);
+                if (e.key === "Escape") cancelAddSubtask();
+              }}
+            />
+            <button
+              onClick={() => handleAddSubtask(task.id)}
+              disabled={!newSubtaskName.trim()}
+              className="p-1.5 rounded-lg bg-stone-900 dark:bg-stone-700 text-white dark:text-stone-100 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-800 dark:hover:bg-stone-600"
+            >
+              <Check className="w-4 h-4" />
+            </button>
+            <button
+              onClick={cancelAddSubtask}
+              className="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-700"
+            >
+              <X className="w-4 h-4 text-stone-500" />
+            </button>
+          </div>
         )}
       </div>
     );
@@ -1877,6 +1952,13 @@ export function DashboardPage() {
           >
             <Pencil className="w-4 h-4" />
             <span>Edit</span>
+          </button>
+          <button
+            onClick={() => startAddSubtask(taskContextMenu.taskId)}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Subtask</span>
           </button>
           <button
             onClick={() => handleDeleteTask(taskContextMenu.taskId)}

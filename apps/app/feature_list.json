@@ -539,7 +539,7 @@
         "Enter subtask name",
         "Verify subtask appears under parent"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 45,
