@@ -18,3 +18,16 @@ export type {
   RecurrenceUpdateScope,
   RecurrenceEditorValue,
 } from "./TaskDetailForm";
+
+export {
+  TaskFilters,
+  filterTasksByFilterValue,
+  hasActiveFilterValues,
+} from "./TaskFilters";
+export type {
+  TaskFiltersValue,
+  TaskFiltersProps,
+  StatusFilter,
+  StarFilter,
+  DateFilter,
+} from "./TaskFilters";

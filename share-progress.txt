@@ -86,12 +86,35 @@ Date: 2026-02-21
     - Clear button appears when date is selected
     - Save and Cancel buttons functional
     - Form state management works correctly
+- Feature #7: Extracted TaskFilters component to shared package
+  - Analyzed TaskFilters implementation in apps/web/src/components/dashboard/task-panel.tsx
+  - Created packages/task-ui/src/components/TaskFilters.tsx with dropdown menu UI
+  - Defined StatusFilter, StarFilter, DateFilter types for filter values
+  - Created TaskFiltersValue interface for filter state
+  - Created TaskFiltersProps interface with value, onChange, and labels props
+  - Implemented filter dropdown with Status, Star, and Date filter sections
+  - Added helper functions: filterTasksByFilterValue, hasActiveFilterValues
+  - Filter dropdown shows active filter count badge when filters are applied
+  - Clear filters option appears when any filter is active
+  - Used translation labels object for i18n flexibility
+  - Imported UI components from @puratodo/ui (Button, DropdownMenu)
+  - Exported TaskFilters component and all types from task-ui package
+  - Verified package builds successfully with `pnpm --filter @puratodo/task-ui build`
+  - Verified entire monorepo builds successfully with `pnpm build`
+  - Tested web app functionality:
+    - Filter dropdown renders correctly in task panel header
+    - All filter categories display: Status, Star, Date
+    - Filter options work correctly (Incomplete, Starred, etc.)
+    - Active filter count badge shows on Filter button
+    - Multiple filters can be applied simultaneously
+    - Clear filters button resets all filters
+    - Task list updates correctly based on active filters
 
 ### In Progress
 - N/A
 
 ### Next Steps
-- Feature #7: Extract TaskFilters component to shared package
+- Feature #8: Extract TaskBulkActions component to shared package
 
 ---
 
