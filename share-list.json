@@ -38,7 +38,7 @@
         "Export useTaskAdapter hook",
         "Test context works in both web and app"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 4,

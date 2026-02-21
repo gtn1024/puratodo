@@ -1,3 +1,8 @@
 // Contexts barrel export
-// Will contain TaskAdapter context and provider
-export {};
+export {
+  AdapterProvider,
+  useTaskAdapter,
+  useListAdapter,
+  useGroupAdapter,
+  useAdapters,
+} from './TaskAdapterContext';
