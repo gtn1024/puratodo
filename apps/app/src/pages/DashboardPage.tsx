@@ -459,6 +459,7 @@ export function DashboardPage() {
     const parentTask = tasks.find((t) => t.id === parentId);
     if (!parentTask) return;
 
+    setIsCreatingTask(true);
     try {
       await createTask({
         list_id: parentTask.list_id,
@@ -469,6 +470,8 @@ export function DashboardPage() {
       setAddingSubtaskTo(null);
     } catch (err) {
       console.error("Failed to create subtask:", err);
+    } finally {
+      setIsCreatingTask(false);
     }
   };
 
@@ -1709,6 +1712,47 @@ export function DashboardPage() {
                     <span>Add a task</span>
                   </button>
                 )}
+              </div>
+            )}
+
+            {/* Add Subtask Input - appears when user clicks "Add Subtask" */}
+            {addingSubtaskTo && (
+              <div className="flex items-center gap-2 px-4 py-3 mb-4 ml-6 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800">
+                <div className="w-5 h-5 rounded-full border border-stone-300 dark:border-stone-600" />
+                <input
+                  type="text"
+                  value={newSubtaskName}
+                  onChange={(e) => setNewSubtaskName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddSubtask(addingSubtaskTo);
+                    } else if (e.key === "Escape") {
+                      setNewSubtaskName("");
+                      setAddingSubtaskTo(null);
+                    }
+                  }}
+                  placeholder="Subtask name..."
+                  className="flex-1 bg-transparent outline-none text-stone-900 dark:text-stone-100 placeholder:text-stone-400"
+                  autoFocus
+                  disabled={isCreatingTask}
+                />
+                <button
+                  onClick={() => handleAddSubtask(addingSubtaskTo)}
+                  disabled={isCreatingTask || !newSubtaskName.trim()}
+                  className="px-3 py-1.5 text-sm font-medium rounded-lg bg-stone-900 dark:bg-stone-700 text-white hover:bg-stone-800 dark:hover:bg-stone-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Add
+                </button>
+                <button
+                  onClick={() => {
+                    setNewSubtaskName("");
+                    setAddingSubtaskTo(null);
+                  }}
+                  className="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-700"
+                >
+                  <X className="w-4 h-4 text-stone-500" />
+                </button>
               </div>
             )}
 
