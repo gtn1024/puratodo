@@ -110,7 +110,8 @@ This project follows a "long-running agent" methodology with daily progress logg
 7. Update `share-list.json` - set `passes: true` for completed feature
 8. Update `share-progress.txt` - document what was completed
 9. **Git commit** - Commit ONLY after testing passes. Never commit untested code.
-10. **EXIT** - The loop will continue in the next iteration
+10. Output `<promise>DONE</promise>` to signal completion
+11. **EXIT** - The loop will continue in the next iteration
 
 ### For App-Specific Tasks (feature_list.json)
 
@@ -125,6 +126,7 @@ This project follows a "long-running agent" methodology with daily progress logg
 7. Update the feature_list.json - set `passes: true` for completed feature
 8. Update the corresponding claude-progress.txt (append new log for current session, what has done, what does not work, next steps)
 9. **Git commit** - Commit ONLY after testing passes (see "Testing" section below). Never commit untested code.
+10. Output `<promise>DONE</promise>` to signal completion
 
 ### Testing (REQUIRED before commit)
 
