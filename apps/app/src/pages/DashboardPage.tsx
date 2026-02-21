@@ -53,6 +53,25 @@ import { useDataStore } from "@/stores/dataStore";
 import type { List as ListType } from "@/lib/api/lists";
 import type { Group } from "@/lib/api/groups";
 import type { Task } from "@/lib/api/tasks";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragStartEvent,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  useSortable,
+  SortableContext,
+  verticalListSortingStrategy,
+  sortableKeyboardCoordinates,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import type { UniqueIdentifier } from "@dnd-kit/core";
 
 // Color options for groups
 const GROUP_COLORS = [
