@@ -249,11 +249,40 @@ Date: 2026-02-21
 - N/A
 
 ### Next Steps
-- Feature #15.4: Replace TaskItem and TaskList with shared components in web app
+- Feature #15.5: Final testing and verification for web app integration
 
 ---
 
 ## Progress Log
+
+### 2026-02-21 (Session 5)
+- Feature #15.4: Replaced TaskItem and TaskList with shared components in web app
+  - Imported TaskList, TaskContextMeta, InboxMoveTarget from @puratodo/task-ui
+  - Removed inline TaskItem function definition (~250 lines)
+  - Removed inline type definitions (TaskContextMeta, InboxMoveTarget, TaskItemProps)
+  - Removed inline constants (ROOT_SORTABLE_ID, SUBTASK_SORTABLE_PREFIX)
+  - Removed inline helper functions (getParentIdFromContainerId, reorderSiblingTasks)
+  - Removed inline sensors setup and handleDragEnd function
+  - Removed inline renderSubtasks callback
+  - Removed unused imports (Checkbox, GripVertical, ChevronRight, ChevronDown, DnD imports, arrayMove)
+  - Added handleReorder callback to bridge shared TaskList to existing reorderTasks server action
+  - Replaced entire task list rendering with shared TaskList component
+  - Single TaskList component handles both smart view and normal list modes
+  - Fixed type mismatch: changed listIcon from `candidate.icon` to `candidate.icon ?? undefined`
+  - Web app builds successfully with `pnpm --filter @puratodo/web build`
+  - Tested task operations with agent-browser:
+    - Login flow works correctly with test credentials
+    - Navigated to Inbox view with existing tasks
+    - Created new task "Test task from shared component" successfully
+    - Toggle completion (checkbox) works - task shows as checked
+    - Toggle star works - task appears in Starred smart view
+    - Task detail panel opens when clicking task name
+    - All form fields present in detail panel (name, dates, duration, recurrence, comment)
+    - Multi-select mode works - "Select" button enters selection mode
+    - Selection checkboxes appear for each task
+    - "N selected" counter shows in header
+    - All task operations work without errors
+  - Reduced code duplication by ~400+ lines in task-panel.tsx
 
 ### 2026-02-21 (Session 4)
 - Feature #15.3: Replaced TaskDetailSheet with TaskDetailForm in web app

@@ -242,7 +242,7 @@
         "Test multi-select mode",
         "Run pnpm build to verify compilation"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 15.5,

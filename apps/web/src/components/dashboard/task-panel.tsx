@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, forwardRef, useImperativeHandle, useRef } from "react";
 import { useI18n } from "@/i18n";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar } from "@/components/ui/calendar";
 import {
   DropdownMenu,
@@ -40,9 +39,6 @@ import {
   Circle,
   CheckCircle,
   Star,
-  GripVertical,
-  ChevronRight,
-  ChevronDown,
   Filter,
   CheckSquare,
   Square,
@@ -54,27 +50,12 @@ import { TaskPanelSkeleton } from "./skeletons";
 import type { List } from "@/actions/lists";
 import { useRealtime } from "@/hooks/use-realtime";
 import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-  pointerWithin,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import {
   TaskFilters as SharedTaskFilters,
   TaskBulkActions,
+  TaskList,
   type TaskFiltersValue,
+  type TaskContextMeta,
+  type InboxMoveTarget,
 } from "@puratodo/task-ui";
 
 // Local filter types for internal use (maps to shared types)
@@ -95,279 +76,10 @@ type GroupOption = {
 
 type SmartViewType = "starred" | "overdue" | "next7days" | "nodate";
 
-type TaskContextMeta = {
-  listName: string;
-  listIcon: string;
-  groupName: string;
-  groupColor: string;
-};
-
 function toLocalDateString(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
     date.getDate()
   ).padStart(2, "0")}`;
-}
-
-interface InboxMoveTarget {
-  listId: string;
-  listName: string;
-  listIcon: string | null;
-  groupName: string;
-}
-
-interface TaskItemProps {
-  task: Task;
-  level: number;
-  expandedTasks: Set<string>;
-  onToggleExpand: (taskId: string) => void;
-  onToggleComplete: (task: Task) => void;
-  onToggleStar: (task: Task) => void;
-  onEdit: (task: Task) => void;
-  onDelete: (task: Task) => void;
-  onAddSubtask: (task: Task) => void;
-  onOpenDetail: (task: Task) => void;
-  editingTaskId: string | null;
-  editName: string;
-  onEditNameChange: (name: string) => void;
-  onSaveEdit: () => void;
-  onCancelEdit: () => void;
-  canMoveFromInbox?: boolean;
-  moveTargets?: InboxMoveTarget[];
-  onMoveToList?: (task: Task, targetListId: string) => void;
-  disableSorting?: boolean;
-  allowSubtaskActions?: boolean;
-  contextMeta?: TaskContextMeta;
-  renderSubtasks: (task: Task, level: number) => React.ReactNode;
-  // Multi-select props
-  isSelectionMode?: boolean;
-  isSelected?: boolean;
-  onToggleSelect?: (taskId: string) => void;
-}
-
-function TaskItem({
-  task,
-  level,
-  expandedTasks,
-  onToggleExpand,
-  onToggleComplete,
-  onToggleStar,
-  onEdit,
-  onDelete,
-  onAddSubtask,
-  onOpenDetail,
-  editingTaskId,
-  editName,
-  onEditNameChange,
-  onSaveEdit,
-  onCancelEdit,
-  canMoveFromInbox,
-  moveTargets,
-  onMoveToList,
-  disableSorting,
-  allowSubtaskActions,
-  contextMeta,
-  renderSubtasks,
-  isSelectionMode,
-  isSelected,
-  onToggleSelect,
-}: TaskItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: task.id, disabled: disableSorting });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  const isEditing = editingTaskId === task.id;
-  const hasSubtasks = task.subtasks && task.subtasks.length > 0;
-  const isExpanded = expandedTasks.has(task.id);
-  const showInboxMoveMenu =
-    Boolean(canMoveFromInbox && level === 0 && onMoveToList) &&
-    (moveTargets?.length || 0) > 0;
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      onSaveEdit();
-    } else if (e.key === "Escape") {
-      onCancelEdit();
-    }
-  };
-
-  const paddingLeft = level * 24;
-
-  return (
-    <>
-      <li
-        ref={setNodeRef}
-        style={style}
-        className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors group"
-      >
-        {/* Expand/Collapse Button */}
-        <button
-          onClick={() => onToggleExpand(task.id)}
-          className={`w-4 h-4 flex items-center justify-center ${
-            hasSubtasks ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          {hasSubtasks &&
-            (isExpanded ? (
-              <ChevronDown className="h-4 w-4 text-stone-500" />
-            ) : (
-              <ChevronRight className="h-4 w-4 text-stone-500" />
-            ))}
-        </button>
-
-        {/* Drag Handle */}
-        {disableSorting ? (
-          <span
-            style={{ marginLeft: paddingLeft }}
-            className="w-4 h-4"
-            aria-hidden
-          />
-        ) : (
-          <button
-            {...attributes}
-            {...listeners}
-            style={{ marginLeft: paddingLeft }}
-            className="cursor-grab active:cursor-grabbing text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <GripVertical className="h-4 w-4" />
-          </button>
-        )}
-
-        {/* Selection Checkbox (shown in selection mode) */}
-        {isSelectionMode && (
-          <button
-            onClick={() => onToggleSelect?.(task.id)}
-            className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
-          >
-            {isSelected ? (
-              <CheckSquare className="h-4 w-4 text-blue-500" />
-            ) : (
-              <Square className="h-4 w-4" />
-            )}
-          </button>
-        )}
-
-        {/* Checkbox */}
-        <Checkbox
-          checked={task.completed}
-          onCheckedChange={() => onToggleComplete(task)}
-          className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
-        />
-
-        {/* Task Name or Edit Input */}
-        {isEditing ? (
-          <input
-            type="text"
-            value={editName}
-            onChange={(e) => onEditNameChange(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="flex-1 bg-transparent outline-none border-b border-stone-300 dark:border-stone-600 text-stone-900 dark:text-stone-100"
-            autoFocus
-          />
-        ) : (
-          <span
-            onClick={() => onOpenDetail(task)}
-            className={`flex-1 cursor-pointer hover:underline ${
-              task.completed
-                ? "text-stone-400 dark:text-stone-500 line-through"
-                : "text-stone-900 dark:text-stone-100"
-            }`}
-          >
-            {task.name}
-          </span>
-        )}
-
-        {contextMeta && level === 0 && (
-          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300">
-            <span>{contextMeta.listIcon || "📋"}</span>
-            <span className="max-w-[10rem] truncate">{contextMeta.listName}</span>
-            <span
-              className="w-1.5 h-1.5 rounded-full"
-              style={{ backgroundColor: contextMeta.groupColor || "#6b7280" }}
-            />
-            <span className="max-w-[7rem] truncate">{contextMeta.groupName}</span>
-          </span>
-        )}
-
-        {/* Star Button */}
-        <button
-          onClick={() => onToggleStar(task)}
-          className={`opacity-0 group-hover:opacity-100 transition-opacity ${
-            task.starred
-              ? "opacity-100 text-yellow-500"
-              : "text-stone-400 hover:text-yellow-500"
-          }`}
-        >
-          <Star
-            className={`h-4 w-4 ${task.starred ? "fill-yellow-500" : ""}`}
-          />
-        </button>
-
-        {/* Menu */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              className="h-7 w-7 opacity-0 group-hover:opacity-100"
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-36">
-            <DropdownMenuItem onClick={() => onEdit(task)}>
-              Edit
-            </DropdownMenuItem>
-            {allowSubtaskActions !== false && (
-              <DropdownMenuItem onClick={() => onAddSubtask(task)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Subtask
-              </DropdownMenuItem>
-            )}
-            {showInboxMoveMenu && (
-              <>
-                <DropdownMenuItem disabled className="text-xs text-stone-500">
-                  Move to...
-                </DropdownMenuItem>
-                {moveTargets?.map((target) => (
-                  <DropdownMenuItem
-                    key={target.listId}
-                    onClick={() => onMoveToList?.(task, target.listId)}
-                    className="flex items-center gap-2"
-                  >
-                    <span>{target.listIcon || "📋"}</span>
-                    <span className="truncate">{target.listName}</span>
-                    <span className="ml-auto text-[10px] text-stone-400 truncate">
-                      {target.groupName}
-                    </span>
-                  </DropdownMenuItem>
-                ))}
-              </>
-            )}
-            <DropdownMenuItem
-              onClick={() => onDelete(task)}
-              className="text-red-600 dark:text-red-400"
-            >
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </li>
-
-      {/* Subtasks */}
-      {isExpanded && hasSubtasks && renderSubtasks(task, level)}
-    </>
-  );
 }
 
 interface TaskPanelProps {
@@ -382,83 +94,6 @@ interface TaskPanelProps {
 
 export interface TaskPanelRef {
   triggerCreateTask: () => void;
-}
-
-const ROOT_SORTABLE_ID = "root-tasks";
-const SUBTASK_SORTABLE_PREFIX = "subtasks-";
-
-function getParentIdFromContainerId(containerId: string): string | null {
-  if (containerId === ROOT_SORTABLE_ID) {
-    return null;
-  }
-
-  if (containerId.startsWith(SUBTASK_SORTABLE_PREFIX)) {
-    return containerId.slice(SUBTASK_SORTABLE_PREFIX.length) || null;
-  }
-
-  return null;
-}
-
-function reorderSiblingTasks(
-  taskList: Task[],
-  parentId: string | null,
-  activeId: string,
-  overId: string
-): { nextTasks: Task[]; orderedIds: string[] } {
-  if (parentId === null) {
-    const oldIndex = taskList.findIndex((task) => task.id === activeId);
-    const newIndex = taskList.findIndex((task) => task.id === overId);
-
-    if (oldIndex === -1 || newIndex === -1) {
-      return { nextTasks: taskList, orderedIds: [] };
-    }
-
-    const nextTasks = arrayMove(taskList, oldIndex, newIndex);
-    return { nextTasks, orderedIds: nextTasks.map((task) => task.id) };
-  }
-
-  const reorderInNestedTasks = (
-    tasks: Task[]
-  ): { nextTasks: Task[]; orderedIds: string[]; changed: boolean } => {
-    let orderedIds: string[] = [];
-    let changed = false;
-
-    const nextTasks = tasks.map((task) => {
-      if (task.id === parentId) {
-        const subtasks = task.subtasks || [];
-        const oldIndex = subtasks.findIndex((subtask) => subtask.id === activeId);
-        const newIndex = subtasks.findIndex((subtask) => subtask.id === overId);
-
-        if (oldIndex === -1 || newIndex === -1) {
-          return task;
-        }
-
-        const reorderedSubtasks = arrayMove(subtasks, oldIndex, newIndex);
-        orderedIds = reorderedSubtasks.map((subtask) => subtask.id);
-        changed = true;
-        return { ...task, subtasks: reorderedSubtasks };
-      }
-
-      if (task.subtasks && task.subtasks.length > 0) {
-        const nested = reorderInNestedTasks(task.subtasks);
-        if (nested.changed) {
-          orderedIds = nested.orderedIds;
-          changed = true;
-          return { ...task, subtasks: nested.nextTasks };
-        }
-      }
-
-      return task;
-    });
-
-    return { nextTasks, orderedIds, changed };
-  };
-
-  const reordered = reorderInNestedTasks(taskList);
-  return {
-    nextTasks: reordered.changed ? reordered.nextTasks : taskList,
-    orderedIds: reordered.orderedIds,
-  };
 }
 
 export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
@@ -575,15 +210,6 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
       }, 50);
     },
   }), [canCreateTasks]);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 5 },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
 
   useEffect(() => {
     async function loadTasks() {
@@ -817,45 +443,10 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
     });
   };
 
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id || !list) return;
-
-    const activeContainerId = String(active.data.current?.sortable.containerId || "");
-    const overContainerId = String(over.data.current?.sortable.containerId || "");
-
-    if (
-      !activeContainerId ||
-      !overContainerId ||
-      activeContainerId !== overContainerId
-    ) {
-      return;
-    }
-
-    if (
-      activeContainerId !== ROOT_SORTABLE_ID &&
-      !activeContainerId.startsWith(SUBTASK_SORTABLE_PREFIX)
-    ) {
-      return;
-    }
-
-    const parentId = getParentIdFromContainerId(activeContainerId);
-    const activeId = String(active.id);
-    const overId = String(over.id);
-
-    const { nextTasks, orderedIds } = reorderSiblingTasks(
-      tasks,
-      parentId,
-      activeId,
-      overId
-    );
-
-    if (orderedIds.length === 0) {
-      return;
-    }
-
-    setTasks(nextTasks);
-    await reorderTasks(list.id, orderedIds, parentId ?? undefined);
+  // Handle task reordering from TaskList component
+  const handleReorder = async (listId: string, orderedIds: string[], parentId?: string) => {
+    await reorderTasks(listId, orderedIds, parentId);
+    await reloadTasks();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -932,7 +523,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
           .map((candidate) => ({
             listId: candidate.id,
             listName: candidate.name,
-            listIcon: candidate.icon,
+            listIcon: candidate.icon ?? undefined,
             groupName: groupNameById.get(candidate.group_id) || "Unknown Group",
           }))
           .sort(
@@ -1120,64 +711,6 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
     }
     setIsLoading(false);
   };
-
-  const renderSubtasks = useCallback(
-    (task: Task, level: number): React.ReactNode => {
-      if (!task.subtasks || task.subtasks.length === 0) return null;
-
-      return (
-        <SortableContext
-          id={`${SUBTASK_SORTABLE_PREFIX}${task.id}`}
-          items={task.subtasks.map((subtask) => subtask.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          {task.subtasks.map((subtask) => (
-            <TaskItem
-              key={subtask.id}
-              task={subtask}
-              level={level + 1}
-              expandedTasks={expandedTasks}
-              onToggleExpand={handleToggleExpand}
-              onToggleComplete={handleToggleComplete}
-              onToggleStar={handleToggleStar}
-              onEdit={handleEdit}
-              onDelete={openDeleteDialog}
-              onAddSubtask={startAddSubtask}
-              onOpenDetail={handleOpenDetail}
-              editingTaskId={editingTaskId}
-              editName={editName}
-              onEditNameChange={setEditName}
-              onSaveEdit={handleSaveEdit}
-              onCancelEdit={handleCancelEdit}
-              canMoveFromInbox={false}
-              moveTargets={inboxMoveTargets}
-              onMoveToList={handleMoveToList}
-              disableSorting={isSmartViewMode}
-              isSelectionMode={isSelectionMode}
-              isSelected={selectedTaskIds.has(subtask.id)}
-              onToggleSelect={handleToggleSelect}
-              allowSubtaskActions={!isSmartViewMode}
-              renderSubtasks={renderSubtasks}
-            />
-          ))}
-        </SortableContext>
-      );
-    },
-    [
-      expandedTasks,
-      editingTaskId,
-      editName,
-      handleToggleExpand,
-      handleToggleComplete,
-      handleToggleStar,
-      handleEdit,
-      openDeleteDialog,
-      handleOpenDetail,
-      handleSaveEdit,
-      handleCancelEdit,
-      isSmartViewMode,
-    ]
-  );
 
   if (!list && !smartView) {
     return (
@@ -1451,98 +984,33 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
             </Button>
           </div>
         ) : (
-          isSmartViewMode ? (
-            <ul className="space-y-1">
-              {filteredTasks.map((task) => (
-                <TaskItem
-                  key={task.id}
-                  task={task}
-                  level={0}
-                  expandedTasks={expandedTasks}
-                  onToggleExpand={handleToggleExpand}
-                  onToggleComplete={handleToggleComplete}
-                  onToggleStar={handleToggleStar}
-                  onEdit={handleEdit}
-                  onDelete={openDeleteDialog}
-                  onAddSubtask={startAddSubtask}
-                  onOpenDetail={handleOpenDetail}
-                  editingTaskId={editingTaskId}
-                  editName={editName}
-                  onEditNameChange={setEditName}
-                  onSaveEdit={handleSaveEdit}
-                  onCancelEdit={handleCancelEdit}
-                  canMoveFromInbox={false}
-                  moveTargets={[]}
-                  onMoveToList={undefined}
-                  disableSorting
-                  allowSubtaskActions={false}
-                  contextMeta={taskContextById.get(task.id)}
-                  renderSubtasks={renderSubtasks}
-                  isSelectionMode={isSelectionMode}
-                  isSelected={selectedTaskIds.has(task.id)}
-                  onToggleSelect={handleToggleSelect}
-                />
-              ))}
-            </ul>
-          ) : (
-            <DndContext
-              sensors={sensors}
-              collisionDetection={({ droppableContainers, ...args }) => {
-                // First try pointer within, then fall back to closest center
-                const pointerCollisions = pointerWithin({
-                  droppableContainers,
-                  ...args,
-                });
-                if (pointerCollisions.length > 0) {
-                  return pointerCollisions;
-                }
-                return closestCenter({
-                  droppableContainers,
-                  ...args,
-                });
-              }}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                id={ROOT_SORTABLE_ID}
-                items={filteredTasks.map((t) => t.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                <ul className="space-y-1">
-                  {filteredTasks.map((task) => (
-                    <TaskItem
-                      key={task.id}
-                      task={task}
-                      level={0}
-                      expandedTasks={expandedTasks}
-                      onToggleExpand={handleToggleExpand}
-                      onToggleComplete={handleToggleComplete}
-                      onToggleStar={handleToggleStar}
-                      onEdit={handleEdit}
-                      onDelete={openDeleteDialog}
-                      onAddSubtask={startAddSubtask}
-                      onOpenDetail={handleOpenDetail}
-                      editingTaskId={editingTaskId}
-                      editName={editName}
-                      onEditNameChange={setEditName}
-                      onSaveEdit={handleSaveEdit}
-                      onCancelEdit={handleCancelEdit}
-                      canMoveFromInbox={isInboxMode}
-                      moveTargets={inboxMoveTargets}
-                      onMoveToList={handleMoveToList}
-                      disableSorting={false}
-                      allowSubtaskActions
-                      contextMeta={undefined}
-                      renderSubtasks={renderSubtasks}
-                      isSelectionMode={isSelectionMode}
-                      isSelected={selectedTaskIds.has(task.id)}
-                      onToggleSelect={handleToggleSelect}
-                    />
-                  ))}
-                </ul>
-              </SortableContext>
-            </DndContext>
-          )
+          <TaskList
+            tasks={filteredTasks}
+            expandedTasks={expandedTasks}
+            onToggleExpand={handleToggleExpand}
+            onToggleComplete={handleToggleComplete}
+            onToggleStar={handleToggleStar}
+            onEdit={handleEdit}
+            onDelete={openDeleteDialog}
+            onAddSubtask={startAddSubtask}
+            onOpenDetail={handleOpenDetail}
+            editingTaskId={editingTaskId}
+            editName={editName}
+            onEditNameChange={setEditName}
+            onSaveEdit={handleSaveEdit}
+            onCancelEdit={handleCancelEdit}
+            canMoveFromInbox={isInboxMode}
+            moveTargets={inboxMoveTargets}
+            onMoveToList={handleMoveToList}
+            disableSorting={isSmartViewMode}
+            allowSubtaskActions={!isSmartViewMode}
+            contextMeta={taskContextById}
+            onReorder={handleReorder}
+            listId={list?.id || ""}
+            isSelectionMode={isSelectionMode}
+            selectedTaskIds={selectedTaskIds}
+            onToggleSelect={handleToggleSelect}
+          />
         )}
       </div>
 
