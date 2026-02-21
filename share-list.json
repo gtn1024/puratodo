@@ -368,7 +368,7 @@
         "Add unit tests for TaskFilters",
         "Ensure test coverage is adequate"
       ],
-      "passes": false
+      "passes": true
     }
   ]
 }
