@@ -468,6 +468,10 @@ export function DashboardPage() {
       });
       setNewSubtaskName("");
       setAddingSubtaskTo(null);
+      // Expand parent task to show new subtask
+      if (!expandedTasks.has(parentId)) {
+        setExpandedTasks(new Set(expandedTasks).add(parentId));
+      }
     } catch (err) {
       console.error("Failed to create subtask:", err);
     } finally {
