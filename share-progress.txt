@@ -363,3 +363,29 @@ Date: 2026-02-21
   - Note: Feature #15 was split into 5 subtasks (15.1-15.5) for safer incremental progress
 
 ### 2026-02-21 (Session 1)
+
+---
+
+## Progress Log
+
+### 2026-02-21 (Session 7)
+- Feature #16: Implemented RestTaskAdapter in Tauri app
+  - Created apps/app/src/adapters/ directory for adapter implementations
+  - Created RestTaskAdapter.ts implementing TaskAdapter interface
+  - Created RestListAdapter.ts implementing ListAdapter interface
+  - Created RestGroupAdapter.ts implementing GroupAdapter interface
+  - Created RestAdapterProvider.tsx to provide adapters via React Context
+  - Added @puratodo/task-ui dependency to apps/app/package.json
+  - Integrated RestAdapterProvider in apps/app/src/App.tsx
+  - All adapters use plain objects with REST API client methods
+  - REST API client already exists in apps/app/src/lib/api/ (tasks.ts, lists.ts, groups.ts)
+  - Bulk operations implemented using Promise.all for multiple individual API calls
+  - Verified monorepo builds successfully with `pnpm build`
+  - Verified Tauri app builds successfully with `pnpm --filter @puratodo/app build`
+  - Note: Adapters are wired up in the provider but not yet used by components (planned for Feature #17)
+
+### In Progress
+- N/A
+
+### Next Steps
+- Feature #17.1: Replace TaskFilters with shared component in Tauri app

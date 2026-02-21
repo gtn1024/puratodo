@@ -269,7 +269,7 @@
         "Wire up adapter in app providers",
         "Test all task operations work"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 17.1,
