@@ -355,7 +355,7 @@
         "Clean up unused components",
         "Verify both apps build successfully"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 19,
