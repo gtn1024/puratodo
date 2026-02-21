@@ -182,7 +182,7 @@ export function TaskItem({
         <Checkbox
           checked={task.completed}
           onCheckedChange={() => onToggleComplete(task)}
-          className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
+          className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500 data-[state=checked]:text-white"
         />
 
         {/* Task Name or Edit Input */}
