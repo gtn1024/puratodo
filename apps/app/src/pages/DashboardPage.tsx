@@ -338,7 +338,7 @@ export function DashboardPage() {
             setDraggingSubtaskParentId(null);
             setDragSourceInfo(null);
           }}
-          className={`flex items-center gap-3 px-4 py-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 ${
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 select-none cursor-grab active:cursor-grabbing ${
             draggingTaskId === task.id ? "opacity-60" : ""
           } ${
             dropTargetTaskId === task.id && draggingTaskId !== task.id
@@ -1104,7 +1104,7 @@ export function DashboardPage() {
                       }}
                       onClick={() => toggleGroup(group.id)}
                       onContextMenu={(e) => handleContextMenu(e, group)}
-                      className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors group ${
+                      className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors group select-none cursor-grab active:cursor-grabbing ${
                         draggingGroupId === group.id ? "opacity-60" : ""
                       } ${
                         dropTargetGroupId === group.id && draggingGroupId !== group.id
@@ -1188,7 +1188,7 @@ export function DashboardPage() {
                               setCurrentView('list');
                             }}
                             onContextMenu={(e) => handleListContextMenu(e, list)}
-                            className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                            className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors select-none cursor-grab active:cursor-grabbing ${
                               draggingListId === list.id ? "opacity-60" : ""
                             } ${
                               dropTargetListId === list.id && draggingListId !== list.id
@@ -1508,7 +1508,7 @@ export function DashboardPage() {
                       }}
                       onClick={() => toggleGroup(group.id)}
                       onContextMenu={(e) => handleContextMenu(e, group)}
-                      className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors group ${
+                      className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors group select-none cursor-grab active:cursor-grabbing ${
                         draggingGroupId === group.id ? "opacity-60" : ""
                       } ${
                         dropTargetGroupId === group.id && draggingGroupId !== group.id
@@ -1593,7 +1593,7 @@ export function DashboardPage() {
                               setSidebarOpen(false); // Close mobile sidebar on selection
                             }}
                             onContextMenu={(e) => handleListContextMenu(e, list)}
-                            className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                            className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors select-none cursor-grab active:cursor-grabbing ${
                               draggingListId === list.id ? "opacity-60" : ""
                             } ${
                               dropTargetListId === list.id && draggingListId !== list.id
