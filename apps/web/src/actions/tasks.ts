@@ -905,6 +905,9 @@ export async function getNoDateTasks(): Promise<TaskSearchResult[]> {
 }
 
 // Get all tasks within a date range (by plan_date or due_date)
+// Show tasks that have plan_date or due_date in the range.
+// If a parent has subtasks, both parent and subtasks are shown independently
+// (whichever has dates in range will appear on those dates).
 export async function getTasksInDateRange(
   startDate: string,
   endDate: string,
@@ -919,12 +922,11 @@ export async function getTasksInDateRange(
     return [];
   }
 
-  // Get tasks where plan_date or due_date is within the range
+  // Get ALL tasks (including subtasks) where plan_date or due_date is within the range
   let query = supabase
     .from("tasks")
     .select("*")
     .eq("user_id", user.id)
-    .is("parent_id", null)
     .or(`plan_date.gte.${startDate},due_date.gte.${startDate}`)
     .or(`plan_date.lte.${endDate},due_date.lte.${endDate}`);
 
@@ -943,6 +945,8 @@ export async function getTasksInDateRange(
 }
 
 // Get all unscheduled tasks (no plan_date)
+// Show tasks that don't have plan_date.
+// Both parent tasks and subtasks are returned independently.
 export async function getUnscheduledTasks(
   listId?: string
 ): Promise<TaskSearchResult[]> {
@@ -959,7 +963,6 @@ export async function getUnscheduledTasks(
     .from("tasks")
     .select("*")
     .eq("user_id", user.id)
-    .is("parent_id", null)
     .eq("completed", false)
     .is("plan_date", null);
 
