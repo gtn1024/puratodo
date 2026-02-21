@@ -342,7 +342,7 @@
         "Verify Tauri app builds successfully",
         "Verify no console errors or warnings"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 18,
