@@ -388,7 +388,40 @@ Date: 2026-02-21
 - N/A
 
 ### Next Steps
-- Feature #17.4: Replace TaskItem and TaskList with shared components in Tauri app
+- Feature #17.5: Final testing and verification for Tauri app integration
+
+---
+
+## Progress Log
+
+### 2026-02-21 (Session 11)
+- Feature #17.4: Replaced TaskItem and TaskList with shared components in Tauri app
+  - Imported TaskList, TaskContextMeta, InboxMoveTarget from @puratodo/task-ui
+  - Removed task-related DnD imports (still used for groups/lists)
+  - Removed unused task state variables (activeTaskId, activeTaskParentId)
+  - Removed taskSensors setup (no longer needed)
+  - Removed handleTaskDragStart and handleTaskDragEnd handlers
+  - Added handleReorder callback to bridge TaskList to reorderTasks API
+  - Removed SortableTaskItemProps interface (~6 lines)
+  - Removed SortableTaskItem component (~225 lines)
+  - Replaced inline task list DnD with TaskList component
+  - Adapted callbacks to match TaskList's interface (task object vs task id + value)
+  - Mapped all required callbacks:
+    - onToggleExpand: toggleTaskExpand
+    - onToggleComplete: wrapper calling toggleTaskComplete(task.id, task.completed)
+    - onToggleStar: wrapper calling toggleTaskStar(task.id, task.starred)
+    - onEdit: wrapper calling startEditTask(task.id, task.name)
+    - onDelete: wrapper calling handleDeleteTask(task.id)
+    - onAddSubtask: wrapper calling startAddSubtask(task.id)
+    - onOpenDetail: sets selectedTaskId and opens detail panel
+    - editingTaskId, editName, onEditNameChange, onSaveEdit, onCancelEdit
+    - onReorder: handleReorder (bridges to reorderTasks API)
+    - listId: selectedList?.id ?? ''
+    - isSelectionMode, selectedTaskIds, onToggleSelect
+  - Configured disableSorting and allowSubtaskActions based on currentView
+  - Verified Tauri app builds successfully with `pnpm --filter @puratodo/app build`
+  - Reduced code duplication by ~225 lines in DashboardPage.tsx
+  - Note: Manual testing will be done in Feature #17.5
 
 ---
 

@@ -318,7 +318,7 @@
       "category": "Integration - App",
       "description": "Replace TaskItem and TaskList with shared components in Tauri app",
       "steps": [
-        "Import TaskItem and TaskList from @puratodo/task-ui in Tauri app",
+        "Import TaskList and related types from @puratodo/task-ui in Tauri app",
         "Remove inline TaskItem function definition",
         "Replace inline task list rendering with TaskList component",
         "Map all callbacks (toggle, edit, delete, reorder, etc.)",
@@ -327,7 +327,7 @@
         "Test multi-select mode",
         "Run Tauri build to verify compilation"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 17.5,
