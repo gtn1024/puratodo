@@ -29,6 +29,9 @@ importers:
       '@puratodo/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@puratodo/task-ui':
+        specifier: workspace:*
+        version: link:../../packages/task-ui
       '@puratodo/ui':
         specifier: workspace:*
         version: link:../../packages/ui

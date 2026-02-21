@@ -32,6 +32,7 @@ import {
   SheetContent,
   DragHandle,
 } from "@puratodo/ui";
+import { TaskFilters, type TaskFiltersValue, filterTasksByFilterValue } from "@puratodo/task-ui";
 import {
   DndContext,
   closestCenter,
@@ -145,6 +146,13 @@ export function DashboardPage() {
   const [showNewTaskInput, setShowNewTaskInput] = React.useState(false);
   const [newTaskName, setNewTaskName] = React.useState("");
   const [isCreatingTask, setIsCreatingTask] = React.useState(false);
+
+  // Filter state
+  const [filterValues, setFilterValues] = React.useState<TaskFiltersValue>({
+    status: 'all',
+    star: 'all',
+    date: 'all',
+  });
 
   // Edit task state
   const [editingTaskId, setEditingTaskId] = React.useState<string | null>(null);
@@ -588,14 +596,19 @@ export function DashboardPage() {
 
   // Get display tasks based on current view
   const getDisplayTasks = (): Task[] => {
+    let tasks: Task[];
     if (currentView === 'today') {
-      return getTodayTasks();
+      tasks = getTodayTasks();
     } else if (currentView === 'starred') {
-      return getStarredTasks();
+      tasks = getStarredTasks();
     } else if (selectedListId) {
-      return getRootTasks(selectedListId);
+      tasks = getRootTasks(selectedListId);
+    } else {
+      tasks = [];
     }
-    return [];
+
+    // Apply filters
+    return filterTasksByFilterValue(tasks, filterValues);
   };
 
   // Get header title based on current view
@@ -1718,6 +1731,28 @@ export function DashboardPage() {
             </h1>
           </div>
           <div className="flex items-center gap-4">
+            <TaskFilters
+              value={filterValues}
+              onChange={setFilterValues}
+              labels={{
+                filter: "Filter",
+                status: "Status",
+                star: "Star",
+                date: "Date",
+                statusAll: "All",
+                statusIncomplete: "Incomplete",
+                statusCompleted: "Completed",
+                starAll: "All",
+                starred: "Starred",
+                unstarred: "Unstarred",
+                dateAll: "All",
+                overdue: "Overdue",
+                today: "Today",
+                next7Days: "Next 7 Days",
+                noDate: "No Date",
+                clearFilters: "Clear filters",
+              }}
+            />
             <AccountSwitcher onAccountChanged={handleAccountChanged} />
             <button
               onClick={() => setShowSearch(true)}

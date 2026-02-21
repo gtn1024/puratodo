@@ -388,4 +388,18 @@ Date: 2026-02-21
 - N/A
 
 ### Next Steps
-- Feature #17.1: Replace TaskFilters with shared component in Tauri app
+- Feature #17.2: Replace TaskBulkActions with shared component in Tauri app
+
+---
+
+## Progress Log
+
+### 2026-02-21 (Session 8)
+- Feature #17.1: Replaced TaskFilters with shared component in Tauri app
+  - Imported TaskFilters and filterTasksByFilterValue from @puratodo/task-ui in DashboardPage.tsx
+  - Added filterValues state with TaskFiltersValue type
+  - Added TaskFilters component to header with translation labels
+  - Applied filter logic to getDisplayTasks function using filterTasksByFilterValue helper
+  - Verified Tauri app builds successfully with `pnpm --filter @puratodo/app build`
+  - Note: This was an "Add" operation, not a "Replace" - Tauri app didn't have filter functionality before
+  - Feature adds filtering capability (status, star, date) to Tauri app's task views
