@@ -64,12 +64,34 @@ Date: 2026-02-21
     - Multiple tasks visible in list
     - Drag-and-drop instructions present in accessibility tree
     - All task interactions work (checkbox, star, menu, etc.)
+- Feature #6: Extracted TaskDetailForm component to shared package
+  - Analyzed TaskDetailSheet implementation in apps/web/src/components/dashboard/task-detail-sheet.tsx
+  - Created packages/task-ui/src/components/TaskDetailForm.tsx with comprehensive form support
+  - Extracted form logic from TaskDetailSheet (Sheet wrapper remains app-specific)
+  - Supports all task fields: name, dueDate, planDate, durationMinutes, comment
+  - Supports recurrence editing with RecurrenceEditorValue type
+  - Supports reminder editing via injected ReminderEditor component
+  - Exported helper functions: createRecurrenceEditorValue, toLocalDateString
+  - Exported all types: TaskDetailFormProps, TaskUpdatePayload, RecurrenceFrequency, RecurrenceEndType, RecurrenceUpdateScope, RecurrenceEditorValue
+  - Used dependency injection pattern for RecurrenceEditor and ReminderEditor components
+  - Used translation labels object for i18n flexibility
+  - Imported UI components from @puratodo/ui (Button, Input, Label, Textarea, Popover, Calendar)
+  - Verified package builds successfully with `pnpm --filter @puratodo/task-ui build`
+  - Verified entire monorepo builds successfully with `pnpm build`
+  - Tested web app functionality:
+    - TaskDetailForm renders correctly when clicking on a task
+    - All form fields present: Task Name, Due Date, Plan Date, Duration, Recurrence, Comment
+    - Text fields can be filled (Task Name, Duration, Comment)
+    - Calendar date picker works for Due Date selection
+    - Clear button appears when date is selected
+    - Save and Cancel buttons functional
+    - Form state management works correctly
 
 ### In Progress
 - N/A
 
 ### Next Steps
-- Feature #6: Extract TaskDetailForm component to shared package
+- Feature #7: Extract TaskFilters component to shared package
 
 ---
 

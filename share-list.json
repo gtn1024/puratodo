@@ -76,7 +76,7 @@
         "Use adapter for save operations",
         "Test in web app"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 7,
