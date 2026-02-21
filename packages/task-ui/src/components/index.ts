@@ -49,3 +49,10 @@ export type {
   List,
   SmartView,
 } from "./Sidebar";
+
+export { CommandPalette } from "./CommandPalette";
+export type {
+  CommandPaletteProps,
+  CommandPaletteLabels,
+  SearchResult,
+} from "./CommandPalette";

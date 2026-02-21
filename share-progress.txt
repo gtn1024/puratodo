@@ -170,12 +170,35 @@ Date: 2026-02-21
   - Verified package builds successfully with `pnpm --filter @puratodo/task-ui build`
   - Verified entire monorepo builds successfully with `pnpm build`
   - Note: Component is created and builds correctly, but not yet integrated into web app (planned for Feature #15)
+- Feature #12: Extracted CommandPalette component to shared package
+  - Analyzed SearchDialog implementation in apps/web/src/components/search-dialog.tsx
+  - Created packages/task-ui/src/components/CommandPalette.tsx with full search dialog support
+  - Supports debounced search (300ms delay)
+  - Supports search result display with task details (name, completion, star, due date)
+  - Supports location info display (list icon/name, group color/name)
+  - Supports loading and empty states
+  - Supports keyboard navigation (Escape to close)
+  - Abstracted search logic via onSearch callback for flexibility
+  - Abstracted selection logic via onSelect callback
+  - Used translation labels object for i18n flexibility
+  - Imported UI components from @puratodo/ui (Dialog, Input)
+  - Exported CommandPalette, CommandPaletteProps, CommandPaletteLabels, SearchResult from task-ui package
+  - Verified package builds successfully with `pnpm --filter @puratodo/task-ui build`
+  - Verified entire monorepo builds successfully with `pnpm build`
+  - Tested web app functionality:
+    - SearchDialog (original component) works correctly in web app
+    - Search button in header opens dialog with click
+    - Search input has correct placeholder text
+    - Empty state shows correct message
+    - Footer shows Escape key hint
+    - Dialog closes with Escape key
+  - Note: Shared CommandPalette component is created and builds correctly, but not yet integrated into web app (planned for Feature #15)
 
 ### In Progress
 - N/A
 
 ### Next Steps
-- Feature #12: Extract CommandPalette component to shared package
+- Feature #13: Extract EmptyState and LoadingState components
 
 ---
 
