@@ -37,3 +37,6 @@ export type { TaskBulkActionsProps } from "./TaskBulkActions";
 
 export { RecurrenceEditor } from "./RecurrenceEditor";
 export type { RecurrenceEditorProps } from "./RecurrenceEditor";
+
+export { ReminderEditor } from "./ReminderEditor";
+export type { ReminderEditorProps, ReminderEditorValue, ReminderPreset } from "./ReminderEditor";

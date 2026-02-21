@@ -138,12 +138,28 @@ Date: 2026-02-21
   - Verified package builds successfully with `pnpm --filter @puratodo/task-ui build`
   - Verified entire monorepo builds successfully with `pnpm build`
   - Note: Component is created and builds correctly, but not yet integrated into web app (planned for Feature #15)
+- Feature #10: Extracted ReminderEditor component to shared package
+  - Analyzed ReminderFields implementation in apps/web/src/components/dashboard/reminder-fields.tsx
+  - Created packages/task-ui/src/components/ReminderEditor.tsx with full reminder support
+  - Supports reminder presets: none, at time, 5min, 15min, 30min, 1hour, 1day, custom
+  - Integrates with notification permissions (unsupported, denied, default, granted)
+  - Supports custom datetime selection via datetime-local input
+  - Calculates reminder times based on due_date or plan_date
+  - Shows permission warnings and enable buttons as appropriate
+  - Displays formatted reminder time for user confirmation
+  - Uses notification utilities from @puratodo/shared package
+  - Used translation labels object for i18n flexibility
+  - Imported UI components from @puratodo/ui (Button, Label, Input, Select)
+  - Exported ReminderEditor, ReminderEditorProps, ReminderEditorValue, ReminderPreset from task-ui package
+  - Verified package builds successfully with `pnpm --filter @puratodo/task-ui build`
+  - Verified entire monorepo builds successfully with `pnpm build`
+  - Note: Component is created and builds correctly, but not yet integrated into web app (planned for Feature #15)
 
 ### In Progress
 - N/A
 
 ### Next Steps
-- Feature #10: Extract ReminderEditor component to shared package
+- Feature #11: Extract Sidebar component to shared package
 
 ---
 
