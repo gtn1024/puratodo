@@ -388,11 +388,26 @@ Date: 2026-02-21
 - N/A
 
 ### Next Steps
-- Feature #17.2: Replace TaskBulkActions with shared component in Tauri app
+- Feature #17.4: Replace TaskItem and TaskList with shared components in Tauri app
 
 ---
 
 ## Progress Log
+
+### 2026-02-21 (Session 10)
+- Feature #17.3: Replaced TaskDetailSheet with TaskDetailForm in Tauri app
+  - Imported TaskDetailForm, createRecurrenceEditorValue, toLocalDateString, RecurrenceEditorValue, RecurrenceUpdateScope from @puratodo/task-ui
+  - Removed inline form state management (name, dueDate, planDate, comment, durationMinutes, isSaving, isLoaded)
+  - Removed inline form rendering (~170 lines of Task Name, Due Date, Plan Date, Duration, Comment fields)
+  - Removed toggleStarred and toggleCompleted functions (now handled by shared component)
+  - Added recurrence state and handlers for TaskDetailForm
+  - Added remindAt state and handlers for TaskDetailForm
+  - Replaced entire form UI with shared TaskDetailForm component
+  - Simplified handleSave to delegate to TaskDetailForm's onSave callback
+  - Added translation labels object for i18n support
+  - Kept Sheet wrapper and empty/loading states app-specific
+  - Verified Tauri app builds successfully with `pnpm --filter @puratodo/app build`
+  - Reduced code duplication by ~170 lines in TaskDetailSheet.tsx
 
 ### 2026-02-21 (Session 9)
 - Feature #17.2: Replaced TaskBulkActions with shared component in Tauri app
