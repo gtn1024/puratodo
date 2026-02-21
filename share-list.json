@@ -100,7 +100,7 @@
         "Show selection count and action buttons",
         "Test in web app"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 9,

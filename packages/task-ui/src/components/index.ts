@@ -31,3 +31,6 @@ export type {
   StarFilter,
   DateFilter,
 } from "./TaskFilters";
+
+export { TaskBulkActions } from "./TaskBulkActions";
+export type { TaskBulkActionsProps } from "./TaskBulkActions";
