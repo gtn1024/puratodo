@@ -1,5 +1,44 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 5: Three-Column Responsive Layout
+**Date:** 2026-02-21
+
+### What was done
+Implemented a three-column responsive layout for the Tauri app to match the web app's design:
+
+1. **Created new files:**
+   - `src/hooks/useBreakpoint.ts` - Hook for detecting responsive breakpoints (xs, sm, md, lg, xl)
+   - `src/components/TaskDetailPanel.tsx` - Right-side task detail panel for xl+ screens
+   - `src/components/TaskDetailSheet.tsx` - Bottom sheet for task details on smaller screens
+
+2. **Modified DashboardPage.tsx:**
+   - Added responsive state management (sidebarOpen, selectedTaskId, mobileDetailOpen)
+   - Added hamburger menu button for xs breakpoint
+   - Implemented conditional sidebar rendering (Sheet on xs, fixed aside on larger screens)
+   - Added right-side detail panel for xl+ screens
+   - Added TaskDetailSheet for sm/md screens
+   - Removed old Task Detail Dialog
+   - Fixed TypeScript errors with null checks for drag-and-drop handlers
+
+### Responsive Behavior
+| Breakpoint | Width | Sidebar | Task Detail |
+|------------|-------|---------|-------------|
+| xs | < 640px | Sheet (hamburger menu) | Bottom Sheet |
+| sm/md | 640-1279px | Fixed sidebar | Bottom Sheet |
+| lg/xl | ≥ 1280px | Fixed sidebar | Right Panel |
+
+### Testing
+- Build verified successfully
+- Tauri dev server starts without errors
+- TypeScript compilation passes (only unused variable warnings remain)
+
+### Next Steps
+- Manual testing of responsive breakpoints
+- Test task detail editing in both panel and sheet views
+- Consider adding subtask support to TaskDetailPanel
+
+---
+
 ## Session 4: Fix Delete Account Function
 **Date:** 2026-02-20
 

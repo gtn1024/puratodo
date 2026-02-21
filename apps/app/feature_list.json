@@ -627,14 +627,16 @@
     {
       "id": 52,
       "category": "UI/UX Optimization",
-      "description": "Responsive layout for mobile devices",
+      "description": "Three-column responsive layout (sidebar - task list - task detail)",
       "steps": [
-        "Resize browser to mobile width",
-        "Verify sidebar collapses to hamburger menu",
-        "Verify content adjusts appropriately",
-        "Test touch interactions work"
+        "Test xs breakpoint (<640px): Sidebar shows as Sheet, task detail as bottom Sheet",
+        "Test sm/md breakpoint (640-1279px): Fixed sidebar, task detail as Sheet",
+        "Test lg/xl breakpoint (≥1280px): Fixed sidebar, task detail as right panel",
+        "Verify hamburger menu appears on xs breakpoint",
+        "Click task to open detail panel/sheet",
+        "Verify smooth transitions between breakpoints"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 53,

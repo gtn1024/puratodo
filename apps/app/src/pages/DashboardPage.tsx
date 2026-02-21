@@ -18,6 +18,7 @@ import {
   Search,
   Moon,
   Sun,
+  Menu,
 } from "lucide-react";
 import {
   Button,
@@ -26,11 +27,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  Sheet,
+  SheetContent,
 } from "@puratodo/ui";
 import { AccountSettingsDialog } from "@/components/AccountSettingsDialog";
 import { AccountSwitcher } from "@/components/AccountSwitcher";
+import { TaskDetailPanel } from "@/components/TaskDetailPanel";
+import { TaskDetailSheet } from "@/components/TaskDetailSheet";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { useAuthStore } from "@/stores/authStore";
 import { useDataStore } from "@/stores/dataStore";
 import type { List as ListType } from "@/lib/api/lists";
@@ -154,10 +160,14 @@ export function DashboardPage() {
     taskName: string;
   } | null>(null);
 
-  // Task detail panel state
+  // Task detail panel state (legacy - keeping for potential future use)
   const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
-  const [showAddSubtask, setShowAddSubtask] = React.useState(false);
-  const [newSubtaskName, setNewSubtaskName] = React.useState("");
+
+  // Responsive three-column layout state
+  const { showDetailPanel, showSidebarSheet, isXs } = useBreakpoint();
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const [selectedTaskId, setSelectedTaskId] = React.useState<string | null>(null);
+  const [mobileDetailOpen, setMobileDetailOpen] = React.useState(false);
 
   // Search state
   const [showSearch, setShowSearch] = React.useState(false);
@@ -268,7 +278,7 @@ export function DashboardPage() {
             e.dataTransfer.effectAllowed = "move";
             e.dataTransfer.setData("text/plain", task.id);
             // Store source info in state for webview compatibility
-            setDragSourceInfo({ depth, parentId, listId: task.list_id });
+            setDragSourceInfo({ depth, parentId: parentId ?? null, listId: task.list_id });
             setDraggingTaskId(task.id);
             if (isSubtask && parentId) {
               setDraggingSubtaskParentId(parentId);
@@ -313,10 +323,10 @@ export function DashboardPage() {
             const sourceDepth = dragSourceInfo?.depth ?? 0;
             const sourceParentId = dragSourceInfo?.parentId ?? null;
 
-            if (isSubtask && sourceParentId && parentId === sourceParentId) {
+            if (isSubtask && sourceParentId && parentId && parentId === sourceParentId && sourceTaskId) {
               // Reordering subtasks within same parent
               void handleReorderSubtasks(sourceTaskId, task.id, parentId);
-            } else if (!isSubtask && sourceDepth === 0) {
+            } else if (!isSubtask && sourceDepth === 0 && sourceTaskId) {
               // Reordering root tasks within same list
               const sourceListId = dragSourceInfo?.listId;
               if (sourceListId === task.list_id) {
@@ -425,7 +435,13 @@ export function DashboardPage() {
                 <Star className="w-4 h-4" fill={task.starred ? "currentColor" : "none"} />
               </button>
               <button
-                onClick={() => setSelectedTask(task)}
+                onClick={() => {
+                  setSelectedTaskId(task.id);
+                  // On smaller screens (not xl), open the detail sheet
+                  if (!showDetailPanel) {
+                    setMobileDetailOpen(true);
+                  }
+                }}
                 className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
                 title="Task details"
               >
@@ -731,76 +747,6 @@ export function DashboardPage() {
     }
   };
 
-  // Update task due date
-  const updateTaskDueDate = async (taskId: string, dueDate: string | null) => {
-    try {
-      await updateTask(taskId, { due_date: dueDate });
-      // Update local selectedTask state if it matches
-      if (selectedTask && selectedTask.id === taskId) {
-        setSelectedTask({ ...selectedTask, due_date: dueDate });
-      }
-    } catch (err) {
-      console.error("Failed to update task due date:", err);
-    }
-  };
-
-  // Update task planned date
-  const updateTaskPlanDate = async (taskId: string, planDate: string | null) => {
-    try {
-      await updateTask(taskId, { plan_date: planDate });
-      // Update local selectedTask state if it matches
-      if (selectedTask && selectedTask.id === taskId) {
-        setSelectedTask({ ...selectedTask, plan_date: planDate });
-      }
-    } catch (err) {
-      console.error("Failed to update task planned date:", err);
-    }
-  };
-
-  // Update task comment
-  const updateTaskComment = async (taskId: string, comment: string) => {
-    try {
-      await updateTask(taskId, { comment });
-      // Update local selectedTask state if it matches
-      if (selectedTask && selectedTask.id === taskId) {
-        setSelectedTask({ ...selectedTask, comment });
-      }
-    } catch (err) {
-      console.error("Failed to update task comment:", err);
-    }
-  };
-
-  // Update task duration
-  const updateTaskDuration = async (taskId: string, duration: number | null) => {
-    try {
-      await updateTask(taskId, { duration_minutes: duration });
-      // Update local selectedTask state if it matches
-      if (selectedTask && selectedTask.id === taskId) {
-        setSelectedTask({ ...selectedTask, duration_minutes: duration });
-      }
-    } catch (err) {
-      console.error("Failed to update task duration:", err);
-    }
-  };
-
-  // Create subtask
-  const handleCreateSubtask = async () => {
-    if (!selectedTask || !newSubtaskName.trim()) return;
-    try {
-      await createTask({
-        list_id: selectedTask.list_id,
-        name: newSubtaskName.trim(),
-        parent_id: selectedTask.id,
-      });
-      setNewSubtaskName("");
-      setShowAddSubtask(false);
-      // Refresh tasks to show the new subtask
-      await fetchTasks();
-    } catch (err) {
-      console.error("Failed to create subtask:", err);
-    }
-  };
-
   // Open move list dialog
   const openMoveListDialog = (list: ListType) => {
     setListContextMenu(null);
@@ -975,8 +921,12 @@ export function DashboardPage() {
 
   return (
     <div className="h-screen overflow-hidden flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-stone-50 dark:bg-stone-900 border-r border-stone-200 dark:border-stone-700 flex flex-col">
+      {/* Mobile Sidebar - Sheet (xs only) */}
+      {showSidebarSheet && (
+        <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+          <SheetContent side="left" className="p-0 w-64" showCloseButton={false}>
+            {/* Sidebar Content */}
+            <div className="h-full bg-stone-50 dark:bg-stone-900 flex flex-col">
         {/* Logo */}
         <div className="p-4 border-b border-stone-200 dark:border-stone-700">
           <div className="flex items-center gap-3">
@@ -1373,15 +1323,434 @@ export function DashboardPage() {
             </div>
           </div>
         </div>
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
+
+      {/* Desktop Sidebar - fixed (sm and above) */}
+      {!showSidebarSheet && (
+        <aside className="w-64 bg-stone-50 dark:bg-stone-900 border-r border-stone-200 dark:border-stone-700 flex flex-col">
+        {/* Logo */}
+        <div className="p-4 border-b border-stone-200 dark:border-stone-700">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-stone-800 to-stone-600 dark:from-stone-100 dark:to-stone-300 flex items-center justify-center">
+              <CheckCircle2 className="w-4 h-4 text-white dark:text-stone-900" />
+            </div>
+            <span className="text-lg font-semibold text-stone-900 dark:text-stone-100">PuraToDo</span>
+          </div>
+        </div>
+
+        {/* Quick Add */}
+        <div className="p-4">
+          <button
+            onClick={() => {
+              if (!selectedListId) {
+                alert("Please select a list first");
+                return;
+              }
+              setShowNewTaskInput(true);
+            }}
+            className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg bg-stone-900 dark:bg-stone-700 text-white dark:text-stone-100 text-sm font-medium hover:bg-stone-800 dark:hover:bg-stone-600 transition-all shadow-lg shadow-stone-900/20 dark:shadow-stone-900/40"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Task</span>
+          </button>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 px-3 overflow-y-auto">
+          <div className="space-y-1">
+            <button
+              onClick={() => {
+                setCurrentView('today');
+                setSelectedListId(null);
+              }}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                currentView === 'today'
+                  ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
+                  : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
+              }`}
+            >
+              <CheckCircle2 className="w-5 h-5" />
+              <span>Today</span>
+            </button>
+            <button
+              onClick={() => {
+                setCurrentView('starred');
+                setSelectedListId(null);
+              }}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                currentView === 'starred'
+                  ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
+                  : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
+              }`}
+            >
+              <Star className="w-5 h-5" />
+              <span>Starred</span>
+            </button>
+          </div>
+
+          {/* Groups section */}
+          <div className="mt-6">
+            <div className="flex items-center justify-between px-3 mb-2">
+              <h3 className="text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
+                Groups
+              </h3>
+              <button
+                onClick={() => setShowNewGroupInput(true)}
+                className="p-1 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* New group input */}
+            {showNewGroupInput && (
+              <div className="px-3 py-2 mb-2 bg-white dark:bg-stone-800 rounded-lg border border-stone-200 dark:border-stone-600">
+                <input
+                  type="text"
+                  value={newGroupName}
+                  onChange={(e) => setNewGroupName(e.target.value)}
+                  placeholder="Group name"
+                  className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-stone-900 dark:text-stone-100 placeholder-stone-400"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleCreateGroup();
+                    if (e.key === "Escape") {
+                      setShowNewGroupInput(false);
+                      setNewGroupName("");
+                    }
+                  }}
+                />
+                <div className="flex items-center gap-1 mt-2">
+                  {GROUP_COLORS.map((color) => (
+                    <button
+                      key={color.value}
+                      onClick={() => setNewGroupColor(color.value)}
+                      className={`w-5 h-5 rounded-full transition-transform ${
+                        newGroupColor === color.value ? "ring-2 ring-offset-1 scale-110" : ""
+                      }`}
+                      style={{ backgroundColor: color.value }}
+                    />
+                  ))}
+                </div>
+                <div className="flex items-center justify-end gap-2 mt-2">
+                  <button
+                    onClick={() => {
+                      setShowNewGroupInput(false);
+                      setNewGroupName("");
+                    }}
+                    className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={handleCreateGroup}
+                    disabled={isCreatingGroup || !newGroupName.trim()}
+                    className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-green-500 disabled:opacity-50"
+                  >
+                    <Check className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Loading state */}
+            {isLoading && groups.length === 0 && (
+              <div className="px-3 py-4 text-sm text-stone-400 dark:text-stone-500">Loading...</div>
+            )}
+
+            {/* Error state */}
+            {error && (
+              <div className="px-3 py-4 text-sm text-red-500 dark:text-red-400">{error}</div>
+            )}
+
+            {/* Groups list */}
+            <div className="space-y-1">
+              {groups.map((group) => {
+                const groupLists = getListsForGroup(group.id);
+                const isExpanded = expandedGroups.has(group.id);
+
+                return (
+                  <div
+                    key={group.id}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      if (draggingGroupId && draggingGroupId !== group.id) {
+                        e.dataTransfer.dropEffect = "move";
+                        setDropTargetGroupId(group.id);
+                      }
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const sourceGroupId = draggingGroupId;
+                      if (sourceGroupId) {
+                        void handleReorderGroups(sourceGroupId, group.id);
+                      }
+                      setDraggingGroupId(null);
+                      setDropTargetGroupId(null);
+                      setDragGroupSourceInfo(null);
+                    }}
+                  >
+                    <button
+                      draggable
+                      onDragStart={(e) => {
+                        e.dataTransfer.effectAllowed = "move";
+                        e.dataTransfer.setData("text/plain", group.id);
+                        setDragGroupSourceInfo({ groupId: group.id });
+                        setDraggingGroupId(group.id);
+                      }}
+                      onDragEnd={() => {
+                        setDraggingGroupId(null);
+                        setDropTargetGroupId(null);
+                        setDragGroupSourceInfo(null);
+                      }}
+                      onClick={() => toggleGroup(group.id)}
+                      onContextMenu={(e) => handleContextMenu(e, group)}
+                      className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors group ${
+                        draggingGroupId === group.id ? "opacity-60" : ""
+                      } ${
+                        dropTargetGroupId === group.id && draggingGroupId !== group.id
+                          ? "ring-2 ring-stone-300 dark:ring-stone-700"
+                          : ""
+                      }`}
+                    >
+                      <ChevronDown
+                        className={`w-4 h-4 transition-transform ${isExpanded ? "" : "-rotate-90"}`}
+                      />
+                      <Folder className="w-5 h-5" style={{ color: group.color ?? undefined }} />
+                      <span className="flex-1 text-left truncate">{group.name}</span>
+                      <button
+                        onClick={(e) => handleDeleteGroup(group.id, e)}
+                        className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-stone-300 dark:hover:bg-stone-600 text-stone-400 hover:text-red-500"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </button>
+
+                    {/* Lists under group */}
+                    {isExpanded && (
+                      <div className="ml-6 mt-1 space-y-1">
+                        {groupLists.map((list) => (
+                          <button
+                            key={list.id}
+                            draggable
+                            onDragStart={(e) => {
+                              e.dataTransfer.effectAllowed = "move";
+                              e.dataTransfer.setData("text/plain", list.id);
+                              e.dataTransfer.setData("application/group-id", group.id);
+                              setDragListSourceInfo({ listId: list.id, groupId: group.id });
+                              setDraggingListId(list.id);
+                            }}
+                            onDragEnd={() => {
+                              setDraggingListId(null);
+                              setDropTargetListId(null);
+                              setDropTargetListForTask(null);
+                              setDragListSourceInfo(null);
+                            }}
+                            onDragOver={(e) => {
+                              e.preventDefault();
+                              // Handle list reordering
+                              if (draggingListId && draggingListId !== list.id) {
+                                e.dataTransfer.dropEffect = "move";
+                                setDropTargetListId(list.id);
+                              }
+                              // Handle task drop to move to different list
+                              if (draggingTaskId) {
+                                e.dataTransfer.dropEffect = "move";
+                                setDropTargetListForTask(list.id);
+                              }
+                            }}
+                            onDragLeave={() => {
+                              setDropTargetListForTask(null);
+                            }}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              // Handle list reorder using state
+                              const sourceListId = draggingListId;
+                              const sourceGroupId = dragListSourceInfo?.groupId;
+                              if (sourceListId && sourceGroupId === group.id && draggingListId) {
+                                void handleReorderLists(sourceListId, list.id, group.id);
+                              }
+                              // Handle task move to different list using state
+                              if (draggingTaskId && dragSourceInfo) {
+                                const sourceTaskListId = dragSourceInfo.listId;
+                                if (sourceTaskListId !== list.id) {
+                                  void handleMoveTask(draggingTaskId, list.id);
+                                }
+                              }
+                              setDraggingListId(null);
+                              setDraggingTaskId(null);
+                              setDropTargetListId(null);
+                              setDropTargetListForTask(null);
+                              setDragListSourceInfo(null);
+                              setDragSourceInfo(null);
+                            }}
+                            onClick={() => {
+                              setSelectedListId(list.id);
+                              setCurrentView('list');
+                              setSidebarOpen(false); // Close mobile sidebar on selection
+                            }}
+                            onContextMenu={(e) => handleListContextMenu(e, list)}
+                            className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                              draggingListId === list.id ? "opacity-60" : ""
+                            } ${
+                              dropTargetListId === list.id && draggingListId !== list.id
+                                ? "ring-2 ring-stone-300 dark:ring-stone-700"
+                                : ""
+                            } ${
+                              dropTargetListForTask === list.id && draggingTaskId
+                                ? "ring-2 ring-green-300 dark:ring-green-700 bg-green-50 dark:bg-green-900/20"
+                                : ""
+                            } ${
+                              selectedListId === list.id
+                                ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
+                                : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
+                            }`}
+                          >
+                            <List className="w-4 h-4" />
+                            <span className="truncate">{list.name}</span>
+                          </button>
+                        ))}
+
+                        {/* New list input */}
+                        {showNewListInput === group.id ? (
+                          <div className="px-3 py-2 bg-white dark:bg-stone-800 rounded-lg border border-stone-200 dark:border-stone-600">
+                            <input
+                              type="text"
+                              value={newListName}
+                              onChange={(e) => setNewListName(e.target.value)}
+                              placeholder="List name"
+                              className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-stone-900 dark:text-stone-100 placeholder-stone-400"
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") handleCreateList(group.id);
+                                if (e.key === "Escape") {
+                                  setShowNewListInput(null);
+                                  setNewListName("");
+                                }
+                              }}
+                            />
+                            <div className="flex items-center justify-end gap-2 mt-2">
+                              <button
+                                onClick={() => {
+                                  setShowNewListInput(null);
+                                  setNewListName("");
+                                }}
+                                className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleCreateList(group.id)}
+                                disabled={isCreatingList || !newListName.trim()}
+                                className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-green-500 disabled:opacity-50"
+                              >
+                                <Check className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setShowNewListInput(group.id)}
+                            className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-stone-400 dark:text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
+                          >
+                            <Plus className="w-4 h-4" />
+                            <span>Add list</span>
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+              {/* Empty state */}
+              {!isLoading && groups.length === 0 && !showNewGroupInput && (
+                <div className="px-3 py-4 text-sm text-stone-400 dark:text-stone-500">
+                  No groups yet. Click + to create one.
+                </div>
+              )}
+            </div>
+          </div>
+        </nav>
+
+        {/* User section */}
+        <div className="p-4 border-t border-stone-200 dark:border-stone-700">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-stone-700 to-stone-500 flex items-center justify-center text-white dark:text-stone-100 text-sm font-medium">
+                {user?.email?.[0]?.toUpperCase() || "U"}
+              </div>
+              <div className="text-sm">
+                <p className="font-medium text-stone-900 dark:text-stone-100 truncate max-w-24">
+                  {user?.name || user?.email?.split("@")[0] || "User"}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1">
+              <AccountSettingsDialog
+                onAccountChanged={handleAccountChanged}
+                trigger={(
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
+                    title="Account Settings"
+                  >
+                    <Users className="w-4 h-4" />
+                  </Button>
+                )}
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
+                title={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              >
+                {resolvedTheme === "dark" ? (
+                  <Sun className="w-4 h-4" />
+                ) : (
+                  <Moon className="w-4 h-4" />
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
       </aside>
+      )}
 
       {/* Main content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <header className="h-16 border-b border-stone-200 dark:border-stone-700 flex items-center justify-between px-6">
-          <h1 className="text-xl font-semibold text-stone-900 dark:text-stone-100">
-            {getHeaderTitle()}
-          </h1>
+          <div className="flex items-center gap-3">
+            {/* Mobile menu button (xs only) */}
+            {isXs && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSidebarOpen(true)}
+                className="h-8 w-8"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            )}
+            <h1 className="text-xl font-semibold text-stone-900 dark:text-stone-100">
+              {getHeaderTitle()}
+            </h1>
+          </div>
           <div className="flex items-center gap-4">
             <AccountSwitcher onAccountChanged={handleAccountChanged} />
             <button
@@ -1389,7 +1758,7 @@ export function DashboardPage() {
               className="flex items-center gap-2 px-3 py-1.5 text-sm text-stone-500 dark:text-stone-400 bg-stone-100 dark:bg-stone-800 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
             >
               <Search className="w-4 h-4" />
-              <span>Search</span>
+              <span className="hidden sm:inline">Search</span>
               <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-xs bg-stone-200 dark:bg-stone-700 rounded">
                 ⌘K
               </kbd>
@@ -1502,6 +1871,30 @@ export function DashboardPage() {
           </div>
         </div>
       </main>
+
+      {/* Right Detail Panel - Desktop only (xl screens) */}
+      {showDetailPanel && (
+        <div className="w-80 flex-shrink-0 transition-all duration-300 ease-in-out border-l border-stone-200 dark:border-stone-800">
+          <TaskDetailPanel
+            taskId={selectedTaskId}
+            onTaskUpdated={() => void fetchTasks()}
+            onClose={() => setSelectedTaskId(null)}
+          />
+        </div>
+      )}
+
+      {/* Mobile Task Detail Sheet (sm/md screens) */}
+      {!showDetailPanel && (
+        <TaskDetailSheet
+          taskId={selectedTaskId}
+          open={mobileDetailOpen}
+          onOpenChange={(open) => {
+            setMobileDetailOpen(open);
+            if (!open) setSelectedTaskId(null);
+          }}
+          onTaskUpdated={() => void fetchTasks()}
+        />
+      )}
 
       {/* Context Menu for Groups */}
       {contextMenu && (
@@ -1723,256 +2116,6 @@ export function DashboardPage() {
               disabled={isMovingList || !targetGroupId || targetGroupId === movingList?.group_id}
             >
               {isMovingList ? "Moving..." : "Move List"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Task Detail Dialog */}
-      <Dialog open={!!selectedTask} onOpenChange={(open) => !open && setSelectedTask(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Task Details</DialogTitle>
-          </DialogHeader>
-          {selectedTask && (
-            <div className="space-y-4">
-              {/* Task Name */}
-              <div>
-                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">
-                  Task Name
-                </label>
-                <div className="text-stone-900 dark:text-stone-100">{selectedTask.name}</div>
-              </div>
-
-              {/* Subtasks */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-sm font-medium text-stone-700 dark:text-stone-300">
-                    Subtasks
-                  </label>
-                  {!showAddSubtask && (
-                    <button
-                      onClick={() => setShowAddSubtask(true)}
-                      className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400"
-                    >
-                      + Add subtask
-                    </button>
-                  )}
-                </div>
-                {showAddSubtask && (
-                  <div className="flex items-center gap-2 mb-2">
-                    <input
-                      type="text"
-                      value={newSubtaskName}
-                      onChange={(e) => setNewSubtaskName(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") handleCreateSubtask();
-                        if (e.key === "Escape") {
-                          setShowAddSubtask(false);
-                          setNewSubtaskName("");
-                        }
-                      }}
-                      placeholder="Subtask name..."
-                      className="flex-1 px-3 py-1 text-sm border border-stone-300 dark:border-stone-600 rounded-md bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100"
-                      autoFocus
-                    />
-                    <button
-                      onClick={handleCreateSubtask}
-                      className="p-1 text-green-500 hover:text-green-600"
-                    >
-                      <Check className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowAddSubtask(false);
-                        setNewSubtaskName("");
-                      }}
-                      className="p-1 text-stone-500 hover:text-stone-600"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
-                {/* List subtasks */}
-                {tasks
-                  .filter((t) => t.parent_id === selectedTask.id)
-                  .sort((a, b) => a.sort_order - b.sort_order)
-                  .map((subtask) => (
-                    <div
-                      key={subtask.id}
-                      className="flex items-center gap-2 py-1 px-2 bg-stone-50 dark:bg-stone-800 rounded"
-                    >
-                      <div
-                        className={`w-4 h-4 rounded-full border flex items-center justify-center cursor-pointer ${
-                          subtask.completed
-                            ? "border-green-500 bg-green-500 text-white"
-                            : "border-stone-300 dark:border-stone-600"
-                        }`}
-                        onClick={() => toggleTaskComplete(subtask.id, subtask.completed)}
-                      >
-                        {subtask.completed ? <Check className="w-3 h-3" /> : null}
-                      </div>
-                      <span
-                        className={`flex-1 text-sm ${
-                          subtask.completed
-                            ? "line-through text-stone-400"
-                            : "text-stone-800 dark:text-stone-100"
-                        }`}
-                      >
-                        {subtask.name}
-                      </span>
-                    </div>
-                  ))}
-                {tasks.filter((t) => t.parent_id === selectedTask.id).length === 0 &&
-                  !showAddSubtask && (
-                    <div className="text-sm text-stone-400 italic">No subtasks yet</div>
-                  )}
-              </div>
-
-              {/* Due Date */}
-              <div>
-                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">
-                  Due Date
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="date"
-                    value={selectedTask.due_date || ""}
-                    onChange={(e) => {
-                      const newDate = e.target.value || null;
-                      updateTaskDueDate(selectedTask.id, newDate);
-                    }}
-                    className="flex-1 px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-md bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100"
-                  />
-                  {selectedTask.due_date && (
-                    <button
-                      onClick={() => updateTaskDueDate(selectedTask.id, null)}
-                      className="p-2 text-stone-500 hover:text-stone-700 dark:hover:text-stone-300"
-                      title="Clear due date"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Planned Date */}
-              <div>
-                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">
-                  Planned Date
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="date"
-                    value={selectedTask.plan_date || ""}
-                    onChange={(e) => {
-                      const newDate = e.target.value || null;
-                      updateTaskPlanDate(selectedTask.id, newDate);
-                    }}
-                    className="flex-1 px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-md bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100"
-                  />
-                  {selectedTask.plan_date && (
-                    <button
-                      onClick={() => updateTaskPlanDate(selectedTask.id, null)}
-                      className="p-2 text-stone-500 hover:text-stone-700 dark:hover:text-stone-300"
-                      title="Clear planned date"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Completed Status */}
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={selectedTask.completed}
-                  onChange={() => toggleTaskComplete(selectedTask.id, selectedTask.completed)}
-                  className="w-4 h-4"
-                  id="task-completed"
-                />
-                <label htmlFor="task-completed" className="text-sm text-stone-700 dark:text-stone-300">
-                  Marked as completed
-                </label>
-              </div>
-
-              {/* Comment/Notes */}
-              <div>
-                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">
-                  Notes
-                </label>
-                <textarea
-                  value={selectedTask.comment || ""}
-                  onChange={(e) => {
-                    const newComment = e.target.value;
-                    // Auto-save on blur
-                    updateTaskComment(selectedTask.id, newComment);
-                  }}
-                  onBlur={(e) => {
-                    const newComment = e.target.value;
-                    updateTaskComment(selectedTask.id, newComment);
-                  }}
-                  placeholder="Add notes..."
-                  rows={3}
-                  className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-md bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 resize-none"
-                />
-              </div>
-
-              {/* Duration */}
-              <div>
-                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">
-                  Duration (minutes)
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    min="0"
-                    value={selectedTask.duration_minutes || ""}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      const duration = value ? parseInt(value, 10) : null;
-                      updateTaskDuration(selectedTask.id, duration);
-                    }}
-                    onBlur={(e) => {
-                      const value = e.target.value;
-                      const duration = value ? parseInt(value, 10) : null;
-                      updateTaskDuration(selectedTask.id, duration);
-                    }}
-                    placeholder="e.g. 30"
-                    className="flex-1 px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-md bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100"
-                  />
-                  {selectedTask.duration_minutes && (
-                    <button
-                      onClick={() => updateTaskDuration(selectedTask.id, null)}
-                      className="p-2 text-stone-500 hover:text-stone-700 dark:hover:text-stone-300"
-                      title="Clear duration"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Starred Status */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => toggleTaskStar(selectedTask.id, selectedTask.starred)}
-                  className={`p-1 rounded ${
-                    selectedTask.starred ? "text-yellow-500" : "text-stone-300 dark:text-stone-600"
-                  }`}
-                >
-                  <Star className="w-5 h-5" fill={selectedTask.starred ? "currentColor" : "none"} />
-                </button>
-                <span className="text-sm text-stone-700 dark:text-stone-300">
-                  {selectedTask.starred ? "Starred" : "Not starred"}
-                </span>
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setSelectedTask(null)}>
-              Close
             </Button>
           </DialogFooter>
         </DialogContent>
