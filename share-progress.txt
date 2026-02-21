@@ -249,4 +249,27 @@ Date: 2026-02-21
 - N/A
 
 ### Next Steps
-- Feature #15: Replace web app components with shared ones
+- Feature #15.2: Replace TaskBulkActions with shared component in web app
+
+---
+
+## Progress Log
+
+### 2026-02-21 (Session 2)
+- Feature #15.1: Replaced TaskFilters with shared component in web app
+  - Imported TaskFilters from @puratodo/task-ui in task-panel.tsx
+  - Replaced inline filter dropdown UI (110+ lines) with shared TaskFilters component
+  - Mapped filter state (StatusFilter, StarFilter, DateFilter) to shared component's interface
+  - Added translation labels object for i18n support
+  - Kept local TaskFilters interface for backward compatibility
+  - Web app builds successfully with `pnpm --filter @puratodo/web build`
+  - Tested filter functionality with agent-browser:
+    - Filter dropdown displays correctly with all options (Status, Star, Date)
+    - Can select and apply individual filters
+    - Filter badge shows correct count of active filters
+    - Can apply multiple filters simultaneously
+    - Clear filters button appears and functions correctly
+    - All filter operations work without errors
+  - Note: Feature #15 was split into 5 subtasks (15.1-15.5) for safer incremental progress
+
+### 2026-02-21 (Session 1)

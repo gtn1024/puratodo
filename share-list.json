@@ -187,16 +187,75 @@
       "passes": true
     },
     {
-      "id": 15,
+      "id": 15.1,
       "category": "Integration - Web",
-      "description": "Replace web app components with shared ones",
+      "description": "Replace TaskFilters with shared component in web app",
       "steps": [
-        "Replace TaskItem with shared component",
-        "Replace TaskList with shared component",
-        "Replace TaskDetailSheet with shared TaskDetailForm",
-        "Replace TaskFilters with shared component",
-        "Replace TaskBulkActions with shared component",
-        "Test all task operations in web app (create, edit, complete, star, filter, bulk actions)"
+        "Import TaskFilters from @puratodo/task-ui in task-panel.tsx",
+        "Replace inline filter UI with shared TaskFilters component",
+        "Map filter state to shared component's interface",
+        "Test filter functionality (status, star, date filters)",
+        "Verify filter badge count displays correctly",
+        "Run pnpm build to verify compilation"
+      ],
+      "passes": true
+    },
+    {
+      "id": 15.2,
+      "category": "Integration - Web",
+      "description": "Replace TaskBulkActions with shared component in web app",
+      "steps": [
+        "Import TaskBulkActions from @puratodo/task-ui in task-panel.tsx",
+        "Replace inline bulk actions bar with shared component",
+        "Map bulk action callbacks to shared component's interface",
+        "Test bulk operations (complete, star, delete, set date)",
+        "Verify selection count displays correctly",
+        "Run pnpm build to verify compilation"
+      ],
+      "passes": false
+    },
+    {
+      "id": 15.3,
+      "category": "Integration - Web",
+      "description": "Replace TaskDetailSheet with TaskDetailForm in web app",
+      "steps": [
+        "Import TaskDetailForm from @puratodo/task-ui in task-detail-sheet.tsx",
+        "Replace inline form fields with shared TaskDetailForm",
+        "Inject RecurrenceEditor and ReminderEditor components",
+        "Map task state to form and back",
+        "Test task detail editing (name, dates, duration, comment, recurrence, reminder)",
+        "Run pnpm build to verify compilation"
+      ],
+      "passes": false
+    },
+    {
+      "id": 15.4,
+      "category": "Integration - Web",
+      "description": "Replace TaskItem and TaskList with shared components in web app",
+      "steps": [
+        "Import TaskItem and TaskList from @puratodo/task-ui in task-panel.tsx",
+        "Remove inline TaskItem function definition",
+        "Replace inline task list rendering with TaskList component",
+        "Map all callbacks (toggle, edit, delete, reorder, etc.)",
+        "Test task operations (create, complete, star, edit, delete, reorder, expand/collapse)",
+        "Test drag-and-drop functionality",
+        "Test multi-select mode",
+        "Run pnpm build to verify compilation"
+      ],
+      "passes": false
+    },
+    {
+      "id": 15.5,
+      "category": "Integration - Web",
+      "description": "Final testing and verification for web app integration",
+      "steps": [
+        "Run comprehensive E2E test of all task operations",
+        "Test create, edit, complete, star operations",
+        "Test filter and bulk action operations",
+        "Test drag-and-drop reordering",
+        "Test task detail editing with recurrence and reminders",
+        "Verify web app builds successfully",
+        "Verify no console errors or warnings"
       ],
       "passes": false
     },

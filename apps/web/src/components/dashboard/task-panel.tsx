@@ -71,11 +71,12 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { TaskFilters as SharedTaskFilters, type TaskFiltersValue } from "@puratodo/task-ui";
 
-// Filter types
-type StatusFilter = "all" | "completed" | "incomplete";
-type StarFilter = "all" | "starred" | "unstarred";
-type DateFilter = "all" | "overdue" | "today" | "upcoming" | "nodate";
+// Local filter types for internal use (maps to shared types)
+type StatusFilter = TaskFiltersValue["status"];
+type StarFilter = TaskFiltersValue["star"];
+type DateFilter = TaskFiltersValue["date"];
 
 interface TaskFilters {
   status: StatusFilter;
@@ -1273,119 +1274,24 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
             </Button>
           )}
           {/* Filter Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className={hasActiveFilters ? "border-stone-400 dark:border-stone-600" : ""}
-              >
-                <Filter className="h-4 w-4 mr-1" />
-                Filter
-                {hasActiveFilters && (
-                  <span className="ml-1 px-1.5 py-0.5 text-xs bg-stone-200 dark:bg-stone-700 rounded">
-                    {[filters.status, filters.star, filters.date].filter(f => f !== "all").length}
-                  </span>
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              {/* Status Filter */}
-              <div className="px-2 py-1.5 text-xs font-semibold text-stone-500 dark:text-stone-400">
-                Status
-              </div>
-              <DropdownMenuItem
-                onClick={() => setFilters(f => ({ ...f, status: "all" }))}
-                className={filters.status === "all" ? "bg-stone-100 dark:bg-stone-800" : ""}
-              >
-                {t("filter.all")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setFilters(f => ({ ...f, status: "incomplete" }))}
-                className={filters.status === "incomplete" ? "bg-stone-100 dark:bg-stone-800" : ""}
-              >
-                {t("filter.incomplete")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setFilters(f => ({ ...f, status: "completed" }))}
-                className={filters.status === "completed" ? "bg-stone-100 dark:bg-stone-800" : ""}
-              >
-                {t("filter.completed")}
-              </DropdownMenuItem>
-
-              {/* Star Filter */}
-              <div className="px-2 py-1.5 text-xs font-semibold text-stone-500 dark:text-stone-400 mt-1">
-                {t("filter.starred")}
-              </div>
-              <DropdownMenuItem
-                onClick={() => setFilters(f => ({ ...f, star: "all" }))}
-                className={filters.star === "all" ? "bg-stone-100 dark:bg-stone-800" : ""}
-              >
-                {t("filter.all")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setFilters(f => ({ ...f, star: "starred" }))}
-                className={filters.star === "starred" ? "bg-stone-100 dark:bg-stone-800" : ""}
-              >
-                {t("filter.starred")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setFilters(f => ({ ...f, star: "unstarred" }))}
-                className={filters.star === "unstarred" ? "bg-stone-100 dark:bg-stone-800" : ""}
-              >
-                {t("filter.unstarred")}
-              </DropdownMenuItem>
-
-              {/* Date Filter */}
-              <div className="px-2 py-1.5 text-xs font-semibold text-stone-500 dark:text-stone-400 mt-1">
-                {t("taskDetail.dueDate")}
-              </div>
-              <DropdownMenuItem
-                onClick={() => setFilters(f => ({ ...f, date: "all" }))}
-                className={filters.date === "all" ? "bg-stone-100 dark:bg-stone-800" : ""}
-              >
-                {t("filter.all")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setFilters(f => ({ ...f, date: "overdue" }))}
-                className={filters.date === "overdue" ? "bg-stone-100 dark:bg-stone-800" : ""}
-              >
-                {t("filter.overdue")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setFilters(f => ({ ...f, date: "today" }))}
-                className={filters.date === "today" ? "bg-stone-100 dark:bg-stone-800" : ""}
-              >
-                {t("filter.today")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setFilters(f => ({ ...f, date: "upcoming" }))}
-                className={filters.date === "upcoming" ? "bg-stone-100 dark:bg-stone-800" : ""}
-              >
-                {t("filter.upcoming")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setFilters(f => ({ ...f, date: "nodate" }))}
-                className={filters.date === "nodate" ? "bg-stone-100 dark:bg-stone-800" : ""}
-              >
-                {t("filter.noDueDate")}
-              </DropdownMenuItem>
-
-              {/* Clear Filters */}
-              {hasActiveFilters && (
-                <>
-                  <div className="border-t border-stone-200 dark:border-stone-700 mt-1 pt-1">
-                    <DropdownMenuItem
-                      onClick={() => setFilters({ status: "all", star: "all", date: "all" })}
-                      className="text-red-600 dark:text-red-400"
-                    >
-                      {t("taskPanel.clearFilters")}
-                    </DropdownMenuItem>
-                  </div>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <SharedTaskFilters
+            value={filters}
+            onChange={setFilters}
+            labels={{
+              all: t("filter.all"),
+              incomplete: t("filter.incomplete"),
+              completed: t("filter.completed"),
+              starred: t("filter.starred"),
+              unstarred: t("filter.unstarred"),
+              dueDate: t("taskDetail.dueDate"),
+              overdue: t("filter.overdue"),
+              today: t("filter.today"),
+              upcoming: t("filter.upcoming"),
+              noDueDate: t("filter.noDueDate"),
+              clearFilters: t("taskPanel.clearFilters"),
+              filter: "Filter",
+            }}
+          />
 
           {canCreateTasks && (
             <Button
