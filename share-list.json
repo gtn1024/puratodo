@@ -172,7 +172,7 @@
         "Ensure components export correctly",
         "Run pnpm build to verify TypeScript compilation"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 14,

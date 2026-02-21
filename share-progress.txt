@@ -193,12 +193,30 @@ Date: 2026-02-21
     - Footer shows Escape key hint
     - Dialog closes with Escape key
   - Note: Shared CommandPalette component is created and builds correctly, but not yet integrated into web app (planned for Feature #15)
+- Feature #13: Extracted EmptyState and LoadingState components
+  - Analyzed EmptyState and LoadingState implementations across apps/web
+  - Created packages/task-ui/src/components/EmptyState.tsx with reusable empty state component
+  - Supports icon, title, description, and optional action button
+  - Created packages/task-ui/src/components/LoadingState.tsx with loading state and skeleton components
+  - Created specialized skeleton components: TaskListSkeleton, ListPanelSkeleton, SidebarSkeleton
+  - Supports multiple loading types: generic, list, card, sidebar
+  - Made components fully reusable across both web and app
+  - Used translation labels object for i18n flexibility
+  - Imported UI components from @puratodo/ui (Button, Skeleton)
+  - Exported EmptyState, EmptyStateProps, LoadingState, LoadingStateProps, and specialized skeletons from task-ui package
+  - Verified package builds successfully with `pnpm --filter @puratodo/task-ui build`
+  - Verified entire monorepo builds successfully with `pnpm build`
+  - Tested web app functionality:
+    - Web app loads correctly and login flow works
+    - Dashboard displays correctly with existing tasks
+    - All existing empty state and loading patterns continue to work
+  - Note: Components are created and build correctly, but not yet integrated into web app (planned for Feature #15)
 
 ### In Progress
 - N/A
 
 ### Next Steps
-- Feature #13: Extract EmptyState and LoadingState components
+- Feature #14: Implement SupabaseTaskAdapter in web app
 
 ---
 
