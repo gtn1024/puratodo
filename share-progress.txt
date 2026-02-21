@@ -227,3 +227,26 @@ Date: 2026-02-21
 - Updated AGENTS.md to reference share-list.json
 - Added share-progress.txt for tracking progress
 - Planned architecture: @puratodo/ui for base components, @puratodo/task-ui for business components
+
+- Feature #14: Implemented SupabaseTaskAdapter in web app
+  - Created apps/web/src/adapters/ directory for adapter implementations
+  - Created taskActions.ts with individual server action functions for task operations
+  - Created listActions.ts with individual server action functions for list operations
+  - Created groupActions.ts with individual server action functions for group operations
+  - Created SupabaseTaskAdapter.ts implementing TaskAdapter interface
+  - Created SupabaseListAdapter.ts implementing ListAdapter interface
+  - Created SupabaseGroupAdapter.ts implementing GroupAdapter interface
+  - Created SupabaseAdapterProvider.tsx to provide adapters via React Context
+  - Added @puratodo/task-ui dependency to apps/web/package.json
+  - Integrated SupabaseAdapterProvider in apps/web/src/app/layout.tsx
+  - All adapters use plain objects with server action methods (not classes)
+  - Server actions execute on server but can be called from client components
+  - Verified monorepo builds successfully with `pnpm build`
+  - Verified web app builds successfully with `pnpm --filter @puratodo/web build`
+  - Note: Adapters are wired up in the provider but not yet used by components (planned for Feature #15)
+
+### In Progress
+- N/A
+
+### Next Steps
+- Feature #15: Replace web app components with shared ones
