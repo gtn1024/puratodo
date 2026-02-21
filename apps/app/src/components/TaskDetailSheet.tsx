@@ -5,7 +5,6 @@ import { useDataStore } from "@/stores/dataStore";
 import {
   TaskDetailForm,
   createRecurrenceEditorValue,
-  toLocalDateString,
   type RecurrenceEditorValue,
   type RecurrenceUpdateScope,
 } from "@puratodo/task-ui";
@@ -32,36 +31,31 @@ function TaskDetailSheetContent({
   const task = taskId ? tasks.find((t) => t.id === taskId) : null;
 
   // Recurrence and reminder state
-  const [recurrence, setRecurrence] = React.useState<RecurrenceEditorValue>(
-    createRecurrenceEditorValue()
-  );
+  const defaultRecurrence: RecurrenceEditorValue = {
+    frequency: "",
+    interval: "",
+    weekdays: [],
+    endType: "never",
+    endDate: undefined,
+    endCount: "",
+    rule: "",
+    timezone: "",
+  };
+  const [recurrence, setRecurrence] = React.useState<RecurrenceEditorValue>(defaultRecurrence);
   const [recurrenceScope, setRecurrenceScope] = React.useState<RecurrenceUpdateScope>("single");
   const [remindAt, setRemindAt] = React.useState<string | null>(null);
 
   // Load recurrence and remindAt data when taskId changes
   React.useEffect(() => {
-    if (!taskId) return;
+    if (!taskId) {
+      setRecurrence(defaultRecurrence);
+      setRemindAt(null);
+      return;
+    }
 
     const foundTask = tasks.find((t) => t.id === taskId);
     if (foundTask) {
-      setRecurrence(
-        createRecurrenceEditorValue({
-          frequency: (foundTask.recurrence_frequency as any) || "",
-          interval: foundTask.recurrence_interval?.toString() || "1",
-          weekdays: foundTask.recurrence_weekdays || [],
-          endType: foundTask.recurrence_end_date
-            ? "onDate"
-            : foundTask.recurrence_end_count
-            ? "afterCount"
-            : "never",
-          endDate: foundTask.recurrence_end_date
-            ? new Date(foundTask.recurrence_end_date)
-            : undefined,
-          endCount: foundTask.recurrence_end_count?.toString() || "1",
-          rule: foundTask.recurrence_rule || "",
-          timezone: foundTask.recurrence_timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-        })
-      );
+      setRecurrence(createRecurrenceEditorValue(foundTask));
       setRemindAt(foundTask.remind_at || null);
     }
   }, [taskId, tasks]);
