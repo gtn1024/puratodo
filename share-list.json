@@ -1,0 +1,243 @@
+{
+  "project": "PuraToDo UI Sharing",
+  "description": "Shared UI layer between web and app - abstracting business components to reduce code duplication",
+  "features": [
+    {
+      "id": 1,
+      "category": "Infrastructure",
+      "description": "Create packages/task-ui package structure",
+      "steps": [
+        "Create packages/task-ui directory structure",
+        "Create packages/task-ui/package.json with correct dependencies",
+        "Configure TypeScript and path aliases",
+        "Add task-ui to pnpm-workspace.yaml",
+        "Verify package builds successfully"
+      ],
+      "passes": false
+    },
+    {
+      "id": 2,
+      "category": "Infrastructure",
+      "description": "Define adapter interfaces in api-types package",
+      "steps": [
+        "Create packages/api-types/src/adapters.ts",
+        "Define TaskAdapter interface with CRUD methods",
+        "Define ListAdapter interface with CRUD methods",
+        "Define GroupAdapter interface with CRUD methods",
+        "Export types for use in task-ui and apps"
+      ],
+      "passes": false
+    },
+    {
+      "id": 3,
+      "category": "Infrastructure",
+      "description": "Create TaskAdapter context and provider",
+      "steps": [
+        "Create TaskContext in packages/task-ui/src/contexts/",
+        "Create TaskAdapterProvider component",
+        "Export useTaskAdapter hook",
+        "Test context works in both web and app"
+      ],
+      "passes": false
+    },
+    {
+      "id": 4,
+      "category": "Shared Components - Task",
+      "description": "Extract TaskItem component to shared package",
+      "steps": [
+        "Analyze TaskItem in apps/web and apps/app for common patterns",
+        "Create TaskItem component in packages/task-ui",
+        "Accept adapter via props or context",
+        "Support expand/collapse, complete toggle, star, menu",
+        "Test in web app"
+      ],
+      "passes": false
+    },
+    {
+      "id": 5,
+      "category": "Shared Components - Task",
+      "description": "Extract TaskList component with DnD to shared package",
+      "steps": [
+        "Create TaskList component wrapping SortableContext",
+        "Support nested subtask rendering",
+        "Integrate with TaskItem",
+        "Support drag-and-drop reordering",
+        "Test in web app"
+      ],
+      "passes": false
+    },
+    {
+      "id": 6,
+      "category": "Shared Components - Task",
+      "description": "Extract TaskDetailForm component to shared package",
+      "steps": [
+        "Create TaskDetailForm for editing task fields",
+        "Support name, dueDate, planDate, duration, comment",
+        "Use adapter for save operations",
+        "Test in web app"
+      ],
+      "passes": false
+    },
+    {
+      "id": 7,
+      "category": "Shared Components - Task",
+      "description": "Extract TaskFilters component to shared package",
+      "steps": [
+        "Create TaskFilters component with status/star/date filters",
+        "Use dropdown menu for filter options",
+        "Return filter state via onChange callback",
+        "Test in web app"
+      ],
+      "passes": false
+    },
+    {
+      "id": 8,
+      "category": "Shared Components - Task",
+      "description": "Extract TaskBulkActions component to shared package",
+      "steps": [
+        "Create TaskBulkActions bar component",
+        "Support bulk complete/incomplete/star/unstar/delete/setDate",
+        "Show selection count and action buttons",
+        "Test in web app"
+      ],
+      "passes": false
+    },
+    {
+      "id": 9,
+      "category": "Shared Components - Task",
+      "description": "Extract RecurrenceEditor component to shared package",
+      "steps": [
+        "Create RecurrenceEditor for recurrence pattern configuration",
+        "Support frequency, interval, weekdays, end conditions",
+        "Use Calendar and Select components from ui package",
+        "Test in web app"
+      ],
+      "passes": false
+    },
+    {
+      "id": 10,
+      "category": "Shared Components - Task",
+      "description": "Extract ReminderEditor component to shared package",
+      "steps": [
+        "Create ReminderEditor for reminder configuration",
+        "Support remind_at datetime selection",
+        "Integrate with task detail form",
+        "Test in web app"
+      ],
+      "passes": false
+    },
+    {
+      "id": 11,
+      "category": "Shared Components - Layout",
+      "description": "Extract Sidebar component to shared package",
+      "steps": [
+        "Create Sidebar component with group/list tree structure",
+        "Support expand/collapse groups",
+        "Support drag-and-drop reordering",
+        "Support create/edit/delete actions via callbacks",
+        "Test in web app"
+      ],
+      "passes": false
+    },
+    {
+      "id": 12,
+      "category": "Shared Components - Layout",
+      "description": "Extract CommandPalette component to shared package",
+      "steps": [
+        "Create CommandPalette (search dialog) component",
+        "Support keyboard shortcut activation",
+        "Support search results with highlighting",
+        "Support navigation to tasks/lists",
+        "Test in web app"
+      ],
+      "passes": false
+    },
+    {
+      "id": 13,
+      "category": "Shared Components - Layout",
+      "description": "Extract EmptyState and LoadingState components",
+      "steps": [
+        "Create EmptyState component with icon, title, description, action",
+        "Create LoadingState/Skeleton components",
+        "Make them reusable across apps",
+        "Test in web app"
+      ],
+      "passes": false
+    },
+    {
+      "id": 14,
+      "category": "Integration - Web",
+      "description": "Implement SupabaseTaskAdapter in web app",
+      "steps": [
+        "Create SupabaseTaskAdapter class implementing TaskAdapter",
+        "Use Server Actions for CRUD operations",
+        "Wire up adapter in web app providers",
+        "Test all task operations work"
+      ],
+      "passes": false
+    },
+    {
+      "id": 15,
+      "category": "Integration - Web",
+      "description": "Replace web app components with shared ones",
+      "steps": [
+        "Replace TaskItem with shared component",
+        "Replace TaskList with shared component",
+        "Replace TaskDetailSheet with shared TaskDetailForm",
+        "Replace TaskFilters with shared component",
+        "Verify all functionality works"
+      ],
+      "passes": false
+    },
+    {
+      "id": 16,
+      "category": "Integration - App",
+      "description": "Implement RestTaskAdapter in Tauri app",
+      "steps": [
+        "Create RestTaskAdapter class implementing TaskAdapter",
+        "Use REST API client for CRUD operations",
+        "Wire up adapter in app providers",
+        "Test all task operations work"
+      ],
+      "passes": false
+    },
+    {
+      "id": 17,
+      "category": "Integration - App",
+      "description": "Replace Tauri app components with shared ones",
+      "steps": [
+        "Replace TaskItem with shared component",
+        "Replace TaskList with shared component",
+        "Replace TaskDetailSheet with shared TaskDetailForm",
+        "Verify all functionality works"
+      ],
+      "passes": false
+    },
+    {
+      "id": 18,
+      "category": "Cleanup",
+      "description": "Remove duplicate code from both apps",
+      "steps": [
+        "Delete duplicate TaskItem implementations",
+        "Delete duplicate TaskList implementations",
+        "Delete duplicate TaskFilters implementations",
+        "Clean up unused components",
+        "Verify both apps build successfully"
+      ],
+      "passes": false
+    },
+    {
+      "id": 19,
+      "category": "Cleanup",
+      "description": "Add unit tests for shared components",
+      "steps": [
+        "Add unit tests for TaskItem component",
+        "Add unit tests for TaskList component",
+        "Add unit tests for TaskDetailForm",
+        "Add unit tests for TaskFilters",
+        "Ensure test coverage is adequate"
+      ],
+      "passes": false
+    }
+  ]
+}

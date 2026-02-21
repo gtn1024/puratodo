@@ -29,8 +29,11 @@ puratodo/
 │       └── app_spec.txt
 ├── packages/
 │   ├── ui/                  # Shared UI components (@puratodo/ui)
+│   ├── task-ui/             # Shared business components (@puratodo/task-ui)
 │   ├── api-types/           # API type definitions (@puratodo/api-types)
 │   └── shared/              # Shared utilities (@puratodo/shared)
+├── share-list.json           # UI sharing feature list
+├── share-progress.txt        # UI sharing progress log
 ├── init.sh                  # Development server startup script
 ├── pnpm-workspace.yaml      # Workspace configuration
 ├── package.json             # Root package with scripts
@@ -94,15 +97,17 @@ Key fields:
 
 This project follows a "long-running agent" methodology with daily progress logging:
 
-1. Read `apps/web/claude-progress.txt` (for web) or `apps/app/claude-progress.txt` (for Tauri) - check current status and next steps
-2. Read `apps/web/feature_list.json` (for web) or `apps/app/feature_list.json` (for Tauri) - get feature details and test steps. Note that one step MUST do one task, unless it's very small or closely related to another step. If a step is too big, break it down into smaller steps.
-3. Run `./init.sh web` (or `./init.sh app` for Tauri) to start dev environment
-4. Implement the feature
-5. Test with Playwright MCP (the credentials of accounts in `.credentials.local`)
-6. Make sure project can be built successfully (`pnpm build:web` or `cd apps/app && npm run tauri build`)
-7. Update the feature_list.json - set `passes: true` for completed feature
-8. Update the corresponding claude-progress.txt (append new log for current session, what has done, what does not work, next steps)
-9. **Git commit** - Commit ONLY after testing passes (see "Testing" section below). Never commit untested code.
+1. Read `share-list.json` - check UI sharing features to work on (for shared UI between web and app)
+2. Read `share-progress.txt` - check current session progress for UI sharing
+3. Read `apps/web/claude-progress.txt` (for web) or `apps/app/claude-progress.txt` (for Tauri) - check current status and next steps
+3. Read `apps/web/feature_list.json` (for web) or `apps/app/feature_list.json` (for Tauri) - get feature details and test steps. Note that one step MUST do one task, unless it's very small or closely related to another step. If a step is too big, break it down into smaller steps.
+4. Run `./init.sh web` (or `./init.sh app` for Tauri) to start dev environment
+5. Implement the feature
+6. Test with Playwright MCP (the credentials of accounts in `.credentials.local`)
+7. Make sure project can be built successfully (`pnpm build:web` or `cd apps/app && npm run tauri build`)
+8. Update the share-list.json or feature_list.json - set `passes: true` for completed feature
+9. Update the corresponding claude-progress.txt (append new log for current session, what has done, what does not work, next steps)
+10. **Git commit** - Commit ONLY after testing passes (see "Testing" section below). Never commit untested code.
 
 ### Testing (REQUIRED before commit)
 
@@ -131,8 +136,8 @@ The `init.sh` script standardizes development server startup:
 
 **NOTE:**
 
-1. Always keep `claude-progress.txt` and `feature_list.json` up to date. These are critical for tracking progress and guiding future development.
-2. ALWAYS get ONLY ONE task from `feature_list.json` at a time. This ensures focused development and accurate progress tracking. If you find a task that is too large, let me know!
+1. Always keep `share-list.json`, `share-progress.txt`, `claude-progress.txt` and `feature_list.json` up to date. These are critical for tracking progress and guiding future development.
+2. ALWAYS get ONLY ONE task from `share-list.json` or `feature_list.json` at a time. This ensures focused development and accurate progress tracking. If you find a task that is too large, let me know!
 
 ## Apps Overview
 
@@ -147,6 +152,13 @@ The `init.sh` script standardizes development server startup:
 - Target: Desktop (macOS, Windows, Linux), Mobile (iOS, Android)
 - Connects to web app's API backend via REST API
 
+### UI Sharing (share-list.json)
+- Goal: Reduce code duplication between web and app by creating shared business components
+- Creates `packages/task-ui` with reusable task components (TaskItem, TaskList, TaskDetailForm, etc.)
+- Uses Adapter pattern to abstract data operations (Supabase for web, REST API for app)
+- Progress tracked in `share-list.json` and `share-progress.txt` at project root
+- Currently 19 features planned, starting with infrastructure and moving to shared components
+
 ## Architecture
 
 - **App Router**: Routes in `apps/web/src/app/`, use folder-based routing
@@ -154,7 +166,7 @@ The `init.sh` script standardizes development server startup:
 - **Components**: UI components in `apps/web/src/components/`, dashboard components in `apps/web/src/components/dashboard/`
 - **Supabase**: Client in `apps/web/src/lib/supabase/` (browser client + server client for SSR)
 - **Path Alias**: `@/*` maps to `./src/*` (in apps/web)
-- **Workspace Packages**: Import as `@puratodo/ui`, `@puratodo/api-types`, `@puratodo/shared`
+- **Workspace Packages**: Import as `@puratodo/ui`, `@puratodo/task-ui`, `@puratodo/api-types`, `@puratodo/shared`
 
 ## Environment Variables
 
