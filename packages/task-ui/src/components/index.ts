@@ -1,3 +1,7 @@
 // Components barrel export
-// Will be populated with shared task components
-export {};
+export { TaskItem } from "./TaskItem";
+export type {
+  TaskItemProps,
+  TaskContextMeta,
+  InboxMoveTarget,
+} from "./TaskItem";

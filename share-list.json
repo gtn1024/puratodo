@@ -51,7 +51,7 @@
         "Support expand/collapse, complete toggle, star, menu",
         "Test in web app"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 5,

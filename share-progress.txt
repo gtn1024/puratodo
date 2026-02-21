@@ -26,12 +26,31 @@ Date: 2026-02-21
   - Exported all context utilities from task-ui package
   - Verified package builds successfully
   - Tested context integration - web app loads correctly at http://localhost:3000
+- Feature #4: Extracted TaskItem component to shared package
+  - Analyzed TaskItem implementation in apps/web
+  - Created packages/task-ui/src/components/TaskItem.tsx with full feature parity
+  - Added TaskWithSubtasks type to api-types for nested task support
+  - Imported UI components from @puratodo/ui (Checkbox, Button, DropdownMenu)
+  - Supports all features: expand/collapse, complete toggle, star, menu, edit, delete, add subtask
+  - Supports multi-select mode with selection checkbox
+  - Supports drag-and-drop via dnd-kit's useSortable hook
+  - Supports inbox move targets and context metadata
+  - Exported TaskItem, TaskItemProps, TaskContextMeta, InboxMoveTarget from task-ui
+  - Verified package builds successfully with `pnpm --filter @puratodo/task-ui build`
+  - Verified entire monorepo builds successfully with `pnpm build`
+  - Tested web app functionality:
+    - Login flow works correctly
+    - Task creation works
+    - TaskItem renders correctly with checkbox, star, menu
+    - onToggleComplete callback works (checkbox toggles task completion)
+    - onOpenDetail callback works (clicking task name opens detail panel)
+    - All TaskItem interactions functional
 
 ### In Progress
 - N/A
 
 ### Next Steps
-- Feature #4: Extract TaskItem component to shared package
+- Feature #5: Extract TaskList component with DnD to shared package
 
 ---
 
