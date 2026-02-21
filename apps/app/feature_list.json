@@ -1,7 +1,7 @@
 {
   "project": "PuraToDo App (Tauri)",
   "description": "Cross-platform desktop/mobile app built with Tauri 2.0 - connects to web app's API. Feature list aligned with web app (~80 items).",
-  "totalItems": 79,
+  "totalItems": 80,
   "features": [
     {
       "id": 1,
@@ -724,29 +724,100 @@
     },
     {
       "id": 60,
-      "category": "Advanced Features",
-      "description": "Today view showing tasks with plan_date = today",
+      "category": "Smart Views",
+      "description": "Smart Views section appears in sidebar with 5 views: Today, Starred, Overdue, Next 7 Days, No Date",
       "steps": [
-        "Navigate to Today view",
-        "Verify tasks with today's plan_date show",
-        "Verify tasks without plan_date are hidden"
+        "Log in as user with tasks",
+        "Verify Smart Views section is visible in sidebar",
+        "Verify all 5 smart view entries are present: Today, Starred, Overdue, Next 7 Days, No Date",
+        "Verify each smart view has appropriate icon"
       ],
       "passes": false
     },
     {
       "id": 61,
-      "category": "Advanced Features",
-      "description": "Starred tasks view shows all starred tasks",
+      "category": "Smart Views",
+      "description": "Today view shows tasks with plan_date = today",
       "steps": [
-        "Star multiple tasks across different lists",
-        "Navigate to Starred view",
-        "Verify all starred tasks are displayed",
-        "Verify unstarred tasks are not displayed"
+        "Create tasks with plan_date set to today",
+        "Navigate to Today view",
+        "Verify tasks with today's plan_date are displayed",
+        "Verify tasks without plan_date are hidden",
+        "Verify task shows list/group context"
       ],
       "passes": false
     },
     {
       "id": 62,
+      "category": "Smart Views",
+      "description": "Starred view shows all starred tasks across all lists",
+      "steps": [
+        "Star multiple tasks across different lists",
+        "Navigate to Starred view",
+        "Verify all starred tasks are displayed",
+        "Verify unstarred tasks are not displayed",
+        "Verify task shows list/group context",
+        "Unstar a task from Starred view - verify it disappears"
+      ],
+      "passes": false
+    },
+    {
+      "id": 63,
+      "category": "Smart Views",
+      "description": "Overdue view shows incomplete tasks with due_date in the past",
+      "steps": [
+        "Create tasks with past due dates (before today)",
+        "Navigate to Overdue view",
+        "Verify incomplete tasks with past due dates are displayed",
+        "Verify completed tasks are hidden",
+        "Verify tasks are sorted by due_date ascending",
+        "Verify task shows list/group context"
+      ],
+      "passes": false
+    },
+    {
+      "id": 64,
+      "category": "Smart Views",
+      "description": "Next 7 Days view shows incomplete tasks with due_date within next 7 days",
+      "steps": [
+        "Create tasks with due dates in next 7 days",
+        "Navigate to Next 7 Days view",
+        "Verify tasks with due dates in next 7 days are displayed",
+        "Verify tasks with due dates beyond 7 days are hidden",
+        "Verify completed tasks are hidden",
+        "Verify tasks are sorted by due_date ascending",
+        "Verify task shows list/group context"
+      ],
+      "passes": false
+    },
+    {
+      "id": 65,
+      "category": "Smart Views",
+      "description": "No Date view shows incomplete tasks with no due_date and no plan_date",
+      "steps": [
+        "Create tasks with no due_date and no plan_date",
+        "Navigate to No Date view",
+        "Verify incomplete tasks without dates are displayed",
+        "Verify tasks with due_date or plan_date are hidden",
+        "Verify completed tasks are hidden",
+        "Verify task shows list/group context"
+      ],
+      "passes": false
+    },
+    {
+      "id": 66,
+      "category": "Smart Views",
+      "description": "Smart views only show root tasks (not subtasks)",
+      "steps": [
+        "Create a task with subtasks",
+        "Navigate to various smart views",
+        "Verify parent tasks appear in smart views",
+        "Verify subtasks do not appear separately in smart views"
+      ],
+      "passes": false
+    },
+    {
+      "id": 67,
       "category": "Advanced Features",
       "description": "Realtime sync across multiple devices",
       "steps": [
@@ -757,7 +828,7 @@
       "passes": false
     },
     {
-      "id": 63,
+      "id": 68,
       "category": "i18n",
       "description": "Language can be changed",
       "steps": [
@@ -769,7 +840,7 @@
       "passes": false
     },
     {
-      "id": 64,
+      "id": 69,
       "category": "i18n",
       "description": "App works correctly in multiple languages",
       "steps": [
@@ -781,7 +852,7 @@
       "passes": false
     },
     {
-      "id": 65,
+      "id": 70,
       "category": "API Client",
       "description": "API client is configured with correct base URL",
       "steps": [
@@ -791,18 +862,18 @@
       "passes": false
     },
     {
-      "id": 66,
+      "id": 71,
       "category": "API Client",
-      "description": "API client includes authentication headers",
+      "description": " headers",
       "steps": [
-        "Log in and capture auth token",
+       API client includes authentication "Log in and capture auth token",
         "Make an authenticated API request",
         "Verify request includes Authorization header"
       ],
       "passes": false
     },
     {
-      "id": 67,
+      "id": 72,
       "category": "API Client",
       "description": "API errors are handled gracefully",
       "steps": [
@@ -813,7 +884,7 @@
       "passes": false
     },
     {
-      "id": 68,
+      "id": 73,
       "category": "Desktop Integration",
       "description": "App menu bar works on macOS",
       "steps": [
@@ -824,7 +895,7 @@
       "passes": false
     },
     {
-      "id": 69,
+      "id": 74,
       "category": "Desktop Integration",
       "description": "App respects system dark/light mode on macOS",
       "steps": [
@@ -837,7 +908,7 @@
       "passes": false
     },
     {
-      "id": 70,
+      "id": 75,
       "category": "Desktop Integration",
       "description": "App appears in system app list",
       "steps": [
@@ -848,7 +919,7 @@
       "passes": false
     },
     {
-      "id": 71,
+      "id": 76,
       "category": "Mobile Integration",
       "description": "Swipe right on task marks it complete on mobile",
       "steps": [
@@ -859,7 +930,7 @@
       "passes": false
     },
     {
-      "id": 72,
+      "id": 77,
       "category": "Mobile Integration",
       "description": "Swipe left on task shows delete option on mobile",
       "steps": [
@@ -871,7 +942,7 @@
       "passes": false
     },
     {
-      "id": 73,
+      "id": 78,
       "category": "Mobile Integration",
       "description": "Pull to refresh works on mobile",
       "steps": [
@@ -883,7 +954,7 @@
       "passes": false
     },
     {
-      "id": 74,
+      "id": 79,
       "category": "Mobile Integration",
       "description": "Bottom navigation works on mobile",
       "steps": [
@@ -895,7 +966,7 @@
       "passes": false
     },
     {
-      "id": 75,
+      "id": 80,
       "category": "Integration",
       "description": "Deep links can open specific views",
       "steps": [
@@ -907,7 +978,7 @@
       "passes": false
     },
     {
-      "id": 76,
+      "id": 81,
       "category": "Integration",
       "description": "Local notifications work for task reminders",
       "steps": [
@@ -918,7 +989,7 @@
       "passes": false
     },
     {
-      "id": 77,
+      "id": 82,
       "category": "Integration",
       "description": "App builds successfully for macOS",
       "steps": [
@@ -929,7 +1000,7 @@
       "passes": false
     },
     {
-      "id": 78,
+      "id": 83,
       "category": "Integration",
       "description": "App builds successfully for Windows",
       "steps": [
@@ -940,7 +1011,7 @@
       "passes": false
     },
     {
-      "id": 79,
+      "id": 84,
       "category": "Integration",
       "description": "App builds successfully for Linux",
       "steps": [
