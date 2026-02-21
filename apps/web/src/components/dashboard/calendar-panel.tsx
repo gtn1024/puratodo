@@ -20,6 +20,7 @@ import {
 import type { TaskSearchResult } from "@/actions/tasks";
 import type { List } from "@/actions/lists";
 import { getTasksInDateRange, getUnscheduledTasks } from "@/actions/tasks";
+import { getLocalDateString } from "@puratodo/shared";
 
 interface CalendarPanelProps {
   selectedTaskId: string | null;
@@ -153,8 +154,8 @@ export function CalendarPanel({
     async function loadTasks() {
       setIsLoading(true);
       try {
-        const startDate = firstDayOfMonth.toISOString().split('T')[0];
-        const endDate = lastDayOfCalendar.toISOString().split('T')[0];
+        const startDate = getLocalDateString(firstDayOfMonth);
+        const endDate = getLocalDateString(lastDayOfCalendar);
 
         const listId = selectedFilter === "all" ? undefined : selectedFilter;
 
@@ -221,7 +222,7 @@ export function CalendarPanel({
 
   // Get tasks for a specific date
   const getTasksForDate = (date: Date): TaskSearchResult[] => {
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = getLocalDateString(date);
     return tasks.filter((task) => {
       const planDate = task.plan_date;
       const dueDate = task.due_date;
