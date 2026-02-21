@@ -45,12 +45,31 @@ Date: 2026-02-21
     - onToggleComplete callback works (checkbox toggles task completion)
     - onOpenDetail callback works (clicking task name opens detail panel)
     - All TaskItem interactions functional
+- Feature #5: Extracted TaskList component with DnD to shared package
+  - Analyzed TaskList implementation in apps/web/src/components/dashboard/task-panel.tsx
+  - Created packages/task-ui/src/components/TaskList.tsx with drag-and-drop support
+  - Wrapped DndContext and SortableContext from @dnd-kit
+  - Implemented reorderSiblingTasks helper for root and nested task reordering
+  - Implemented renderSubtasks for recursive nested task rendering
+  - Supports both sortable and non-sortable modes (disableSorting prop)
+  - Integrated with TaskItem component for rendering
+  - Supports multi-select mode with selectedTaskIds and onToggleSelect
+  - Exported TaskList and TaskListProps from task-ui package
+  - Verified package builds successfully with `pnpm --filter @puratodo/task-ui build`
+  - Verified entire monorepo builds successfully with `pnpm build`
+  - Tested web app functionality:
+    - TaskList renders correctly in Inbox view
+    - Tasks display with checkboxes and proper styling
+    - New tasks can be added successfully
+    - Multiple tasks visible in list
+    - Drag-and-drop instructions present in accessibility tree
+    - All task interactions work (checkbox, star, menu, etc.)
 
 ### In Progress
 - N/A
 
 ### Next Steps
-- Feature #5: Extract TaskList component with DnD to shared package
+- Feature #6: Extract TaskDetailForm component to shared package
 
 ---
 

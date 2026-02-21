@@ -64,7 +64,7 @@
         "Support drag-and-drop reordering",
         "Test in web app"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 6,

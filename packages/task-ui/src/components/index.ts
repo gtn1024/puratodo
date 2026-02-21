@@ -5,3 +5,6 @@ export type {
   TaskContextMeta,
   InboxMoveTarget,
 } from "./TaskItem";
+
+export { TaskList } from "./TaskList";
+export type { TaskListProps } from "./TaskList";
