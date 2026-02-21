@@ -6,6 +6,7 @@ export interface AccountSession {
   id: string;
   user: User;
   token: string;
+  refreshToken: string;
   addedAt: string;
   lastUsedAt: string;
   serverUrl: string | null;
@@ -14,6 +15,7 @@ export interface AccountSession {
 interface AuthState {
   user: User | null;
   token: string | null;
+  refreshToken: string | null;
   accounts: AccountSession[];
   activeAccountId: string | null;
   isAuthenticated: boolean;
@@ -22,23 +24,30 @@ interface AuthState {
   // Actions
   setUser: (user: User | null) => void;
   setToken: (token: string | null) => void;
+  setRefreshToken: (refreshToken: string | null) => void;
   setLoading: (loading: boolean) => void;
-  addAccount: (user: User, token: string, setActive?: boolean) => void;
+  addAccount: (user: User, token: string, refreshToken: string, setActive?: boolean) => void;
   switchAccount: (accountId: string) => void;
   removeAccount: (accountId: string) => void;
-  login: (user: User, token: string) => void;
+  login: (user: User, token: string, refreshToken: string) => void;
   logout: () => void;
   signOutCurrentAccount: () => void;
   getCurrentServerUrl: () => string | null;
   setCurrentServerUrl: (url: string | null) => void;
+  getRefreshToken: () => string | null;
 }
 
-function syncAuthToken(token: string | null) {
+function syncAuthToken(token: string | null, refreshToken: string | null = null) {
   if (typeof window === "undefined") return;
   if (token) {
     localStorage.setItem("authToken", token);
   } else {
     localStorage.removeItem("authToken");
+  }
+  if (refreshToken) {
+    localStorage.setItem("refreshToken", refreshToken);
+  } else {
+    localStorage.removeItem("refreshToken");
   }
 }
 
@@ -55,6 +64,7 @@ function upsertAccount(
   accounts: AccountSession[],
   user: User,
   token: string,
+  refreshToken: string,
   serverUrl: string | null = null
 ): AccountSession[] {
   const now = new Date().toISOString();
@@ -67,6 +77,7 @@ function upsertAccount(
         id: user.id,
         user,
         token,
+        refreshToken,
         addedAt: now,
         lastUsedAt: now,
         serverUrl,
@@ -80,6 +91,7 @@ function upsertAccount(
           ...account,
           user,
           token,
+          refreshToken,
           lastUsedAt: now,
           serverUrl: serverUrl !== null ? serverUrl : account.serverUrl,
         }
@@ -92,6 +104,7 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
       user: null,
       token: null,
+      refreshToken: null,
       accounts: [],
       activeAccountId: null,
       isAuthenticated: false,
@@ -142,22 +155,43 @@ export const useAuthStore = create<AuthState>()(
         });
       },
 
+      setRefreshToken: (refreshToken) => {
+        syncAuthToken(get().token, refreshToken);
+        set((state) => {
+          if (!state.activeAccountId || !refreshToken) {
+            return { refreshToken };
+          }
+
+          const accounts = state.accounts.map((account) =>
+            account.id === state.activeAccountId
+              ? {
+                  ...account,
+                  refreshToken,
+                }
+              : account
+          );
+
+          return { refreshToken, accounts };
+        });
+      },
+
       setLoading: (isLoading) => set({ isLoading }),
 
-      addAccount: (user, token, setActive = true) =>
+      addAccount: (user, token, refreshToken, setActive = true) =>
         set((state) => {
-          const accounts = upsertAccount(state.accounts, user, token);
+          const accounts = upsertAccount(state.accounts, user, token, refreshToken);
           const nextActiveId =
             setActive || !state.activeAccountId ? user.id : state.activeAccountId;
           const activeAccount = getActiveAccount(accounts, nextActiveId);
 
-          syncAuthToken(activeAccount?.token ?? null);
+          syncAuthToken(activeAccount?.token ?? null, activeAccount?.refreshToken ?? null);
 
           return {
             accounts,
             activeAccountId: activeAccount?.id ?? null,
             user: activeAccount?.user ?? null,
             token: activeAccount?.token ?? null,
+            refreshToken: activeAccount?.refreshToken ?? null,
             isAuthenticated: !!activeAccount,
             isLoading: false,
           };
@@ -179,13 +213,14 @@ export const useAuthStore = create<AuthState>()(
           );
           const activeAccount = getActiveAccount(accounts, accountId);
 
-          syncAuthToken(activeAccount?.token ?? null);
+          syncAuthToken(activeAccount?.token ?? null, activeAccount?.refreshToken ?? null);
 
           return {
             accounts,
             activeAccountId: activeAccount?.id ?? null,
             user: activeAccount?.user ?? null,
             token: activeAccount?.token ?? null,
+            refreshToken: activeAccount?.refreshToken ?? null,
             isAuthenticated: !!activeAccount,
           };
         }),
@@ -198,26 +233,28 @@ export const useAuthStore = create<AuthState>()(
               ? getActiveAccount(accounts, null)
               : getActiveAccount(accounts, state.activeAccountId);
 
-          syncAuthToken(activeAccount?.token ?? null);
+          syncAuthToken(activeAccount?.token ?? null, activeAccount?.refreshToken ?? null);
 
           return {
             accounts,
             activeAccountId: activeAccount?.id ?? null,
             user: activeAccount?.user ?? null,
             token: activeAccount?.token ?? null,
+            refreshToken: activeAccount?.refreshToken ?? null,
             isAuthenticated: !!activeAccount,
           };
         }),
 
-      login: (user, token) => {
-        get().addAccount(user, token, true);
+      login: (user, token, refreshToken) => {
+        get().addAccount(user, token, refreshToken, true);
       },
 
       logout: () => {
-        syncAuthToken(null);
+        syncAuthToken(null, null);
         set({
           user: null,
           token: null,
+          refreshToken: null,
           accounts: [],
           activeAccountId: null,
           isAuthenticated: false,
@@ -236,20 +273,22 @@ export const useAuthStore = create<AuthState>()(
 
         if (nextActiveAccount) {
           // Switch to next account
-          syncAuthToken(nextActiveAccount.token);
+          syncAuthToken(nextActiveAccount.token, nextActiveAccount.refreshToken);
           set({
             accounts: remainingAccounts,
             activeAccountId: nextActiveAccount.id,
             user: nextActiveAccount.user,
             token: nextActiveAccount.token,
+            refreshToken: nextActiveAccount.refreshToken,
             isAuthenticated: true,
           });
         } else {
           // No more accounts, go to login
-          syncAuthToken(null);
+          syncAuthToken(null, null);
           set({
             user: null,
             token: null,
+            refreshToken: null,
             accounts: [],
             activeAccountId: null,
             isAuthenticated: false,
@@ -280,6 +319,12 @@ export const useAuthStore = create<AuthState>()(
           return { accounts };
         });
       },
+
+      getRefreshToken: () => {
+        const state = get();
+        const activeAccount = getActiveAccount(state.accounts, state.activeAccountId);
+        return activeAccount?.refreshToken ?? null;
+      },
     }),
     {
       name: "auth-storage",
@@ -287,6 +332,7 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         user: state.user,
         token: state.token,
+        refreshToken: state.refreshToken,
         accounts: state.accounts,
         activeAccountId: state.activeAccountId,
         isAuthenticated: state.isAuthenticated,
@@ -298,15 +344,17 @@ export const useAuthStore = create<AuthState>()(
         if (activeAccount) {
           state.user = activeAccount.user;
           state.token = activeAccount.token;
+          state.refreshToken = activeAccount.refreshToken;
           state.activeAccountId = activeAccount.id;
           state.isAuthenticated = true;
-          syncAuthToken(activeAccount.token);
+          syncAuthToken(activeAccount.token, activeAccount.refreshToken);
         } else {
           state.user = null;
           state.token = null;
+          state.refreshToken = null;
           state.activeAccountId = null;
           state.isAuthenticated = false;
-          syncAuthToken(null);
+          syncAuthToken(null, null);
         }
 
         state.isLoading = false;
@@ -314,3 +362,20 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
+
+// Register token refresh callback with API client
+// This is done after store creation to avoid circular dependencies
+import { setTokenRefreshCallback, setRefreshFailedCallback } from "@/lib/api/client";
+
+setTokenRefreshCallback((accessToken: string, refreshToken: string) => {
+  const store = useAuthStore.getState();
+  // Update the store with new tokens
+  store.setToken(accessToken);
+  store.setRefreshToken(refreshToken);
+});
+
+setRefreshFailedCallback(() => {
+  // Refresh token expired or invalid, logout user
+  const store = useAuthStore.getState();
+  store.logout();
+});

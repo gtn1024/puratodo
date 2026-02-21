@@ -24,6 +24,7 @@ export interface RegisterCredentials {
 export interface AuthResponse {
   user: User;
   token: string;
+  refreshToken: string;
 }
 
 interface BackendLoginData {
@@ -51,6 +52,7 @@ export const authApi = {
         updatedAt: response.data!.user.created_at,
       },
       token: response.data!.access_token,
+      refreshToken: response.data!.refresh_token,
     };
   },
 
@@ -66,6 +68,7 @@ export const authApi = {
         updatedAt: response.data!.user.created_at,
       },
       token: response.data!.access_token,
+      refreshToken: response.data!.refresh_token,
     };
   },
 
@@ -84,8 +87,15 @@ export const authApi = {
     };
   },
 
-  async refreshToken(): Promise<{ token: string }> {
-    const response = await api.post<ApiResponse<{ access_token: string }>>("/api/v1/auth/refresh");
-    return { token: response.data!.access_token };
+  async refreshToken(refreshToken: string): Promise<{ token: string; refreshToken: string }> {
+    const response = await api.post<ApiResponse<{ access_token: string; refresh_token: string }>>(
+      "/api/v1/auth/refresh",
+      { refresh_token: refreshToken },
+      false // Don't include auth header for refresh
+    );
+    return {
+      token: response.data!.access_token,
+      refreshToken: response.data!.refresh_token,
+    };
   },
 };

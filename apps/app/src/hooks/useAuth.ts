@@ -29,7 +29,7 @@ export function useAuth(): UseAuthReturn {
       // Get the pending API URL before login completes
       const pendingUrl = getPendingApiUrl();
 
-      setLogin(response.user, response.token);
+      setLogin(response.user, response.token, response.refreshToken);
 
       // If there was a pending API URL, bind it to the new account
       if (pendingUrl !== null) {
@@ -60,7 +60,7 @@ export function useAuth(): UseAuthReturn {
       // Get the pending API URL before registration completes
       const pendingUrl = getPendingApiUrl();
 
-      setLogin(response.user, response.token);
+      setLogin(response.user, response.token, response.refreshToken);
 
       // If there was a pending API URL, bind it to the new account
       if (pendingUrl !== null) {
