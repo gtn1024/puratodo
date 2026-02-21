@@ -49,6 +49,7 @@ import {
 import { TaskPanelSkeleton } from "./skeletons";
 import type { List } from "@/actions/lists";
 import { useRealtime } from "@/hooks/use-realtime";
+import { getLocalDateString } from "@puratodo/shared";
 import {
   TaskFilters as SharedTaskFilters,
   TaskBulkActions,
@@ -75,12 +76,6 @@ type GroupOption = {
 };
 
 type SmartViewType = "starred" | "overdue" | "next7days" | "nodate";
-
-function toLocalDateString(date: Date): string {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
-    date.getDate()
-  ).padStart(2, "0")}`;
-}
 
 interface TaskPanelProps {
   list: List | null;
@@ -478,7 +473,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
 
   // Filter tasks based on current filters
   const filterTasks = useCallback((taskList: Task[]): Task[] => {
-    const today = toLocalDateString(new Date());
+    const today = getLocalDateString(new Date());
 
     const matchesFilter = (task: Task): boolean => {
       // Status filter
@@ -659,7 +654,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
 
   const handleBulkSetDate = async () => {
     const taskIds = Array.from(selectedTaskIds);
-    const dateStr = bulkDateValue ? toLocalDateString(bulkDateValue) : null;
+    const dateStr = bulkDateValue ? getLocalDateString(bulkDateValue) : null;
     setIsLoading(true);
     setIsBulkDateDialogOpen(false);
 

@@ -7,6 +7,7 @@ import {
   updateTaskWithRecurrenceHandling,
   type RecurrenceUpdateScope,
 } from "@/lib/recurrence-runtime";
+import { getLocalDateString } from "@puratodo/shared";
 
 export type Task = {
   id: string;
@@ -648,12 +649,6 @@ export type TaskSearchResult = Task & {
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
-function toLocalDateString(date: Date): string {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
-    date.getDate()
-  ).padStart(2, "0")}`;
-}
-
 async function attachTaskContext(
   supabase: SupabaseServerClient,
   tasks: Task[]
@@ -765,7 +760,7 @@ export async function getTodayTasks(): Promise<TaskSearchResult[]> {
     return [];
   }
 
-  const today = toLocalDateString(new Date());
+  const today = getLocalDateString(new Date());
 
   // Get tasks with plan_date = today
   const { data: tasks, error } = await supabase
@@ -819,7 +814,7 @@ export async function getOverdueTasks(): Promise<TaskSearchResult[]> {
     return [];
   }
 
-  const today = toLocalDateString(new Date());
+  const today = getLocalDateString(new Date());
 
   const { data: tasks, error } = await supabase
     .from("tasks")
@@ -851,10 +846,10 @@ export async function getNext7DaysTasks(): Promise<TaskSearchResult[]> {
   }
 
   const now = new Date();
-  const startDate = toLocalDateString(now);
+  const startDate = getLocalDateString(now);
   const end = new Date(now);
   end.setDate(end.getDate() + 7);
-  const endDate = toLocalDateString(end);
+  const endDate = getLocalDateString(end);
 
   const { data: tasks, error } = await supabase
     .from("tasks")
