@@ -32,7 +32,7 @@ import {
   SheetContent,
   DragHandle,
 } from "@puratodo/ui";
-import { TaskFilters, type TaskFiltersValue, filterTasksByFilterValue } from "@puratodo/task-ui";
+import { TaskFilters, TaskBulkActions, type TaskFiltersValue, filterTasksByFilterValue } from "@puratodo/task-ui";
 import {
   DndContext,
   closestCenter,
@@ -153,6 +153,17 @@ export function DashboardPage() {
     star: 'all',
     date: 'all',
   });
+
+  // Multi-select state
+  const [isSelectionMode, setIsSelectionMode] = React.useState(false);
+  const [selectedTaskIds, setSelectedTaskIds] = React.useState<Set<string>>(new Set());
+
+  // Bulk date dialog state
+  const [isBulkDateDialogOpen, setIsBulkDateDialogOpen] = React.useState(false);
+  const [bulkDateValue, setBulkDateValue] = React.useState<Date | undefined>(undefined);
+
+  // Bulk delete dialog state
+  const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = React.useState(false);
 
   // Edit task state
   const [editingTaskId, setEditingTaskId] = React.useState<string | null>(null);
@@ -489,6 +500,81 @@ export function DashboardPage() {
       console.error("Failed to toggle task star:", err);
     }
   };
+
+  // Multi-select handlers
+  const handleToggleSelect = (taskId: string) => {
+    setSelectedTaskIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(taskId)) {
+        next.delete(taskId);
+      } else {
+        next.add(taskId);
+      }
+      return next;
+    });
+  };
+
+  const handleSelectAll = () => {
+    const allTaskIds = getDisplayTasks().map(t => t.id);
+    setSelectedTaskIds(new Set(allTaskIds));
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedTaskIds(new Set());
+  };
+
+  const handleExitSelectionMode = () => {
+    setIsSelectionMode(false);
+    setSelectedTaskIds(new Set());
+  };
+
+  // Bulk operation handlers
+  const handleBulkComplete = async (completed: boolean) => {
+    const taskIds = Array.from(selectedTaskIds);
+    try {
+      await Promise.all(taskIds.map(id => updateTask(id, { completed })));
+      setSelectedTaskIds(new Set());
+    } catch (err) {
+      console.error("Failed to bulk complete tasks:", err);
+    }
+  };
+
+  const handleBulkStar = async (starred: boolean) => {
+    const taskIds = Array.from(selectedTaskIds);
+    try {
+      await Promise.all(taskIds.map(id => updateTask(id, { starred })));
+      setSelectedTaskIds(new Set());
+    } catch (err) {
+      console.error("Failed to bulk star tasks:", err);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    const taskIds = Array.from(selectedTaskIds);
+    setIsBulkDeleteDialogOpen(false);
+    try {
+      await Promise.all(taskIds.map(id => deleteTask(id)));
+      setSelectedTaskIds(new Set());
+      setIsSelectionMode(false);
+    } catch (err) {
+      console.error("Failed to bulk delete tasks:", err);
+    }
+  };
+
+  const handleBulkSetDate = async () => {
+    const taskIds = Array.from(selectedTaskIds);
+    const dateStr = bulkDateValue ? bulkDateValue.toISOString().split('T')[0] : null;
+    setIsBulkDateDialogOpen(false);
+    try {
+      await Promise.all(taskIds.map(id => updateTask(id, { due_date: dateStr })));
+      setBulkDateValue(undefined);
+      setSelectedTaskIds(new Set());
+    } catch (err) {
+      console.error("Failed to bulk set date:", err);
+    }
+  };
+
+  const selectedCount = selectedTaskIds.size;
 
   // Open move list dialog
   const openMoveListDialog = (list: ListType) => {
@@ -920,6 +1006,23 @@ export function DashboardPage() {
         >
           {/* Drag Handle */}
           <DragHandle attributes={attributes} listeners={listeners} iconSize="sm" />
+          {/* Selection checkbox - only shown in selection mode */}
+          {isSelectionMode && (
+            <button
+              onClick={() => handleToggleSelect(task.id)}
+              className={`p-0.5 rounded hover:bg-stone-100 dark:hover:bg-stone-700 ${
+                selectedTaskIds.has(task.id)
+                  ? "text-blue-600 dark:text-blue-400"
+                  : "text-stone-300 dark:text-stone-600"
+              }`}
+            >
+              {selectedTaskIds.has(task.id) ? (
+                <Check className="w-5 h-5" />
+              ) : (
+                <Circle className="w-5 h-5" />
+              )}
+            </button>
+          )}
           {/* Expand/collapse button for tasks with subtasks */}
           {hasSubtasks ? (
             <button
@@ -1753,6 +1856,25 @@ export function DashboardPage() {
                 clearFilters: "Clear filters",
               }}
             />
+            {/* Select mode button */}
+            {isSelectionMode ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExitSelectionMode}
+                className="text-blue-600 dark:text-blue-400"
+              >
+                {selectedCount} selected
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsSelectionMode(true)}
+              >
+                Select
+              </Button>
+            )}
             <AccountSwitcher onAccountChanged={handleAccountChanged} />
             <button
               onClick={() => setShowSearch(true)}
@@ -1766,6 +1888,34 @@ export function DashboardPage() {
             </button>
           </div>
         </header>
+
+        {/* Bulk Action Bar */}
+        {isSelectionMode && selectedCount > 0 && (
+          <TaskBulkActions
+            selectedCount={selectedCount}
+            onSelectAll={handleSelectAll}
+            onDeselectAll={handleDeselectAll}
+            onComplete={() => handleBulkComplete(true)}
+            onIncomplete={() => handleBulkComplete(false)}
+            onStar={() => handleBulkStar(true)}
+            onUnstar={() => handleBulkStar(false)}
+            onDelete={() => setIsBulkDeleteDialogOpen(true)}
+            onSetDate={() => setIsBulkDateDialogOpen(true)}
+            onCancel={handleExitSelectionMode}
+            labels={{
+              tasksSelected: "tasks selected",
+              selectAll: "Select All",
+              deselect: "Deselect",
+              complete: "Complete",
+              incomplete: "Incomplete",
+              star: "Star",
+              unstar: "Unstar",
+              delete: "Delete",
+              setDate: "Set Date",
+              cancel: "Cancel",
+            }}
+          />
+        )}
 
         {/* Content */}
         <div className="flex-1 p-6 overflow-y-auto">
@@ -2238,6 +2388,68 @@ export function DashboardPage() {
           <DialogFooter>
             <Button variant="ghost" onClick={() => setShowSearch(false)}>
               Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Set Date Dialog */}
+      <Dialog open={isBulkDateDialogOpen} onOpenChange={setIsBulkDateDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Set Due Date</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-stone-500 dark:text-stone-400">
+              Set a due date for {selectedCount} selected task{selectedCount !== 1 ? 's' : ''}.
+            </p>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
+                Due Date
+              </label>
+              <input
+                type="date"
+                value={bulkDateValue ? bulkDateValue.toISOString().split('T')[0] : ''}
+                onChange={(e) => setBulkDateValue(e.target.value ? new Date(e.target.value) : undefined)}
+                className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-stone-400"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => {
+              setIsBulkDateDialogOpen(false);
+              setBulkDateValue(undefined);
+            }}>
+              Cancel
+            </Button>
+            <Button onClick={handleBulkSetDate}>
+              Set Date
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <Dialog open={isBulkDeleteDialogOpen} onOpenChange={setIsBulkDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Tasks</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-stone-500 dark:text-stone-400">
+              Are you sure you want to delete {selectedCount} task{selectedCount !== 1 ? 's' : ''}? This action cannot be undone.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setIsBulkDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleBulkDelete}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Delete
             </Button>
           </DialogFooter>
         </DialogContent>

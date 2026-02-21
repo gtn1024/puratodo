@@ -297,7 +297,7 @@
         "Verify selection count displays correctly",
         "Run Tauri build to verify compilation"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 17.3,

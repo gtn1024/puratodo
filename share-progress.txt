@@ -216,7 +216,7 @@ Date: 2026-02-21
 - N/A
 
 ### Next Steps
-- Feature #14: Implement SupabaseTaskAdapter in web app
+- Feature #17.3: Replace TaskDetailSheet with TaskDetailForm in Tauri app
 
 ---
 
@@ -393,6 +393,22 @@ Date: 2026-02-21
 ---
 
 ## Progress Log
+
+### 2026-02-21 (Session 9)
+- Feature #17.2: Replaced TaskBulkActions with shared component in Tauri app
+  - Imported TaskBulkActions from @puratodo/task-ui in DashboardPage.tsx
+  - Added multi-select state (isSelectionMode, selectedTaskIds)
+  - Added bulk dialog states (isBulkDateDialogOpen, bulkDateValue, isBulkDeleteDialogOpen)
+  - Added multi-select handlers: handleToggleSelect, handleSelectAll, handleDeselectAll, handleExitSelectionMode
+  - Added bulk operation handlers: handleBulkComplete, handleBulkStar, handleBulkDelete, handleBulkSetDate
+  - Added "Select" button in header to enter selection mode (shows "N selected" when items are selected)
+  - Added TaskBulkActions bar that appears in selection mode with selectedCount > 0
+  - Added selection checkbox to SortableTaskItem component (shows Check/Circle icons)
+  - Added Bulk Set Date Dialog with date picker
+  - Added Bulk Delete Confirmation Dialog
+  - Note: This was an "Add" operation, not a "Replace" - Tauri app didn't have bulk actions functionality before
+  - Feature adds multi-select and bulk operations (complete, star, delete, set date) to Tauri app
+  - Verified Tauri app builds successfully with `pnpm --filter @puratodo/app build`
 
 ### 2026-02-21 (Session 8)
 - Feature #17.1: Replaced TaskFilters with shared component in Tauri app
