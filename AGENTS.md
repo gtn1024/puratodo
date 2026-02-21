@@ -32,8 +32,6 @@ puratodo/
 │   ├── task-ui/             # Shared business components (@puratodo/task-ui)
 │   ├── api-types/           # API type definitions (@puratodo/api-types)
 │   └── shared/              # Shared utilities (@puratodo/shared)
-├── share-list.json           # UI sharing feature list
-├── share-progress.txt        # UI sharing progress log
 ├── init.sh                  # Development server startup script
 ├── pnpm-workspace.yaml      # Workspace configuration
 ├── package.json             # Root package with scripts
@@ -97,22 +95,6 @@ Key fields:
 
 This project follows a "long-running agent" methodology with daily progress logging:
 
-### For UI Sharing Tasks (share-list.json)
-
-**IMPORTANT: Complete ONE feature at a time, then commit and exit.**
-
-1. Read `share-list.json` - find the FIRST feature with `passes: false`
-2. Read `share-progress.txt` - check current session progress
-3. Run `./init.sh web` to start dev environment (or `./init.sh app` for Tauri)
-4. Implement the feature (follow the steps in share-list.json)
-5. **Test the implementation** (see "Testing UI Sharing Features" section below)
-6. Run `pnpm build` to ensure the monorepo builds successfully
-7. Update `share-list.json` - set `passes: true` for completed feature
-8. Update `share-progress.txt` - document what was completed
-9. **Git commit** - Commit ONLY after testing passes. Never commit untested code.
-10. Output `<promise>DONE</promise>` to signal completion
-11. **EXIT** - The loop will continue in the next iteration
-
 ### For App-Specific Tasks (feature_list.json)
 
 1. Read `apps/web/claude-progress.txt` (for web) or `apps/app/claude-progress.txt` (for Tauri) - check current status
@@ -142,17 +124,6 @@ This project follows a "long-running agent" methodology with daily progress logg
 - **Web app**: Test in browser using `agent-browser` skill or Playwright MCP
 - **Tauri app**: Test by running `cd apps/app && npm run tauri dev` and manually verifying features
 
-#### Testing UI Sharing Features
-
-UI Sharing features (from `share-list.json`) require testing in **both platforms**:
-
-- **Shared Components (Features 3-13)**: Test in web app first using `agent-browser` skill or Playwright MCP
-- **Integration - Web (Features 14-15)**: Test web app with Playwright MCP or `agent-browser` skill
-- **Integration - App (Features 16-17)**: Test Tauri app manually by running `cd apps/app && npm run tauri dev`
-- **Cleanup (Features 18-19)**: Verify both apps build and function correctly
-
-**NOTE**: Always start with web app testing. App integration testing comes later (Features 16-17).
-
 **DO NOT commit until tests pass and the feature works as expected.**
 
 ### init.sh Script
@@ -166,8 +137,8 @@ The `init.sh` script standardizes development server startup:
 
 **NOTE:**
 
-1. Always keep `share-list.json`, `share-progress.txt`, `claude-progress.txt` and `feature_list.json` up to date. These are critical for tracking progress and guiding future development.
-2. ALWAYS get ONLY ONE task from `share-list.json` or `feature_list.json` at a time. This ensures focused development and accurate progress tracking. If you find a task that is too large, let me know!
+1. Always keep `claude-progress.txt` and `feature_list.json` up to date. These are critical for tracking progress and guiding future development.
+2. ALWAYS get ONLY ONE task from `feature_list.json` at a time. This ensures focused development and accurate progress tracking. If you find a task that is too large, let me know!
 
 ## Apps Overview
 
@@ -181,13 +152,6 @@ The `init.sh` script standardizes development server startup:
 - Has **separate** `apps/app/feature_list.json` (~80 features) and `apps/app/claude-progress.txt`
 - Target: Desktop (macOS, Windows, Linux), Mobile (iOS, Android)
 - Connects to web app's API backend via REST API
-
-### UI Sharing (share-list.json)
-- Goal: Reduce code duplication between web and app by creating shared business components
-- Creates `packages/task-ui` with reusable task components (TaskItem, TaskList, TaskDetailForm, etc.)
-- Uses Adapter pattern to abstract data operations (Supabase for web, REST API for app)
-- Progress tracked in `share-list.json` and `share-progress.txt` at project root
-- Currently 19 features planned, starting with infrastructure and moving to shared components
 
 ## Architecture
 
