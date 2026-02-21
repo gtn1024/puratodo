@@ -122,12 +122,28 @@ Date: 2026-02-21
   - Verified package builds successfully with `pnpm --filter @puratodo/task-ui build`
   - Verified entire monorepo builds successfully with `pnpm build`
   - Note: Component is created and builds correctly, but not yet integrated into web app (planned for Feature #15)
+- Feature #9: Extracted RecurrenceEditor component to shared package
+  - Analyzed RecurrenceFields implementation in apps/web/src/components/dashboard/recurrence-fields.tsx
+  - Created packages/task-ui/src/components/RecurrenceEditor.tsx with full recurrence pattern support
+  - Supports all frequency types: daily, weekly, monthly, custom
+  - Supports interval configuration (every N days/weeks/months)
+  - Supports weekday selection for weekly and custom frequencies
+  - Supports custom rule input for advanced recurrence patterns
+  - Supports timezone configuration
+  - Supports end conditions: never, on specific date, after N occurrences
+  - Supports update scope selection (single task or future instances)
+  - Used translation labels object for i18n flexibility
+  - Imported UI components from @puratodo/ui (Button, Checkbox, Input, Label, Popover, Calendar)
+  - Exported RecurrenceEditor and RecurrenceEditorProps from task-ui package
+  - Verified package builds successfully with `pnpm --filter @puratodo/task-ui build`
+  - Verified entire monorepo builds successfully with `pnpm build`
+  - Note: Component is created and builds correctly, but not yet integrated into web app (planned for Feature #15)
 
 ### In Progress
 - N/A
 
 ### Next Steps
-- Feature #9: Extract RecurrenceEditor component to shared package
+- Feature #10: Extract ReminderEditor component to shared package
 
 ---
 

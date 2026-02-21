@@ -34,3 +34,6 @@ export type {
 
 export { TaskBulkActions } from "./TaskBulkActions";
 export type { TaskBulkActionsProps } from "./TaskBulkActions";
+
+export { RecurrenceEditor } from "./RecurrenceEditor";
+export type { RecurrenceEditorProps } from "./RecurrenceEditor";
