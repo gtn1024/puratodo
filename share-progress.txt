@@ -249,11 +249,37 @@ Date: 2026-02-21
 - N/A
 
 ### Next Steps
-- Feature #15.3: Replace TaskDetailSheet with TaskDetailForm in web app
+- Feature #15.4: Replace TaskItem and TaskList with shared components in web app
 
 ---
 
 ## Progress Log
+
+### 2026-02-21 (Session 4)
+- Feature #15.3: Replaced TaskDetailSheet with TaskDetailForm in web app
+  - Imported TaskDetailForm, createRecurrenceEditorValue, toLocalDateString from @puratodo/task-ui
+  - Removed inline form state management (name, dueDate, planDate, comment, durationMinutes)
+  - Removed inline form rendering (Task Name, Due Date, Plan Date, Duration, Comment fields)
+  - Replaced ~170 lines of inline form UI with shared TaskDetailForm component
+  - Injected RecurrenceFields and ReminderFields as RecurrenceEditor and ReminderEditor
+  - Simplified handleSave to delegate to TaskDetailForm's onSave callback
+  - Kept task loading logic and recurrence/remindAt state management in TaskDetailSheet
+  - Sheet wrapper remains app-specific, form logic delegated to shared component
+  - Added translation labels object for i18n support
+  - Web app builds successfully with `pnpm --filter @puratodo/web build`
+  - Tested task detail editing with agent-browser:
+    - Login flow works correctly with test credentials
+    - Navigated to Inbox view with existing tasks
+    - Clicked on "Test Task for Detail Form" to open detail panel
+    - All form fields present: Task Name, Due Date, Plan Date, Duration, Recurrence, Comment
+    - Text fields can be filled (Task Name, Duration, Comment)
+    - Recurrence dropdown shows all options (Does not repeat, Daily, Weekly, Monthly, Custom)
+    - Save and Cancel buttons functional
+    - Updated task name, duration (45 minutes), and comment
+    - Task saved successfully and panel closed
+    - Reopened task to verify changes persisted
+    - All task detail operations work without errors
+  - Reduced code duplication by ~170 lines in task-detail-sheet.tsx
 
 ### 2026-02-21 (Session 3)
 - Feature #15.2: Replaced TaskBulkActions with shared component in web app

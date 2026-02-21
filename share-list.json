@@ -226,7 +226,7 @@
         "Test task detail editing (name, dates, duration, comment, recurrence, reminder)",
         "Run pnpm build to verify compilation"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 15.4,
