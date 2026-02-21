@@ -154,12 +154,28 @@ Date: 2026-02-21
   - Verified package builds successfully with `pnpm --filter @puratodo/task-ui build`
   - Verified entire monorepo builds successfully with `pnpm build`
   - Note: Component is created and builds correctly, but not yet integrated into web app (planned for Feature #15)
+- Feature #11: Extracted Sidebar component to shared package
+  - Analyzed Sidebar implementation in apps/web/src/components/dashboard/sidebar.tsx
+  - Created packages/task-ui/src/components/Sidebar.tsx with full navigation support
+  - Supports quick views: Today, Calendar, Inbox
+  - Supports smart views: Starred, Overdue, Next 7 Days, No Date
+  - Supports groups with nested lists and expand/collapse functionality
+  - Supports drag-and-drop reordering for groups and lists via @dnd-kit
+  - Abstracted data operations via callbacks (onGroupEdit, onGroupDelete, onGroupReorder, etc.)
+  - Supports list management via callbacks (onListEdit, onListDelete, onListReorder, onAddListRequest)
+  - Used dependency injection pattern for header and footer content
+  - Used translation labels object for i18n flexibility
+  - Imported UI components from @puratodo/ui (Button, DropdownMenu)
+  - Exported Sidebar, SidebarProps, SidebarLabels, Group, List, SmartView from task-ui package
+  - Verified package builds successfully with `pnpm --filter @puratodo/task-ui build`
+  - Verified entire monorepo builds successfully with `pnpm build`
+  - Note: Component is created and builds correctly, but not yet integrated into web app (planned for Feature #15)
 
 ### In Progress
 - N/A
 
 ### Next Steps
-- Feature #11: Extract Sidebar component to shared package
+- Feature #12: Extract CommandPalette component to shared package
 
 ---
 

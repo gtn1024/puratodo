@@ -40,3 +40,12 @@ export type { RecurrenceEditorProps } from "./RecurrenceEditor";
 
 export { ReminderEditor } from "./ReminderEditor";
 export type { ReminderEditorProps, ReminderEditorValue, ReminderPreset } from "./ReminderEditor";
+
+export { Sidebar } from "./Sidebar";
+export type {
+  SidebarProps,
+  SidebarLabels,
+  Group,
+  List,
+  SmartView,
+} from "./Sidebar";
