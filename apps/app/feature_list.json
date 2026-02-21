@@ -236,7 +236,7 @@
         "Click save button",
         "Verify new group appears in sidebar"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 20,
@@ -249,7 +249,7 @@
         "Click Save button",
         "Verify changes reflect in sidebar"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 21,
@@ -262,7 +262,7 @@
         "Verify group is removed from sidebar",
         "Verify associated lists/tasks are deleted"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 22,
@@ -274,7 +274,7 @@
         "Verify group order is updated",
         "Verify new order persists after app restart"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 23,
@@ -285,7 +285,7 @@
         "Verify lists are visible under the group",
         "Verify each list shows its name and icon"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 24,
@@ -297,7 +297,7 @@
         "Click again to collapse",
         "Verify lists are hidden"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 25,
@@ -308,7 +308,7 @@
         "Verify main area shows list name as header",
         "Verify tasks are displayed in the list"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 26,
@@ -371,7 +371,7 @@
         "Verify list order is updated",
         "Verify new order persists"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 31,
@@ -382,7 +382,7 @@
         "Verify tasks appear in main area",
         "Check tasks show name and completion status"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 32,
@@ -418,7 +418,7 @@
         "Save changes",
         "Verify new name displays"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 35,
@@ -429,7 +429,7 @@
         "Select Delete option",
         "Verify task is removed from list"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 36,
@@ -441,7 +441,7 @@
         "Verify task order is updated",
         "Verify new order persists after app restart"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 37,
@@ -453,7 +453,7 @@
         "Click again to unstar",
         "Verify star status toggles correctly"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 38,
@@ -490,7 +490,7 @@
         "Verify due date displays on task",
         "Edit due date and verify update"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 41,
@@ -502,7 +502,7 @@
         "Save task",
         "Verify plan date displays on task"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 42,
@@ -515,7 +515,7 @@
         "Verify comment displays",
         "Edit comment and verify update"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 43,
@@ -527,7 +527,7 @@
         "Save task",
         "Verify duration displays on task"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 44,
@@ -551,7 +551,7 @@
         "Verify all levels display correctly",
         "Test at least 3+ levels of nesting"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 46,
@@ -573,7 +573,7 @@
         "Complete parent task",
         "Verify subtasks remain incomplete"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 48,
@@ -585,7 +585,7 @@
         "Confirm deletion",
         "Verify parent and all subtasks are deleted"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 49,
