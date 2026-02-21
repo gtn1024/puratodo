@@ -249,11 +249,31 @@ Date: 2026-02-21
 - N/A
 
 ### Next Steps
-- Feature #15.2: Replace TaskBulkActions with shared component in web app
+- Feature #15.3: Replace TaskDetailSheet with TaskDetailForm in web app
 
 ---
 
 ## Progress Log
+
+### 2026-02-21 (Session 3)
+- Feature #15.2: Replaced TaskBulkActions with shared component in web app
+  - Imported TaskBulkActions from @puratodo/task-ui in task-panel.tsx
+  - Replaced inline bulk actions bar (78 lines) with shared TaskBulkActions component
+  - Mapped bulk action callbacks to shared component's interface
+  - Added translation labels object for i18n support
+  - Web app builds successfully with `pnpm --filter @puratodo/web build`
+  - Tested bulk operations with agent-browser:
+    - Enter selection mode by clicking "Select" button
+    - Selection checkboxes appear next to each task (Square/CheckSquare icons)
+    - Select 2 tasks by clicking selection checkboxes
+    - Bulk actions bar appears showing "2 selected" with all action buttons visible
+    - Select All and Deselect All buttons work correctly
+    - Bulk Complete action works - tasks are marked as completed
+    - Bulk Star action works - selected tasks get yellow filled stars
+    - Cancel button exits selection mode and returns to normal view
+    - Selection count displays correctly throughout the workflow
+    - All bulk operations work without errors
+  - Reduced code duplication by ~78 lines in task-panel.tsx
 
 ### 2026-02-21 (Session 2)
 - Feature #15.1: Replaced TaskFilters with shared component in web app

@@ -71,7 +71,11 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { TaskFilters as SharedTaskFilters, type TaskFiltersValue } from "@puratodo/task-ui";
+import {
+  TaskFilters as SharedTaskFilters,
+  TaskBulkActions,
+  type TaskFiltersValue,
+} from "@puratodo/task-ui";
 
 // Local filter types for internal use (maps to shared types)
 type StatusFilter = TaskFiltersValue["status"];
@@ -1309,82 +1313,30 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
 
       {/* Bulk Action Bar */}
       {isSelectionMode && selectedCount > 0 && (
-        <div className="flex items-center justify-between px-6 py-3 bg-blue-50 dark:bg-blue-900/20 border-t border-b border-blue-200 dark:border-blue-800">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-              {selectedCount} {t("taskPanel.tasksSelected")}
-            </span>
-            <Button variant="ghost" size="sm" onClick={handleSelectAll}>
-              {t("taskPanel.selectAll")}
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handleDeselectAll}>
-              Deselect
-            </Button>
-          </div>
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleBulkComplete(true)}
-              className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300"
-            >
-              <CheckCircle className="h-4 w-4 mr-1" />
-              {t("taskPanel.complete")}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleBulkComplete(false)}
-              className="text-stone-600 dark:text-stone-400"
-            >
-              <Circle className="h-4 w-4 mr-1" />
-              {t("taskPanel.incomplete")}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleBulkStar(true)}
-              className="text-yellow-600 dark:text-yellow-400 hover:text-yellow-700 dark:hover:text-yellow-300"
-            >
-              <StarIcon className="h-4 w-4 mr-1" />
-              {t("taskPanel.star")}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleBulkStar(false)}
-              className="text-stone-600 dark:text-stone-400"
-            >
-              <StarIcon className="h-4 w-4 mr-1" />
-              {t("taskPanel.unstar")}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={openBulkDeleteDialog}
-              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
-            >
-              <Trash2 className="h-4 w-4 mr-1" />
-              {t("taskPanel.delete")}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsBulkDateDialogOpen(true)}
-            >
-              <Calendar className="h-4 w-4 mr-1" />
-              {t("taskPanel.setDate")}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleToggleSelectionMode}
-            >
-              <X className="h-4 w-4 mr-1" />
-              {t("taskPanel.cancel")}
-            </Button>
-          </div>
-        </div>
+        <TaskBulkActions
+          selectedCount={selectedCount}
+          onSelectAll={handleSelectAll}
+          onDeselectAll={handleDeselectAll}
+          onComplete={() => handleBulkComplete(true)}
+          onIncomplete={() => handleBulkComplete(false)}
+          onStar={() => handleBulkStar(true)}
+          onUnstar={() => handleBulkStar(false)}
+          onDelete={openBulkDeleteDialog}
+          onSetDate={() => setIsBulkDateDialogOpen(true)}
+          onCancel={handleToggleSelectionMode}
+          labels={{
+            tasksSelected: t("taskPanel.tasksSelected"),
+            selectAll: t("taskPanel.selectAll"),
+            deselect: "Deselect",
+            complete: t("taskPanel.complete"),
+            incomplete: t("taskPanel.incomplete"),
+            star: t("taskPanel.star"),
+            unstar: t("taskPanel.unstar"),
+            delete: t("taskPanel.delete"),
+            setDate: t("taskPanel.setDate"),
+            cancel: t("taskPanel.cancel"),
+          }}
+        />
       )}
 
       {/* Task List */}
