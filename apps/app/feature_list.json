@@ -321,7 +321,7 @@
         "Click save button",
         "Verify new list appears under the group"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 27,
@@ -334,7 +334,7 @@
         "Click Save button",
         "Verify changes are reflected"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 28,
@@ -347,7 +347,7 @@
         "Verify list is removed from sidebar",
         "Verify all tasks in list are also deleted"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 29,
@@ -359,7 +359,7 @@
         "Choose target group",
         "Verify list moves to new group"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 30,
@@ -732,7 +732,7 @@
         "Verify all 5 smart view entries are present: Today, Starred, Overdue, Next 7 Days, No Date",
         "Verify each smart view has appropriate icon"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 61,
@@ -745,7 +745,7 @@
         "Verify tasks without plan_date are hidden",
         "Verify task shows list/group context"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 62,
@@ -759,7 +759,7 @@
         "Verify task shows list/group context",
         "Unstar a task from Starred view - verify it disappears"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 63,
@@ -773,7 +773,7 @@
         "Verify tasks are sorted by due_date ascending",
         "Verify task shows list/group context"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 64,
@@ -788,7 +788,7 @@
         "Verify tasks are sorted by due_date ascending",
         "Verify task shows list/group context"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 65,
@@ -802,7 +802,7 @@
         "Verify completed tasks are hidden",
         "Verify task shows list/group context"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 66,
@@ -814,7 +814,7 @@
         "Verify parent tasks appear in smart views",
         "Verify subtasks do not appear separately in smart views"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 67,

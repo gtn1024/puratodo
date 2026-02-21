@@ -20,6 +20,8 @@ import {
   Sun,
   Menu,
   Circle,
+  AlertTriangle,
+  CalendarDays,
 } from "lucide-react";
 import {
   Button,
@@ -116,7 +118,7 @@ export function DashboardPage() {
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
   const [isLoadingTasks, setIsLoadingTasks] = React.useState(false);
   const [selectedListId, setSelectedListId] = React.useState<string | null>(null);
-  const [currentView, setCurrentView] = React.useState<'today' | 'starred' | 'list'>('today');
+  const [currentView, setCurrentView] = React.useState<'today' | 'starred' | 'overdue' | 'next7days' | 'nodate' | 'list'>('today');
   const [expandedGroups, setExpandedGroups] = React.useState<Set<string>>(new Set());
   const [expandedTasks, setExpandedTasks] = React.useState<Set<string>>(new Set());
   const [showNewGroupInput, setShowNewGroupInput] = React.useState(false);
@@ -736,6 +738,36 @@ export function DashboardPage() {
     ).sort((a, b) => a.sort_order - b.sort_order);
   };
 
+  // Get overdue tasks (due_date in the past and not completed)
+  const getOverdueTasks = (): Task[] => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().split('T')[0];
+    return tasks.filter((task) =>
+      !task.parent_id && !task.completed && task.due_date && task.due_date < todayStr
+    ).sort((a, b) => (a.due_date || '').localeCompare(b.due_date || ''));
+  };
+
+  // Get next 7 days tasks (due_date within next 7 days and not completed)
+  const getNext7DaysTasks = (): Task[] => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().split('T')[0];
+    const next7Days = new Date(today);
+    next7Days.setDate(next7Days.getDate() + 7);
+    const next7DaysStr = next7Days.toISOString().split('T')[0];
+    return tasks.filter((task) =>
+      !task.parent_id && !task.completed && task.due_date && task.due_date >= todayStr && task.due_date <= next7DaysStr
+    ).sort((a, b) => (a.due_date || '').localeCompare(b.due_date || ''));
+  };
+
+  // Get tasks with no date (no due_date and no plan_date, not completed)
+  const getNoDateTasks = (): Task[] => {
+    return tasks.filter((task) =>
+      !task.parent_id && !task.completed && !task.due_date && !task.plan_date
+    ).sort((a, b) => a.sort_order - b.sort_order);
+  };
+
   // Get display tasks based on current view
   const getDisplayTasks = (): TaskWithSubtasks[] => {
     let tasks: Task[];
@@ -743,6 +775,12 @@ export function DashboardPage() {
       tasks = getTodayTasks();
     } else if (currentView === 'starred') {
       tasks = getStarredTasks();
+    } else if (currentView === 'overdue') {
+      tasks = getOverdueTasks();
+    } else if (currentView === 'next7days') {
+      tasks = getNext7DaysTasks();
+    } else if (currentView === 'nodate') {
+      tasks = getNoDateTasks();
     } else if (selectedListId) {
       tasks = getRootTasks(selectedListId);
     } else {
@@ -759,6 +797,12 @@ export function DashboardPage() {
       return 'Today';
     } else if (currentView === 'starred') {
       return 'Starred';
+    } else if (currentView === 'overdue') {
+      return 'Overdue';
+    } else if (currentView === 'next7days') {
+      return 'Next 7 Days';
+    } else if (currentView === 'nodate') {
+      return 'No Date';
     } else if (selectedList) {
       return selectedList.name;
     }
@@ -1009,35 +1053,83 @@ export function DashboardPage() {
 
         {/* Navigation */}
         <nav className="flex-1 px-3 overflow-y-auto">
-          <div className="space-y-1">
-            <button
-              onClick={() => {
-                setCurrentView('today');
-                setSelectedListId(null);
-              }}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                currentView === 'today'
-                  ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
-                  : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
-              }`}
-            >
-              <CheckCircle2 className="w-5 h-5" />
-              <span>Today</span>
-            </button>
-            <button
-              onClick={() => {
-                setCurrentView('starred');
-                setSelectedListId(null);
-              }}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                currentView === 'starred'
-                  ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
-                  : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
-              }`}
-            >
-              <Star className="w-5 h-5" />
-              <span>Starred</span>
-            </button>
+          {/* Smart Views section */}
+          <div>
+            <h3 className="px-3 py-2 text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
+              Smart Views
+            </h3>
+            <div className="space-y-1">
+              <button
+                onClick={() => {
+                  setCurrentView('today');
+                  setSelectedListId(null);
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  currentView === 'today'
+                    ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
+                    : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
+                }`}
+              >
+                <CheckCircle2 className="w-5 h-5" />
+                <span>Today</span>
+              </button>
+              <button
+                onClick={() => {
+                  setCurrentView('starred');
+                  setSelectedListId(null);
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  currentView === 'starred'
+                    ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
+                    : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
+                }`}
+              >
+                <Star className="w-5 h-5" />
+                <span>Starred</span>
+              </button>
+              <button
+                onClick={() => {
+                  setCurrentView('overdue');
+                  setSelectedListId(null);
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  currentView === 'overdue'
+                    ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
+                    : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
+                }`}
+              >
+                <AlertTriangle className="w-5 h-5" />
+                <span>Overdue</span>
+              </button>
+              <button
+                onClick={() => {
+                  setCurrentView('next7days');
+                  setSelectedListId(null);
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  currentView === 'next7days'
+                    ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
+                    : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
+                }`}
+              >
+                <CalendarDays className="w-5 h-5" />
+                <span>Next 7 Days</span>
+              </button>
+              <button
+                onClick={() => {
+                  setCurrentView('nodate');
+                  setSelectedListId(null);
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  currentView === 'nodate'
+                    ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
+                    : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
+                }`}
+              >
+                <Circle className="w-5 h-5" />
+                <span>No Date</span>
+              </button>
+            </div>
           </div>
 
           {/* Groups section */}
@@ -1323,35 +1415,83 @@ export function DashboardPage() {
 
         {/* Navigation */}
         <nav className="flex-1 px-3 overflow-y-auto">
-          <div className="space-y-1">
-            <button
-              onClick={() => {
-                setCurrentView('today');
-                setSelectedListId(null);
-              }}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                currentView === 'today'
-                  ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
-                  : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
-              }`}
-            >
-              <CheckCircle2 className="w-5 h-5" />
-              <span>Today</span>
-            </button>
-            <button
-              onClick={() => {
-                setCurrentView('starred');
-                setSelectedListId(null);
-              }}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                currentView === 'starred'
-                  ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
-                  : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
-              }`}
-            >
-              <Star className="w-5 h-5" />
-              <span>Starred</span>
-            </button>
+          {/* Smart Views section */}
+          <div>
+            <h3 className="px-3 py-2 text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
+              Smart Views
+            </h3>
+            <div className="space-y-1">
+              <button
+                onClick={() => {
+                  setCurrentView('today');
+                  setSelectedListId(null);
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  currentView === 'today'
+                    ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
+                    : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
+                }`}
+              >
+                <CheckCircle2 className="w-5 h-5" />
+                <span>Today</span>
+              </button>
+              <button
+                onClick={() => {
+                  setCurrentView('starred');
+                  setSelectedListId(null);
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  currentView === 'starred'
+                    ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
+                    : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
+                }`}
+              >
+                <Star className="w-5 h-5" />
+                <span>Starred</span>
+              </button>
+              <button
+                onClick={() => {
+                  setCurrentView('overdue');
+                  setSelectedListId(null);
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  currentView === 'overdue'
+                    ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
+                    : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
+                }`}
+              >
+                <AlertTriangle className="w-5 h-5" />
+                <span>Overdue</span>
+              </button>
+              <button
+                onClick={() => {
+                  setCurrentView('next7days');
+                  setSelectedListId(null);
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  currentView === 'next7days'
+                    ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
+                    : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
+                }`}
+              >
+                <CalendarDays className="w-5 h-5" />
+                <span>Next 7 Days</span>
+              </button>
+              <button
+                onClick={() => {
+                  setCurrentView('nodate');
+                  setSelectedListId(null);
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  currentView === 'nodate'
+                    ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
+                    : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
+                }`}
+              >
+                <Circle className="w-5 h-5" />
+                <span>No Date</span>
+              </button>
+            </div>
           </div>
 
           {/* Groups section */}
