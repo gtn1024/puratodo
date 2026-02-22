@@ -499,6 +499,21 @@ export function DashboardPage() {
     }
   };
 
+  // Handle move task to different list
+  const handleMoveToList = async (task: TaskWithSubtasks, targetListId: string) => {
+    try {
+      await updateTask(task.id, { list_id: targetListId });
+      setTaskContextMenu(null);
+      // If the moved task is currently selected, deselect it
+      if (selectedTaskId === task.id) {
+        setSelectedTaskId(null);
+      }
+    } catch (err) {
+      console.error("Failed to move task:", err);
+      alert("Failed to move task. Please try again.");
+    }
+  };
+
   // Toggle task completion
   const toggleTaskComplete = async (taskId: string, currentCompleted: boolean) => {
     try {
@@ -807,6 +822,22 @@ export function DashboardPage() {
       return selectedList.name;
     }
     return 'Today';
+  };
+
+  // Get move targets for tasks (all lists except current)
+  const getMoveTargets = (): InboxMoveTarget[] => {
+    if (!selectedList) return [];
+    return lists
+      .filter((list) => list.id !== selectedList.id)
+      .map((list) => {
+        const group = groups.find((g) => g.id === list.group_id);
+        return {
+          listId: list.id,
+          listName: list.name,
+          listIcon: list.icon || "📋",
+          groupName: group?.name || "",
+        };
+      });
   };
 
   // Fetch tasks when view changes
@@ -1984,6 +2015,9 @@ export function DashboardPage() {
                     onEditNameChange={setEditingTaskName}
                     onSaveEdit={saveEditTask}
                     onCancelEdit={cancelEditTask}
+                    canMoveFromInbox={currentView === 'list'}
+                    moveTargets={getMoveTargets()}
+                    onMoveToList={handleMoveToList}
                     disableSorting={currentView !== 'list'}
                     allowSubtaskActions={currentView === 'list'}
                     onReorder={handleReorder}

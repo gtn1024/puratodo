@@ -558,11 +558,12 @@
       "category": "Task Advanced",
       "description": "User can move a task to a different list",
       "steps": [
-        "Drag a task",
-        "Drop it onto a different list in sidebar",
+        "Right-click on a task",
+        "Select 'Move to...' from context menu",
+        "Choose target list from dropdown",
         "Verify task moves to new list"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 47,

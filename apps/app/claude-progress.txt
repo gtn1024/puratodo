@@ -1,5 +1,60 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 11: Move Task to Different List
+**Date:** 2026-02-22
+
+### What was done
+Implemented "Move task to different list" feature (Feature #46):
+
+1. **Added move task handler:**
+   - Created `handleMoveToList(task, targetListId)` function
+   - Updates task's `list_id` via API
+   - Deselects task if it was selected
+   - Shows error message on failure
+
+2. **Added move targets calculation:**
+   - Created `getMoveTargets()` function
+   - Returns all lists except the current list
+   - Includes list name, icon, and group name for each target
+
+3. **Updated TaskList component props:**
+   - Added `canMoveFromInbox={currentView === 'list'}`
+   - Added `moveTargets={getMoveTargets()}`
+   - Added `onMoveToList={handleMoveToList}`
+
+4. **User workflow:**
+   - Right-click on task → context menu shows "Move to..." option
+   - Click "Move to..." → shows dropdown with all available lists
+   - Select target list → task is moved immediately
+   - Task disappears from current list and appears in target list
+
+### Features Updated
+- id 46: Move task to different list → passes: true
+
+### Current Status
+- 61/80 items passing (76.25%)
+- Task Advanced: 9/10 passing (90%)
+- Only missing advanced task features: realtime sync, global search
+
+### Build Status
+- apps/app: Builds successfully
+
+### Technical Notes
+- Leverages existing TaskItem "Move to..." dropdown menu from @puratodo/task-ui
+- Uses existing `updateTask` API which already supports `list_id` field
+- Only available in list view (not in smart views)
+- Root tasks can be moved; subtasks stay with parent
+
+### Commits
+1. feat(app): add move task to different list functionality
+
+### Next Steps
+- Implement keyboard shortcuts (Feature #53)
+- Add loading states with skeleton screens (Feature #54)
+- Implement global search (Features #57-58)
+
+---
+
 ## Session 10: Window State Persistence & Feature Verification
 **Date:** 2026-02-22
 
