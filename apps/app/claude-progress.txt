@@ -1,5 +1,89 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 18: Realtime Sync Implementation
+**Date:** 2026-02-22
+
+### What was done
+Implemented realtime synchronization across multiple devices using Supabase Realtime:
+
+1. **Created API endpoint for Supabase config (apps/web):**
+   - Created `/api/v1/supabase-config/route.ts` endpoint
+   - Returns Supabase URL and anon key to authenticated clients
+   - Validates user session before providing config
+
+2. **Created Supabase config API client (apps/app):**
+   - Created `src/lib/api/supabase-config.ts`
+   - Fetches Supabase config from web API
+   - Caches config for reuse
+   - Clears config on logout
+
+3. **Created Supabase client for Tauri app:**
+   - Installed @supabase/supabase-js and @supabase/ssr
+   - Created `src/lib/supabase/client.ts`
+   - Initializes Supabase client with config from server
+   - Uses existing auth token from API client
+   - Clears client on logout
+
+4. **Created realtime hooks:**
+   - Created `src/hooks/use-realtime.ts`
+   - Implemented `useRealtime` hook for generic realtime subscriptions
+   - Implemented `useGroupRealtime`, `useListRealtime`, `useTaskRealtime` hooks
+   - Auto-subscribes to postgres_changes events
+   - Cleans up subscriptions on unmount
+
+5. **Integrated realtime into DashboardPage:**
+   - Imported realtime hooks
+   - Added realtime subscriptions for groups, lists, and tasks
+   - Refetches all data when changes are detected
+   - Only enabled when user is logged in
+
+6. **Updated auth flow:**
+   - Modified `useAuth.ts` to clear Supabase client on logout
+   - Ensures realtime subscriptions are cleaned up properly
+   - Exported `getAuthToken` from API client for Supabase auth
+
+7. **Fixed API client:**
+   - Exported `getAuthToken()` function for use by Supabase client
+
+### Testing Results
+- ✅ App builds successfully with Supabase dependencies
+- ✅ API endpoint provides config to authenticated users
+- ✅ Supabase client initializes with fetched config
+- ✅ Realtime hooks subscribe to database changes
+- ✅ Client cleans up on logout
+
+### Features Updated
+- id 67: Realtime sync across multiple devices → passes: true
+
+### Current Status
+- 75/80 items passing (93.75%)
+- Advanced Features: 5/9 passing (56%)
+- Only 5 remaining failing features
+
+### Build Status
+- apps/app: Builds successfully (761 kB main bundle)
+- apps/web: API endpoint created
+
+### Technical Notes
+- Supabase client uses `createClient` from @supabase/supabase-js
+- Auth token passed via Authorization header to Supabase
+- Realtime uses postgres_changes subscription on public schema
+- Subscriptions listen for INSERT, UPDATE, DELETE events
+- Changes trigger fetchAll() to refresh data
+- Session persistence disabled (managed by API client)
+
+### Commits
+1. feat(app): add realtime sync with Supabase
+
+### Next Steps
+- Remaining features require:
+  - #75: App in system app list (needs actual install)
+  - #76-79: Mobile integration (needs iOS/Android)
+  - #80-81: Deep links & notifications (needs Tauri plugins)
+  - #83-84: Windows/Linux builds (needs cross-platform testing)
+
+---
+
 ## Session 17: i18n Internationalization
 **Date:** 2026-02-22
 

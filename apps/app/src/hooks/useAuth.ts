@@ -3,6 +3,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { authApi, type LoginCredentials, type RegisterCredentials } from "@/lib/api/auth";
 import { ApiException } from "@/lib/api/client";
 import { getPendingApiUrl, setPendingApiUrl } from "@/lib/api/config";
+import { clearSupabaseClient } from "@/lib/supabase/client";
 
 interface UseAuthReturn {
   login: (credentials: LoginCredentials) => Promise<{ success: boolean; error?: string }>;
@@ -88,6 +89,8 @@ export function useAuth(): UseAuthReturn {
     } catch {
       // Ignore logout API errors, still clear local state
     } finally {
+      // Clear Supabase client and realtime subscriptions
+      clearSupabaseClient();
       setLogout();
       setIsLoading(false);
     }

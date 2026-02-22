@@ -48,7 +48,7 @@ export function setRefreshFailedCallback(callback: () => void): void {
 }
 
 // Get auth token from storage
-function getAuthToken(): string | null {
+export function getAuthToken(): string | null {
   return localStorage.getItem("authToken");
 }
 

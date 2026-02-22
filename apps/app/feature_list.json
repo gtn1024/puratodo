@@ -826,7 +826,7 @@
         "Create/update/delete task in one window",
         "Verify changes appear in other window automatically"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 68,

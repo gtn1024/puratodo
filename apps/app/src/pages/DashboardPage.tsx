@@ -51,6 +51,7 @@ import { TaskDetailSheet } from "@/components/TaskDetailSheet";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { useGroupRealtime, useListRealtime, useTaskRealtime } from "@/hooks/use-realtime";
 import { useAuthStore } from "@/stores/authStore";
 import { useDataStore } from "@/stores/dataStore";
 import type { List as ListType } from "@/lib/api/lists";
@@ -222,6 +223,15 @@ export function DashboardPage() {
     setSelectedListId(null);
     void fetchAll();
   }, [activeAccountId, clear, fetchAll]);
+
+  // Realtime subscriptions - refetch data when changes occur
+  const handleRealtimeChange = React.useCallback(() => {
+    void fetchAll();
+  }, [fetchAll]);
+
+  useGroupRealtime(handleRealtimeChange, !!activeAccountId);
+  useListRealtime(handleRealtimeChange, !!activeAccountId);
+  useTaskRealtime(handleRealtimeChange, !!activeAccountId);
 
   // Toggle group expansion
   const toggleGroup = (groupId: string) => {
