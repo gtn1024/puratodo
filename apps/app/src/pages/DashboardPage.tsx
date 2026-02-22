@@ -195,7 +195,7 @@ export function DashboardPage() {
   } | null>(null);
 
   // Responsive three-column layout state
-  const { showDetailPanel, showSidebarSheet, isXs } = useBreakpoint();
+  const { showDetailPanel, showSidebarSheet, isXs, isSm, isMd } = useBreakpoint();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [selectedTaskId, setSelectedTaskId] = React.useState<string | null>(null);
   const [mobileDetailOpen, setMobileDetailOpen] = React.useState(false);
@@ -2124,7 +2124,7 @@ export function DashboardPage() {
                 selectedTaskId={selectedTaskId}
                 onTaskSelect={(taskId) => {
                   setSelectedTaskId(taskId);
-                  if (breakpoint === 'xs' || breakpoint === 'sm' || breakpoint === 'md') {
+                  if (isXs || isSm || isMd) {
                     setMobileDetailOpen(true);
                   }
                 }}
