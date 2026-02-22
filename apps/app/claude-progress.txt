@@ -22,21 +22,32 @@ Continued enhancing internationalization (i18n) support:
    - Buttons and placeholders internationalized
    - Empty state message internationalized
 
+4. **Updated AccountSwitcher component:**
+   - Added useI18n hook
+   - Menu items internationalized (Accounts, Add account, Manage, Sign out)
+   - All text uses account.* translation keys
+
 ### Testing Results
 - ✅ TypeScript compilation passes
-- ✅ App builds successfully (800.53 kB main bundle)
+- ✅ App builds successfully (800.57 kB main bundle)
 - ✅ All i18n keys properly defined
 - ✅ No runtime errors
 
 ### Commits
 1. feat(i18n): internationalize RegisterPage component
 2. feat(i18n): internationalize App and TaskDetailPanel components
+3. feat(i18n): internationalize AccountSwitcher component
 
 ### Current Status
 - **93/100 items passing (93%)**
 - **i18n: 2/2 passing (100%)**
-- Components with i18n: LoginPage, RegisterPage, CalendarPanel, App, TaskDetailPanel
-- Remaining: AccountSwitcher, AccountSettingsDialog, DashboardPage
+- Components with i18n: LoginPage, RegisterPage, CalendarPanel, App, TaskDetailPanel, AccountSwitcher
+- Remaining: AccountSettingsDialog, DashboardPage (large file)
+
+### Build Status
+- apps/app: Builds successfully
+- All i18n features working correctly
+- Bundle size: 800.57 kB
 
 ---
 
