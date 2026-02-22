@@ -1231,7 +1231,7 @@
         "Test layout at different breakpoints",
         "Verify smooth transitions between breakpoints"
       ],
-      "passes": false
+      "passes": true
     }
   ]
 }

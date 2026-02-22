@@ -9,6 +9,7 @@ import {
 import { tasksApi } from "@/lib/api/tasks";
 import type { TaskSearchResult } from "@/lib/api/tasks";
 import { useDataStore } from "@/stores/dataStore";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 
 interface CalendarPanelProps {
   selectedTaskId: string | null;
@@ -20,12 +21,16 @@ export function CalendarPanel({
   onTaskSelect,
 }: CalendarPanelProps) {
   const { lists, groups } = useDataStore();
+  const breakpoint = useBreakpoint();
   const [currentDate, setCurrentDate] = React.useState(new Date());
   const [selectedListId, setSelectedListId] = React.useState<string | null>(null);
   const [tasks, setTasks] = React.useState<CalendarTask[]>([]);
   const [unscheduledTasks, setUnscheduledTasks] = React.useState<CalendarTask[]>([]);
   const [isLoadingTasks, setIsLoadingTasks] = React.useState(false);
   const [isLoadingUnscheduled, setIsLoadingUnscheduled] = React.useState(false);
+
+  // Responsive: Show unscheduled sidebar only on md+ screens
+  const showUnscheduledSidebar = breakpoint === "md" || breakpoint === "lg" || breakpoint === "xl";
 
   // Get current month and year
   const currentMonth = currentDate.getMonth();
@@ -269,7 +274,7 @@ export function CalendarPanel({
           ))}
         </div>
 
-        {/* Calendar Grid */}
+        {/* Calendar Grid - Responsive minimum height on mobile */}
         <div className="flex-1 grid grid-cols-7 auto-rows-fr overflow-y-auto">
           {calendarDays.map((day, index) => {
             const dayTasks = getTasksForDate(day.date);
@@ -288,20 +293,22 @@ export function CalendarPanel({
         </div>
       </div>
 
-      {/* Unscheduled Tasks Sidebar */}
-      <div className="w-80 border-l flex flex-col bg-muted/30">
-        <div className="p-4 border-b">
-          <h3 className="font-semibold">Unscheduled Tasks</h3>
+      {/* Unscheduled Tasks Sidebar - Hidden on mobile (< md) */}
+      {showUnscheduledSidebar && (
+        <div className="w-80 border-l flex flex-col bg-muted/30">
+          <div className="p-4 border-b">
+            <h3 className="font-semibold">Unscheduled Tasks</h3>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4">
+            <UnscheduledTaskList
+              tasks={unscheduledTasks}
+              isLoading={isLoadingUnscheduled}
+              selectedTaskId={selectedTaskId}
+              onTaskSelect={onTaskSelect}
+            />
+          </div>
         </div>
-        <div className="flex-1 overflow-y-auto p-4">
-          <UnscheduledTaskList
-            tasks={unscheduledTasks}
-            isLoading={isLoadingUnscheduled}
-            selectedTaskId={selectedTaskId}
-            onTaskSelect={onTaskSelect}
-          />
-        </div>
-      </div>
+      )}
     </div>
   );
 }
