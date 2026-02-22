@@ -1,5 +1,54 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 12: Feature Verification - Keyboard Shortcuts & Global Search
+**Date:** 2026-02-22
+
+### What was done
+Verified and updated already-implemented features:
+
+1. **Keyboard Shortcuts (Feature #53):**
+   - Cmd+N / Ctrl+N: Opens new task input (with list selection check)
+   - Cmd+K / Ctrl+K: Opens global search dialog
+   - Escape: Closes dialogs automatically (shadcn/ui Dialog component)
+   - All shortcuts working correctly
+
+2. **Global Search (Features #57-58):**
+   - Search dialog with search icon in header + keyboard shortcut
+   - Search across all lists via `searchTasks()` function
+   - Results show task name, completion status, star status
+   - Shows group/list context for each result
+   - Click result navigates to task's list
+   - Fully functional global search
+
+### Features Updated
+- id 53: Keyboard shortcuts → passes: true (already implemented)
+- id 57: Global search across all tasks → passes: true (already implemented)
+- id 58: Search works across all lists → passes: true (already implemented)
+
+### Current Status
+- 64/80 items passing (80%)
+- UI/UX Optimization: 10/13 passing (77%)
+- Advanced Features: 3/9 passing (33%)
+
+### Build Status
+- apps/app: Already running successfully
+
+### Technical Notes
+- Keyboard shortcuts implemented with `useEffect` and `keydown` listener
+- Search uses `searchTasks()` function that filters tasks by name
+- Dialog component handles Escape key automatically via shadcn/ui
+- Search shows task context (group name / list name)
+
+### Commits
+1. docs(app): verify keyboard shortcuts and global search features
+
+### Next Steps
+- Implement loading states with skeleton screens (Feature #54)
+- Implement task filtering by status (Feature #59)
+- Test and verify desktop/mobile integration features
+
+---
+
 ## Session 11: Move Task to Different List
 **Date:** 2026-02-22
 

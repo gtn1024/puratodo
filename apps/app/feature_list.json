@@ -650,7 +650,7 @@
         "Verify search dialog opens",
         "Press Escape to close dialogs"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 54,
@@ -697,7 +697,7 @@
         "Verify search results appear",
         "Click result and verify navigation"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 58,
@@ -709,7 +709,7 @@
         "Search for one of the unique names",
         "Verify task is found regardless of which list it's in"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 59,
