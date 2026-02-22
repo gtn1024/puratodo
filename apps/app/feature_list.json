@@ -1138,7 +1138,7 @@
         "Manage tasks and unscheduledTasks state",
         "Load tasks on date/filter change using API client"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 94,
@@ -1151,7 +1151,7 @@
         "Add weekday headers row (Sun, Mon, Tue, etc.)",
         "Verify navigation updates calendar grid"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 95,
@@ -1164,7 +1164,7 @@
         "Filter calendar tasks when list is selected",
         "Filter unscheduled tasks when list is selected"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 96,
@@ -1177,7 +1177,7 @@
         "Open task detail panel when task is selected",
         "Verify task detail shows correct task info"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 97,
@@ -1190,7 +1190,7 @@
         "Place Calendar entry above or below Smart Views section",
         "Verify clicking entry switches to calendar view"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 98,

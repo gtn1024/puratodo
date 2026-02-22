@@ -48,6 +48,7 @@ import { AccountSettingsDialog } from "@/components/AccountSettingsDialog";
 import { AccountSwitcher } from "@/components/AccountSwitcher";
 import { TaskDetailPanel } from "@/components/TaskDetailPanel";
 import { TaskDetailSheet } from "@/components/TaskDetailSheet";
+import { CalendarPanel } from "@/components/CalendarPanel";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
@@ -121,7 +122,7 @@ export function DashboardPage() {
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
   const [isLoadingTasks, setIsLoadingTasks] = React.useState(false);
   const [selectedListId, setSelectedListId] = React.useState<string | null>(null);
-  const [currentView, setCurrentView] = React.useState<'today' | 'starred' | 'overdue' | 'next7days' | 'nodate' | 'list'>('today');
+  const [currentView, setCurrentView] = React.useState<'today' | 'starred' | 'overdue' | 'next7days' | 'nodate' | 'list' | 'calendar'>('today');
   const [expandedGroups, setExpandedGroups] = React.useState<Set<string>>(new Set());
   const [expandedTasks, setExpandedTasks] = React.useState<Set<string>>(new Set());
   const [showNewGroupInput, setShowNewGroupInput] = React.useState(false);
@@ -925,6 +926,8 @@ export function DashboardPage() {
       return 'Next 7 Days';
     } else if (currentView === 'nodate') {
       return 'No Date';
+    } else if (currentView === 'calendar') {
+      return 'Calendar';
     } else if (selectedList) {
       return selectedList.name;
     }
@@ -1268,6 +1271,24 @@ export function DashboardPage() {
                 <span>No Date</span>
               </button>
             </div>
+          </div>
+
+          {/* Calendar */}
+          <div className="mt-6">
+            <button
+              onClick={() => {
+                setCurrentView('calendar');
+                setSelectedListId(null);
+              }}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                currentView === 'calendar'
+                  ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
+                  : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
+              }`}
+            >
+              <Calendar className="w-5 h-5" />
+              <span>Calendar</span>
+            </button>
           </div>
 
           {/* Groups section */}
@@ -1650,6 +1671,24 @@ export function DashboardPage() {
                 <span>No Date</span>
               </button>
             </div>
+          </div>
+
+          {/* Calendar */}
+          <div className="mt-6">
+            <button
+              onClick={() => {
+                setCurrentView('calendar');
+                setSelectedListId(null);
+              }}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                currentView === 'calendar'
+                  ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
+                  : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
+              }`}
+            >
+              <Calendar className="w-5 h-5" />
+              <span>Calendar</span>
+            </button>
           </div>
 
           {/* Groups section */}
@@ -2080,7 +2119,19 @@ export function DashboardPage() {
               </div>
             )}
 
-            {/* Add Subtask Input - appears when user clicks "Add Subtask" */}
+            {currentView === 'calendar' ? (
+              <CalendarPanel
+                selectedTaskId={selectedTaskId}
+                onTaskSelect={(taskId) => {
+                  setSelectedTaskId(taskId);
+                  if (breakpoint === 'xs' || breakpoint === 'sm' || breakpoint === 'md') {
+                    setMobileDetailOpen(true);
+                  }
+                }}
+              />
+            ) : (
+              <>
+                {/* Add Subtask Input - appears when user clicks "Add Subtask" */}
             {addingSubtaskTo && (
               <div className="flex items-center gap-2 px-4 py-3 mb-4 ml-6 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800">
                 <div className="w-5 h-5 rounded-full border border-stone-300 dark:border-stone-600" />
@@ -2213,6 +2264,8 @@ export function DashboardPage() {
                 </div>
               );
             })()}
+              </>
+            )}
           </div>
         </div>
       </main>
