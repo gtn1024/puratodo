@@ -1,5 +1,58 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 13: Task Filtering by Status
+**Date:** 2026-02-22
+
+### What was done
+Implemented task filtering functionality (Feature #59):
+
+1. **Enhanced getDisplayTasks function:**
+   - Added check for active filter values
+   - Applied `filterTasksByFilterValue()` from @puratodo/task-ui
+   - Filters tasks before building tree structure
+   - Supports status (all/incomplete/completed), star (all/starred/unstarred), date filters
+
+2. **Filter UI already present:**
+   - TaskFilters component rendered in header
+   - Dropdown menus for Status, Star, Date filters
+   - "Clear filters" button available
+   - filterValues state managed with useState
+
+3. **User workflow:**
+   - Click "Filter" button in header → shows filter dropdowns
+   - Select Status: "Incomplete" or "Completed"
+   - Select Star: "Starred" or "Unstarred"
+   - Select Date: "Overdue", "Today", "Next 7 Days", "No Date"
+   - Task list updates immediately with filtered results
+   - Click "Clear filters" to reset all filters
+
+### Features Updated
+- id 59: Filter tasks by status → passes: true
+
+### Current Status
+- 65/80 items passing (81.25%)
+- Advanced Features: 4/9 passing (44%)
+- Only 15 remaining failing features
+
+### Build Status
+- apps/app: Builds successfully
+
+### Technical Notes
+- TaskFilters component from @puratodo/task-ui provides UI
+- filterTasksByFilterValue utility function handles filtering logic
+- Filters apply before building task tree structure
+- Active when any filter value differs from 'all'
+
+### Commits
+1. feat(app): apply task filters to display tasks
+
+### Next Steps
+- Implement loading states with skeleton screens (Feature #54)
+- Test and verify API client features (Features #70-72)
+- Test desktop integration features (Features #73-75)
+
+---
+
 ## Session 12: Feature Verification - Keyboard Shortcuts & Global Search
 **Date:** 2026-02-22
 

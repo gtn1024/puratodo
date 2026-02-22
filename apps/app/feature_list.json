@@ -721,7 +721,7 @@
         "Select 'Completed' only",
         "Verify only completed tasks are shown"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 60,

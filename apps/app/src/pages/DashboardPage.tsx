@@ -802,6 +802,16 @@ export function DashboardPage() {
       tasks = [];
     }
 
+    // Apply filters if any are active
+    const hasActiveFilters =
+      filterValues.status !== 'all' ||
+      filterValues.star !== 'all' ||
+      filterValues.date !== 'all';
+
+    if (hasActiveFilters) {
+      tasks = filterTasksByFilterValue(tasks, filterValues);
+    }
+
     // Build tree structure for all tasks
     return buildTaskTree(tasks);
   };
