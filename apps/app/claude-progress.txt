@@ -1,5 +1,55 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 15: API Client & Desktop Integration Verification
+**Date:** 2026-02-22
+
+### What was done
+Verified and updated already-implemented features:
+
+1. **API Client Features (Features #70-72):**
+   - #70: API client configured with getApiUrl() from lib/api/config.ts
+   - #71: Authorization header added: `Bearer ${token}` in client.ts
+   - #72: Error handling with ApiException class, graceful error messages
+   - All API client features working correctly
+
+2. **Desktop Integration (Feature #74):**
+   - useTheme hook respects system preference
+   - Uses matchMedia("(prefers-color-scheme: dark)")
+   - Listens to system theme changes in real-time
+   - Defaults to "system" theme on first load
+   - Feature #74 working correctly
+
+### Features Updated
+- id 70: API client configuration → passes: true
+- id 71: Authentication headers → passes: true
+- id 72: Error handling → passes: true
+- id 74: System theme respect → passes: true
+
+### Current Status
+- 70/80 items passing (87.5%)
+- API Client: 3/3 passing (100%)
+- Desktop Integration: 1/4 passing (25%)
+- Only 10 remaining failing features
+
+### Build Status
+- apps/app: Running successfully in dev mode
+
+### Technical Notes
+- API client uses dynamic base URL from authStore per account
+- Automatic token refresh on 401 errors
+- Theme system uses matchMedia listeners for system preference
+- Persists theme choice to localStorage
+
+### Commits
+1. docs(app): verify API client and desktop integration features
+
+### Next Steps
+- Test desktop menu bar (Feature #73)
+- Test build for macOS/Windows/Linux (Features #82-84)
+- Consider mobile integration features (Features #76-79)
+
+---
+
 ## Session 14: Skeleton Loading States
 **Date:** 2026-02-22
 

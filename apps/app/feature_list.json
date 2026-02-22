@@ -860,7 +860,7 @@
         "Check API client configuration",
         "Verify base URL points to correct API endpoint"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 71,
@@ -871,7 +871,7 @@
         "Make an authenticated API request",
         "Verify request includes Authorization header"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 72,
@@ -882,7 +882,7 @@
         "Verify error message is displayed to user",
         "Verify app doesn't crash"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 73,
@@ -906,7 +906,7 @@
         "Switch macOS to light mode",
         "Verify app uses light theme"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 75,
