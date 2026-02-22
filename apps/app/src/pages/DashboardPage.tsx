@@ -666,6 +666,42 @@ export function DashboardPage() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [selectedListId]);
 
+  // Tauri menu event listeners
+  React.useEffect(() => {
+    // Only run in Tauri environment
+    if (typeof window !== "undefined" && "__TAURI__" in window) {
+      import("@tauri-apps/api/event").then(({ listen }) => {
+        const unlistenNewTask = listen("menu-new-task", () => {
+          if (!selectedListId) {
+            alert("Please select a list first");
+            return;
+          }
+          setShowNewTaskInput(true);
+        });
+
+        const unlistenSearch = listen("menu-search", () => {
+          setShowSearch(true);
+        });
+
+        const unlistenPreferences = listen("menu-preferences", () => {
+          // Could open settings/preferences dialog
+          console.log("Preferences menu clicked");
+        });
+
+        const unlistenAbout = listen("menu-about", () => {
+          alert("PuraToDo v0.2.0\nA task management app with infinite subtask nesting.\n\nBuilt with Tauri 2.0, React, and Supabase.");
+        });
+
+        return () => {
+          unlistenNewTask.then((fn) => fn());
+          unlistenSearch.then((fn) => fn());
+          unlistenPreferences.then((fn) => fn());
+          unlistenAbout.then((fn) => fn());
+        };
+      });
+    }
+  }, [selectedListId]);
+
   // Fetch all tasks when search dialog opens
   React.useEffect(() => {
     if (showSearch && tasks.length === 0) {

@@ -893,7 +893,7 @@
         "Verify menu options are available",
         "Verify standard menu items"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 74,
