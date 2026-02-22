@@ -14,6 +14,9 @@
    - Updated feature_list.json with accurate status
 
 ### Features Verified and Updated
+**App Launch:**
+- id 4: Window state persists → passes: true (tauri-plugin-window-state)
+
 **Authentication:**
 - id 8: User can register a new account → passes: true (RegisterPage exists with routing)
 - id 10: Session persists after app restart → passes: true (zustand persist middleware)
@@ -26,14 +29,16 @@
 - id 16: Remove account → passes: true (removeAccount function)
 - id 17: Separate session/data per account → passes: true (account isolation in store)
 
-**App Launch:**
-- id 4: Window state persists → passes: true (tauri-plugin-window-state)
+**UI/UX:**
+- id 51: System theme preference is respected → passes: true (useTheme hook with system detection)
+- id 56: Task detail panel slides in from right → passes: true (transition-all with duration-300)
 
 ### Current Status
-- 51/80 items passing (increased from 42)
+- 59/80 items passing (73.75%)
 - Authentication: 8/9 passing
-- Multi-Account: 6/6 passing (all complete!)
-- App Launch: 4/4 passing (all complete!)
+- Multi-Account: 6/6 passing (100% complete!)
+- App Launch: 4/4 passing (100% complete!)
+- UI/UX: 8/13 passing
 
 ### Build Status
 - apps/app: Builds successfully
@@ -44,10 +49,18 @@
 - RegisterPage component exists with full form validation
 - Multi-account management fully implemented in authStore
 - All account operations (add/switch/remove) properly sync auth tokens
+- useTheme hook defaults to "system" and listens to OS theme changes
+- TaskDetailPanel has smooth slide-in animation on xl+ screens
+
+### Commits
+1. feat(app): add window state persistence using tauri-plugin-window-state
+2. docs(app): verify and update feature status (#8, #10, #12-17)
+3. docs(app): verify UI/UX features #51 and #56
 
 ### Next Steps
-- Test remaining features (UI/UX, Advanced Features)
-- Consider implementing missing features like global search, keyboard shortcuts
+- Implement remaining UI/UX features (empty states, loading states, keyboard shortcuts)
+- Implement advanced features (global search, task filtering)
+- Test desktop/mobile integration features
 
 ---
 
