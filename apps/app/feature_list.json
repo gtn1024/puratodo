@@ -622,7 +622,7 @@
         "Set OS to light mode",
         "Verify app is in light mode"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 52,
@@ -684,7 +684,7 @@
         "Verify panel shows full task details",
         "Click outside or X closes panel"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 57,
@@ -864,9 +864,9 @@
     {
       "id": 71,
       "category": "API Client",
-      "description": " headers",
+      "description": "API client includes authentication headers",
       "steps": [
-       API client includes authentication "Log in and capture auth token",
+        "Log in and capture auth token",
         "Make an authenticated API request",
         "Verify request includes Authorization header"
       ],
