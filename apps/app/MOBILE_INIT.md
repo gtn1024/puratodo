@@ -101,11 +101,39 @@ apps/app/src-tauri/
 └── tauri.conf.json           # Tauri configuration
 ```
 
+## App Icons
+
+Icons are generated from the project's logo (`resource/logo.png`, 1024x1024).
+
+### Icon Generation
+
+To regenerate icons after changing the logo:
+
+```bash
+cd apps/app
+pnpm generate-mobile-icons
+```
+
+This script generates all required icon sizes for both platforms:
+
+**Android Icons** (in `src-tauri/gen/android/app/src/main/res/`):
+- `mipmap-mdpi/` - 48x48, 108x108 (foreground)
+- `mipmap-hdpi/` - 72x72, 162x162 (foreground)
+- `mipmap-xhdpi/` - 96x96, 216x216 (foreground)
+- `mipmap-xxhdpi/` - 144x144, 324x324 (foreground)
+- `mipmap-xxxhdpi/` - 192x192, 432x432 (foreground)
+
+**iOS Icons** (in `src-tauri/gen/apple/Assets.xcassets/AppIcon.appiconset/`):
+- All sizes from 20x20 to 1024x1024 for various iOS devices and contexts
+
+The script uses `sharp` for image processing and preserves transparency.
+
 ## Testing
 
 Both platforms were tested with debug builds:
 - ✅ Android debug build initiated successfully
 - ✅ iOS debug build initiated successfully (requires code signing for completion)
+- ✅ All app icons generated successfully
 
 ## References
 
