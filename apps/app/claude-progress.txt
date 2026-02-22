@@ -1,5 +1,50 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 25: Calendar API Types - TaskSearchResult
+**Date:** 2026-02-22
+
+### What was done
+Added TaskSearchResult type to @puratodo/api-types package (Feature #87):
+
+1. **Added TaskSearchResult interface:**
+   - Created `packages/api-types/src/index.ts`
+   - Extended Task type with list and group context fields:
+     - `list_name: string`
+     - `list_icon: string`
+     - `group_name: string`
+     - `group_color: string`
+
+2. **Type definition:**
+   - Matches the response format from `/api/v1/tasks/date-range` and `/api/v1/tasks/unscheduled` endpoints
+   - Task type includes all database fields (id, user_id, list_id, parent_id, name, completed, starred, due_date, plan_date, comment, duration_minutes, etc.)
+
+3. **Export verification:**
+   - Type is properly exported from package index
+   - Package builds successfully with `pnpm --filter @puratodo/api-types build`
+
+### Features Updated
+- id 87: Add TaskSearchResult type to @puratodo/api-types → passes: true
+
+### Current Status
+- **80/100 items passing**
+- **Calendar - Backend API: 2/2 passing (100%)**
+- **Calendar - API Types: 1/1 passing (100%)**
+
+### Build Status
+- packages/api-types: Builds successfully
+- Type available for import in app
+
+### Technical Notes
+- TaskSearchResult type extends the Task type from database types
+- Used by calendar endpoints in apps/web for date-range and unscheduled queries
+- Will be used by apps/app when implementing calendar UI (Feature #88+)
+
+### Next Steps
+- Continue with Feature #88: Extend app tasks API client with calendar methods
+- Then implement shared calendar components in @puratodo/task-ui
+
+---
+
 ## Session 24: Calendar Backend API - Unscheduled Endpoint
 **Date:** 2026-02-22
 

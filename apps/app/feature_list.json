@@ -1058,7 +1058,7 @@
         "Export the type from package index",
         "Verify type is available for import in app"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 88,

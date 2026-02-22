@@ -181,6 +181,14 @@ export type TaskWithSubtasks = Task & {
   subtasks?: TaskWithSubtasks[];
 };
 
+// TaskSearchResult - Task with list and group context for calendar/search
+export type TaskSearchResult = Task & {
+  list_name: string;
+  list_icon: string;
+  group_name: string;
+  group_color: string;
+};
+
 export type GroupInsert = InsertTables<"groups">;
 export type ListInsert = InsertTables<"lists">;
 export type TaskInsert = InsertTables<"tasks">;
