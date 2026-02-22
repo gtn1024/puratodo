@@ -1112,7 +1112,7 @@
         "Support dark mode styling",
         "Export from calendar index"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 92,
@@ -1124,7 +1124,7 @@
         "Export types from calendar index",
         "Update task-ui index.ts to export calendar components"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 93,

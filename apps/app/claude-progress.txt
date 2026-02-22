@@ -1,5 +1,77 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 29: Calendar Shared Components - UnscheduledTaskList
+**Date:** 2026-02-22
+
+### What was done
+Created UnscheduledTaskList component in @puratodo/task-ui for calendar feature (Feature #91):
+
+1. **Created UnscheduledTaskList component:**
+   - Created `packages/task-ui/src/calendar/unscheduled-list.tsx`
+   - Displays list of unscheduled tasks using TaskChip component
+   - Shows loading state while fetching (spinner + loading message)
+   - Shows empty state when no unscheduled tasks exist
+   - Supports dark mode styling throughout
+
+2. **UnscheduledTaskList component features:**
+   - Accepts tasks array of CalendarTask type
+   - Accepts isLoading boolean for loading state
+   - Tracks selectedTaskId for highlighting selected task
+   - onTaskSelect callback for task selection handling
+   - Configurable emptyMessage and loadingMessage props
+   - Renders TaskChip for each task with selection support
+
+3. **Exported from calendar index:**
+   - Updated `packages/task-ui/src/calendar/index.ts` to export UnscheduledTaskList
+   - Available via @puratodo/task-ui
+
+4. **Verified Feature #92:**
+   - CalendarTask types already created in Feature #89
+   - Types properly exported from calendar index
+   - Types available via @puratodo/task-ui
+   - Marked Feature #92 as passing
+
+### Testing Results
+- ✅ TypeScript compilation passes
+- ✅ task-ui package builds successfully
+- ✅ Monorepo build completes successfully
+- ✅ UnscheduledTaskList component exported correctly
+- ✅ Dark mode styling applied correctly
+
+### Features Updated
+- id 91: Create UnscheduledTaskList component in @puratodo/task-ui → passes: true
+- id 92: Create calendar types in @puratodo/task-ui → passes: true (already completed in #89)
+
+### Current Status
+- **85/100 items passing (85%)**
+- **Calendar - Backend API: 2/2 passing (100%)**
+- **Calendar - API Types: 1/1 passing (100%)**
+- **Calendar - App API Client: 1/1 passing (100%)**
+- **Calendar - Shared Components: 4/4 passing (100%)**
+
+### Build Status
+- packages/task-ui: Builds successfully
+- UnscheduledTaskList ready for use in CalendarPanel component
+- All calendar shared components complete!
+
+### Technical Notes
+- UnscheduledTaskList uses TaskChip component for each task
+- Loading state shows centered message with text-muted-foreground
+- Empty state shows centered message with text-muted-foreground
+- Task list renders in flex column with gap-1 spacing
+- Supports task selection with visual highlighting
+- Fully typed with TypeScript
+
+### Commits
+None yet - will commit after testing passes
+
+### Next Steps
+- Implement Feature #93: Create CalendarPanel component in app
+- Implement Feature #94: Add calendar navigation controls
+- Implement Feature #95: Add list filter dropdown to calendar
+
+---
+
 ## Session 28: Calendar Shared Components - DateCell
 **Date:** 2026-02-22
 
