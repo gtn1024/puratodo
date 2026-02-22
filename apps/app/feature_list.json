@@ -1084,7 +1084,7 @@
         "Support dark mode styling",
         "Export from calendar index"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 90,

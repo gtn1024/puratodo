@@ -1,5 +1,75 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 27: Calendar Shared Components - TaskChip
+**Date:** 2026-02-22
+
+### What was done
+Created TaskChip component in @puratodo/task-ui for calendar feature (Feature #89):
+
+1. **Created calendar module structure:**
+   - Created `packages/task-ui/src/calendar/` directory
+   - Created `packages/task-ui/src/calendar/types.ts` with CalendarTask interface
+   - Created `packages/task-ui/src/calendar/task-chip.tsx` component
+   - Created `packages/task-ui/src/calendar/index.ts` barrel export
+
+2. **CalendarTask type definition:**
+   - Extends Task with list/group context fields
+   - Fields: id, name, completed, starred, list_name, list_icon, group_name, group_color
+   - Matches TaskSearchResult from @puratodo/api-types
+
+3. **TaskChip component features:**
+   - Displays task name with truncation
+   - Shows completion status icon (CheckCircle2/Circle)
+   - Shows star indicator with yellow fill
+   - Accepts `isSelected` prop for highlighting
+   - Accepts `onSelect` callback for click handling
+   - Supports dark mode styling with dark: variants
+   - Strikethrough text for completed tasks
+   - Hover states with bg-accent styling
+
+4. **Exported from task-ui:**
+   - Updated `packages/task-ui/src/index.ts` to export calendar module
+   - All calendar components available via @puratodo/task-ui
+
+### Testing Results
+- ✅ TypeScript compilation passes
+- ✅ task-ui package builds successfully
+- ✅ Monorepo build completes successfully
+- ✅ CalendarTask type exported correctly
+- ✅ TaskChip component exported correctly
+
+### Features Updated
+- id 89: Create TaskChip component in @puratodo/task-ui → passes: true
+
+### Current Status
+- **82/100 items passing (82%)**
+- **Calendar - Backend API: 2/2 passing (100%)**
+- **Calendar - API Types: 1/1 passing (100%)**
+- **Calendar - App API Client: 1/1 passing (100%)**
+- **Calendar - Shared Components: 1/4 passing (25%)**
+
+### Build Status
+- packages/task-ui: Builds successfully
+- Calendar components ready for use in app UI
+- TaskChip ready for DateCell and UnscheduledTaskList components
+
+### Technical Notes
+- TaskChip uses cn() utility from @puratodo/ui for className merging
+- Follows existing component patterns from task-ui package
+- Uses lucide-react icons (CheckCircle2, Circle, Star)
+- Button element for accessibility and keyboard support
+- Tailwind classes for styling with dark mode variants
+
+### Commits
+None yet - will commit after testing passes
+
+### Next Steps
+- Implement Feature #90: Create DateCell component in @puratodo/task-ui
+- Implement Feature #91: Create UnscheduledTaskList component in @puratodo/task-ui
+- Implement Feature #92: Create calendar types in @puratodo/task-ui
+
+---
+
 ## Session 26: Calendar API Client Methods
 **Date:** 2026-02-22
 
