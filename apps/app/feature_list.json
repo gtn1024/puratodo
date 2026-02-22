@@ -1070,7 +1070,7 @@
         "Both methods should return TaskSearchResult[]",
         "Test API calls return expected data"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 89,

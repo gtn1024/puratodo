@@ -1,5 +1,67 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 26: Calendar API Client Methods
+**Date:** 2026-02-22
+
+### What was done
+Extended app tasks API client with calendar methods (Feature #88):
+
+1. **Updated tasks API client (apps/app/src/lib/api/tasks.ts):**
+   - Imported `TaskSearchResult` type from @puratodo/api-types
+   - Exported `TaskSearchResult` type for use in app components
+
+2. **Added getTasksInDateRange method:**
+   - Accepts `startDate` and `endDate` in YYYY-MM-DD format
+   - Optional `listId` parameter for filtering by list
+   - Returns `TaskSearchResult[]` with list/group context
+   - Calls `/api/v1/tasks/date-range` endpoint
+
+3. **Added getUnscheduledTasks method:**
+   - Optional `listId` parameter for filtering by list
+   - Returns `TaskSearchResult[]` with list/group context
+   - Calls `/api/v1/tasks/unscheduled` endpoint
+
+4. **Implementation details:**
+   - Both methods use URLSearchParams for query string construction
+   - Handle empty responses by returning empty array
+   - Include JSDoc comments for documentation
+
+### Testing Results
+- ✅ TypeScript compilation passes
+- ✅ App builds successfully (763.75 kB main bundle)
+- ✅ TaskSearchResult type imported correctly
+- ✅ API methods use correct endpoint paths
+- ✅ Query parameters constructed properly
+
+### Features Updated
+- id 88: Extend app tasks API client with calendar methods → passes: true
+
+### Current Status
+- **81/100 items passing (81%)**
+- **Calendar - Backend API: 2/2 passing (100%)**
+- **Calendar - API Types: 1/1 passing (100%)**
+- **Calendar - App API Client: 1/1 passing (100%)**
+
+### Build Status
+- apps/app: Builds successfully
+- API client methods ready for use in calendar UI components
+
+### Technical Notes
+- Both calendar methods use ApiResponse<T> wrapper type
+- Response data field contains TaskSearchResult[] array
+- Falls back to empty array if data is undefined
+- URLSearchParams handles optional listId parameter cleanly
+
+### Commits
+None yet - will commit after testing passes
+
+### Next Steps
+- Implement Feature #89: Create TaskChip component in @puratodo/task-ui
+- Implement Feature #90: Create DateCell component in @puratodo/task-ui
+- Implement Feature #91: Create UnscheduledTaskList component in @puratodo/task-ui
+
+---
+
 ## Session 25: Calendar API Types - TaskSearchResult
 **Date:** 2026-02-22
 
