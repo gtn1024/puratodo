@@ -10,6 +10,7 @@ import { tasksApi } from "@/lib/api/tasks";
 import type { TaskSearchResult } from "@/lib/api/tasks";
 import { useDataStore } from "@/stores/dataStore";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { useI18n } from "@/i18n";
 
 interface CalendarPanelProps {
   selectedTaskId: string | null;
@@ -20,6 +21,7 @@ export function CalendarPanel({
   selectedTaskId,
   onTaskSelect,
 }: CalendarPanelProps) {
+  const { t } = useI18n();
   const { lists, groups } = useDataStore();
   const breakpoint = useBreakpoint();
   const [currentDate, setCurrentDate] = React.useState(new Date());
@@ -195,12 +197,17 @@ export function CalendarPanel({
 
   // Month names for display
   const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    t("months.january"), t("months.february"), t("months.march"), t("months.april"),
+    t("months.may"), t("months.june"), t("months.july"), t("months.august"),
+    t("months.september"), t("months.october"), t("months.november"), t("months.december")
   ];
 
   // Weekday names for header
-  const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const weekdayNames = [
+    t("weekdays.short.sun"), t("weekdays.short.mon"), t("weekdays.short.tue"),
+    t("weekdays.short.wed"), t("weekdays.short.thu"), t("weekdays.short.fri"),
+    t("weekdays.short.sat")
+  ];
 
   return (
     <div className="flex h-full">
@@ -235,10 +242,10 @@ export function CalendarPanel({
             >
               <SelectTrigger className="w-[200px]">
                 <List className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="All Lists" />
+                <SelectValue placeholder={t("calendar.allLists")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Lists</SelectItem>
+                <SelectItem value="all">{t("calendar.allLists")}</SelectItem>
                 {groups.map((group) => (
                   <React.Fragment key={group.id}>
                     {lists
@@ -257,7 +264,7 @@ export function CalendarPanel({
               size="sm"
               onClick={handleToday}
             >
-              Today
+              {t("calendar.today")}
             </Button>
           </div>
         </div>
@@ -297,7 +304,7 @@ export function CalendarPanel({
       {showUnscheduledSidebar && (
         <div className="w-80 border-l flex flex-col bg-muted/30">
           <div className="p-4 border-b">
-            <h3 className="font-semibold">Unscheduled Tasks</h3>
+            <h3 className="font-semibold">{t("calendar.unscheduled")}</h3>
           </div>
           <div className="flex-1 overflow-y-auto p-4">
             <UnscheduledTaskList

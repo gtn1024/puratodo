@@ -2,6 +2,7 @@ import * as React from "react";
 import { Mail, Lock, ArrowRight, AlertCircle, Server } from "lucide-react";
 import { Button, Input } from "@puratodo/ui";
 import { useAuth } from "@/hooks/useAuth";
+import { useI18n } from "@/i18n";
 import { DEFAULT_API_URL, getPendingApiUrl, setPendingApiUrl, isValidApiUrl, normalizeApiUrl } from "@/lib/api/config";
 
 interface LoginPageProps {
@@ -9,6 +10,7 @@ interface LoginPageProps {
 }
 
 export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
+  const { t } = useI18n();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
@@ -24,7 +26,7 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
     const normalizedUrl = normalizeApiUrl(serverUrl);
     const shouldUseDefault = normalizedUrl.length === 0 || normalizedUrl === DEFAULT_API_URL;
     if (!shouldUseDefault && !isValidApiUrl(normalizedUrl)) {
-      setServerUrlError("Please enter a valid URL starting with http:// or https://");
+      setServerUrlError(t("apiServer.invalidUrl"));
       return;
     }
     setServerUrlError("");
@@ -93,13 +95,13 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
           className="text-2xl font-semibold tracking-tight text-center text-stone-900 dark:text-stone-100 mb-1"
           style={{ animation: "fadeIn 0.8s ease-out 0.3s both" }}
         >
-          Welcome back
+          {t("auth.welcomeBack")}
         </h1>
         <p
           className="text-sm text-stone-500 dark:text-stone-400 text-center mb-6"
           style={{ animation: "fadeIn 0.8s ease-out 0.4s both" }}
         >
-          Sign in to continue to your tasks
+          {t("auth.signInToAccount")}
         </p>
 
         {/* Error message */}
@@ -124,7 +126,7 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
               htmlFor="server-url"
               className="text-sm font-medium text-stone-700 dark:text-stone-300"
             >
-              API Server
+              {t("apiServer.title")}
             </label>
             <Input
               id="server-url"
@@ -140,7 +142,7 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
               disabled={isLoading}
             />
             <p className="text-xs text-stone-500 dark:text-stone-400">
-              The server URL where your account is hosted
+              {t("login.serverHint")}
             </p>
           </div>
 
@@ -149,12 +151,12 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
               htmlFor="email"
               className="text-sm font-medium text-stone-700 dark:text-stone-300"
             >
-              Email address
+              {t("auth.email")}
             </label>
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder={t("login.emailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               icon={<Mail className="h-5 w-5" />}
@@ -169,14 +171,14 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
                 htmlFor="password"
                 className="text-sm font-medium text-stone-700 dark:text-stone-300"
               >
-                Password
+                {t("auth.password")}
               </label>
               <a
                 href="#"
                 className="text-xs text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200 transition-colors"
                 onClick={(e) => e.preventDefault()}
               >
-                Forgot password?
+                {t("auth.forgotPassword")}
               </a>
             </div>
             <Input
@@ -198,7 +200,7 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
               className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-300 transition-colors"
               disabled={isLoading}
             >
-              {showPassword ? "Hide" : "Show"} password
+              {showPassword ? t("login.hidePassword") : t("login.showPassword")}
             </button>
           </div>
 
@@ -210,11 +212,11 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
             {isLoading ? (
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>Signing in...</span>
+                <span>{t("auth.signingIn")}</span>
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <span>Sign in</span>
+                <span>{t("auth.signIn")}</span>
                 <ArrowRight className="w-5 h-5" />
               </div>
             )}
@@ -225,24 +227,24 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
           className="mt-6 text-center text-sm text-stone-500 dark:text-stone-400"
           style={{ animation: "fadeIn 0.8s ease-out 0.6s both" }}
         >
-          New to PuraToDo?{" "}
+          {t("auth.dontHaveAccount")}{" "}
           <button
             type="button"
             onClick={onSwitchToRegister}
             className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors underline-offset-4 hover:underline"
           >
-            Create an account
+            {t("auth.createOne")}
           </button>
         </div>
 
         <p className="mt-8 text-center text-xs text-stone-400 dark:text-stone-500">
-          By signing in, you agree to our{" "}
+          {t("login.bySigningIn")}{" "}
           <a href="#" className="underline hover:text-stone-600 dark:hover:text-stone-300">
-            Terms of Service
+            {t("login.termsOfService")}
           </a>{" "}
-          and{" "}
+          {t("login.and")}{" "}
           <a href="#" className="underline hover:text-stone-600 dark:hover:text-stone-300">
-            Privacy Policy
+            {t("login.privacyPolicy")}
           </a>
         </p>
       </div>
