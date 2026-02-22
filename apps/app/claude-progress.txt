@@ -13,6 +13,11 @@
    - Analyzed code to verify already-implemented features
    - Updated feature_list.json with accurate status
 
+3. **Enhanced empty state prompts:**
+   - Added empty state message for lists when group has no lists
+   - Shows "No lists yet" message before "Add list" button
+   - Applied to both desktop and mobile sidebars
+
 ### Features Verified and Updated
 **App Launch:**
 - id 4: Window state persists → passes: true (tauri-plugin-window-state)
@@ -31,14 +36,15 @@
 
 **UI/UX:**
 - id 51: System theme preference is respected → passes: true (useTheme hook with system detection)
+- id 55: Empty state prompts when no data exists → passes: true (enhanced with list empty states)
 - id 56: Task detail panel slides in from right → passes: true (transition-all with duration-300)
 
 ### Current Status
-- 59/80 items passing (73.75%)
+- 60/80 items passing (75%)
 - Authentication: 8/9 passing
 - Multi-Account: 6/6 passing (100% complete!)
 - App Launch: 4/4 passing (100% complete!)
-- UI/UX: 8/13 passing
+- UI/UX: 9/13 passing
 
 ### Build Status
 - apps/app: Builds successfully
@@ -51,6 +57,8 @@
 - All account operations (add/switch/remove) properly sync auth tokens
 - useTheme hook defaults to "system" and listens to OS theme changes
 - TaskDetailPanel has smooth slide-in animation on xl+ screens
+- Empty states already implemented for: tasks, groups (desktop & mobile)
+- Now added: empty states for lists within groups
 
 ### Commits
 1. feat(app): add window state persistence using tauri-plugin-window-state

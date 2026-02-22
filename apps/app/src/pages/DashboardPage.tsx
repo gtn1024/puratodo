@@ -1246,6 +1246,13 @@ export function DashboardPage() {
                               strategy={verticalListSortingStrategy}
                             >
                               <div className="ml-6 mt-1 space-y-1">
+                                {groupLists.length === 0 && !showNewListInput && (
+                                  <div className="px-3 py-3 text-center">
+                                    <p className="text-xs text-stone-400 dark:text-stone-500 mb-2">
+                                      No lists yet
+                                    </p>
+                                  </div>
+                                )}
                                 {groupLists.map((list) => (
                                   <SortableListItem
                                     key={list.id}
@@ -1608,6 +1615,13 @@ export function DashboardPage() {
                               strategy={verticalListSortingStrategy}
                             >
                               <div className="ml-6 mt-1 space-y-1">
+                                {groupLists.length === 0 && !showNewListInput && (
+                                  <div className="px-3 py-3 text-center">
+                                    <p className="text-xs text-stone-400 dark:text-stone-500 mb-2">
+                                      No lists yet
+                                    </p>
+                                  </div>
+                                )}
                                 {groupLists.map((list) => (
                                   <SortableListItem
                                     key={list.id}

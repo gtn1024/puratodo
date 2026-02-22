@@ -672,7 +672,7 @@
         "Create a new group with no lists",
         "Verify empty state shows"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 56,
