@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "@puratodo/ui";
 import { CalendarIcon, Clock, FileText, X, Loader2, Star } from "lucide-react";
 import { useDataStore } from "@/stores/dataStore";
+import { useI18n } from "@/i18n";
 
 interface TaskDetailPanelProps {
   taskId: string | null;
@@ -10,6 +11,7 @@ interface TaskDetailPanelProps {
 }
 
 export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPanelProps) {
+  const { t } = useI18n();
   const { tasks, updateTask } = useDataStore();
 
   // Find the task from store
@@ -103,10 +105,10 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
           <FileText className="h-8 w-8 text-stone-400" />
         </div>
         <h3 className="text-lg font-medium text-stone-900 dark:text-stone-100 mb-2">
-          No Task Selected
+          {t("app.noTaskSelected")}
         </h3>
         <p className="text-sm text-stone-500 dark:text-stone-400 max-w-xs">
-          Click on a task to view and edit its details here
+          {t("app.clickTaskToView")}
         </p>
       </div>
     );
@@ -126,7 +128,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200 dark:border-stone-800">
         <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-          Task Details
+          {t("taskDetail.taskDetails")}
         </h2>
         <Button
           variant="ghost"
@@ -144,13 +146,13 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
           {/* Task Name */}
           <div className="space-y-2">
             <label className="font-medium text-stone-700 dark:text-stone-300">
-              Task Name
+              {t("taskDetail.taskName")}
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Enter task name"
+              placeholder={t("taskDetail.enterTaskName")}
               className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400"
             />
           </div>
@@ -173,7 +175,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
                 )}
               </div>
               <span className="text-sm text-stone-700 dark:text-stone-300">
-                {task.completed ? "Completed" : "Mark complete"}
+                {task.completed ? t("taskDetail.completed") : t("taskDetail.markComplete")}
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -186,7 +188,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
                 <Star className="w-5 h-5" fill={task.starred ? "currentColor" : "none"} />
               </button>
               <span className="text-sm text-stone-700 dark:text-stone-300">
-                {task.starred ? "Starred" : "Star"}
+                {task.starred ? t("taskDetail.starred") : t("taskDetail.star")}
               </span>
             </div>
           </div>
@@ -196,7 +198,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
                 <CalendarIcon className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-                Due Date
+                {t("taskDetail.dueDate")}
               </label>
               {dueDate && (
                 <Button
@@ -206,7 +208,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
                   className="h-6 px-2 text-stone-500"
                 >
                   <X className="h-3 w-3 mr-1" />
-                  Clear
+                  {t("taskDetail.clear")}
                 </Button>
               )}
             </div>
@@ -226,7 +228,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
                 <CalendarIcon className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-                Planned Date
+                {t("taskDetail.planDate")}
               </label>
               {planDate && (
                 <Button
@@ -236,7 +238,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
                   className="h-6 px-2 text-stone-500"
                 >
                   <X className="h-3 w-3 mr-1" />
-                  Clear
+                  {t("taskDetail.clear")}
                 </Button>
               )}
             </div>
@@ -255,14 +257,14 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
           <div className="space-y-2">
             <label className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
               <Clock className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-              Duration (minutes)
+              {t("taskDetail.duration")}
             </label>
             <input
               type="number"
               min="0"
               value={durationMinutes}
               onChange={(e) => setDurationMinutes(e.target.value)}
-              placeholder="e.g., 30"
+              placeholder={t("taskDetail.durationPlaceholder")}
               className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100"
             />
           </div>
@@ -271,12 +273,12 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
           <div className="space-y-2">
             <label className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
               <FileText className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-              Notes
+              {t("taskDetail.notes")}
             </label>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Add notes or comments..."
+              placeholder={t("taskDetail.notesPlaceholder")}
               rows={4}
               className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 resize-none"
             />
@@ -295,10 +297,10 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
             {isSaving ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Saving...
+                {t("taskDetail.saving")}
               </>
             ) : (
-              "Save"
+              t("taskDetail.save")
             )}
           </Button>
           <Button
@@ -306,7 +308,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
             onClick={onClose}
             disabled={isSaving}
           >
-            Close
+            {t("taskDetail.close")}
           </Button>
         </div>
       </div>

@@ -3,12 +3,14 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import { RestAdapterProvider } from "./adapters/RestAdapterProvider";
+import { useI18n } from "./i18n";
 import { useEffect, useState } from "react";
 import "./App.css";
 
 type AuthPage = "login" | "register";
 
 function App() {
+  const { t } = useI18n();
   const { isAuthenticated, isLoading } = useAuthStore();
   const [isHydrated, setIsHydrated] = useState(false);
   const [authPage, setAuthPage] = useState<AuthPage>("login");
@@ -33,7 +35,7 @@ function App() {
               <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
             </svg>
           </div>
-          <p className="text-sm text-stone-500 dark:text-stone-400">Loading...</p>
+          <p className="text-sm text-stone-500 dark:text-stone-400">{t("app.loading")}</p>
         </div>
       </div>
     );
