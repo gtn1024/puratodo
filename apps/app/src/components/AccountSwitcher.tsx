@@ -3,6 +3,7 @@ import { Check, ChevronDown, UserPlus, Users, LogOut, Server } from "lucide-reac
 import { AccountSettingsDialog } from "@/components/AccountSettingsDialog";
 import { useAuthStore } from "@/stores/authStore";
 import { useAuth } from "@/hooks/useAuth";
+import { useI18n } from "@/i18n";
 import { DEFAULT_API_URL } from "@/lib/api/config";
 
 interface AccountSwitcherProps {
@@ -31,6 +32,7 @@ function getServerShortName(serverUrl: string | null): string {
 export function AccountSwitcher({
   onAccountChanged,
 }: AccountSwitcherProps) {
+  const { t } = useI18n();
   const [isOpen, setIsOpen] = React.useState(false);
   const [dialogMode, setDialogMode] = React.useState<"add" | "manage" | null>(null);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
@@ -132,7 +134,7 @@ export function AccountSwitcher({
             {/* Account list */}
             <div className="px-2 py-1">
               <div className="text-xs font-medium text-stone-400 dark:text-stone-500 uppercase tracking-wider px-2 py-1">
-                Accounts
+                {t("account.accounts")}
               </div>
               {sortedAccounts.map((account) => {
                 const isActive = account.id === activeAccountId;
@@ -183,7 +185,7 @@ export function AccountSwitcher({
               className="w-full flex items-center gap-3 px-3 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors"
             >
               <UserPlus className="w-4 h-4" />
-              <span>Add new account</span>
+              <span>{t("account.addAccount")}</span>
             </button>
 
             {/* Manage accounts */}
@@ -192,7 +194,7 @@ export function AccountSwitcher({
               className="w-full flex items-center gap-3 px-3 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors"
             >
               <Users className="w-4 h-4" />
-              <span>Manage accounts</span>
+              <span>{t("account.manageAccounts")}</span>
             </button>
 
             {/* Divider */}
@@ -204,7 +206,7 @@ export function AccountSwitcher({
               className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
             >
               <LogOut className="w-4 h-4" />
-              <span>Sign out</span>
+              <span>{t("account.signOut")}</span>
             </button>
           </div>
         )}
