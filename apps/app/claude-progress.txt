@@ -1,5 +1,69 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 24: Calendar Backend API - Unscheduled Endpoint
+**Date:** 2026-02-22
+
+### What was done
+Implemented the `/api/v1/tasks/unscheduled` API endpoint for the calendar feature (Feature #86):
+
+1. **Created route handler:**
+   - Created `apps/web/src/app/api/v1/tasks/unscheduled/route.ts`
+   - Follows the same pattern as `/api/v1/tasks/date-range` endpoint
+   - Uses `TaskWithListInfo` type with list/group context fields
+
+2. **Query parameters:**
+   - `listId` (optional): Filter tasks by specific list
+
+3. **Query logic:**
+   - Returns incomplete tasks (completed: false)
+   - Returns tasks with no plan_date (plan_date is null)
+   - Returns only root tasks (parent_id is null)
+   - Filters by list if listId is provided
+
+4. **Response format:**
+   - Includes all task fields plus context fields:
+     - `list_name`, `list_icon`, `group_name`, `group_color`
+   - Returns empty array if no tasks found
+
+5. **Error handling:**
+   - Returns appropriate error messages on exceptions
+
+### Testing Results
+- ✅ Returns 401 Unauthorized for unauthenticated requests
+- ✅ Returns incomplete tasks without plan_date
+- ✅ Does NOT include completed tasks
+- ✅ Does NOT include tasks with plan_date
+- ✅ Does NOT include subtasks (only root tasks)
+- ✅ Includes list_name, list_icon, group_name, group_color in response
+- ✅ `listId` filter works correctly (returns only tasks from that list)
+
+### Features Updated
+- id 86: Create /api/v1/tasks/unscheduled endpoint for calendar → passes: true
+
+### Current Status
+- **79/100 items passing**
+- **Calendar - Backend API: 2/2 passing (100%)**
+
+### Build Status
+- apps/web: Builds successfully
+- New endpoint detected at `/api/v1/tasks/unscheduled`
+
+### Technical Notes
+- Endpoint follows the same pattern as `/api/v1/tasks/date-range`
+- Uses Supabase query with `.is("plan_date", null)` for filtering
+- Filters out completed tasks with `.eq("completed", false)`
+- Filters out subtasks with `.is("parent_id", null)`
+- Joins with lists and groups tables for context
+
+### Commits
+None yet - will commit after testing passes
+
+### Next Steps
+- Continue with Feature #87: Add TaskSearchResult type to @puratodo/api-types
+- Then implement shared calendar components in @puratodo/task-ui
+
+---
+
 ## Session 23: Calendar Backend API - Date Range Endpoint
 **Date:** 2026-02-22
 
