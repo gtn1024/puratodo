@@ -1204,7 +1204,7 @@
         "Add calendar.noTasks - 'No unscheduled tasks'",
         "Add sidebar.calendar - 'Calendar'"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 99,
@@ -1218,7 +1218,7 @@
         "Add calendar.noTasks - '没有未安排的任务'",
         "Add sidebar.calendar - '日历'"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 100,

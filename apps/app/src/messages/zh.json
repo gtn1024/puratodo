@@ -57,6 +57,7 @@
     "overdue": "已过期",
     "next7Days": "未来 7 天",
     "noDate": "无日期",
+    "calendar": "日历",
     "addGroup": "添加分组",
     "noGroups": "暂无分组",
     "createFirstGroup": "创建你的第一个分组"
@@ -168,8 +169,8 @@
     "month": "月",
     "week": "周",
     "today": "今天",
-    "unscheduled": "未安排",
-    "noTasks": "无任务",
+    "unscheduled": "未安排任务",
+    "noTasks": "没有未安排的任务",
     "allLists": "所有列表",
     "loading": "加载中..."
   },

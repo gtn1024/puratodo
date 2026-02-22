@@ -57,6 +57,7 @@
     "overdue": "Overdue",
     "next7Days": "Next 7 Days",
     "noDate": "No Date",
+    "calendar": "Calendar",
     "addGroup": "Add Group",
     "noGroups": "No groups yet",
     "createFirstGroup": "Create your first group"
@@ -168,8 +169,8 @@
     "month": "Month",
     "week": "Week",
     "today": "Today",
-    "unscheduled": "Unscheduled",
-    "noTasks": "No tasks",
+    "unscheduled": "Unscheduled Tasks",
+    "noTasks": "No unscheduled tasks",
     "allLists": "All Lists",
     "loading": "Loading..."
   },

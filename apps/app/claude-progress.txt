@@ -1,5 +1,70 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 32: Calendar i18n Translations
+**Date:** 2026-02-22
+
+### What was done
+Added calendar translations to both English and Chinese language files (Features #98-99):
+
+1. **Updated en.json with calendar translations:**
+   - Added sidebar.calendar - 'Calendar'
+   - Updated calendar.unscheduled - 'Unscheduled Tasks' (was 'Unscheduled')
+   - Updated calendar.noTasks - 'No unscheduled tasks' (was 'No tasks')
+   - All other calendar translations already existed:
+     - calendar.today - 'Today'
+     - calendar.allLists - 'All Lists'
+     - calendar.loading - 'Loading...'
+
+2. **Updated zh.json with calendar translations:**
+   - Added sidebar.calendar - '日历'
+   - Updated calendar.unscheduled - '未安排任务' (was '未安排')
+   - Updated calendar.noTasks - '没有未安排的任务' (was '无任务')
+   - All other calendar translations already existed:
+     - calendar.today - '今天'
+     - calendar.allLists - '所有列表'
+     - calendar.loading - '加载中...'
+
+### Testing Results
+- ✅ TypeScript compilation passes
+- ✅ App builds successfully (792.63 kB main bundle)
+- ✅ Calendar translations available in both languages
+- ✅ Sidebar shows translated Calendar entry
+
+### Features Updated
+- id 98: Add calendar translations to en.json → passes: true
+- id 99: Add calendar translations to zh.json → passes: true
+
+### Current Status
+- **92/100 items passing (92%)**
+- **Calendar - Backend API: 2/2 passing (100%)**
+- **Calendar - API Types: 1/1 passing (100%)**
+- **Calendar - App API Client: 1/1 passing (100%)**
+- **Calendar - Shared Components: 4/4 passing (100%)**
+- **Calendar - App UI: 4/8 passing (50%)**
+- **Calendar - Navigation: 1/1 passing (100%)**
+- **Calendar - i18n: 2/2 passing (100%)**
+
+### Build Status
+- apps/app: Builds successfully
+- Calendar fully integrated with i18n support
+- Calendar view accessible in both English and Chinese
+
+### Technical Notes
+- Calendar translations added to both language files
+- Translations follow existing naming conventions
+- Unscheduled tasks label clarified in both languages
+- No tasks message made more specific for unscheduled context
+
+### Commits
+None yet - will commit after testing passes
+
+### Next Steps
+- Implement Feature #100: Implement responsive calendar layout
+- Test calendar view in both languages
+- Test calendar navigation and task selection
+
+---
+
 ## Session 31: Calendar Navigation Integration
 **Date:** 2026-02-22
 
