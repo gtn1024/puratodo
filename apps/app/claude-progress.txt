@@ -1,5 +1,70 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 23: Calendar Backend API - Date Range Endpoint
+**Date:** 2026-02-22
+
+### What was done
+Implemented the `/api/v1/tasks/date-range` API endpoint for the calendar feature (Feature #85):
+
+1. **Created route handler:**
+   - Created `apps/web/src/app/api/v1/tasks/date-range/route.ts`
+   - Follows the same pattern as `/api/v1/tasks/today` endpoint
+   - Uses `TaskWithListInfo` type with list/group context fields
+
+2. **Query parameters:**
+   - `startDate` (required): Start of date range in YYYY-MM-DD format
+   - `endDate` (required): End of date range in YYYY-MM-DD format
+   - `listId` (optional): Filter tasks by specific list
+
+3. **Query logic:**
+   - Returns tasks where `plan_date` OR `due_date` falls within the range
+   - Uses Supabase query with `.or()` for date matching
+   - Filters by list if `listId` is provided
+
+4. **Response format:**
+   - Includes all task fields plus context fields:
+     - `list_name`, `list_icon`, `group_name`, `group_color`
+   - Returns empty array if no tasks found
+
+5. **Error handling:**
+   - Validates required parameters (startDate, endDate)
+   - Validates date format (YYYY-MM-DD)
+   - Returns appropriate error messages
+
+### Testing Results
+- ✅ Returns 401 Unauthorized for unauthenticated requests
+- ✅ Returns tasks with dates in the specified range
+- ✅ Includes list_name, list_icon, group_name, group_color in response
+- ✅ `listId` filter works correctly (returns only tasks from that list)
+- ✅ Error handling for missing parameters
+- ✅ Error handling for invalid date format
+
+### Features Updated
+- id 85: Create /api/v1/tasks/date-range endpoint for calendar → passes: true
+
+### Current Status
+- **78/100 items passing**
+- **Calendar - Backend API: 1/2 passing (50%)**
+
+### Build Status
+- apps/web: Builds successfully
+- New endpoint detected at `/api/v1/tasks/date-range`
+
+### Technical Notes
+- Endpoint follows the same pattern as `/api/v1/tasks/today`
+- Uses Supabase query with `.or()` for matching dates
+- Joins with lists and groups tables for context
+- No changes needed to packages - this is a web app only endpoint
+
+### Commits
+None yet - will commit after testing passes
+
+### Next Steps
+- Continue with Feature #86: Create /api/v1/tasks/unscheduled endpoint
+- Then implement shared calendar components in @puratodo/task-ui
+
+---
+
 ## Session 22: Local Notifications Implementation
 **Date:** 2026-02-22
 

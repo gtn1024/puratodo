@@ -1033,7 +1033,7 @@
         "Include list_name, list_icon, group_name, group_color in response",
         "Test endpoint returns correct tasks for date range"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 86,
