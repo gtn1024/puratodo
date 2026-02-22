@@ -1,7 +1,7 @@
 {
   "project": "PuraToDo App (Tauri)",
   "description": "Cross-platform desktop/mobile app built with Tauri 2.0 - connects to web app's API. Feature list aligned with web app (~80 items).",
-  "totalItems": 80,
+  "totalItems": 100,
   "features": [
     {
       "id": 1,
@@ -1019,6 +1019,217 @@
         "Run npm run tauri build",
         "Verify build completes without error",
         "Verify AppImage or .deb is generated"
+      ],
+      "passes": false
+    },
+    {
+      "id": 85,
+      "category": "Calendar - Backend API",
+      "description": "Create /api/v1/tasks/date-range endpoint for calendar",
+      "steps": [
+        "Create route handler in apps/web/src/app/api/v1/tasks/date-range/route.ts",
+        "Accept startDate, endDate, and optional listId query params",
+        "Return tasks with plan_date or due_date in the range",
+        "Include list_name, list_icon, group_name, group_color in response",
+        "Test endpoint returns correct tasks for date range"
+      ],
+      "passes": false
+    },
+    {
+      "id": 86,
+      "category": "Calendar - Backend API",
+      "description": "Create /api/v1/tasks/unscheduled endpoint for calendar",
+      "steps": [
+        "Create route handler in apps/web/src/app/api/v1/tasks/unscheduled/route.ts",
+        "Accept optional listId query param",
+        "Return incomplete tasks with no plan_date",
+        "Include list_name, list_icon, group_name, group_color in response",
+        "Test endpoint returns correct unscheduled tasks"
+      ],
+      "passes": false
+    },
+    {
+      "id": 87,
+      "category": "Calendar - API Types",
+      "description": "Add TaskSearchResult type to @puratodo/api-types",
+      "steps": [
+        "Add TaskSearchResult interface in packages/api-types",
+        "Include all task fields plus list_name, list_icon, group_name, group_color",
+        "Export the type from package index",
+        "Verify type is available for import in app"
+      ],
+      "passes": false
+    },
+    {
+      "id": 88,
+      "category": "Calendar - App API Client",
+      "description": "Extend app tasks API client with calendar methods",
+      "steps": [
+        "Add getTasksInDateRange(startDate, endDate, listId?) to apps/app/src/lib/api/tasks.ts",
+        "Add getUnscheduledTasks(listId?) to apps/app/src/lib/api/tasks.ts",
+        "Both methods should return TaskSearchResult[]",
+        "Test API calls return expected data"
+      ],
+      "passes": false
+    },
+    {
+      "id": 89,
+      "category": "Calendar - Shared Components",
+      "description": "Create TaskChip component in @puratodo/task-ui",
+      "steps": [
+        "Create packages/task-ui/src/calendar/task-chip.tsx",
+        "Display task name, completion status (CheckCircle2/Circle), star status",
+        "Accept isSelected prop for highlighting",
+        "Accept onSelect callback for click handling",
+        "Support dark mode styling",
+        "Export from calendar index"
+      ],
+      "passes": false
+    },
+    {
+      "id": 90,
+      "category": "Calendar - Shared Components",
+      "description": "Create DateCell component in @puratodo/task-ui",
+      "steps": [
+        "Create packages/task-ui/src/calendar/date-cell.tsx",
+        "Display date number with today/current month styling",
+        "Show up to 3 TaskChip components",
+        "Show '+N more' indicator for additional tasks",
+        "Support dark mode styling",
+        "Export from calendar index"
+      ],
+      "passes": false
+    },
+    {
+      "id": 91,
+      "category": "Calendar - Shared Components",
+      "description": "Create UnscheduledTaskList component in @puratodo/task-ui",
+      "steps": [
+        "Create packages/task-ui/src/calendar/unscheduled-list.tsx",
+        "Display list of unscheduled tasks using TaskChip",
+        "Show loading state while fetching",
+        "Show empty state when no unscheduled tasks",
+        "Support dark mode styling",
+        "Export from calendar index"
+      ],
+      "passes": false
+    },
+    {
+      "id": 92,
+      "category": "Calendar - Shared Components",
+      "description": "Create calendar types in @puratodo/task-ui",
+      "steps": [
+        "Create packages/task-ui/src/calendar/types.ts",
+        "Define CalendarTask interface (extends Task with context fields)",
+        "Export types from calendar index",
+        "Update task-ui index.ts to export calendar components"
+      ],
+      "passes": false
+    },
+    {
+      "id": 93,
+      "category": "Calendar - App UI",
+      "description": "Create CalendarPanel component in app",
+      "steps": [
+        "Create apps/app/src/components/CalendarPanel.tsx",
+        "Use shared TaskChip, DateCell, UnscheduledTaskList from @puratodo/task-ui",
+        "Manage currentDate state for month navigation",
+        "Manage selectedFilter state for list filtering",
+        "Manage tasks and unscheduledTasks state",
+        "Load tasks on date/filter change using API client"
+      ],
+      "passes": false
+    },
+    {
+      "id": 94,
+      "category": "Calendar - App UI",
+      "description": "Add calendar navigation controls",
+      "steps": [
+        "Add previous/next month buttons (ChevronLeft/ChevronRight)",
+        "Add 'Today' button to jump to current month",
+        "Display current month and year in header",
+        "Add weekday headers row (Sun, Mon, Tue, etc.)",
+        "Verify navigation updates calendar grid"
+      ],
+      "passes": false
+    },
+    {
+      "id": 95,
+      "category": "Calendar - App UI",
+      "description": "Add list filter dropdown to calendar",
+      "steps": [
+        "Add Select dropdown for list filtering",
+        "Include 'All Lists' option as default",
+        "List all available lists with icons",
+        "Filter calendar tasks when list is selected",
+        "Filter unscheduled tasks when list is selected"
+      ],
+      "passes": false
+    },
+    {
+      "id": 96,
+      "category": "Calendar - App UI",
+      "description": "Implement task selection in calendar",
+      "steps": [
+        "Track selectedTaskId state in CalendarPanel",
+        "Pass onTaskSelect callback to DateCell and UnscheduledTaskList",
+        "Highlight selected task chip",
+        "Open task detail panel when task is selected",
+        "Verify task detail shows correct task info"
+      ],
+      "passes": false
+    },
+    {
+      "id": 97,
+      "category": "Calendar - Navigation",
+      "description": "Add calendar view type to DashboardPage",
+      "steps": [
+        "Add 'calendar' to currentView state type",
+        "Add Calendar icon import from lucide-react",
+        "Add 'Calendar' entry in sidebar navigation",
+        "Place Calendar entry above or below Smart Views section",
+        "Verify clicking entry switches to calendar view"
+      ],
+      "passes": false
+    },
+    {
+      "id": 98,
+      "category": "Calendar - i18n",
+      "description": "Add calendar translations to en.json",
+      "steps": [
+        "Add calendar.today - 'Today'",
+        "Add calendar.allLists - 'All Lists'",
+        "Add calendar.unscheduled - 'Unscheduled Tasks'",
+        "Add calendar.loading - 'Loading...'",
+        "Add calendar.noTasks - 'No unscheduled tasks'",
+        "Add sidebar.calendar - 'Calendar'"
+      ],
+      "passes": false
+    },
+    {
+      "id": 99,
+      "category": "Calendar - i18n",
+      "description": "Add calendar translations to zh.json",
+      "steps": [
+        "Add calendar.today - '今天'",
+        "Add calendar.allLists - '所有列表'",
+        "Add calendar.unscheduled - '未安排任务'",
+        "Add calendar.loading - '加载中...'",
+        "Add calendar.noTasks - '没有未安排的任务'",
+        "Add sidebar.calendar - '日历'"
+      ],
+      "passes": false
+    },
+    {
+      "id": 100,
+      "category": "Calendar - Responsive",
+      "description": "Implement responsive calendar layout",
+      "steps": [
+        "Desktop (md+): Show calendar grid + right sidebar for unscheduled tasks",
+        "Mobile (<md): Full-width calendar grid, hide unscheduled sidebar",
+        "Ensure date cells have minimum height on mobile",
+        "Test layout at different breakpoints",
+        "Verify smooth transitions between breakpoints"
       ],
       "passes": false
     }
