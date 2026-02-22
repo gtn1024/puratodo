@@ -1,0 +1,458 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0167D20B87468453CFEBF09C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 49EFD4141CD670234DA4CC36 /* LaunchScreen.storyboard */; };
+		27798844BE3AAC49D49C8EA5 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 584547228F9424CD9A33B32A /* Security.framework */; };
+		3BD06F3BEEF3696B3DD957B6 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 5987A74585F7FB4AD20903DB /* assets */; };
+		544107F32E5E79514F523747 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE774D8A2E81EC32D49D8AB1 /* CoreGraphics.framework */; };
+		6BD7C83AA4902F3F8C097EE9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 39EED0A3BFCC2F52E4EFB176 /* Assets.xcassets */; };
+		73092B4B5D5B8EC6E51009AE /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E2905058A7183A8CC5350EC /* WebKit.framework */; };
+		7F01FE652F6DDA24C15F86BE /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2054FDE9B3C97B155F71A637 /* Metal.framework */; };
+		86242564EE8FF3E42F13294E /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 11E2488DE4F9C82103DEDD34 /* main.mm */; };
+		9CF22854AF21724C5ED4D30E /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F584E688E5C70729658350F /* QuartzCore.framework */; };
+		A420E5952D1DABEB52CA8ED7 /* libapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A351923DA47FED8FC3E7DA0F /* libapp.a */; };
+		EBBB12A347FF3614FE91B6A3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5265BEEA3DE4F482FC420DA0 /* UIKit.framework */; };
+		FA93FF3E26489780F7AACA75 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB64AF036EDA2DA59C9E49A9 /* MetalKit.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		11E2488DE4F9C82103DEDD34 /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
+		2054FDE9B3C97B155F71A637 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		2E2905058A7183A8CC5350EC /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		3312FB8520F35B1C710A0255 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		39EED0A3BFCC2F52E4EFB176 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		486456CF6C1ADB956C06C4DB /* bindings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bindings.h; sourceTree = "<group>"; };
+		48682084B9A53864C6315D11 /* lib.rs */ = {isa = PBXFileReference; path = lib.rs; sourceTree = "<group>"; };
+		49EFD4141CD670234DA4CC36 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		5265BEEA3DE4F482FC420DA0 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		584547228F9424CD9A33B32A /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		5987A74585F7FB4AD20903DB /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = assets; sourceTree = SOURCE_ROOT; };
+		5F81B99F5F87E9C190732C3A /* main.rs */ = {isa = PBXFileReference; path = main.rs; sourceTree = "<group>"; };
+		601F28AC1A8B71687D7F3D3B /* puratodo_iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = puratodo_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9F584E688E5C70729658350F /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		A351923DA47FED8FC3E7DA0F /* libapp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libapp.a; sourceTree = "<group>"; };
+		AB64AF036EDA2DA59C9E49A9 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
+		E872B5D322D98CA041D0AB47 /* puratodo_iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = puratodo_iOS.entitlements; sourceTree = "<group>"; };
+		FE774D8A2E81EC32D49D8AB1 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A760B8A854E27547064BC709 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A420E5952D1DABEB52CA8ED7 /* libapp.a in Frameworks */,
+				544107F32E5E79514F523747 /* CoreGraphics.framework in Frameworks */,
+				7F01FE652F6DDA24C15F86BE /* Metal.framework in Frameworks */,
+				FA93FF3E26489780F7AACA75 /* MetalKit.framework in Frameworks */,
+				9CF22854AF21724C5ED4D30E /* QuartzCore.framework in Frameworks */,
+				27798844BE3AAC49D49C8EA5 /* Security.framework in Frameworks */,
+				EBBB12A347FF3614FE91B6A3 /* UIKit.framework in Frameworks */,
+				73092B4B5D5B8EC6E51009AE /* WebKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2E1A221C2E17D6E163668A5D /* puratodo_iOS */ = {
+			isa = PBXGroup;
+			children = (
+				3312FB8520F35B1C710A0255 /* Info.plist */,
+				E872B5D322D98CA041D0AB47 /* puratodo_iOS.entitlements */,
+			);
+			path = puratodo_iOS;
+			sourceTree = "<group>";
+		};
+		3F173EAF1B85C50F6F5B0118 /* bindings */ = {
+			isa = PBXGroup;
+			children = (
+				486456CF6C1ADB956C06C4DB /* bindings.h */,
+			);
+			path = bindings;
+			sourceTree = "<group>";
+		};
+		74E24AD13971FFB8E58825E2 = {
+			isa = PBXGroup;
+			children = (
+				5987A74585F7FB4AD20903DB /* assets */,
+				39EED0A3BFCC2F52E4EFB176 /* Assets.xcassets */,
+				49EFD4141CD670234DA4CC36 /* LaunchScreen.storyboard */,
+				EE268EEE76683F5B39AECDCC /* Externals */,
+				2E1A221C2E17D6E163668A5D /* puratodo_iOS */,
+				8A5F3C0F501432913A1C0CE4 /* Sources */,
+				D80B307AE75BD88693DB20BA /* src */,
+				C95DE4CAFD471F480865ED63 /* Frameworks */,
+				98491B6E33A6D2AD90253208 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		8A5F3C0F501432913A1C0CE4 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				A696411CE887B7B2CC407498 /* puratodo */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		98491B6E33A6D2AD90253208 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				601F28AC1A8B71687D7F3D3B /* puratodo_iOS.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A696411CE887B7B2CC407498 /* puratodo */ = {
+			isa = PBXGroup;
+			children = (
+				11E2488DE4F9C82103DEDD34 /* main.mm */,
+				3F173EAF1B85C50F6F5B0118 /* bindings */,
+			);
+			path = puratodo;
+			sourceTree = "<group>";
+		};
+		C95DE4CAFD471F480865ED63 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FE774D8A2E81EC32D49D8AB1 /* CoreGraphics.framework */,
+				A351923DA47FED8FC3E7DA0F /* libapp.a */,
+				2054FDE9B3C97B155F71A637 /* Metal.framework */,
+				AB64AF036EDA2DA59C9E49A9 /* MetalKit.framework */,
+				9F584E688E5C70729658350F /* QuartzCore.framework */,
+				584547228F9424CD9A33B32A /* Security.framework */,
+				5265BEEA3DE4F482FC420DA0 /* UIKit.framework */,
+				2E2905058A7183A8CC5350EC /* WebKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D80B307AE75BD88693DB20BA /* src */ = {
+			isa = PBXGroup;
+			children = (
+				48682084B9A53864C6315D11 /* lib.rs */,
+				5F81B99F5F87E9C190732C3A /* main.rs */,
+			);
+			name = src;
+			path = ../../src;
+			sourceTree = "<group>";
+		};
+		EE268EEE76683F5B39AECDCC /* Externals */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Externals;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		31A0275FF8C6EBB34A2FB897 /* puratodo_iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3BDD413988B7C151A32CBF00 /* Build configuration list for PBXNativeTarget "puratodo_iOS" */;
+			buildPhases = (
+				2DF27B65645202794D7474D9 /* Build Rust Code */,
+				6417295727E7F9EE63F39F16 /* Sources */,
+				49B46ECA1402E579C9583CFD /* Resources */,
+				A760B8A854E27547064BC709 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = puratodo_iOS;
+			packageProductDependencies = (
+			);
+			productName = puratodo_iOS;
+			productReference = 601F28AC1A8B71687D7F3D3B /* puratodo_iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FA74AFB0D751AEF14008121C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+			};
+			buildConfigurationList = 5EA0E51DC510A47D83BE087D /* Build configuration list for PBXProject "puratodo" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 74E24AD13971FFB8E58825E2;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				31A0275FF8C6EBB34A2FB897 /* puratodo_iOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		49B46ECA1402E579C9583CFD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6BD7C83AA4902F3F8C097EE9 /* Assets.xcassets in Resources */,
+				0167D20B87468453CFEBF09C /* LaunchScreen.storyboard in Resources */,
+				3BD06F3BEEF3696B3DD957B6 /* assets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		2DF27B65645202794D7474D9 /* Build Rust Code */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build Rust Code";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/Externals/x86_64/${CONFIGURATION}/libapp.a",
+				"$(SRCROOT)/Externals/arm64/${CONFIGURATION}/libapp.a",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "npm run -- tauri ios xcode-script -v --platform ${PLATFORM_DISPLAY_NAME:?} --sdk-root ${SDKROOT:?} --framework-search-paths \"${FRAMEWORK_SEARCH_PATHS:?}\" --header-search-paths \"${HEADER_SEARCH_PATHS:?}\" --gcc-preprocessor-definitions \"${GCC_PREPROCESSOR_DEFINITIONS:-}\" --configuration ${CONFIGURATION:?} ${FORCE_COLOR} ${ARCHS:?}";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6417295727E7F9EE63F39F16 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				86242564EE8FF3E42F13294E /* main.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		24E05C1C48E2C6A998E5B979 /* release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = release;
+		};
+		2F0D5020A99888F7C640039D /* release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ARCHS = (
+					arm64,
+				);
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = puratodo_iOS/puratodo_iOS.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_BITCODE = NO;
+				"EXCLUDED_ARCHS[sdk=iphoneos*]" = x86_64;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\".\"",
+				);
+				INFOPLIST_FILE = puratodo_iOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				"LIBRARY_SEARCH_PATHS[arch=arm64]" = "$(inherited) $(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = "$(inherited) $(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = top.puratodo.app;
+				PRODUCT_NAME = "PuraToDo";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = arm64;
+			};
+			name = release;
+		};
+		A7B3ED5511925B4D0781BBB1 /* debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = debug;
+		};
+		BEF4E728C964901FC951B2ED /* debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ARCHS = (
+					arm64,
+				);
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = puratodo_iOS/puratodo_iOS.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_BITCODE = NO;
+				"EXCLUDED_ARCHS[sdk=iphoneos*]" = x86_64;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\".\"",
+				);
+				INFOPLIST_FILE = puratodo_iOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				"LIBRARY_SEARCH_PATHS[arch=arm64]" = "$(inherited) $(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = "$(inherited) $(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = top.puratodo.app;
+				PRODUCT_NAME = "PuraToDo";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = arm64;
+			};
+			name = debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3BDD413988B7C151A32CBF00 /* Build configuration list for PBXNativeTarget "puratodo_iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BEF4E728C964901FC951B2ED /* debug */,
+				2F0D5020A99888F7C640039D /* release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = debug;
+		};
+		5EA0E51DC510A47D83BE087D /* Build configuration list for PBXProject "puratodo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A7B3ED5511925B4D0781BBB1 /* debug */,
+				24E05C1C48E2C6A998E5B979 /* release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = FA74AFB0D751AEF14008121C /* Project object */;
+}
