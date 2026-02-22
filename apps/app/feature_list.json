@@ -998,7 +998,7 @@
         "Verify build completes without error",
         "Verify .app bundle is generated"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 83,
