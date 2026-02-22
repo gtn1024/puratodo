@@ -1,5 +1,40 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 10: Window State Persistence
+**Date:** 2026-02-22
+
+### What was done
+Implemented window size and position persistence using Tauri plugin:
+
+1. **Added tauri-plugin-window-state:**
+   - Added `tauri-plugin-window-state = "2"` to Cargo.toml
+   - Registered plugin in lib.rs: `.plugin(tauri_plugin_window_state::Builder::new().build())`
+
+2. **How it works:**
+   - Plugin automatically saves window state (position, size, maximized, fullscreen) to local storage
+   - State is restored on app restart
+   - Works across all platforms (macOS, Windows, Linux)
+
+3. **Testing:**
+   - Tauri app compiled successfully with new plugin
+   - Plugin downloaded and integrated (v2.4.1)
+   - App launches without errors
+
+### Features Updated
+- id 4: Window size and position persist after restart → passes: true
+
+### Current Status
+- 43/80 items passing (increased from 42)
+
+### Build Status
+- apps/app: Builds successfully
+- Tauri dev: Starts successfully with window-state plugin
+
+### Next Steps
+- Continue with next feature (authentication or multi-account features)
+
+---
+
 ## Session 9: Smart Views Feature Implementation
 **Date:** 2026-02-21
 

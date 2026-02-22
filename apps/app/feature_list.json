@@ -47,7 +47,7 @@
         "Reopen app",
         "Verify window is in same position and size"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 5,
