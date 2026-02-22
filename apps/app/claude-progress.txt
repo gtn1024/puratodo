@@ -20,7 +20,7 @@ Verified Feature #75 (App appears in system app list) through automated and manu
 
 3. **Bundle Information:**
    - CFBundleDisplayName: PuraToDo
-   - CFBundleIdentifier: com.puratodo.app
+   - CFBundleIdentifier: top.puratodo.app
    - CFBundleVersion: 0.2.0
 
 ### Features Updated
