@@ -1,5 +1,45 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 34: i18n Support Enhancement (Continued)
+**Date:** 2026-02-22
+
+### What was done
+Continued enhancing internationalization (i18n) support:
+
+1. **Updated RegisterPage component:**
+   - Added useI18n hook
+   - Replaced all hardcoded text with t() function calls
+   - Labels, placeholders, validation messages all internationalized
+
+2. **Updated App component:**
+   - Added useI18n hook
+   - Loading state text now uses t("app.loading")
+
+3. **Updated TaskDetailPanel component:**
+   - Added useI18n hook
+   - All field labels internationalized (task name, dates, duration, notes)
+   - Status text (completed/starred) internationalized
+   - Buttons and placeholders internationalized
+   - Empty state message internationalized
+
+### Testing Results
+- ✅ TypeScript compilation passes
+- ✅ App builds successfully (800.53 kB main bundle)
+- ✅ All i18n keys properly defined
+- ✅ No runtime errors
+
+### Commits
+1. feat(i18n): internationalize RegisterPage component
+2. feat(i18n): internationalize App and TaskDetailPanel components
+
+### Current Status
+- **93/100 items passing (93%)**
+- **i18n: 2/2 passing (100%)**
+- Components with i18n: LoginPage, RegisterPage, CalendarPanel, App, TaskDetailPanel
+- Remaining: AccountSwitcher, AccountSettingsDialog, DashboardPage
+
+---
+
 ## Session 34: i18n Support Enhancement
 **Date:** 2026-02-22
 
