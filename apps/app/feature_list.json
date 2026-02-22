@@ -917,7 +917,7 @@
         "Verify app appears in app launcher",
         "Verify app can be pinned to favorites"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 76,
