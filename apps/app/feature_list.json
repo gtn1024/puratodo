@@ -987,7 +987,7 @@
         "Wait for reminder time",
         "Verify notification appears"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 82,

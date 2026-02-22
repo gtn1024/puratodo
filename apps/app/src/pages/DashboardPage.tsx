@@ -52,6 +52,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { useGroupRealtime, useListRealtime, useTaskRealtime } from "@/hooks/use-realtime";
+import { requestNotificationPermission, scheduleTaskReminders } from "@/lib/notifications";
 import { useAuthStore } from "@/stores/authStore";
 import { useDataStore } from "@/stores/dataStore";
 import type { List as ListType } from "@/lib/api/lists";
@@ -232,6 +233,22 @@ export function DashboardPage() {
   useGroupRealtime(handleRealtimeChange, !!activeAccountId);
   useListRealtime(handleRealtimeChange, !!activeAccountId);
   useTaskRealtime(handleRealtimeChange, !!activeAccountId);
+
+  // Request notification permission and setup reminders on mount
+  React.useEffect(() => {
+    if (!activeAccountId || tasks.length === 0) return;
+
+    // Request notification permission
+    requestNotificationPermission().then((granted) => {
+      if (granted) {
+        console.log('Notification permission granted');
+        // Schedule reminders for all tasks
+        scheduleTaskReminders(tasks);
+      } else {
+        console.log('Notification permission denied');
+      }
+    });
+  }, [activeAccountId, tasks]);
 
   // Toggle group expansion
   const toggleGroup = (groupId: string) => {
