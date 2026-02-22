@@ -33,6 +33,7 @@ import {
   Sheet,
   SheetContent,
   DragHandle,
+  Skeleton,
 } from "@puratodo/ui";
 import {
   TaskFilters,
@@ -1240,7 +1241,20 @@ export function DashboardPage() {
 
             {/* Loading state */}
             {isLoading && groups.length === 0 && (
-              <div className="px-3 py-4 text-sm text-stone-400 dark:text-stone-500">Loading...</div>
+              <div className="space-y-2 px-3 py-2">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="w-4 h-4 rounded" />
+                      <Skeleton className="flex-1 h-4" />
+                    </div>
+                    <div className="ml-6 space-y-1">
+                      <Skeleton className="h-3 w-24" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
 
             {/* Error state */}
@@ -1609,7 +1623,20 @@ export function DashboardPage() {
 
             {/* Loading state */}
             {isLoading && groups.length === 0 && (
-              <div className="px-3 py-4 text-sm text-stone-400 dark:text-stone-500">Loading...</div>
+              <div className="space-y-2 px-3 py-2">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="w-4 h-4 rounded" />
+                      <Skeleton className="flex-1 h-4" />
+                    </div>
+                    <div className="ml-6 space-y-1">
+                      <Skeleton className="h-3 w-24" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
 
             {/* Error state */}
@@ -2001,6 +2028,21 @@ export function DashboardPage() {
             {(() => {
               const displayTasks = getDisplayTasks();
               const showAddTask = currentView === 'list' && selectedList;
+
+              // Show skeleton loading state
+              if (isLoadingTasks) {
+                return (
+                  <div className="space-y-3">
+                    {[...Array(5)].map((_, i) => (
+                      <div key={i} className="flex items-center gap-3 p-3 rounded-lg border border-stone-200 dark:border-stone-700">
+                        <Skeleton className="w-5 h-5 rounded-full" />
+                        <Skeleton className="flex-1 h-4" />
+                        <Skeleton className="w-16 h-3" />
+                      </div>
+                    ))}
+                  </div>
+                );
+              }
 
               if (displayTasks.length > 0) {
                 const listId = selectedList?.id ?? '';
