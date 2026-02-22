@@ -1,5 +1,76 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 17: i18n Internationalization
+**Date:** 2026-02-22
+
+### What was done
+Implemented full i18n (internationalization) support for the Tauri app:
+
+1. **Created i18n system (Features #68-69):**
+   - Created `src/i18n/index.tsx` with I18nProvider context and useI18n hook
+   - Supports English (en) and Chinese (zh) locales
+   - Auto-detects browser language on first load
+   - Persists language choice to localStorage
+
+2. **Copied translation files:**
+   - Created `src/messages/en.json` with English translations
+   - Created `src/messages/zh.json` with Chinese translations
+   - Covers all UI text: common, auth, sidebar, lists, tasks, filters, search, etc.
+
+3. **Updated main.tsx:**
+   - Wrapped app with I18nProvider
+   - i18n is now available throughout the app
+
+4. **Added language switcher UI:**
+   - Created `LanguageSwitcher.tsx` component with dropdown
+   - Added language section to AccountSettingsDialog
+   - Shows "Language" / "语言" label with toggle buttons
+   - Active language button shows highlighted state
+
+5. **Removed old i18n files:**
+   - Deleted old `src/i18n/index.ts` (used i18next library)
+   - Deleted old `src/i18n/locales/` directory
+   - Replaced with simpler React Context-based i18n (matching web app)
+
+### Testing Results
+- ✅ Language can be changed in Account Settings
+- ✅ Switching to Chinese updates UI text immediately
+- ✅ Switching to English updates UI text immediately
+- ✅ Language preference persists after page refresh
+- ✅ Active language button shows highlighted state
+
+### Features Updated
+- id 68: Language can be changed → passes: true
+- id 69: App works correctly in multiple languages → passes: true
+
+### Current Status
+- 74/80 items passing (92.5%)
+- i18n: 2/2 passing (100%)
+- Only 6 remaining failing features
+
+### Build Status
+- apps/app: Builds successfully (588 kB main bundle)
+
+### Technical Notes
+- Uses React Context + useState for i18n state management
+- Translation files use nested JSON structure with dot notation keys
+- useI18n() hook provides { locale, setLocale, t } functions
+- Language persisted to localStorage as "locale" key
+- Browser language detection: navigator.language.startsWith("zh") ? "zh" : "en"
+
+### Commits
+1. feat(app): add i18n internationalization support
+
+### Next Steps
+- Consider implementing remaining features:
+  - #67: Realtime sync (needs Supabase Realtime)
+  - #75: App in system app list (needs actual install)
+  - #76-79: Mobile integration (needs iOS/Android)
+  - #80-81: Deep links & notifications (needs Tauri plugins)
+  - #83-84: Windows/Linux builds (needs cross-platform testing)
+
+---
+
 ## Session 16: Desktop Menu Bar & Production Build
 **Date:** 2026-02-22
 

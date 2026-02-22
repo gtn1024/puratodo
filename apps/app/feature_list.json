@@ -838,7 +838,7 @@
         "Change language",
         "Verify UI text updates to selected language"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 69,
@@ -850,7 +850,7 @@
         "Switch to English",
         "Verify all UI text is in English"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 70,

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AlertCircle, Check, Lock, Mail, Server, Trash2, UserPlus, Users } from "lucide-react";
+import { AlertCircle, Check, Globe, Lock, Mail, Server, Trash2, UserPlus, Users } from "lucide-react";
 import {
   Button,
   Input,
@@ -14,6 +14,7 @@ import { authApi } from "@/lib/api/auth";
 import { ApiException } from "@/lib/api/client";
 import { DEFAULT_API_URL, isValidApiUrl, normalizeApiUrl } from "@/lib/api/config";
 import { useAuthStore, AccountSession } from "@/stores/authStore";
+import { useI18n } from "@/i18n";
 
 interface AccountSettingsDialogProps {
   trigger?: React.ReactNode;
@@ -38,6 +39,8 @@ export function AccountSettingsDialog({
     removeAccount,
     setCurrentServerUrl,
   } = useAuthStore();
+
+  const { locale, setLocale, t } = useI18n();
 
   const [internalOpen, setInternalOpen] = React.useState(false);
   const [isAdding, setIsAdding] = React.useState(false);
@@ -336,6 +339,34 @@ export function AccountSettingsDialog({
                 </div>
               );
             })}
+          </div>
+
+          {/* Language Settings */}
+          <div className="rounded-lg border border-stone-200 px-3 py-2 dark:border-stone-700">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4 text-stone-500 dark:text-stone-400" />
+                <span className="text-sm font-medium text-stone-900 dark:text-stone-100">
+                  {t("language.language")}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={locale === "en" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setLocale("en")}
+                >
+                  English
+                </Button>
+                <Button
+                  variant={locale === "zh" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setLocale("zh")}
+                >
+                  中文
+                </Button>
+              </div>
+            </div>
           </div>
 
           {!isAdding && (
