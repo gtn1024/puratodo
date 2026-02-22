@@ -1,5 +1,5 @@
 use tauri::menu::{Menu, MenuItem, Submenu};
-use tauri::{Manager, Emitter};
+use tauri::{Manager, Emitter, Listener};
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -12,8 +12,23 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_window_state::Builder::new().build())
+        .plugin(tauri_plugin_deep_link::init())
         .invoke_handler(tauri::generate_handler![greet])
         .setup(|app| {
+            // Register deep link schemes for desktop
+            #[cfg(desktop)]
+            {
+                use tauri_plugin_deep_link::DeepLinkExt;
+                app.deep_link().register_all()?;
+            }
+
+            // Deep link event handler
+            let app_handle = app.handle().clone();
+            app.listen_any("deep-link://request", move |event| {
+                // Emit the entire payload to frontend, let JS handle parsing
+                let _ = app_handle.emit("deep-link-received", event.payload());
+            });
+
             // Create menu items
             let new_task = MenuItem::with_id(app, "new_task", "New Task", true, None::<&str>)?;
             let search = MenuItem::with_id(app, "search", "Search", true, None::<&str>)?;

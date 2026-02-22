@@ -1,5 +1,59 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 21: Deep Links Implementation Attempt
+**Date:** 2026-02-22
+
+### What was done
+Attempted to implement deep links feature (Feature #80) with `tauri-plugin-deep-link`:
+
+1. **Added deep-link plugin:**
+   - Added `tauri-plugin-deep-link = "2"` to Cargo.toml
+   - Added deep-link:default permission to capabilities
+   - Registered plugin in Rust lib.rs
+
+2. **Configuration attempts:**
+   - Tried multiple configuration formats in tauri.conf.json
+   - Attempted object format with schemes array
+   - Attemptested simple array format
+   - Attempted programmatic registration with `register_all()`
+
+3. **Frontend event handling:**
+   - Added deep link event listener in DashboardPage.tsx
+   - Parses URLs like `puratodo://task/123` and `puratodo://list/456`
+   - Navigates to appropriate task/list when deep link received
+
+4. **Build results:**
+   - App builds successfully with plugin installed
+   - App launches without crashes
+   - URL scheme registration incomplete due to configuration complexity
+
+### Technical Challenges
+The `tauri-plugin-deep-link` v2.4.7 has complex configuration requirements:
+- Configuration format in tauri.conf.json is not clearly documented
+- `register_all()` method requires proper scheme registration
+- Multiple attempts with different formats all resulted in errors:
+  - "invalid type: map, expected a sequence"
+  - "invalid type: string, expected a sequence"
+
+### Current Status
+- **App builds and runs successfully** ✅
+- **Deep link event handling implemented** ✅
+- **URL scheme registration incomplete** ⚠️
+- **76/80 items passing (95%)** (no change - Feature #80 still `passes: false`)
+
+### Recommendation
+Feature #80 requires further investigation:
+- Consult Tauri 2.0 official documentation for correct deep-link plugin configuration
+- May need to wait for better documentation or plugin updates
+- Alternative: Manually register URL scheme in Info.plist post-build
+
+### Next Steps
+- Continue with other features or
+- Investigate local notifications (Feature #81) with `tauri-plugin-notification`
+- Deep links can be revisited with better documentation
+
+---
+
 ## Session 20: Desktop Integration - System App List Verification
 **Date:** 2026-02-22
 

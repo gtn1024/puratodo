@@ -702,11 +702,44 @@ export function DashboardPage() {
           alert("PuraToDo v0.2.0\nA task management app with infinite subtask nesting.\n\nBuilt with Tauri 2.0, React, and Supabase.");
         });
 
+        // Deep link listener
+        const unlistenDeepLink = listen<{ urls: string[] }>("deep-link-received", (event) => {
+          const urls = event.payload.urls;
+          console.log("Deep link received:", urls);
+
+          if (urls && urls.length > 0) {
+            const url = urls[0];
+
+            // Parse the deep link URL: puratodo://task/123 or puratodo://list/456
+            const pathMatch = url.match(/^puratodo:\/\/(task|list)\/(.+)$/);
+            if (pathMatch) {
+              const [, type, id] = pathMatch;
+
+              if (type === "task") {
+                // Find the task and select it
+                const task = tasks.find(t => t.id === id);
+                if (task) {
+                  // Navigate to the task's list first
+                  setSelectedListId(task.list_id);
+                  // Then select the task to show detail panel
+                  setSelectedTaskId(id);
+                }
+              } else if (type === "list") {
+                // Navigate to the list
+                setSelectedListId(id);
+                // Clear task selection
+                setSelectedTaskId(null);
+              }
+            }
+          }
+        });
+
         return () => {
           unlistenNewTask.then((fn) => fn());
           unlistenSearch.then((fn) => fn());
           unlistenPreferences.then((fn) => fn());
           unlistenAbout.then((fn) => fn());
+          unlistenDeepLink.then((fn) => fn());
         };
       });
     }
