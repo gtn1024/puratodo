@@ -3,12 +3,14 @@ import { Mail, Lock, User, ArrowRight, AlertCircle, Server } from "lucide-react"
 import { Button, Input } from "@puratodo/ui";
 import { ApiServerSettingsDialog } from "@/components/ApiServerSettingsDialog";
 import { useAuth } from "@/hooks/useAuth";
+import { useI18n } from "@/i18n";
 
 interface RegisterPageProps {
   onSwitchToLogin: () => void;
 }
 
 export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
+  const { t } = useI18n();
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -24,12 +26,12 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
 
     // Client-side validation
     if (password !== confirmPassword) {
-      setValidationError("Passwords do not match");
+      setValidationError(t("auth.passwordsDoNotMatch"));
       return;
     }
 
     if (password.length < 8) {
-      setValidationError("Password must be at least 8 characters");
+      setValidationError(t("auth.passwordTooShort"));
       return;
     }
 
@@ -84,7 +86,7 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
                 type="button"
                 className="text-sm font-medium text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200"
               >
-                API Server
+                {t("apiServer.title")}
               </button>
             )}
           />
@@ -110,13 +112,13 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
           className="text-2xl font-semibold tracking-tight text-center text-stone-900 dark:text-stone-100 mb-1"
           style={{ animation: "fadeIn 0.8s ease-out 0.3s both" }}
         >
-          Create your account
+          {t("register.createYourAccount")}
         </h1>
         <p
           className="text-sm text-stone-500 dark:text-stone-400 text-center mb-6"
           style={{ animation: "fadeIn 0.8s ease-out 0.4s both" }}
         >
-          Get started with PuraToDo for free
+          {t("register.getStartedFree")}
         </p>
 
         {/* Error message */}
@@ -140,12 +142,12 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
               htmlFor="name"
               className="text-sm font-medium text-stone-700 dark:text-stone-300"
             >
-              Name <span className="text-stone-400">(optional)</span>
+              {t("register.name")}
             </label>
             <Input
               id="name"
               type="text"
-              placeholder="John Doe"
+              placeholder={t("register.namePlaceholder")}
               value={name}
               onChange={(e) => setName(e.target.value)}
               icon={<User className="h-5 w-5" />}
@@ -158,12 +160,12 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
               htmlFor="email"
               className="text-sm font-medium text-stone-700 dark:text-stone-300"
             >
-              Email address
+              {t("auth.email")}
             </label>
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder={t("register.emailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               icon={<Mail className="h-5 w-5" />}
@@ -177,12 +179,12 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
               htmlFor="password"
               className="text-sm font-medium text-stone-700 dark:text-stone-300"
             >
-              Password
+              {t("auth.password")}
             </label>
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
-              placeholder="At least 8 characters"
+              placeholder={t("register.passwordPlaceholder")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               icon={<Lock className="h-5 w-5" />}
@@ -197,12 +199,12 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
               htmlFor="confirmPassword"
               className="text-sm font-medium text-stone-700 dark:text-stone-300"
             >
-              Confirm password
+              {t("auth.confirmPassword")}
             </label>
             <Input
               id="confirmPassword"
               type={showPassword ? "text" : "password"}
-              placeholder="Confirm your password"
+              placeholder={t("register.confirmPasswordPlaceholder")}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               icon={<Lock className="h-5 w-5" />}
@@ -218,7 +220,7 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
               className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-300 transition-colors"
               disabled={isLoading}
             >
-              {showPassword ? "Hide" : "Show"} passwords
+              {showPassword ? t("register.hidePasswords") : t("register.showPasswords")}
             </button>
           </div>
 
@@ -230,11 +232,11 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
             {isLoading ? (
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>Creating account...</span>
+                <span>{t("auth.creatingAccount")}</span>
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <span>Create account</span>
+                <span>{t("auth.createAccount")}</span>
                 <ArrowRight className="w-5 h-5" />
               </div>
             )}
@@ -245,24 +247,24 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
           className="mt-6 text-center text-sm text-stone-500 dark:text-stone-400"
           style={{ animation: "fadeIn 0.8s ease-out 0.6s both" }}
         >
-          Already have an account?{" "}
+          {t("auth.alreadyHaveAccount")}{" "}
           <button
             type="button"
             onClick={onSwitchToLogin}
             className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors underline-offset-4 hover:underline"
           >
-            Sign in instead
+            {t("auth.signIn")}
           </button>
         </div>
 
         <p className="mt-8 text-center text-xs text-stone-400 dark:text-stone-500">
-          By creating an account, you agree to our{" "}
+          {t("register.byCreatingAccount")}{" "}
           <a href="#" className="underline hover:text-stone-600 dark:hover:text-stone-300">
-            Terms of Service
+            {t("register.termsOfService")}
           </a>{" "}
-          and{" "}
+          {t("register.and")}{" "}
           <a href="#" className="underline hover:text-stone-600 dark:hover:text-stone-300">
-            Privacy Policy
+            {t("register.privacyPolicy")}
           </a>
         </p>
       </div>
