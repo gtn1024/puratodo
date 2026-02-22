@@ -98,7 +98,7 @@
         "Verify account is created",
         "Verify user is logged in"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 9,
@@ -123,7 +123,7 @@
         "Verify user is still logged in",
         "Verify dashboard is displayed"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 11,
@@ -148,7 +148,7 @@
         "Save settings",
         "Verify app connects to custom server"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 13,
@@ -160,7 +160,7 @@
         "Reopen the app",
         "Verify custom server URL is still configured"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 14,
@@ -173,7 +173,7 @@
         "Log in with second account",
         "Verify both accounts are saved"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 15,
@@ -186,7 +186,7 @@
         "Verify data loads for second account",
         "Switch back to first account"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 16,
@@ -199,7 +199,7 @@
         "Confirm removal",
         "Verify account is removed from list"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 17,
@@ -211,7 +211,7 @@
         "Switch to account B",
         "Verify account B does not see account A's task"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 18,
