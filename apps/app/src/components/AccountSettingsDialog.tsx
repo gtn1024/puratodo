@@ -356,14 +356,14 @@ export function AccountSettingsDialog({
                   size="sm"
                   onClick={() => setLocale("en")}
                 >
-                  English
+                  {t("language.english")}
                 </Button>
                 <Button
                   variant={locale === "zh" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setLocale("zh")}
                 >
-                  中文
+                  {t("language.chinese")}
                 </Button>
               </div>
             </div>
@@ -426,7 +426,7 @@ export function AccountSettingsDialog({
                   }}
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting ? t("account.adding") : t("account.signIn")}
@@ -466,7 +466,7 @@ export function AccountSettingsDialog({
         </DialogHeader>
         <div className="flex justify-end gap-2 pt-2">
           <Button variant="outline" onClick={cancelRemoveAccount}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             variant="destructive"

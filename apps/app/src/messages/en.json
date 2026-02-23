@@ -296,7 +296,9 @@
     "signOut": "Sign out",
     "accountSettings": "Account Settings",
     "switchToLightMode": "Switch to light mode",
-    "switchToDarkMode": "Switch to dark mode"
+    "switchToDarkMode": "Switch to dark mode",
+    "local": "local",
+    "custom": "custom"
   },
   "app": {
     "loading": "Loading...",
@@ -360,7 +362,8 @@
   },
   "errors": {
     "selectListFirst": "Please select a list first",
-    "moveTaskFailed": "Failed to move task. Please try again."
+    "moveTaskFailed": "Failed to move task. Please try again.",
+    "taskNotFound": "Task not found"
   },
   "about": {
     "title": "PuraToDo v0.2.0",

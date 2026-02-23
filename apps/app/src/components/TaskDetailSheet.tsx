@@ -8,6 +8,7 @@ import {
   type RecurrenceEditorValue,
   type RecurrenceUpdateScope,
 } from "@puratodo/task-ui";
+import { useI18n } from "@/i18n";
 
 interface TaskDetailSheetProps {
   taskId: string | null;
@@ -26,6 +27,7 @@ function TaskDetailSheetContent({
   onClose: () => void;
 }) {
   const { tasks, updateTask } = useDataStore();
+  const { t } = useI18n();
 
   // Find the task from store
   const task = taskId ? tasks.find((t) => t.id === taskId) : null;
@@ -81,10 +83,10 @@ function TaskDetailSheetContent({
           <FileText className="h-8 w-8 text-stone-400" />
         </div>
         <h3 className="text-lg font-medium text-stone-900 dark:text-stone-100 mb-2">
-          No Task Selected
+          {t("taskSheet.noTaskSelected")}
         </h3>
         <p className="text-sm text-stone-500 dark:text-stone-400 max-w-xs">
-          Click on a task to view and edit its details
+          {t("taskSheet.clickTaskToView")}
         </p>
       </div>
     );
@@ -113,18 +115,18 @@ function TaskDetailSheetContent({
       remindAt={remindAt}
       onRemindAtChange={setRemindAt}
       labels={{
-        taskName: "Task Name",
-        dueDate: "Due Date",
-        planDate: "Planned Date",
-        duration: "Duration (minutes)",
-        comment: "Notes",
-        selectDueDate: "Select due date",
-        selectPlanDate: "Select planned date",
-        clear: "Clear",
-        save: "Save",
-        cancel: "Close",
-        loading: "Loading...",
-        taskNotFound: "Task not found",
+        taskName: t("taskDetail.taskName"),
+        dueDate: t("taskDetail.dueDate"),
+        planDate: t("taskDetail.planDate"),
+        duration: t("taskDetail.duration"),
+        comment: t("taskDetail.notes"),
+        selectDueDate: t("taskDetail.selectDueDate"),
+        selectPlanDate: t("taskDetail.selectPlanDate"),
+        clear: t("taskDetail.clear"),
+        save: t("taskDetail.save"),
+        cancel: t("taskDetail.close"),
+        loading: t("common.loading"),
+        taskNotFound: t("errors.taskNotFound"),
       }}
     />
   );
@@ -136,6 +138,8 @@ export function TaskDetailSheet({
   onOpenChange,
   onTaskUpdated,
 }: TaskDetailSheetProps) {
+  const { t } = useI18n();
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
@@ -144,8 +148,8 @@ export function TaskDetailSheet({
         showCloseButton={false}
       >
         <SheetHeader className="sr-only">
-          <SheetTitle>Task Details</SheetTitle>
-          <SheetDescription>Edit task details</SheetDescription>
+          <SheetTitle>{t("taskSheet.taskDetails")}</SheetTitle>
+          <SheetDescription>{t("taskSheet.editTaskDetails")}</SheetDescription>
         </SheetHeader>
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-2">

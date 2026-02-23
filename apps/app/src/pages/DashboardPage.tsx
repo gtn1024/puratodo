@@ -1899,7 +1899,7 @@ export function DashboardPage() {
                   {/* Empty state */}
                   {!isLoading && groups.length === 0 && !showNewGroupInput && (
                     <div className="px-3 py-4 text-sm text-stone-400 dark:text-stone-500">
-                      No groups yet. Click + to create one.
+                      {t("sidebar.noGroups")}
                     </div>
                   )}
                 </div>

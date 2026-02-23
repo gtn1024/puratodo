@@ -18,6 +18,7 @@ import {
   setPendingApiUrl,
 } from "@/lib/api/config";
 import { useAuthStore } from "@/stores/authStore";
+import { useI18n } from "@/i18n";
 
 interface ApiServerSettingsDialogProps {
   trigger: React.ReactNode;
@@ -25,6 +26,7 @@ interface ApiServerSettingsDialogProps {
 }
 
 export function ApiServerSettingsDialog({ trigger, onSaved }: ApiServerSettingsDialogProps) {
+  const { t } = useI18n();
   const [open, setOpen] = React.useState(false);
   const [apiUrlInput, setApiUrlInput] = React.useState("");
   const [isSaving, setIsSaving] = React.useState(false);
@@ -58,7 +60,7 @@ export function ApiServerSettingsDialog({ trigger, onSaved }: ApiServerSettingsD
     const shouldUseDefault = normalizedApiUrl.length === 0 || normalizedApiUrl === DEFAULT_API_URL;
 
     if (!shouldUseDefault && !isValidApiUrl(normalizedApiUrl)) {
-      setError("Please enter a valid URL starting with http:// or https://");
+      setError(t("apiServer.invalidUrl"));
       setSuccess(null);
       return;
     }
@@ -80,9 +82,9 @@ export function ApiServerSettingsDialog({ trigger, onSaved }: ApiServerSettingsD
 
       await onSaved?.();
 
-      setSuccess(shouldUseDefault ? "Saved. Using default API server." : "Saved. Using custom API server.");
+      setSuccess(shouldUseDefault ? t("apiServer.savedDefault") : t("apiServer.savedCustom"));
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to save API server";
+      const message = err instanceof Error ? err.message : t("apiServer.saveFailed");
       setError(message);
     } finally {
       setIsSaving(false);
@@ -96,18 +98,18 @@ export function ApiServerSettingsDialog({ trigger, onSaved }: ApiServerSettingsD
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Server className="h-5 w-5" />
-            <span>API Server</span>
+            <span>{t("apiServer.title")}</span>
           </DialogTitle>
           <DialogDescription>
             {isAuthenticated
-              ? `Set the API server URL for the current account. Default: ${DEFAULT_API_URL}`
-              : `Set the API server URL for login. Default: ${DEFAULT_API_URL}`}
+              ? t("apiServer.description") + ` Default: ${DEFAULT_API_URL}`
+              : t("apiServer.description") + ` Default: ${DEFAULT_API_URL}`}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-2 py-2">
           <label htmlFor="api-server-url" className="text-sm font-medium text-stone-700 dark:text-stone-300">
-            Server URL
+            {t("apiServer.serverUrl")}
           </label>
           <input
             id="api-server-url"
@@ -119,7 +121,7 @@ export function ApiServerSettingsDialog({ trigger, onSaved }: ApiServerSettingsD
             autoFocus
           />
           <p className="text-xs text-stone-500 dark:text-stone-400">
-            Example: http://localhost:3000
+            {t("apiServer.placeholder")}
           </p>
 
           {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
@@ -135,10 +137,10 @@ export function ApiServerSettingsDialog({ trigger, onSaved }: ApiServerSettingsD
               setSuccess(null);
             }}
           >
-            Reset
+            {t("apiServer.reset")}
           </Button>
           <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save"}
+            {isSaving ? t("common.saving") : t("common.save")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -10,9 +10,9 @@ interface AccountSwitcherProps {
   onAccountChanged: () => Promise<void> | void;
 }
 
-function getServerShortName(serverUrl: string | null): string {
+function getServerShortName(serverUrl: string | null, t: (key: string) => string): string {
   if (!serverUrl || serverUrl === DEFAULT_API_URL) {
-    return "local";
+    return t("account.local");
   }
   try {
     const url = new URL(serverUrl);
@@ -25,7 +25,7 @@ function getServerShortName(serverUrl: string | null): string {
     }
     return host;
   } catch {
-    return "custom";
+    return t("account.custom");
   }
 }
 
@@ -116,7 +116,7 @@ export function AccountSwitcher({
             </div>
             <div className="text-xs text-stone-500 dark:text-stone-400 flex items-center gap-1">
               <Server className="w-3 h-3" />
-              <span>{getServerShortName(currentServerUrl)}</span>
+              <span>{getServerShortName(currentServerUrl, t)}</span>
             </div>
           </div>
 
@@ -138,7 +138,7 @@ export function AccountSwitcher({
               </div>
               {sortedAccounts.map((account) => {
                 const isActive = account.id === activeAccountId;
-                const serverShortName = getServerShortName(account.serverUrl);
+                const serverShortName = getServerShortName(account.serverUrl, t);
 
                 return (
                   <button

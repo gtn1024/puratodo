@@ -1,5 +1,77 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 39: Complete Remaining Components i18n
+**Date:** 2026-02-23
+
+### What was done
+Completed internationalization (i18n) for remaining components with hardcoded strings:
+
+1. **ApiServerSettingsDialog Component:**
+   - Added useI18n hook import
+   - Internationalized all UI strings:
+     - Title: "API Server" → t("apiServer.title")
+     - Description: t("apiServer.description")
+     - Labels: "Server URL" → t("apiServer.serverUrl")
+     - Button text: "Reset", "Save", "Saving..." → t("apiServer.reset"), t("common.save"), t("common.saving")
+     - Error/Success messages: t("apiServer.invalidUrl"), t("apiServer.savedDefault"), t("apiServer.savedCustom")
+
+2. **TaskDetailSheet Component:**
+   - Added useI18n hook import
+   - Internationalized empty state:
+     - "No Task Selected" → t("taskSheet.noTaskSelected")
+     - "Click on a task to view and edit its details" → t("taskSheet.clickTaskToView")
+   - Internationalized TaskDetailForm labels:
+     - All form labels use t() function: taskName, dueDate, planDate, duration, comment, etc.
+   - Added error translation: t("errors.taskNotFound")
+   - Internationalized Sheet header: t("taskSheet.taskDetails"), t("taskSheet.editTaskDetails")
+
+3. **AccountSettingsDialog Component:**
+   - Internationalized language buttons: t("language.english"), t("language.chinese")
+   - Internationalized Cancel buttons: "Cancel" → t("common.cancel")
+
+4. **LanguageSwitcher Component:**
+   - Internationalized language display names: t("language.english"), t("language.chinese")
+
+5. **AccountSwitcher Component:**
+   - Updated getServerShortName function to accept t() function parameter
+   - Internationalized server type indicators: "local" → t("account.local"), "custom" → t("account.custom")
+
+6. **DashboardPage Component:**
+   - Fixed hardcoded empty state: "No groups yet. Click + to create one." → t("sidebar.noGroups")
+
+7. **Translation File Updates:**
+   - Added to en.json and zh.json:
+     - errors.taskNotFound - "Task not found" / "未找到任务"
+     - account.local - "local" / "本地"
+     - account.custom - "custom" / "自定义"
+
+### Components Fully Internationalized
+All major components in the Tauri app now support i18n:
+- ✅ LoginPage
+- ✅ RegisterPage
+- ✅ CalendarPanel
+- ✅ App
+- ✅ TaskDetailPanel
+- ✅ TaskDetailSheet
+- ✅ AccountSwitcher
+- ✅ AccountSettingsDialog
+- ✅ ApiServerSettingsDialog
+- ✅ LanguageSwitcher
+- ✅ DashboardPage
+
+### Build Status
+- ✅ TypeScript compilation passes
+- ✅ Vite build successful (805.89 kB main bundle)
+- ✅ No missing translation warnings
+- ✅ All hardcoded strings replaced with t() function calls
+
+### Current Status
+- **i18n: 2/2 passing (100%)** - Features 68 & 69
+- All user-facing text is internationalized
+- Language switching works correctly
+
+---
+
 ## Session 38: Complete App i18n Implementation
 **Date:** 2026-02-23
 

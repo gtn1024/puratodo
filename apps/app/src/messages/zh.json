@@ -296,7 +296,9 @@
     "signOut": "退出登录",
     "accountSettings": "账户设置",
     "switchToLightMode": "切换到浅色模式",
-    "switchToDarkMode": "切换到深色模式"
+    "switchToDarkMode": "切换到深色模式",
+    "local": "本地",
+    "custom": "自定义"
   },
   "app": {
     "loading": "加载中...",
@@ -360,7 +362,8 @@
   },
   "errors": {
     "selectListFirst": "请先选择一个列表",
-    "moveTaskFailed": "移动任务失败。请重试。"
+    "moveTaskFailed": "移动任务失败。请重试。",
+    "taskNotFound": "未找到任务"
   },
   "about": {
     "title": "PuraToDo v0.2.0",

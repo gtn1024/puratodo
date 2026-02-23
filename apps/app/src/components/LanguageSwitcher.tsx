@@ -25,14 +25,14 @@ export function LanguageSwitcher() {
           className={locale === "en" ? "bg-accent" : ""}
         >
           {locale === "en" && <Check className="h-4 w-4 mr-2" />}
-          <span className={locale === "en" ? "" : "ml-6"}>English</span>
+          <span className={locale === "en" ? "" : "ml-6"}>{t("language.english")}</span>
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => setLocale("zh")}
           className={locale === "zh" ? "bg-accent" : ""}
         >
           {locale === "zh" && <Check className="h-4 w-4 mr-2" />}
-          <span className={locale === "zh" ? "" : "ml-6"}>中文</span>
+          <span className={locale === "zh" ? "" : "ml-6"}>{t("language.chinese")}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
