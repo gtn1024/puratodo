@@ -23,6 +23,9 @@ jobs:
           - platform: 'windows-latest'
             name: Windows
             args: ''
+          - platform: 'ubuntu-latest'
+            name: Linux
+            args: ''
 
     runs-on: ${{ matrix.platform }}
 
@@ -47,6 +50,13 @@ jobs:
         uses: swatinem/rust-cache@v2
         with:
           workspaces: './apps/app/src-tauri -> target'
+          shared-key: 'tauri-build-${{ matrix.platform }}'
+
+      - name: Install dependencies (Ubuntu only)
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libasound2-dev
 
       - name: Install dependencies
         run: pnpm install
