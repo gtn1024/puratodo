@@ -29,6 +29,7 @@ import { SearchDialog } from "@/components/search-dialog";
 import { useKeyboardShortcuts, type KeyboardShortcut } from "@/hooks/use-keyboard-shortcuts";
 import { useRealtime } from "@/hooks/use-realtime";
 import { ReminderScheduler } from "@/components/dashboard/reminder-scheduler";
+import { useI18n } from "@/i18n";
 
 interface DashboardContentProps {
   initialGroups: Group[];
@@ -38,6 +39,7 @@ interface DashboardContentProps {
 type SmartViewType = "starred" | "overdue" | "next7days" | "nodate";
 
 export function DashboardContent({ initialGroups, allLists }: DashboardContentProps) {
+  const { t } = useI18n();
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(
     initialGroups.length > 0 ? initialGroups[0].id : null
   );
@@ -230,7 +232,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
           listPanelRef.current?.triggerCreateList();
         }
       }, [selectedList, selectedGroup, showInboxView]),
-      description: "New task/list",
+      description: t("accessibility.newTaskList"),
     },
     {
       key: "l",
@@ -239,14 +241,14 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
           listPanelRef.current?.triggerCreateList();
         }
       }, [selectedGroup, selectedList]),
-      description: "New list",
+      description: t("accessibility.newList"),
     },
     {
       key: "?",
       action: useCallback(() => {
         setShortcutsDialogOpen(true);
       }, []),
-      description: "Show shortcuts",
+      description: t("accessibility.showShortcuts"),
     },
     {
       key: "Escape",
@@ -264,7 +266,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
           setShortcutsDialogOpen(false);
         }
       }, [searchDialogOpen, mobileMenuOpen, mobileDetailOpen, selectedTaskId, shortcutsDialogOpen]),
-      description: "Close dialog",
+      description: t("accessibility.closeDialog"),
     },
   ];
 
@@ -354,8 +356,8 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
         <SheetContent side="left" className="p-0 w-64" showCloseButton={false}>
           <SheetHeader className="sr-only">
-            <SheetTitle>Navigation Menu</SheetTitle>
-            <SheetDescription>Navigate between groups and lists</SheetDescription>
+            <SheetTitle>{t("dashboard.navigation.title")}</SheetTitle>
+            <SheetDescription>{t("dashboard.navigation.description")}</SheetDescription>
           </SheetHeader>
           <Sidebar
             initialGroups={initialGroups}
@@ -391,7 +393,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                 onClick={() => setMobileMenuOpen(true)}
               >
                 <Menu className="h-5 w-5" />
-                <span className="sr-only">Open menu</span>
+                <span className="sr-only">{t("dashboard.navigation.openMenu")}</span>
               </Button>
 
               {showTodayView ? (
@@ -400,7 +402,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                     <Sun className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                   </div>
                   <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                    Today
+                    {t("dashboard.smartViews.today")}
                   </h1>
                 </>
               ) : showCalendarView ? (
@@ -409,7 +411,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                     <CalendarIcon className="h-4 w-4 text-violet-600 dark:text-violet-400" />
                   </div>
                   <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                    Calendar
+                    {t("dashboard.smartViews.calendar")}
                   </h1>
                 </>
               ) : showInboxView ? (
@@ -418,7 +420,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                     <Inbox className="h-4 w-4 text-sky-600 dark:text-sky-400" />
                   </div>
                   <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                    Inbox
+                    {t("dashboard.smartViews.inbox")}
                   </h1>
                 </>
               ) : selectedSmartView === "starred" ? (
@@ -427,7 +429,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                     <Star className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
                   </div>
                   <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                    Starred
+                    {t("dashboard.smartViews.starred")}
                   </h1>
                 </>
               ) : selectedSmartView === "overdue" ? (
@@ -436,7 +438,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                     <AlertTriangle className="h-4 w-4 text-rose-600 dark:text-rose-400" />
                   </div>
                   <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                    Overdue
+                    {t("dashboard.smartViews.overdue")}
                   </h1>
                 </>
               ) : selectedSmartView === "next7days" ? (
@@ -445,7 +447,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                     <CalendarDays className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                   </div>
                   <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                    Next 7 Days
+                    {t("dashboard.smartViews.next7Days")}
                   </h1>
                 </>
               ) : selectedSmartView === "nodate" ? (
@@ -454,7 +456,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                     <Circle className="h-4 w-4 text-slate-600 dark:text-slate-300" />
                   </div>
                   <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                    No Date
+                    {t("dashboard.smartViews.noDate")}
                   </h1>
                 </>
               ) : selectedList ? (
@@ -488,7 +490,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                 className="h-7 px-2 text-stone-500 hover:text-stone-700 dark:hover:text-stone-300"
               >
                 <Search className="h-3.5 w-3.5 mr-1.5" />
-                <span className="hidden sm:inline text-xs">Search</span>
+                <span className="hidden sm:inline text-xs">{t("dashboard.search")}</span>
                 <kbd className="hidden sm:inline ml-1.5 px-1.5 py-0.5 text-[10px] bg-stone-100 dark:bg-stone-800 rounded">
                   {typeof navigator !== "undefined" && navigator.platform.includes("Mac") ? "⌘" : "Ctrl"}K
                 </kbd>
@@ -532,10 +534,10 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                       <Inbox className="w-8 h-8 text-stone-400" />
                     </div>
                     <h2 className="text-xl font-semibold text-stone-900 dark:text-stone-100 mb-2">
-                      Inbox unavailable
+                      {t("dashboard.inboxUnavailable")}
                     </h2>
                     <p className="text-stone-500 dark:text-stone-400">
-                      Could not create or load the Inbox list for this account.
+                      {t("dashboard.inboxUnavailableDesc")}
                     </p>
                   </div>
                 )

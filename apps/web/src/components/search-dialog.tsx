@@ -12,6 +12,7 @@ import { searchTasks, type TaskSearchResult } from "@/actions/tasks";
 import { Check, Circle, Star, Calendar, Search, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n";
 
 interface SearchDialogProps {
   open: boolean;
@@ -20,6 +21,7 @@ interface SearchDialogProps {
 }
 
 export function SearchDialog({ open, onOpenChange, onTaskSelect }: SearchDialogProps) {
+  const { t } = useI18n();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<TaskSearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -68,13 +70,13 @@ export function SearchDialog({ open, onOpenChange, onTaskSelect }: SearchDialogP
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg p-0 gap-0">
         <DialogHeader className="sr-only">
-          <DialogTitle>Search Tasks</DialogTitle>
+          <DialogTitle>{t("searchDialog.title")}</DialogTitle>
         </DialogHeader>
         {/* Search Input */}
         <div className="flex items-center gap-2 border-b px-4 py-3">
           <Search className="h-4 w-4 text-stone-400 flex-shrink-0" />
           <Input
-            placeholder="Search tasks..."
+            placeholder={t("searchDialog.placeholder")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="border-0 shadow-none focus-visible:ring-0 px-0 h-9"
@@ -87,15 +89,15 @@ export function SearchDialog({ open, onOpenChange, onTaskSelect }: SearchDialogP
         <div className="max-h-[300px] overflow-y-auto">
           {query.trim() === "" ? (
             <div className="py-8 text-center text-sm text-stone-500">
-              Type to search your tasks
+              {t("searchDialog.typeToSearch")}
             </div>
           ) : isLoading ? (
             <div className="py-8 text-center text-sm text-stone-500">
-              Searching...
+              {t("searchDialog.searching")}
             </div>
           ) : results.length === 0 ? (
             <div className="py-8 text-center text-sm text-stone-500">
-              No tasks found for &ldquo;{query}&rdquo;
+              {t("searchDialog.noTasksFound").replace("{query}", query)}
             </div>
           ) : (
             <ul className="py-1">
@@ -158,7 +160,7 @@ export function SearchDialog({ open, onOpenChange, onTaskSelect }: SearchDialogP
 
         {/* Footer */}
         <div className="border-t px-4 py-2 text-xs text-stone-400 text-center">
-          Press <kbd className="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-800 rounded">Esc</kbd> to close
+          {t("searchDialog.pressEscToClose")}
         </div>
       </DialogContent>
     </Dialog>

@@ -83,6 +83,7 @@ interface SortableListItemProps {
 }
 
 function SortableListItem({ list, onEdit, onDelete, onMove, onSelect }: SortableListItemProps) {
+  const { t } = useI18n();
   const {
     attributes,
     listeners,
@@ -139,17 +140,17 @@ function SortableListItem({ list, onEdit, onDelete, onMove, onSelect }: Sortable
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-32">
           <DropdownMenuItem onClick={() => onEdit(list)}>
-            Edit
+            {t("common.edit")}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => onMove(list)}>
             <FolderInput className="h-4 w-4 mr-2" />
-            Move
+            {t("common.move")}
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => onDelete(list)}
             className="text-red-600 dark:text-red-400"
           >
-            Delete
+            {t("common.delete")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -303,13 +304,13 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
           </svg>
         </div>
         <h2 className="text-xl font-semibold text-stone-900 dark:text-stone-100 mb-2">
-          Welcome to PuraToDo
+          {t("listPanel.emptyStates.welcome")}
         </h2>
         <p className="text-stone-500 dark:text-stone-400 mb-6">
-          Create a group to get started organizing your tasks
+          {t("listPanel.emptyStates.createGroupToStart")}
         </p>
         <p className="text-sm text-stone-400 dark:text-stone-500">
-          Click the + button in the sidebar to create your first group
+          {t("listPanel.emptyStates.clickPlusButton")}
         </p>
       </div>
     );
@@ -329,7 +330,7 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
               {group.name}
             </h2>
             <span className="text-sm text-stone-500 dark:text-stone-400">
-              {lists.length} {lists.length === 1 ? "list" : "lists"}
+              {lists.length} {lists.length === 1 ? t("listPanel.labels.list") : t("listPanel.labels.lists")}
             </span>
           </div>
           <Button
@@ -401,7 +402,7 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="create-name">Name</Label>
+              <Label htmlFor="create-name">{t("listPanel.labels.name")}</Label>
               <Input
                 id="create-name"
                 value={name}
@@ -449,7 +450,7 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-name">Name</Label>
+              <Label htmlFor="edit-name">{t("listPanel.labels.name")}</Label>
               <Input
                 id="edit-name"
                 value={name}
@@ -520,7 +521,7 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-stone-500 dark:text-stone-400">
-              Move &ldquo;{selectedList?.name}&rdquo; to another group:
+              {t("listPanel.dialogs.moveToList").replace("{listName}", selectedList?.name || "")}
             </p>
             <div className="space-y-2">
               {allGroups
@@ -547,7 +548,7 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
                 ))}
               {allGroups.filter((g) => g.id !== group?.id).length === 0 && (
                 <p className="text-sm text-stone-400 dark:text-stone-500 text-center py-4">
-                  No other groups available
+                  {t("listPanel.dialogs.noOtherGroups")}
                 </p>
               )}
             </div>

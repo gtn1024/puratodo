@@ -10,9 +10,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useI18n } from "@/i18n";
 
 export function ThemeToggle() {
   const { setTheme, theme } = useTheme();
+  const { t } = useI18n();
   const [mounted, setMounted] = React.useState(false);
 
   // Avoid hydration mismatch
@@ -39,7 +41,7 @@ export function ThemeToggle() {
           ) : (
             <Monitor className="h-3.5 w-3.5" />
           )}
-          <span className="sr-only">Toggle theme</span>
+          <span className="sr-only">{t("accessibility.toggleTheme")}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

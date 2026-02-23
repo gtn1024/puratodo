@@ -9,18 +9,19 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Keyboard } from "lucide-react";
+import { useI18n } from "@/i18n";
 
 interface ShortcutItem {
   keys: string[];
-  description: string;
+  descriptionKey: string;
 }
 
 const SHORTCUTS_LIST: ShortcutItem[] = [
-  { keys: ["N"], description: "Create new task" },
-  { keys: ["L"], description: "Create new list" },
-  { keys: ["Ctrl", "K"], description: "Search tasks" },
-  { keys: ["?"], description: "Show this help" },
-  { keys: ["Esc"], description: "Close dialog / menu" },
+  { keys: ["N"], descriptionKey: "shortcuts.createNewTask" },
+  { keys: ["L"], descriptionKey: "shortcuts.createNewList" },
+  { keys: ["Ctrl", "K"], descriptionKey: "shortcuts.searchTasks" },
+  { keys: ["?"], descriptionKey: "shortcuts.showThisHelp" },
+  { keys: ["Esc"], descriptionKey: "shortcuts.closeDialogMenu" },
 ];
 
 interface KeyboardShortcutsDialogProps {
@@ -32,13 +33,15 @@ export function KeyboardShortcutsDialog({
   open,
   onOpenChange,
 }: KeyboardShortcutsDialogProps) {
+  const { t } = useI18n();
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Keyboard className="h-5 w-5" />
-            Keyboard Shortcuts
+            {t("shortcuts.title")}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-2">
@@ -48,7 +51,7 @@ export function KeyboardShortcutsDialog({
               className="flex items-center justify-between py-2"
             >
               <span className="text-sm text-stone-600 dark:text-stone-400">
-                {shortcut.description}
+                {t(shortcut.descriptionKey)}
               </span>
               <div className="flex gap-1">
                 {shortcut.keys.map((key, keyIndex) => (
@@ -74,16 +77,18 @@ export function KeyboardShortcutsButton({
 }: {
   onClick: () => void;
 }) {
+  const { t } = useI18n();
+
   return (
     <Button
       variant="ghost"
       size="icon-xs"
       className="h-6 w-6"
       onClick={onClick}
-      title="Keyboard shortcuts (?)"
+      title={t("shortcuts.buttonTitle")}
     >
       <Keyboard className="h-3.5 w-3.5" />
-      <span className="sr-only">Keyboard shortcuts</span>
+      <span className="sr-only">{t("shortcuts.buttonSrOnly")}</span>
     </Button>
   );
 }

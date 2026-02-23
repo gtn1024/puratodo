@@ -519,7 +519,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
             listId: candidate.id,
             listName: candidate.name,
             listIcon: candidate.icon ?? undefined,
-            groupName: groupNameById.get(candidate.group_id) || "Unknown Group",
+            groupName: groupNameById.get(candidate.group_id) || t("taskPanel.labels.unknownGroup"),
           }))
           .sort(
             (a, b) =>
@@ -726,10 +726,10 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
           </svg>
         </div>
         <h2 className="text-xl font-semibold text-stone-900 dark:text-stone-100 mb-2">
-          Select a List
+          {t("taskPanel.emptyStates.selectList")}
         </h2>
         <p className="text-stone-500 dark:text-stone-400">
-          Choose a list from the sidebar to view its tasks
+          {t("taskPanel.emptyStates.chooseListFromSidebar")}
         </p>
       </div>
     );
@@ -762,15 +762,15 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
     : list?.icon || "📋";
   const smartViewEmptyTitle = smartView
     ? smartView === "starred"
-      ? "No starred tasks"
+      ? t("taskPanel.emptyStates.noStarredTasks")
       : smartView === "overdue"
-        ? "No overdue tasks"
+        ? t("taskPanel.emptyStates.noOverdueTasks")
         : smartView === "next7days"
-          ? "No tasks in the next 7 days"
-          : "No no-date tasks"
+          ? t("taskPanel.emptyStates.noUpcomingTasks")
+          : t("taskPanel.emptyStates.noNoDateTasks")
     : t("taskPanel.noTasks");
   const smartViewEmptyHint = smartView
-    ? "Tasks from all lists will appear here when they match this view."
+    ? t("taskPanel.emptyStates.smartViewHint")
     : "";
   const displayedCount = hasActiveFilters ? countAllTasks(filteredTasks) : totalTasks;
 
@@ -784,11 +784,11 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
             {panelTitle}
           </h2>
           <span className="text-sm text-stone-500 dark:text-stone-400">
-            {hasActiveFilters ? `${displayedCount} of ${totalTasks}` : totalTasks} {totalTasks === 1 ? "task" : "tasks"}
+            {hasActiveFilters ? `${displayedCount} of ${totalTasks}` : totalTasks} {totalTasks === 1 ? t("taskPanel.labels.task") : t("taskPanel.labels.tasks")}
           </span>
           {smartView && (
             <span className="hidden md:inline text-xs text-stone-500 dark:text-stone-400 rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5">
-              Cross-list view
+              {t("taskPanel.labels.crossListView")}
             </span>
           )}
         </div>
@@ -821,7 +821,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
               upcoming: t("filter.upcoming"),
               noDueDate: t("filter.noDueDate"),
               clearFilters: t("taskPanel.clearFilters"),
-              filter: "Filter",
+              filter: t("taskPanel.labels.filter"),
             }}
           />
 
@@ -855,7 +855,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
           labels={{
             tasksSelected: t("taskPanel.tasksSelected"),
             selectAll: t("taskPanel.selectAll"),
-            deselect: "Deselect",
+            deselect: t("taskPanel.deselect"),
             complete: t("taskPanel.complete"),
             incomplete: t("taskPanel.incomplete"),
             star: t("taskPanel.star"),
@@ -879,7 +879,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
               value={newTaskName}
               onChange={(e) => setNewTaskName(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Task name..."
+              placeholder={t("taskPanel.placeholders.taskName")}
               className="flex-1 bg-transparent outline-none text-stone-900 dark:text-stone-100 placeholder:text-stone-400"
               autoFocus
               disabled={isLoading}
@@ -889,7 +889,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
               onClick={handleAddTask}
               disabled={isLoading || !newTaskName.trim()}
             >
-              Add
+              {t("common.add")}
             </Button>
             <Button
               size="sm"
@@ -899,7 +899,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
                 setIsAdding(false);
               }}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
           </div>
         )}
@@ -913,7 +913,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
               value={newSubtaskName}
               onChange={(e) => setNewSubtaskName(e.target.value)}
               onKeyDown={(e) => handleSubtaskKeyDown(e, addingSubtaskTo)}
-              placeholder="Subtask name..."
+              placeholder={t("taskPanel.placeholders.subtaskName")}
               className="flex-1 bg-transparent outline-none text-stone-900 dark:text-stone-100 placeholder:text-stone-400"
               autoFocus
               disabled={isLoading}
@@ -923,7 +923,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
               onClick={() => handleAddSubtask(addingSubtaskTo)}
               disabled={isLoading || !newSubtaskName.trim()}
             >
-              Add
+              {t("common.add")}
             </Button>
             <Button
               size="sm"
@@ -933,7 +933,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
                 setAddingSubtaskTo(null);
               }}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
           </div>
         )}
@@ -1013,22 +1013,21 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Delete Task</DialogTitle>
+            <DialogTitle>{t("taskPanel.dialogs.deleteTask")}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-stone-500 dark:text-stone-400">
-            Are you sure you want to delete this task? Any subtasks will also be
-            deleted. This action cannot be undone.
+            {t("taskPanel.dialogs.deleteTaskDesc")}
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               variant="destructive"
               onClick={handleConfirmDelete}
               disabled={isLoading}
             >
-              Delete
+              {t("common.delete")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1038,22 +1037,21 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
       <Dialog open={isBulkDeleteOpen} onOpenChange={setIsBulkDeleteOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Delete {selectedCount} Tasks</DialogTitle>
+            <DialogTitle>{t("taskPanel.dialogs.deleteTasks").replace("{count}", String(selectedCount))}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-stone-500 dark:text-stone-400">
-            Are you sure you want to delete {selectedCount} {selectedCount === 1 ? "task" : "tasks"}?
-            Any subtasks will also be deleted. This action cannot be undone.
+            {t("taskPanel.dialogs.deleteTasksDesc").replace("{count}", String(selectedCount))}
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsBulkDeleteOpen(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               variant="destructive"
               onClick={handleBulkDelete}
               disabled={isLoading}
             >
-              Delete
+              {t("common.delete")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1063,7 +1061,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
       <Dialog open={isBulkDateDialogOpen} onOpenChange={setIsBulkDateDialogOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Set Due Date for {selectedCount} Tasks</DialogTitle>
+            <DialogTitle>{t("taskPanel.dialogs.setDueDateForTasks").replace("{count}", String(selectedCount))}</DialogTitle>
           </DialogHeader>
           <div className="py-4">
             <Calendar
@@ -1080,19 +1078,19 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
                   setBulkDateValue(undefined);
                 }}
               >
-                Clear date
+                {t("taskPanel.dialogs.clearDate")}
               </Button>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsBulkDateDialogOpen(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               onClick={handleBulkSetDate}
               disabled={isLoading}
             >
-              Set Date
+              {t("taskPanel.dialogs.setDate")}
             </Button>
           </DialogFooter>
         </DialogContent>

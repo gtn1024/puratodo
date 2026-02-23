@@ -70,6 +70,7 @@ interface DateCellProps {
   tasks: TaskSearchResult[];
   selectedTaskId: string | null;
   onTaskSelect: (taskId: string) => void;
+  moreCountLabel: (count: number) => string;
 }
 
 function DateCell({
@@ -79,6 +80,7 @@ function DateCell({
   tasks,
   selectedTaskId,
   onTaskSelect,
+  moreCountLabel,
 }: DateCellProps) {
   const displayTasks = tasks.slice(0, 3);
   const remainingCount = tasks.length - 3;
@@ -113,7 +115,7 @@ function DateCell({
         ))}
         {remainingCount > 0 && (
           <div className="text-[10px] text-stone-500 dark:text-stone-400 px-1.5">
-            +{remainingCount} more
+            {moreCountLabel(remainingCount)}
           </div>
         )}
       </div>
@@ -236,11 +238,17 @@ export function CalendarPanel({
   };
 
   const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    t("calendar.months.january"), t("calendar.months.february"), t("calendar.months.march"),
+    t("calendar.months.april"), t("calendar.months.may"), t("calendar.months.june"),
+    t("calendar.months.july"), t("calendar.months.august"), t("calendar.months.september"),
+    t("calendar.months.october"), t("calendar.months.november"), t("calendar.months.december")
   ];
 
-  const weekDayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const weekDayNames = [
+    t("calendar.weekdays.sun"), t("calendar.weekdays.mon"), t("calendar.weekdays.tue"),
+    t("calendar.weekdays.wed"), t("calendar.weekdays.thu"), t("calendar.weekdays.fri"),
+    t("calendar.weekdays.sat")
+  ];
 
   return (
     <div className="h-full flex flex-col md:flex-row gap-4">
@@ -303,6 +311,7 @@ export function CalendarPanel({
               tasks={getTasksForDate(date)}
               selectedTaskId={selectedTaskId}
               onTaskSelect={onTaskSelect}
+              moreCountLabel={(count) => t("calendar.moreTasks").replace("{count}", String(count))}
             />
           ))}
         </div>

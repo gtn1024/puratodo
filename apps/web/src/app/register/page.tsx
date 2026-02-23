@@ -317,7 +317,7 @@ export default function RegisterPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t("auth.placeholders.email")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -336,7 +336,7 @@ export default function RegisterPage() {
               <Input
                 id="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder={t("auth.placeholders.password")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -355,7 +355,7 @@ export default function RegisterPage() {
               <Input
                 id="confirmPassword"
                 type="password"
-                placeholder="••••••••"
+                placeholder={t("auth.placeholders.password")}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required

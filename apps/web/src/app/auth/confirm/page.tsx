@@ -7,10 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/client";
+import { useI18n } from "@/i18n";
 
 function AuthConfirmContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +29,7 @@ function AuthConfirmContent() {
       const email = searchParams.get("email");
 
       if (!token || !type) {
-        setError("Invalid link. Please request a new one.");
+        setError(t("auth.confirm.invalidLink"));
         setLoading(false);
         setVerifying(false);
         return;
@@ -62,26 +64,26 @@ function AuthConfirmContent() {
         setVerifying(false);
         setLoading(false);
       } catch {
-        setError("An unexpected error occurred. Please try again.");
+        setError(t("auth.confirm.unexpectedError"));
         setLoading(false);
         setVerifying(false);
       }
     };
 
     verifyToken();
-  }, [searchParams, router]);
+  }, [searchParams, router, t]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError(t("auth.passwordsDoNotMatch"));
       return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+      setError(t("auth.passwordTooShort"));
       return;
     }
 
@@ -103,7 +105,7 @@ function AuthConfirmContent() {
         }, 2000);
       }
     } catch {
-      setError("An unexpected error occurred");
+      setError(t("auth.unexpectedError"));
     } finally {
       setSubmitting(false);
     }
@@ -116,7 +118,7 @@ function AuthConfirmContent() {
         <Card className="w-full max-w-md border-stone-200/60 dark:border-stone-800/60 shadow-xl bg-white/80 dark:bg-stone-900/80 backdrop-blur-xl">
           <CardContent className="pt-8 text-center">
             <div className="animate-spin w-8 h-8 border-2 border-stone-300 border-t-stone-800 dark:border-stone-600 dark:border-t-stone-200 rounded-full mx-auto mb-4" />
-            <p className="text-stone-600 dark:text-stone-400">Verifying...</p>
+            <p className="text-stone-600 dark:text-stone-400">{t("auth.confirm.verifying")}</p>
           </CardContent>
         </Card>
       </main>
@@ -135,10 +137,10 @@ function AuthConfirmContent() {
               </svg>
             </div>
             <h2 className="text-xl font-semibold text-stone-900 dark:text-stone-100 mb-2">
-              Password Set Successfully
+              {t("auth.confirm.passwordSetSuccess")}
             </h2>
             <p className="text-stone-500 dark:text-stone-400">
-              Redirecting to your dashboard...
+              {t("auth.confirm.redirecting")}
             </p>
           </CardContent>
         </Card>
@@ -158,13 +160,13 @@ function AuthConfirmContent() {
               </svg>
             </div>
             <h2 className="text-xl font-semibold text-stone-900 dark:text-stone-100 mb-2">
-              Link Invalid or Expired
+              {t("auth.confirm.linkInvalidOrExpired")}
             </h2>
             <p className="text-stone-500 dark:text-stone-400 mb-4">
               {error}
             </p>
             <Button onClick={() => router.push("/login")} className="bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900">
-              Back to Login
+              {t("auth.confirm.backToLogin")}
             </Button>
           </CardContent>
         </Card>
@@ -189,10 +191,10 @@ function AuthConfirmContent() {
             </div>
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-center text-stone-900 dark:text-stone-100">
-            {isInvite ? "Welcome to PuraToDo" : "Reset Your Password"}
+            {isInvite ? t("auth.confirm.welcomeToPuraToDo") : t("auth.confirm.resetYourPassword")}
           </h1>
           <p className="text-sm text-stone-500 dark:text-stone-400 text-center">
-            {isInvite ? "Set your password to complete your account" : "Enter your new password below"}
+            {isInvite ? t("auth.confirm.setPasswordComplete") : t("auth.confirm.enterNewPassword")}
           </p>
         </CardHeader>
 
@@ -206,12 +208,12 @@ function AuthConfirmContent() {
 
             <div className="space-y-2">
               <Label htmlFor="password" className="text-stone-700 dark:text-stone-300">
-                New Password
+                {t("auth.confirm.newPassword")}
               </Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder={t("auth.placeholders.password")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -222,12 +224,12 @@ function AuthConfirmContent() {
 
             <div className="space-y-2">
               <Label htmlFor="confirmPassword" className="text-stone-700 dark:text-stone-300">
-                Confirm Password
+                {t("auth.confirm.confirmPasswordLabel")}
               </Label>
               <Input
                 id="confirmPassword"
                 type="password"
-                placeholder="••••••••"
+                placeholder={t("auth.placeholders.password")}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -246,10 +248,10 @@ function AuthConfirmContent() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                  Setting password...
+                  {t("auth.confirm.settingPassword")}
                 </span>
               ) : (
-                isInvite ? "Complete Setup" : "Reset Password"
+                isInvite ? t("auth.confirm.completeSetup") : t("auth.confirm.resetPasswordBtn")
               )}
             </Button>
           </form>

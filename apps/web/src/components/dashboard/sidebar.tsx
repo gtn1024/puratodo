@@ -153,23 +153,6 @@ function SortableSidebarListItem({
       <span className="flex-1 text-sm text-stone-600 dark:text-stone-400 truncate">
         {list.name}
       </span>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            className="h-5 w-5 opacity-0 group-hover:opacity-100"
-          >
-            <MoreHorizontal className="h-3 w-3" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-24">
-          <DropdownMenuItem>Edit</DropdownMenuItem>
-          <DropdownMenuItem className="text-red-600 dark:text-red-400">
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
     </li>
   );
 }
@@ -188,6 +171,7 @@ function SortableGroupItem({
   onAddList,
   onReorderLists,
 }: SortableGroupItemProps) {
+  const { t } = useI18n();
   const [localLists, setLocalLists] = useState(lists);
 
   // Sync local lists when props change
@@ -313,16 +297,16 @@ function SortableGroupItem({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-32">
             <DropdownMenuItem onClick={() => onAddList(group.id)}>
-              Add List
+              {t("sidebar.labels.addList")}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onEdit(group)}>
-              Edit
+              {t("common.edit")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => onDelete(group)}
               className="text-red-600 dark:text-red-400"
             >
-              Delete
+              {t("common.delete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -694,7 +678,7 @@ export function Sidebar({
               />
             </div>
             <div className="space-y-2">
-              <Label>Color</Label>
+              <Label>{t("sidebar.labels.color")}</Label>
               <div className="flex gap-2 flex-wrap">
                 {PRESET_COLORS.map((c) => (
                   <button
@@ -740,7 +724,7 @@ export function Sidebar({
               />
             </div>
             <div className="space-y-2">
-              <Label>Color</Label>
+              <Label>{t("sidebar.labels.color")}</Label>
               <div className="flex gap-2 flex-wrap">
                 {PRESET_COLORS.map((c) => (
                   <button

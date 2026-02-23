@@ -202,10 +202,10 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
           <FileText className="h-8 w-8 text-stone-400" />
         </div>
         <h3 className="text-lg font-medium text-stone-900 dark:text-stone-100 mb-2">
-          No Task Selected
+          {t("taskPanel.emptyStates.noTaskSelected")}
         </h3>
         <p className="text-sm text-stone-500 dark:text-stone-400 max-w-xs">
-          Click on a task to view and edit its details here
+          {t("taskPanel.emptyStates.clickToView")}
         </p>
       </div>
     );
@@ -228,13 +228,13 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
           <X className="h-8 w-8 text-stone-400" />
         </div>
         <h3 className="text-lg font-medium text-stone-900 dark:text-stone-100 mb-2">
-          Task Not Found
+          {t("taskPanel.emptyStates.taskNotFound")}
         </h3>
         <p className="text-sm text-stone-500 dark:text-stone-400">
-          This task may have been deleted
+          {t("taskPanel.emptyStates.taskMayBeDeleted")}
         </p>
         <Button variant="outline" size="sm" className="mt-4" onClick={onClose}>
-          Close
+          {t("common.close")}
         </Button>
       </div>
     );
@@ -263,13 +263,13 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
           {/* Task Name */}
           <div className="space-y-2">
             <Label htmlFor="name" className="font-medium text-stone-700 dark:text-stone-300">
-              Task Name
+              {t("taskDetail.fields.taskName")}
             </Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Enter task name"
+              placeholder={t("taskDetail.fields.enterTaskName")}
             />
           </div>
 
@@ -369,7 +369,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
               min="0"
               value={durationMinutes}
               onChange={(e) => setDurationMinutes(e.target.value)}
-              placeholder="e.g., 30"
+              placeholder={t("taskDetail.fields.durationExample")}
             />
           </div>
 
@@ -399,7 +399,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
               id="comment"
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Add notes or comments..."
+              placeholder={t("taskDetail.fields.addNotes")}
               rows={4}
             />
           </div>
@@ -428,7 +428,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
             onClick={onClose}
             disabled={isSaving}
           >
-            Close
+            {t("common.close")}
           </Button>
         </div>
       </div>

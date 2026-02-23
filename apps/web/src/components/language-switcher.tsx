@@ -11,14 +11,14 @@ import {
 import { Globe } from "lucide-react";
 
 export function LanguageSwitcher() {
-  const { locale, setLocale } = useI18n();
+  const { locale, setLocale, t } = useI18n();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="h-9 w-9">
           <Globe className="h-4 w-4" />
-          <span className="sr-only">Switch language</span>
+          <span className="sr-only">{t("accessibility.switchLanguage")}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -26,13 +26,13 @@ export function LanguageSwitcher() {
           onClick={() => setLocale("en")}
           className={locale === "en" ? "bg-accent" : ""}
         >
-          English
+          {t("language.english")}
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => setLocale("zh")}
           className={locale === "zh" ? "bg-accent" : ""}
         >
-          中文
+          {t("language.chinese")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

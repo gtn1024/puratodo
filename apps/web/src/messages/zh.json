@@ -10,7 +10,9 @@
     "close": "关闭",
     "loading": "加载中...",
     "error": "错误",
-    "success": "成功"
+    "success": "成功",
+    "move": "移动",
+    "add": "添加"
   },
   "auth": {
     "login": "登录",
@@ -46,7 +48,29 @@
     "passwordTooShort": "密码至少需要6个字符",
     "registrationDisabled": "注册已禁用",
     "contactAdmin": "新账号注册目前已禁用。如需访问，请联系管理员。",
-    "unexpectedError": "发生意外错误"
+    "unexpectedError": "发生意外错误",
+    "placeholders": {
+      "email": "you@example.com",
+      "password": "••••••••"
+    },
+    "confirm": {
+      "invalidLink": "链接无效。请重新请求。",
+      "unexpectedError": "发生意外错误。请重试。",
+      "verifying": "验证中...",
+      "passwordSetSuccess": "密码设置成功",
+      "redirecting": "正在跳转到您的仪表盘...",
+      "linkInvalidOrExpired": "链接无效或已过期",
+      "backToLogin": "返回登录",
+      "welcomeToPuraToDo": "欢迎使用 PuraToDo",
+      "resetYourPassword": "重置您的密码",
+      "setPasswordComplete": "设置密码以完成账户创建",
+      "enterNewPassword": "在下方输入新密码",
+      "newPassword": "新密码",
+      "confirmPasswordLabel": "确认密码",
+      "settingPassword": "设置密码中...",
+      "completeSetup": "完成设置",
+      "resetPasswordBtn": "重置密码"
+    }
   },
   "sidebar": {
     "groups": "分组",
@@ -59,7 +83,11 @@
     "noDate": "无日期",
     "addGroup": "添加分组",
     "noGroups": "暂无分组",
-    "createFirstGroup": "创建你的第一个分组"
+    "createFirstGroup": "创建你的第一个分组",
+    "labels": {
+      "color": "颜色",
+      "addList": "添加列表"
+    }
   },
   "listPanel": {
     "lists": "列表",
@@ -67,7 +95,21 @@
     "noLists": "该分组下暂无列表",
     "createFirstList": "创建你的第一个列表",
     "listName": "列表名称",
-    "selectIcon": "选择一个图标"
+    "selectIcon": "选择一个图标",
+    "dialogs": {
+      "moveToList": "将 \"{listName}\" 移动到其他分组：",
+      "noOtherGroups": "没有其他可用分组"
+    },
+    "emptyStates": {
+      "welcome": "欢迎使用 PuraToDo",
+      "createGroupToStart": "创建分组以开始组织您的任务",
+      "clickPlusButton": "点击侧边栏中的 + 按钮创建您的第一个分组"
+    },
+    "labels": {
+      "list": "个列表",
+      "lists": "个列表",
+      "name": "名称"
+    }
   },
   "taskPanel": {
     "tasks": "任务",
@@ -89,7 +131,40 @@
     "delete": "删除",
     "setDate": "设置日期",
     "cancel": "取消",
-    "tasksSelected": "个任务已选择"
+    "tasksSelected": "个任务已选择",
+    "emptyStates": {
+      "noTaskSelected": "未选择任务",
+      "clickToView": "点击任务以在此处查看和编辑详情",
+      "taskNotFound": "未找到任务",
+      "taskMayBeDeleted": "该任务可能已被删除",
+      "selectList": "选择列表",
+      "chooseListFromSidebar": "从侧边栏选择一个列表以查看任务",
+      "noStarredTasks": "没有星标任务",
+      "noOverdueTasks": "没有过期任务",
+      "noUpcomingTasks": "未来 7 天内没有任务",
+      "noNoDateTasks": "没有无日期任务",
+      "smartViewHint": "当任务符合此视图条件时，将在此处显示。"
+    },
+    "dialogs": {
+      "deleteTask": "删除任务",
+      "deleteTaskDesc": "确定要删除此任务吗？所有子任务也将被删除。此操作无法撤销。",
+      "deleteTasks": "删除 {count} 个任务",
+      "deleteTasksDesc": "确定要删除 {count} 个任务吗？",
+      "setDueDateForTasks": "为 {count} 个任务设置截止日期",
+      "clearDate": "清除日期",
+      "setDate": "设置日期"
+    },
+    "labels": {
+      "task": "个任务",
+      "tasks": "个任务",
+      "crossListView": "跨列表视图",
+      "filter": "筛选",
+      "unknownGroup": "未知分组"
+    },
+    "placeholders": {
+      "taskName": "任务名称...",
+      "subtaskName": "子任务名称..."
+    }
   },
   "taskDetail": {
     "taskDetails": "任务详情",
@@ -129,7 +204,13 @@
     "timezonePlaceholder": "例如：Asia/Shanghai",
     "applyScope": "重复规则应用到",
     "scopeSingle": "仅当前任务",
-    "scopeFuture": "当前及未来任务"
+    "scopeFuture": "当前及未来任务",
+    "fields": {
+      "taskName": "任务名称",
+      "enterTaskName": "输入任务名称",
+      "durationExample": "例如，30",
+      "addNotes": "添加备注或评论..."
+    }
   },
   "filter": {
     "all": "全部",
@@ -147,13 +228,28 @@
     "searchPlaceholder": "搜索任务...",
     "noResults": "未找到结果"
   },
+  "searchDialog": {
+    "title": "搜索任务",
+    "placeholder": "搜索任务...",
+    "typeToSearch": "输入以搜索您的任务",
+    "searching": "搜索中...",
+    "noTasksFound": "未找到与 \"{query}\" 相关的任务",
+    "pressEscToClose": "按 Esc 关闭"
+  },
   "shortcuts": {
     "title": "键盘快捷键",
     "newTask": "新任务",
     "newList": "新列表",
     "search": "搜索",
     "help": "显示帮助",
-    "close": "关闭"
+    "close": "关闭",
+    "createNewTask": "创建新任务",
+    "createNewList": "创建新列表",
+    "searchTasks": "搜索任务",
+    "showThisHelp": "显示此帮助",
+    "closeDialogMenu": "关闭对话框/菜单",
+    "buttonTitle": "键盘快捷键 (?)",
+    "buttonSrOnly": "键盘快捷键"
   },
   "empty": {
     "noResults": "无结果"
@@ -171,7 +267,31 @@
     "unscheduled": "未安排",
     "noTasks": "无任务",
     "allLists": "所有列表",
-    "loading": "加载中..."
+    "loading": "加载中...",
+    "moreTasks": "还有 {count} 个",
+    "months": {
+      "january": "一月",
+      "february": "二月",
+      "march": "三月",
+      "april": "四月",
+      "may": "五月",
+      "june": "六月",
+      "july": "七月",
+      "august": "八月",
+      "september": "九月",
+      "october": "十月",
+      "november": "十一月",
+      "december": "十二月"
+    },
+    "weekdays": {
+      "sun": "日",
+      "mon": "一",
+      "tue": "二",
+      "wed": "三",
+      "thu": "四",
+      "fri": "五",
+      "sat": "六"
+    }
   },
   "reminder": {
     "title": "提醒",
@@ -191,5 +311,36 @@
       "1day": "提前 1 天",
       "custom": "自定义时间"
     }
+  },
+  "dashboard": {
+    "navigation": {
+      "title": "导航菜单",
+      "description": "在分组和列表之间导航",
+      "openMenu": "打开菜单"
+    },
+    "smartViews": {
+      "today": "今天",
+      "calendar": "日历",
+      "inbox": "收件箱",
+      "starred": "已星标",
+      "overdue": "已过期",
+      "next7Days": "未来 7 天",
+      "noDate": "无日期"
+    },
+    "search": "搜索",
+    "inboxUnavailable": "收件箱不可用",
+    "inboxUnavailableDesc": "无法为此账户创建或加载收件箱列表。"
+  },
+  "accessibility": {
+    "toggleTheme": "切换主题",
+    "switchLanguage": "切换语言",
+    "closeDialog": "关闭对话框",
+    "newTaskList": "新任务/列表",
+    "newList": "新列表",
+    "showShortcuts": "显示快捷键"
+  },
+  "placeholders": {
+    "interval": "1",
+    "endCount": "10"
   }
 }

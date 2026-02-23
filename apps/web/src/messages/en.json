@@ -10,7 +10,9 @@
     "close": "Close",
     "loading": "Loading...",
     "error": "Error",
-    "success": "Success"
+    "success": "Success",
+    "move": "Move",
+    "add": "Add"
   },
   "auth": {
     "login": "Sign In",
@@ -46,7 +48,29 @@
     "passwordTooShort": "Password must be at least 6 characters",
     "registrationDisabled": "Registration Disabled",
     "contactAdmin": "New account registration is currently disabled. Please contact the administrator if you need access.",
-    "unexpectedError": "An unexpected error occurred"
+    "unexpectedError": "An unexpected error occurred",
+    "placeholders": {
+      "email": "you@example.com",
+      "password": "••••••••"
+    },
+    "confirm": {
+      "invalidLink": "Invalid link. Please request a new one.",
+      "unexpectedError": "An unexpected error occurred. Please try again.",
+      "verifying": "Verifying...",
+      "passwordSetSuccess": "Password Set Successfully",
+      "redirecting": "Redirecting to your dashboard...",
+      "linkInvalidOrExpired": "Link Invalid or Expired",
+      "backToLogin": "Back to Login",
+      "welcomeToPuraToDo": "Welcome to PuraToDo",
+      "resetYourPassword": "Reset Your Password",
+      "setPasswordComplete": "Set your password to complete your account",
+      "enterNewPassword": "Enter your new password below",
+      "newPassword": "New Password",
+      "confirmPasswordLabel": "Confirm Password",
+      "settingPassword": "Setting password...",
+      "completeSetup": "Complete Setup",
+      "resetPasswordBtn": "Reset Password"
+    }
   },
   "sidebar": {
     "groups": "Groups",
@@ -59,7 +83,11 @@
     "noDate": "No Date",
     "addGroup": "Add Group",
     "noGroups": "No groups yet",
-    "createFirstGroup": "Create your first group"
+    "createFirstGroup": "Create your first group",
+    "labels": {
+      "color": "Color",
+      "addList": "Add List"
+    }
   },
   "listPanel": {
     "lists": "Lists",
@@ -67,7 +95,21 @@
     "noLists": "No lists in this group yet",
     "createFirstList": "Create your first list",
     "listName": "List name",
-    "selectIcon": "Select an icon"
+    "selectIcon": "Select an icon",
+    "dialogs": {
+      "moveToList": "Move \"{listName}\" to another group:",
+      "noOtherGroups": "No other groups available"
+    },
+    "emptyStates": {
+      "welcome": "Welcome to PuraToDo",
+      "createGroupToStart": "Create a group to get started organizing your tasks",
+      "clickPlusButton": "Click the + button in the sidebar to create your first group"
+    },
+    "labels": {
+      "list": "list",
+      "lists": "lists",
+      "name": "Name"
+    }
   },
   "taskPanel": {
     "tasks": "Tasks",
@@ -89,7 +131,40 @@
     "delete": "Delete",
     "setDate": "Set date",
     "cancel": "Cancel",
-    "tasksSelected": "tasks selected"
+    "tasksSelected": "tasks selected",
+    "emptyStates": {
+      "noTaskSelected": "No Task Selected",
+      "clickToView": "Click on a task to view and edit its details here",
+      "taskNotFound": "Task Not Found",
+      "taskMayBeDeleted": "This task may have been deleted",
+      "selectList": "Select a List",
+      "chooseListFromSidebar": "Choose a list from the sidebar to view its tasks",
+      "noStarredTasks": "No starred tasks",
+      "noOverdueTasks": "No overdue tasks",
+      "noUpcomingTasks": "No tasks in the next 7 days",
+      "noNoDateTasks": "No no-date tasks",
+      "smartViewHint": "Tasks from all lists will appear here when they match this view."
+    },
+    "dialogs": {
+      "deleteTask": "Delete Task",
+      "deleteTaskDesc": "Are you sure you want to delete this task? Any subtasks will also be deleted. This action cannot be undone.",
+      "deleteTasks": "Delete {count} Tasks",
+      "deleteTasksDesc": "Are you sure you want to delete {count} task(s)?",
+      "setDueDateForTasks": "Set Due Date for {count} Tasks",
+      "clearDate": "Clear date",
+      "setDate": "Set Date"
+    },
+    "labels": {
+      "task": "task",
+      "tasks": "tasks",
+      "crossListView": "Cross-list view",
+      "filter": "Filter",
+      "unknownGroup": "Unknown Group"
+    },
+    "placeholders": {
+      "taskName": "Task name...",
+      "subtaskName": "Subtask name..."
+    }
   },
   "taskDetail": {
     "taskDetails": "Task Details",
@@ -129,7 +204,13 @@
     "timezonePlaceholder": "e.g., America/Los_Angeles",
     "applyScope": "Apply recurrence changes to",
     "scopeSingle": "This occurrence only",
-    "scopeFuture": "This and future occurrences"
+    "scopeFuture": "This and future occurrences",
+    "fields": {
+      "taskName": "Task Name",
+      "enterTaskName": "Enter task name",
+      "durationExample": "e.g., 30",
+      "addNotes": "Add notes or comments..."
+    }
   },
   "filter": {
     "all": "All",
@@ -147,13 +228,28 @@
     "searchPlaceholder": "Search tasks...",
     "noResults": "No results found"
   },
+  "searchDialog": {
+    "title": "Search Tasks",
+    "placeholder": "Search tasks...",
+    "typeToSearch": "Type to search your tasks",
+    "searching": "Searching...",
+    "noTasksFound": "No tasks found for \"{query}\"",
+    "pressEscToClose": "Press Esc to close"
+  },
   "shortcuts": {
     "title": "Keyboard Shortcuts",
     "newTask": "New task",
     "newList": "New list",
     "search": "Search",
     "help": "Show help",
-    "close": "Close"
+    "close": "Close",
+    "createNewTask": "Create new task",
+    "createNewList": "Create new list",
+    "searchTasks": "Search tasks",
+    "showThisHelp": "Show this help",
+    "closeDialogMenu": "Close dialog / menu",
+    "buttonTitle": "Keyboard shortcuts (?)",
+    "buttonSrOnly": "Keyboard shortcuts"
   },
   "empty": {
     "noResults": "No results"
@@ -171,7 +267,31 @@
     "unscheduled": "Unscheduled",
     "noTasks": "No tasks",
     "allLists": "All Lists",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "moreTasks": "+{count} more",
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    },
+    "weekdays": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    }
   },
   "reminder": {
     "title": "Reminder",
@@ -191,5 +311,36 @@
       "1day": "1 day before",
       "custom": "Custom time"
     }
+  },
+  "dashboard": {
+    "navigation": {
+      "title": "Navigation Menu",
+      "description": "Navigate between groups and lists",
+      "openMenu": "Open menu"
+    },
+    "smartViews": {
+      "today": "Today",
+      "calendar": "Calendar",
+      "inbox": "Inbox",
+      "starred": "Starred",
+      "overdue": "Overdue",
+      "next7Days": "Next 7 Days",
+      "noDate": "No Date"
+    },
+    "search": "Search",
+    "inboxUnavailable": "Inbox unavailable",
+    "inboxUnavailableDesc": "Could not create or load the Inbox list for this account."
+  },
+  "accessibility": {
+    "toggleTheme": "Toggle theme",
+    "switchLanguage": "Switch language",
+    "closeDialog": "Close dialog",
+    "newTaskList": "New task/list",
+    "newList": "New list",
+    "showShortcuts": "Show shortcuts"
+  },
+  "placeholders": {
+    "interval": "1",
+    "endCount": "10"
   }
 }
