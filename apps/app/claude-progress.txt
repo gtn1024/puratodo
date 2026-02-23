@@ -2566,3 +2566,59 @@ The Tauri app i18n is now complete:
 ### Next Steps
 None - i18n implementation is complete for the Tauri app.
 
+
+---
+
+## Session 42: Release v0.3.2
+**Date:** 2026-02-23
+
+### What was done
+Released version 0.3.2 of the PuraToDo Tauri app:
+
+1. **Version Updates:**
+   - Updated package.json to version 0.3.2
+   - Updated Cargo.toml to version 0.3.2
+   - Updated tauri.conf.json to version 0.3.2
+
+2. **Git Operations:**
+   - Created git commit for version bump
+   - Created git tag v0.3.2 with release notes
+   - Pushed commits and tags to remote repository
+
+3. **GitHub Release:**
+   - Created GitHub release with comprehensive release notes
+   - Highlighted all major features and improvements
+
+4. **Build and Distribution:**
+   - Built production version for macOS (Apple Silicon)
+   - Created DMG installer: PuraToDo_0.3.2_aarch64.dmg
+   - Created .app bundle: PuraToDo.app.tar.gz
+   - Uploaded both artifacts to GitHub Release
+
+### Build Status
+- ✅ Vite build successful (808.21 kB)
+- ✅ Rust compilation successful
+- ✅ macOS bundle created successfully
+- ✅ DMG installer created successfully
+- ✅ Artifacts uploaded to GitHub
+
+### Release Highlights
+- Complete i18n implementation (English and Chinese)
+- Calendar view with monthly display
+- Smart views (Today, Starred, Overdue, Next 7 Days, No Date)
+- Multi-account support
+- Custom API server configuration
+- Realtime sync across devices
+- Local notifications
+- Responsive three-column layout
+- Dark/light theme support
+- Infinite nested subtasks
+- Task filtering and bulk operations
+- Drag and drop reordering
+- Keyboard shortcuts
+
+### Next Steps
+- Monitor release for user feedback
+- Address any reported issues
+- Plan next version features
+
