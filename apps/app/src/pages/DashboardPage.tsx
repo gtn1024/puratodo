@@ -1190,7 +1190,7 @@ export function DashboardPage() {
             className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg bg-stone-900 dark:bg-stone-700 text-white dark:text-stone-100 text-sm font-medium hover:bg-stone-800 dark:hover:bg-stone-600 transition-all shadow-lg shadow-stone-900/20 dark:shadow-stone-900/40"
           >
             <Plus className="w-4 h-4" />
-            <span>Add Task</span>
+            <span>{t("sidebar.addTask")}</span>
           </button>
         </div>
 
@@ -1199,7 +1199,7 @@ export function DashboardPage() {
           {/* Smart Views section */}
           <div>
             <h3 className="px-3 py-2 text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
-              Smart Views
+              {t("sidebar.smartViews")}
             </h3>
             <div className="space-y-1">
               <button
@@ -1214,7 +1214,7 @@ export function DashboardPage() {
                 }`}
               >
                 <CheckCircle2 className="w-5 h-5" />
-                <span>Today</span>
+                <span>{t("sidebar.today")}</span>
               </button>
               <button
                 onClick={() => {
@@ -1228,7 +1228,7 @@ export function DashboardPage() {
                 }`}
               >
                 <Star className="w-5 h-5" />
-                <span>Starred</span>
+                <span>{t("sidebar.starred")}</span>
               </button>
               <button
                 onClick={() => {
@@ -1242,7 +1242,7 @@ export function DashboardPage() {
                 }`}
               >
                 <AlertTriangle className="w-5 h-5" />
-                <span>Overdue</span>
+                <span>{t("sidebar.overdue")}</span>
               </button>
               <button
                 onClick={() => {
@@ -1256,7 +1256,7 @@ export function DashboardPage() {
                 }`}
               >
                 <CalendarDays className="w-5 h-5" />
-                <span>Next 7 Days</span>
+                <span>{t("sidebar.next7Days")}</span>
               </button>
               <button
                 onClick={() => {
@@ -1270,7 +1270,7 @@ export function DashboardPage() {
                 }`}
               >
                 <Circle className="w-5 h-5" />
-                <span>No Date</span>
+                <span>{t("sidebar.noDate")}</span>
               </button>
             </div>
           </div>
@@ -1289,7 +1289,7 @@ export function DashboardPage() {
               }`}
             >
               <Calendar className="w-5 h-5" />
-              <span>Calendar</span>
+              <span>{t("sidebar.calendar")}</span>
             </button>
           </div>
 
@@ -1297,7 +1297,7 @@ export function DashboardPage() {
           <div className="mt-6">
             <div className="flex items-center justify-between px-3 mb-2">
               <h3 className="text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
-                Groups
+                {t("sidebar.groups")}
               </h3>
               <button
                 onClick={() => setShowNewGroupInput(true)}
@@ -1423,7 +1423,7 @@ export function DashboardPage() {
                                 {groupLists.length === 0 && !showNewListInput && (
                                   <div className="px-3 py-3 text-center">
                                     <p className="text-xs text-stone-400 dark:text-stone-500 mb-2">
-                                      No lists yet
+                                      {t("listPanel.noListsYet")}
                                     </p>
                                   </div>
                                 )}
@@ -1484,7 +1484,7 @@ export function DashboardPage() {
                                     className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-stone-400 dark:text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
                                   >
                                     <Plus className="w-4 h-4" />
-                                    <span>Add list</span>
+                                    <span>{t("listPanel.addList")}</span>
                                   </button>
                                 )}
                               </div>
@@ -1501,7 +1501,7 @@ export function DashboardPage() {
               {/* Empty state */}
               {!isLoading && groups.length === 0 && !showNewGroupInput && (
                 <div className="px-3 py-4 text-sm text-stone-400 dark:text-stone-500">
-                  No groups yet. Click + to create one.
+                  {t("sidebar.noGroups")}
                 </div>
               )}
             </div>
@@ -1590,7 +1590,7 @@ export function DashboardPage() {
             className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg bg-stone-900 dark:bg-stone-700 text-white dark:text-stone-100 text-sm font-medium hover:bg-stone-800 dark:hover:bg-stone-600 transition-all shadow-lg shadow-stone-900/20 dark:shadow-stone-900/40"
           >
             <Plus className="w-4 h-4" />
-            <span>Add Task</span>
+            <span>{t("sidebar.addTask")}</span>
           </button>
         </div>
 
@@ -1599,7 +1599,7 @@ export function DashboardPage() {
           {/* Smart Views section */}
           <div>
             <h3 className="px-3 py-2 text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
-              Smart Views
+              {t("sidebar.smartViews")}
             </h3>
             <div className="space-y-1">
               <button
@@ -1614,7 +1614,7 @@ export function DashboardPage() {
                 }`}
               >
                 <CheckCircle2 className="w-5 h-5" />
-                <span>Today</span>
+                <span>{t("sidebar.today")}</span>
               </button>
               <button
                 onClick={() => {
@@ -1628,7 +1628,7 @@ export function DashboardPage() {
                 }`}
               >
                 <Star className="w-5 h-5" />
-                <span>Starred</span>
+                <span>{t("sidebar.starred")}</span>
               </button>
               <button
                 onClick={() => {
@@ -1642,7 +1642,7 @@ export function DashboardPage() {
                 }`}
               >
                 <AlertTriangle className="w-5 h-5" />
-                <span>Overdue</span>
+                <span>{t("sidebar.overdue")}</span>
               </button>
               <button
                 onClick={() => {
@@ -1656,7 +1656,7 @@ export function DashboardPage() {
                 }`}
               >
                 <CalendarDays className="w-5 h-5" />
-                <span>Next 7 Days</span>
+                <span>{t("sidebar.next7Days")}</span>
               </button>
               <button
                 onClick={() => {
@@ -1670,7 +1670,7 @@ export function DashboardPage() {
                 }`}
               >
                 <Circle className="w-5 h-5" />
-                <span>No Date</span>
+                <span>{t("sidebar.noDate")}</span>
               </button>
             </div>
           </div>
@@ -1689,7 +1689,7 @@ export function DashboardPage() {
               }`}
             >
               <Calendar className="w-5 h-5" />
-              <span>Calendar</span>
+              <span>{t("sidebar.calendar")}</span>
             </button>
           </div>
 
@@ -1697,7 +1697,7 @@ export function DashboardPage() {
           <div className="mt-6">
             <div className="flex items-center justify-between px-3 mb-2">
               <h3 className="text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
-                Groups
+                {t("sidebar.groups")}
               </h3>
               <button
                 onClick={() => setShowNewGroupInput(true)}
@@ -1823,7 +1823,7 @@ export function DashboardPage() {
                                 {groupLists.length === 0 && !showNewListInput && (
                                   <div className="px-3 py-3 text-center">
                                     <p className="text-xs text-stone-400 dark:text-stone-500 mb-2">
-                                      No lists yet
+                                      {t("listPanel.noListsYet")}
                                     </p>
                                   </div>
                                 )}
@@ -1885,7 +1885,7 @@ export function DashboardPage() {
                                     className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-stone-400 dark:text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
                                   >
                                     <Plus className="w-4 h-4" />
-                                    <span>Add list</span>
+                                    <span>{t("listPanel.addList")}</span>
                                   </button>
                                 )}
                               </div>
@@ -2014,7 +2014,7 @@ export function DashboardPage() {
                 onClick={handleExitSelectionMode}
                 className="text-blue-600 dark:text-blue-400"
               >
-                {selectedCount} selected
+                {t("taskPanel.selectedCount", { count: selectedCount })}
               </Button>
             ) : (
               <Button
@@ -2022,7 +2022,7 @@ export function DashboardPage() {
                 size="sm"
                 onClick={() => setIsSelectionMode(true)}
               >
-                Select
+                {t("taskPanel.select")}
               </Button>
             )}
             <AccountSwitcher onAccountChanged={handleAccountChanged} />
@@ -2031,7 +2031,7 @@ export function DashboardPage() {
               className="flex items-center gap-2 px-3 py-1.5 text-sm text-stone-500 dark:text-stone-400 bg-stone-100 dark:bg-stone-800 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
             >
               <Search className="w-4 h-4" />
-              <span className="hidden sm:inline">Search</span>
+              <span className="hidden sm:inline">{t("search.search")}</span>
               <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-xs bg-stone-200 dark:bg-stone-700 rounded">
                 ⌘K
               </kbd>
@@ -2115,7 +2115,7 @@ export function DashboardPage() {
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-stone-300 dark:border-stone-600 text-stone-400 hover:border-stone-400 hover:text-stone-600 dark:hover:border-stone-500 dark:hover:text-stone-300 transition-colors"
                   >
                     <Plus className="w-5 h-5" />
-                    <span>Add a task</span>
+                    <span>{t("taskPanel.addTaskHint")}</span>
                   </button>
                 )}
               </div>
@@ -2160,7 +2160,7 @@ export function DashboardPage() {
                   disabled={isCreatingTask || !newSubtaskName.trim()}
                   className="px-3 py-1.5 text-sm font-medium rounded-lg bg-stone-900 dark:bg-stone-700 text-white hover:bg-stone-800 dark:hover:bg-stone-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Add
+                  {t("taskPanel.add")}
                 </button>
                 <button
                   onClick={() => {
@@ -2308,14 +2308,14 @@ export function DashboardPage() {
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Pencil className="w-4 h-4" />
-            <span>Edit</span>
+            <span>{t("common.edit")}</span>
           </button>
           <button
             onClick={() => handleDeleteGroup(contextMenu.group.id)}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Trash2 className="w-4 h-4" />
-            <span>Delete</span>
+            <span>{t("common.delete")}</span>
           </button>
         </div>
       )}
@@ -2332,21 +2332,21 @@ export function DashboardPage() {
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Pencil className="w-4 h-4" />
-            <span>Edit</span>
+            <span>{t("common.edit")}</span>
           </button>
           <button
             onClick={() => openMoveListDialog(listContextMenu.list)}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Move className="w-4 h-4" />
-            <span>Move</span>
+            <span>{t("common.move")}</span>
           </button>
           <button
             onClick={() => handleDeleteList(listContextMenu.list.id)}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Trash2 className="w-4 h-4" />
-            <span>Delete</span>
+            <span>{t("common.delete")}</span>
           </button>
         </div>
       )}
@@ -2366,21 +2366,21 @@ export function DashboardPage() {
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Pencil className="w-4 h-4" />
-            <span>Edit</span>
+            <span>{t("common.edit")}</span>
           </button>
           <button
             onClick={() => startAddSubtask(taskContextMenu.taskId)}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Plus className="w-4 h-4" />
-            <span>Add Subtask</span>
+            <span>{t("taskPanel.addSubtask")}</span>
           </button>
           <button
             onClick={() => handleDeleteTask(taskContextMenu.taskId)}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Trash2 className="w-4 h-4" />
-            <span>Delete</span>
+            <span>{t("common.delete")}</span>
           </button>
         </div>
       )}
@@ -2389,12 +2389,12 @@ export function DashboardPage() {
       <Dialog open={!!editingGroup} onOpenChange={(open) => !open && setEditingGroup(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Group</DialogTitle>
+            <DialogTitle>{t("group.editGroup")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
-                Group Name
+                {t("group.groupName")}
               </label>
               <input
                 type="text"
@@ -2410,7 +2410,7 @@ export function DashboardPage() {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
-                Color
+                {t("group.color")}
               </label>
               <div className="flex items-center gap-2">
                 {GROUP_COLORS.map((color) => (
@@ -2431,7 +2431,7 @@ export function DashboardPage() {
               variant="ghost"
               onClick={() => setEditingGroup(null)}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               onClick={handleUpdateGroup}
@@ -2447,12 +2447,12 @@ export function DashboardPage() {
       <Dialog open={!!editingList} onOpenChange={(open) => !open && setEditingList(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit List</DialogTitle>
+            <DialogTitle>{t("listPanel.editList")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
-                List Name
+                {t("listPanel.listName")}
               </label>
               <input
                 type="text"
@@ -2472,7 +2472,7 @@ export function DashboardPage() {
               variant="ghost"
               onClick={() => setEditingList(null)}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               onClick={handleUpdateList}
@@ -2488,15 +2488,15 @@ export function DashboardPage() {
       <Dialog open={!!movingList} onOpenChange={(open) => !open && setMovingList(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Move List</DialogTitle>
+            <DialogTitle>{t("listPanel.moveList")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <p className="text-sm text-stone-600 dark:text-stone-400">
-              Move <strong>{movingList?.name}</strong> to a different group:
+              {t("listPanel.moveListDescription", { name: movingList?.name })}
             </p>
             <div className="space-y-2">
               <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
-                Target Group
+                {t("listPanel.targetGroup")}
               </label>
               <select
                 value={targetGroupId}
@@ -2532,7 +2532,7 @@ export function DashboardPage() {
       <Dialog open={showSearch} onOpenChange={setShowSearch}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Search Tasks</DialogTitle>
+            <DialogTitle>{t("search.searchTasks")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="relative">
@@ -2603,21 +2603,21 @@ export function DashboardPage() {
                 ) : (
                   <div className="text-center py-8 text-stone-500 dark:text-stone-400">
                     <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                    <p>No tasks found matching "{searchQuery}"</p>
+                    <p>{t("search.noResultsForQuery", { query: searchQuery })}</p>
                   </div>
                 )
               ) : (
                 <div className="text-center py-8 text-stone-500 dark:text-stone-400">
                   <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p>Type to search tasks</p>
-                  <p className="text-xs mt-1">Search across all lists</p>
+                  <p>{t("search.typeToSearch")}</p>
+                  <p className="text-xs mt-1">{t("search.searchAcrossAllLists")}</p>
                 </div>
               )}
             </div>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setShowSearch(false)}>
-              Close
+              {t("common.close")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -2627,15 +2627,15 @@ export function DashboardPage() {
       <Dialog open={isBulkDateDialogOpen} onOpenChange={setIsBulkDateDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Set Due Date</DialogTitle>
+            <DialogTitle>{t("taskPanel.setDueDate")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-stone-500 dark:text-stone-400">
-              Set a due date for {selectedCount} selected task{selectedCount !== 1 ? 's' : ''}.
+              {t("taskPanel.setDueDateDescription", { count: selectedCount })}
             </p>
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
-                Due Date
+                {t("taskDetail.dueDate")}
               </label>
               <input
                 type="date"
@@ -2650,10 +2650,10 @@ export function DashboardPage() {
               setIsBulkDateDialogOpen(false);
               setBulkDateValue(undefined);
             }}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleBulkSetDate}>
-              Set Date
+              {t("taskPanel.setDate")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -2663,23 +2663,23 @@ export function DashboardPage() {
       <Dialog open={isBulkDeleteDialogOpen} onOpenChange={setIsBulkDeleteDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Delete Tasks</DialogTitle>
+            <DialogTitle>{t("taskPanel.deleteTasks")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-stone-500 dark:text-stone-400">
-              Are you sure you want to delete {selectedCount} task{selectedCount !== 1 ? 's' : ''}? This action cannot be undone.
+              {t("taskPanel.deleteTasksConfirmation", { count: selectedCount })}
             </p>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setIsBulkDeleteDialogOpen(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               variant="destructive"
               onClick={handleBulkDelete}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
-              Delete
+              {t("common.delete")}
             </Button>
           </DialogFooter>
         </DialogContent>

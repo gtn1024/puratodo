@@ -14,7 +14,9 @@
     "saving": "保存中...",
     "saveChanges": "保存更改",
     "moving": "移动中...",
-    "moveList": "移动列表"
+    "moveList": "移动列表",
+    "move": "移动",
+    "reset": "重置"
   },
   "auth": {
     "login": "登录",
@@ -91,7 +93,8 @@
     "addGroup": "添加分组",
     "noGroups": "暂无分组",
     "createFirstGroup": "创建你的第一个分组",
-    "groupNamePlaceholder": "分组名称"
+    "groupNamePlaceholder": "分组名称",
+    "addTask": "添加任务"
   },
   "listPanel": {
     "lists": "列表",
@@ -100,7 +103,12 @@
     "createFirstList": "创建你的第一个列表",
     "listName": "列表名称",
     "selectIcon": "选择一个图标",
-    "listNamePlaceholder": "列表名称"
+    "listNamePlaceholder": "列表名称",
+    "editList": "编辑列表",
+    "moveList": "移动列表",
+    "moveListDescription": "将 {name} 移动到其他分组：",
+    "targetGroup": "目标分组",
+    "noListsYet": "暂无列表"
   },
   "taskPanel": {
     "tasks": "任务",
@@ -125,7 +133,14 @@
     "tasksSelected": "个任务已选择",
     "taskNamePlaceholder": "输入任务名称...",
     "subtaskNamePlaceholder": "子任务名称...",
-    "createTask": "创建任务"
+    "createTask": "创建任务",
+    "add": "添加",
+    "addTaskHint": "添加一个任务",
+    "selectedCount": "已选择 {count} 个",
+    "setDueDate": "设置截止日期",
+    "setDueDateDescription": "为选中的 {count} 个任务设置截止日期",
+    "deleteTasks": "删除任务",
+    "deleteTasksConfirmation": "确定要删除 {count} 个任务吗？此操作无法撤销。"
   },
   "taskDetail": {
     "taskDetails": "任务详情",
@@ -185,7 +200,11 @@
   "search": {
     "search": "搜索",
     "searchPlaceholder": "搜索任务...",
-    "noResults": "未找到结果"
+    "noResults": "未找到结果",
+    "searchTasks": "搜索任务",
+    "noResultsForQuery": "没有找到匹配 \"{query}\" 的任务",
+    "typeToSearch": "输入以搜索任务",
+    "searchAcrossAllLists": "跨所有列表搜索"
   },
   "shortcuts": {
     "title": "键盘快捷键",
@@ -319,6 +338,17 @@
     "red": "红色",
     "pink": "粉色",
     "cyan": "青色"
+  },
+  "group": {
+    "editGroup": "编辑分组",
+    "groupName": "分组名称",
+    "color": "颜色"
+  },
+  "taskSheet": {
+    "noTaskSelected": "未选择任务",
+    "clickTaskToView": "点击任务以查看和编辑其详细信息",
+    "taskDetails": "任务详情",
+    "editTaskDetails": "编辑任务详情"
   },
   "confirmDialogs": {
     "deleteGroup": "删除此分组及其所有列表？",

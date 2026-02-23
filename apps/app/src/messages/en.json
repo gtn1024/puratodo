@@ -14,7 +14,9 @@
     "saving": "Saving...",
     "saveChanges": "Save Changes",
     "moving": "Moving...",
-    "moveList": "Move List"
+    "moveList": "Move List",
+    "move": "Move",
+    "reset": "Reset"
   },
   "auth": {
     "login": "Sign In",
@@ -91,7 +93,8 @@
     "addGroup": "Add Group",
     "noGroups": "No groups yet",
     "createFirstGroup": "Create your first group",
-    "groupNamePlaceholder": "Group name"
+    "groupNamePlaceholder": "Group name",
+    "addTask": "Add Task"
   },
   "listPanel": {
     "lists": "Lists",
@@ -100,7 +103,12 @@
     "createFirstList": "Create your first list",
     "listName": "List name",
     "selectIcon": "Select an icon",
-    "listNamePlaceholder": "List name"
+    "listNamePlaceholder": "List name",
+    "editList": "Edit List",
+    "moveList": "Move List",
+    "moveListDescription": "Move {name} to a different group:",
+    "targetGroup": "Target Group",
+    "noListsYet": "No lists yet"
   },
   "taskPanel": {
     "tasks": "Tasks",
@@ -125,7 +133,14 @@
     "tasksSelected": "tasks selected",
     "taskNamePlaceholder": "Enter task name...",
     "subtaskNamePlaceholder": "Subtask name...",
-    "createTask": "Create Task"
+    "createTask": "Create Task",
+    "add": "Add",
+    "addTaskHint": "Add a task",
+    "selectedCount": "{count} selected",
+    "setDueDate": "Set Due Date",
+    "setDueDateDescription": "Set a due date for {count} selected task(s)",
+    "deleteTasks": "Delete Tasks",
+    "deleteTasksConfirmation": "Are you sure you want to delete {count} task(s)? This action cannot be undone."
   },
   "taskDetail": {
     "taskDetails": "Task Details",
@@ -185,7 +200,11 @@
   "search": {
     "search": "Search",
     "searchPlaceholder": "Search tasks...",
-    "noResults": "No results found"
+    "noResults": "No results found",
+    "searchTasks": "Search Tasks",
+    "noResultsForQuery": "No tasks found matching \"{query}\"",
+    "typeToSearch": "Type to search tasks",
+    "searchAcrossAllLists": "Search across all lists"
   },
   "shortcuts": {
     "title": "Keyboard Shortcuts",
@@ -319,6 +338,17 @@
     "red": "Red",
     "pink": "Pink",
     "cyan": "Cyan"
+  },
+  "group": {
+    "editGroup": "Edit Group",
+    "groupName": "Group Name",
+    "color": "Color"
+  },
+  "taskSheet": {
+    "noTaskSelected": "No Task Selected",
+    "clickTaskToView": "Click on a task to view and edit its details",
+    "taskDetails": "Task Details",
+    "editTaskDetails": "Edit task details"
   },
   "confirmDialogs": {
     "deleteGroup": "Delete this group and all its lists?",
