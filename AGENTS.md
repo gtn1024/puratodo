@@ -162,6 +162,35 @@ The `init.sh` script standardizes development server startup:
 - **Path Alias**: `@/*` maps to `./src/*` (in apps/web)
 - **Workspace Packages**: Import as `@puratodo/ui`, `@puratodo/task-ui`, `@puratodo/api-types`, `@puratodo/shared`
 
+## Important Guidelines
+
+### Date Handling
+
+**CRITICAL**: When working with dates, always follow the [Date Handling Best Practices](./docs/date-handling.md).
+
+**Key points**:
+- ✅ **DO**: Use `getLocalDateString()` from `@puratodo/shared` for date formatting
+- ❌ **DON'T**: Use `toISOString().split("T")[0]` - this causes timezone issues
+- Dates should always be formatted using local timezone to ensure consistency across different timezones
+- See `docs/date-handling.md` for complete guidelines, examples, and troubleshooting
+
+**Example**:
+```typescript
+// ❌ WRONG - Causes timezone issues
+const dateStr = new Date().toISOString().split("T")[0];
+
+// ✅ CORRECT - Uses local timezone
+import { getLocalDateString } from "@puratodo/shared";
+const dateStr = getLocalDateString(new Date());
+```
+
+### Code Quality
+
+- Always use shared utilities from `@puratodo/shared` when available
+- Follow existing code patterns in the codebase
+- Keep components small and focused
+- Use TypeScript types strictly
+
 ## Environment Variables
 
 Required in `apps/web/.env.local`:
