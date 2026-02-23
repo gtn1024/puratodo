@@ -11,6 +11,7 @@ import type { TaskSearchResult } from "@/lib/api/tasks";
 import { useDataStore } from "@/stores/dataStore";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { useI18n } from "@/i18n";
+import { getLocalDateString } from "@puratodo/shared";
 
 interface CalendarPanelProps {
   selectedTaskId: string | null;
@@ -62,8 +63,8 @@ export function CalendarPanel({
         const firstDay = new Date(currentYear, currentMonth, 1);
         const lastDay = new Date(currentYear, currentMonth + 1, 0);
 
-        const startDate = firstDay.toISOString().split("T")[0];
-        const endDate = lastDay.toISOString().split("T")[0];
+        const startDate = getLocalDateString(firstDay);
+        const endDate = getLocalDateString(lastDay);
 
         const result = await tasksApi.getTasksInDateRange(
           startDate,
@@ -189,7 +190,7 @@ export function CalendarPanel({
 
   // Get tasks for a specific date
   const getTasksForDate = (date: Date) => {
-    const dateStr = date.toISOString().split("T")[0];
+    const dateStr = getLocalDateString(date);
     return tasks.filter((task) => {
       return task.plan_date === dateStr || task.due_date === dateStr;
     });

@@ -57,6 +57,7 @@ import { requestNotificationPermission, scheduleTaskReminders } from "@/lib/noti
 import { useI18n } from "@/i18n";
 import { useAuthStore } from "@/stores/authStore";
 import { useDataStore } from "@/stores/dataStore";
+import { getLocalDateString } from "@puratodo/shared";
 import type { List as ListType } from "@/lib/api/lists";
 import type { Group } from "@/lib/api/groups";
 import type { Task } from "@/lib/api/tasks";
@@ -625,7 +626,7 @@ export function DashboardPage() {
 
   const handleBulkSetDate = async () => {
     const taskIds = Array.from(selectedTaskIds);
-    const dateStr = bulkDateValue ? bulkDateValue.toISOString().split('T')[0] : null;
+    const dateStr = bulkDateValue ? getLocalDateString(bulkDateValue) : null;
     setIsBulkDateDialogOpen(false);
     try {
       await Promise.all(taskIds.map(id => updateTask(id, { due_date: dateStr })));
@@ -840,7 +841,7 @@ export function DashboardPage() {
 
   // Get today's tasks (due_date or plan_date = today)
   const getTodayTasks = (): Task[] => {
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const today = getLocalDateString(new Date()); // YYYY-MM-DD
     return tasks.filter((task) =>
       !task.parent_id && (task.due_date === today || task.plan_date === today)
     ).sort((a, b) => a.sort_order - b.sort_order);
@@ -857,7 +858,7 @@ export function DashboardPage() {
   const getOverdueTasks = (): Task[] => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = getLocalDateString(today);
     return tasks.filter((task) =>
       !task.parent_id && !task.completed && task.due_date && task.due_date < todayStr
     ).sort((a, b) => (a.due_date || '').localeCompare(b.due_date || ''));
@@ -867,10 +868,10 @@ export function DashboardPage() {
   const getNext7DaysTasks = (): Task[] => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = getLocalDateString(today);
     const next7Days = new Date(today);
     next7Days.setDate(next7Days.getDate() + 7);
-    const next7DaysStr = next7Days.toISOString().split('T')[0];
+    const next7DaysStr = getLocalDateString(next7Days);
     return tasks.filter((task) =>
       !task.parent_id && !task.completed && task.due_date && task.due_date >= todayStr && task.due_date <= next7DaysStr
     ).sort((a, b) => (a.due_date || '').localeCompare(b.due_date || ''));
@@ -2639,7 +2640,7 @@ export function DashboardPage() {
               </label>
               <input
                 type="date"
-                value={bulkDateValue ? bulkDateValue.toISOString().split('T')[0] : ''}
+                value={bulkDateValue ? getLocalDateString(bulkDateValue) : ''}
                 onChange={(e) => setBulkDateValue(e.target.value ? new Date(e.target.value) : undefined)}
                 className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-stone-400"
               />

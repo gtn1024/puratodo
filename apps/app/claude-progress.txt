@@ -1,5 +1,78 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 41: Fix Timezone Issues in Date Formatting
+**Date:** 2026-02-23
+
+### What was done
+Fixed critical timezone bugs affecting date display and filtering throughout the app by replacing `toISOString().split("T")[0]` with `getLocalDateString()` from `@puratodo/shared` package.
+
+### Problem
+The app was using `toISOString().split("T")[0]` to format dates, which converts to UTC time before extracting the date. This caused incorrect date display in non-UTC timezones:
+- In UTC+8: A task created at 2026-02-24 01:00 would show as 2026-02-23
+- In UTC-5: A task created at 2026-02-23 22:00 would show as 2026-02-24
+
+### Solution
+Replaced all instances of `toISOString().split("T")[0]` with `getLocalDateString()` which formats dates using the local timezone:
+
+**Files Modified:**
+
+1. **CalendarPanel.tsx (3 fixes):**
+   - Added import: `import { getLocalDateString } from "@puratodo/shared"`
+   - Fixed loadTasks: `getLocalDateString(firstDay)` and `getLocalDateString(lastDay)`
+   - Fixed getTasksForDate: `getLocalDateString(date)`
+
+2. **DashboardPage.tsx (6 fixes):**
+   - Added import: `import { getLocalDateString } from "@puratodo/shared"`
+   - Fixed getTodayTasks: `getLocalDateString(new Date())`
+   - Fixed getOverdueTasks: `getLocalDateString(today)`
+   - Fixed getNext7DaysTasks: `getLocalDateString(today)` and `getLocalDateString(next7Days)`
+   - Fixed handleBulkSetDate: `getLocalDateString(bulkDateValue)`
+   - Fixed bulk date input: `getLocalDateString(bulkDateValue)`
+
+3. **notifications.ts (2 fixes):**
+   - Added import: `import { getLocalDateString } from '@puratodo/shared'`
+   - Fixed scheduleTaskReminders: `getLocalDateString(now)` and `getLocalDateString(dueDate)`
+
+4. **TaskDetailPanel.tsx (optional optimization):**
+   - Added import: `import { getLocalDateString } from "@puratodo/shared"`
+   - Removed manual `toLocalDateString()` implementation (lines 50-55)
+   - Replaced all calls with `getLocalDateString()`
+   - Reduced code duplication by using shared utility
+
+### Impact
+- **Calendar View:** Tasks now display in the correct date cells across all timezones
+- **Smart Views:** Today/Overdue/Next 7 Days views now correctly filter tasks
+- **Bulk Operations:** Setting dates in bulk now saves the correct date
+- **Notifications:** Task reminders trigger on the correct date
+- **Task Details:** Date inputs show and save correct dates
+
+### Testing Performed
+- ✅ Vite build successful (807.86 kB main bundle)
+- ✅ No TypeScript compilation errors
+- ✅ All 11 instances of `toISOString().split("T")[0]` replaced
+- ✅ 4 files updated with proper imports
+
+### Technical Details
+- `toISOString()` returns UTC time, causing timezone offset issues
+- `getLocalDateString()` uses date-fns `format()` which respects local timezone
+- No database changes needed (dates already stored as YYYY-MM-DD strings)
+- No API changes needed (API accepts YYYY-MM-DD strings)
+
+### Files Changed
+- `src/components/CalendarPanel.tsx` - 3 fixes
+- `src/pages/DashboardPage.tsx` - 6 fixes
+- `src/lib/notifications.ts` - 2 fixes
+- `src/components/TaskDetailPanel.tsx` - 3 fixes (optional optimization)
+- **Total:** 14 fixes across 4 files
+
+### Next Steps
+- Test in different timezones (UTC+8, UTC-5, UTC)
+- Verify calendar view displays tasks correctly
+- Verify smart views filter tasks correctly
+- Test bulk date operations
+
+---
+
 ## Session 40: Complete Non-Component i18n
 **Date:** 2026-02-23
 

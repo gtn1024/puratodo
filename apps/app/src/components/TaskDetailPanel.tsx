@@ -3,6 +3,7 @@ import { Button } from "@puratodo/ui";
 import { CalendarIcon, Clock, FileText, X, Loader2, Star } from "lucide-react";
 import { useDataStore } from "@/stores/dataStore";
 import { useI18n } from "@/i18n";
+import { getLocalDateString } from "@puratodo/shared";
 
 interface TaskDetailPanelProps {
   taskId: string | null;
@@ -46,14 +47,6 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
     }
   }, [taskId, tasks]);
 
-  // Convert Date to local YYYY-MM-DD string (avoiding timezone issues)
-  const toLocalDateString = (date: Date): string => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-
   const handleSave = async () => {
     if (!task || !name.trim()) return;
 
@@ -61,8 +54,8 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
     try {
       await updateTask(task.id, {
         name: name.trim(),
-        due_date: dueDate ? toLocalDateString(dueDate) : null,
-        plan_date: planDate ? toLocalDateString(planDate) : null,
+        due_date: dueDate ? getLocalDateString(dueDate) : null,
+        plan_date: planDate ? getLocalDateString(planDate) : null,
         comment: comment.trim() || null,
         duration_minutes: durationMinutes ? parseInt(durationMinutes, 10) : null,
       });
@@ -214,7 +207,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
             </div>
             <input
               type="date"
-              value={dueDate ? toLocalDateString(dueDate) : ""}
+              value={dueDate ? getLocalDateString(dueDate) : ""}
               onChange={(e) => {
                 const newDate = e.target.value ? new Date(e.target.value) : undefined;
                 setDueDate(newDate);
@@ -244,7 +237,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
             </div>
             <input
               type="date"
-              value={planDate ? toLocalDateString(planDate) : ""}
+              value={planDate ? getLocalDateString(planDate) : ""}
               onChange={(e) => {
                 const newDate = e.target.value ? new Date(e.target.value) : undefined;
                 setPlanDate(newDate);

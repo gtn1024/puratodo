@@ -4,6 +4,7 @@ import {
   sendNotification,
 } from '@tauri-apps/plugin-notification';
 import { translate } from '@/i18n';
+import { getLocalDateString } from '@puratodo/shared';
 
 /**
  * Request notification permission from the user
@@ -85,7 +86,7 @@ export function scheduleTaskReminders(
 
   setInterval(async () => {
     const now = new Date();
-    const today = now.toISOString().split('T')[0];
+    const today = getLocalDateString(now);
     const currentTime = now.getHours() * 60 + now.getMinutes(); // Minutes since midnight
 
     for (const task of tasks) {
@@ -96,7 +97,7 @@ export function scheduleTaskReminders(
       if (!task.due_date) continue;
 
       const dueDate = new Date(task.due_date);
-      const dueDateStr = dueDate.toISOString().split('T')[0];
+      const dueDateStr = getLocalDateString(dueDate);
       const dueTime = dueDate.getHours() * 60 + dueDate.getMinutes();
 
       // Check if task is due today and within the next hour
