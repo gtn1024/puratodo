@@ -1,6 +1,7 @@
 import { TaskAdapter } from "@puratodo/api-types";
 import { tasksApi } from "../lib/api/tasks";
 import type { Task, TaskInsert, TaskUpdate } from "@puratodo/api-types";
+import { translate } from "../i18n";
 
 /**
  * RestTaskAdapter - Implements TaskAdapter interface using REST API
@@ -72,7 +73,7 @@ export const RestTaskAdapter: TaskAdapter = {
     // Get the first task to determine list_id and parent_id
     const firstTask = await this.getTask(taskIds[0]);
     if (!firstTask) {
-      throw new Error("Task not found");
+      throw new Error(translate("errors.taskNotFound"));
     }
 
     // Update sort_order for each task
