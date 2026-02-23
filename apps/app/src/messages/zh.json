@@ -10,7 +10,11 @@
     "close": "关闭",
     "loading": "加载中...",
     "error": "错误",
-    "success": "成功"
+    "success": "成功",
+    "saving": "保存中...",
+    "saveChanges": "保存更改",
+    "moving": "移动中...",
+    "moveList": "移动列表"
   },
   "auth": {
     "login": "登录",
@@ -86,7 +90,8 @@
     "calendar": "日历",
     "addGroup": "添加分组",
     "noGroups": "暂无分组",
-    "createFirstGroup": "创建你的第一个分组"
+    "createFirstGroup": "创建你的第一个分组",
+    "groupNamePlaceholder": "分组名称"
   },
   "listPanel": {
     "lists": "列表",
@@ -94,7 +99,8 @@
     "noLists": "该分组下暂无列表",
     "createFirstList": "创建你的第一个列表",
     "listName": "列表名称",
-    "selectIcon": "选择一个图标"
+    "selectIcon": "选择一个图标",
+    "listNamePlaceholder": "列表名称"
   },
   "taskPanel": {
     "tasks": "任务",
@@ -116,7 +122,9 @@
     "delete": "删除",
     "setDate": "设置日期",
     "cancel": "取消",
-    "tasksSelected": "个任务已选择"
+    "tasksSelected": "个任务已选择",
+    "taskNamePlaceholder": "输入任务名称...",
+    "subtaskNamePlaceholder": "子任务名称..."
   },
   "taskDetail": {
     "taskDetails": "任务详情",
@@ -159,12 +167,16 @@
     "scopeFuture": "当前及未来任务"
   },
   "filter": {
+    "filter": "筛选",
+    "status": "状态",
+    "star": "星标",
+    "date": "日期",
     "all": "全部",
     "completed": "已完成",
     "incomplete": "未完成",
     "starred": "已星标",
     "unstarred": "未星标",
-    "overdue": "已过期",
+    "overdue": "已逾期",
     "today": "今天",
     "upcoming": "即将到来",
     "noDueDate": "无截止日期"
@@ -311,6 +323,15 @@
     "deleteListDescription": "此操作无法撤销。该列表中的所有任务将被永久删除。",
     "deleteTask": "删除此任务？",
     "deleteTaskDescription": "此操作无法撤销。所有子任务也将被删除。"
+  },
+  "errors": {
+    "selectListFirst": "请先选择一个列表",
+    "moveTaskFailed": "移动任务失败。请重试。"
+  },
+  "about": {
+    "title": "PuraToDo v0.2.0",
+    "description": "支持无限层级子任务的任务管理应用。",
+    "builtWith": "使用 Tauri 2.0、React 和 Supabase 构建。"
   },
   "emptyStates": {
     "noTaskSelected": "未选择任务",

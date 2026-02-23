@@ -54,6 +54,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { useGroupRealtime, useListRealtime, useTaskRealtime } from "@/hooks/use-realtime";
 import { requestNotificationPermission, scheduleTaskReminders } from "@/lib/notifications";
+import { useI18n } from "@/i18n";
 import { useAuthStore } from "@/stores/authStore";
 import { useDataStore } from "@/stores/dataStore";
 import type { List as ListType } from "@/lib/api/lists";
@@ -80,19 +81,20 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import type { UniqueIdentifier } from "@dnd-kit/core";
 
-// Color options for groups
+// Color options for groups (names will be translated)
 const GROUP_COLORS = [
-  { name: "Violet", value: "#8b5cf6" },
-  { name: "Blue", value: "#3b82f6" },
-  { name: "Green", value: "#22c55e" },
-  { name: "Yellow", value: "#eab308" },
-  { name: "Orange", value: "#f97316" },
-  { name: "Red", value: "#ef4444" },
-  { name: "Pink", value: "#ec4899" },
-  { name: "Cyan", value: "#06b6d4" },
+  { name: "colors.violet", value: "#8b5cf6" },
+  { name: "colors.blue", value: "#3b82f6" },
+  { name: "colors.green", value: "#22c55e" },
+  { name: "colors.yellow", value: "#eab308" },
+  { name: "colors.orange", value: "#f97316" },
+  { name: "colors.red", value: "#ef4444" },
+  { name: "colors.pink", value: "#ec4899" },
+  { name: "colors.cyan", value: "#06b6d4" },
 ];
 
 export function DashboardPage() {
+  const { t } = useI18n();
   const { logout } = useAuth();
   const { resolvedTheme, setTheme } = useTheme();
   const { user, activeAccountId } = useAuthStore();
@@ -318,7 +320,7 @@ export function DashboardPage() {
   const handleDeleteGroup = async (groupId: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
     setContextMenu(null);
-    if (!confirm("Delete this group and all its lists?")) return;
+    if (!confirm(t("confirmDialogs.deleteGroup"))) return;
 
     try {
       await deleteGroup(groupId);
@@ -413,7 +415,7 @@ export function DashboardPage() {
   // Handle deleting a list
   const handleDeleteList = async (listId: string) => {
     setListContextMenu(null);
-    if (!confirm("Delete this list and all its tasks?")) return;
+    if (!confirm(t("confirmDialogs.deleteList"))) return;
 
     try {
       await deleteList(listId);
@@ -519,7 +521,7 @@ export function DashboardPage() {
 
   // Handle delete task
   const handleDeleteTask = async (taskId: string) => {
-    if (!confirm("Delete this task?")) return;
+    if (!confirm(t("confirmDialogs.deleteTask"))) return;
     try {
       await deleteTask(taskId);
       setTaskContextMenu(null);
@@ -539,7 +541,7 @@ export function DashboardPage() {
       }
     } catch (err) {
       console.error("Failed to move task:", err);
-      alert("Failed to move task. Please try again.");
+      alert(t("errors.moveTaskFailed"));
     }
   };
 
@@ -684,7 +686,7 @@ export function DashboardPage() {
       if ((e.metaKey || e.ctrlKey) && e.key === "n") {
         e.preventDefault();
         if (!selectedListId) {
-          alert("Please select a list first");
+          alert(t("errors.selectListFirst"));
           return;
         }
         setShowNewTaskInput(true);
@@ -701,7 +703,7 @@ export function DashboardPage() {
       import("@tauri-apps/api/event").then(({ listen }) => {
         const unlistenNewTask = listen("menu-new-task", () => {
           if (!selectedListId) {
-            alert("Please select a list first");
+            alert(t("errors.selectListFirst"));
             return;
           }
           setShowNewTaskInput(true);
@@ -717,7 +719,7 @@ export function DashboardPage() {
         });
 
         const unlistenAbout = listen("menu-about", () => {
-          alert("PuraToDo v0.2.0\nA task management app with infinite subtask nesting.\n\nBuilt with Tauri 2.0, React, and Supabase.");
+          alert(`${t("about.title")}\n${t("about.description")}\n\n${t("about.builtWith")}`);
         });
 
         // Deep link listener
@@ -917,21 +919,21 @@ export function DashboardPage() {
   // Get header title based on current view
   const getHeaderTitle = (): string => {
     if (currentView === 'today') {
-      return 'Today';
+      return t('sidebar.today');
     } else if (currentView === 'starred') {
-      return 'Starred';
+      return t('sidebar.starred');
     } else if (currentView === 'overdue') {
-      return 'Overdue';
+      return t('sidebar.overdue');
     } else if (currentView === 'next7days') {
-      return 'Next 7 Days';
+      return t('sidebar.next7Days');
     } else if (currentView === 'nodate') {
-      return 'No Date';
+      return t('sidebar.noDate');
     } else if (currentView === 'calendar') {
-      return 'Calendar';
+      return t('sidebar.calendar');
     } else if (selectedList) {
       return selectedList.name;
     }
-    return 'Today';
+    return t('sidebar.today');
   };
 
   // Get move targets for tasks (all lists except current)
@@ -1180,7 +1182,7 @@ export function DashboardPage() {
           <button
             onClick={() => {
               if (!selectedListId) {
-                alert("Please select a list first");
+                alert(t("errors.selectListFirst"));
                 return;
               }
               setShowNewTaskInput(true);
@@ -1312,7 +1314,7 @@ export function DashboardPage() {
                   type="text"
                   value={newGroupName}
                   onChange={(e) => setNewGroupName(e.target.value)}
-                  placeholder="Group name"
+                  placeholder={t("sidebar.groupNamePlaceholder")}
                   className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-stone-900 dark:text-stone-100 placeholder-stone-400"
                   autoFocus
                   onKeyDown={(e) => {
@@ -1446,7 +1448,7 @@ export function DashboardPage() {
                                       type="text"
                                       value={newListName}
                                       onChange={(e) => setNewListName(e.target.value)}
-                                      placeholder="List name"
+                                      placeholder={t("listPanel.listNamePlaceholder")}
                                       className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-stone-900 dark:text-stone-100 placeholder-stone-400"
                                       autoFocus
                                       onKeyDown={(e) => {
@@ -1580,7 +1582,7 @@ export function DashboardPage() {
           <button
             onClick={() => {
               if (!selectedListId) {
-                alert("Please select a list first");
+                alert(t("errors.selectListFirst"));
                 return;
               }
               setShowNewTaskInput(true);
@@ -1712,7 +1714,7 @@ export function DashboardPage() {
                   type="text"
                   value={newGroupName}
                   onChange={(e) => setNewGroupName(e.target.value)}
-                  placeholder="Group name"
+                  placeholder={t("sidebar.groupNamePlaceholder")}
                   className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-stone-900 dark:text-stone-100 placeholder-stone-400"
                   autoFocus
                   onKeyDown={(e) => {
@@ -1847,7 +1849,7 @@ export function DashboardPage() {
                                       type="text"
                                       value={newListName}
                                       onChange={(e) => setNewListName(e.target.value)}
-                                      placeholder="List name"
+                                      placeholder={t("listPanel.listNamePlaceholder")}
                                       className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-stone-900 dark:text-stone-100 placeholder-stone-400"
                                       autoFocus
                                       onKeyDown={(e) => {
@@ -1986,22 +1988,22 @@ export function DashboardPage() {
               value={filterValues}
               onChange={setFilterValues}
               labels={{
-                filter: "Filter",
-                status: "Status",
-                star: "Star",
-                date: "Date",
-                statusAll: "All",
-                statusIncomplete: "Incomplete",
-                statusCompleted: "Completed",
-                starAll: "All",
-                starred: "Starred",
-                unstarred: "Unstarred",
-                dateAll: "All",
-                overdue: "Overdue",
-                today: "Today",
-                next7Days: "Next 7 Days",
-                noDate: "No Date",
-                clearFilters: "Clear filters",
+                filter: t("filter.filter"),
+                status: t("filter.status"),
+                star: t("filter.star"),
+                date: t("filter.date"),
+                statusAll: t("filter.all"),
+                statusIncomplete: t("filter.incomplete"),
+                statusCompleted: t("filter.completed"),
+                starAll: t("filter.all"),
+                starred: t("filter.starred"),
+                unstarred: t("filter.unstarred"),
+                dateAll: t("filter.all"),
+                overdue: t("filter.overdue"),
+                today: t("filter.today"),
+                next7Days: t("filter.upcoming"),
+                noDate: t("filter.noDueDate"),
+                clearFilters: t("taskPanel.clearFilters"),
               }}
             />
             {/* Select mode button */}
@@ -2051,16 +2053,16 @@ export function DashboardPage() {
             onSetDate={() => setIsBulkDateDialogOpen(true)}
             onCancel={handleExitSelectionMode}
             labels={{
-              tasksSelected: "tasks selected",
-              selectAll: "Select All",
-              deselect: "Deselect",
-              complete: "Complete",
-              incomplete: "Incomplete",
-              star: "Star",
-              unstar: "Unstar",
-              delete: "Delete",
-              setDate: "Set Date",
-              cancel: "Cancel",
+              tasksSelected: t("taskPanel.tasksSelected"),
+              selectAll: t("taskPanel.selectAll"),
+              deselect: t("taskPanel.deselect"),
+              complete: t("taskPanel.complete"),
+              incomplete: t("taskPanel.incomplete"),
+              star: t("taskPanel.star"),
+              unstar: t("taskPanel.unstar"),
+              delete: t("taskPanel.delete"),
+              setDate: t("taskPanel.setDate"),
+              cancel: t("taskPanel.cancel"),
             }}
           />
         )}
@@ -2078,7 +2080,7 @@ export function DashboardPage() {
                       type="text"
                       value={newTaskName}
                       onChange={(e) => setNewTaskName(e.target.value)}
-                      placeholder="Enter task name..."
+                      placeholder={t("taskPanel.taskNamePlaceholder")}
                       className="flex-1 bg-transparent border-none outline-none text-stone-800 dark:text-stone-100 placeholder-stone-400"
                       autoFocus
                       onKeyDown={(e) => {
@@ -2148,7 +2150,7 @@ export function DashboardPage() {
                       setAddingSubtaskTo(null);
                     }
                   }}
-                  placeholder="Subtask name..."
+                  placeholder={t("taskPanel.subtaskNamePlaceholder")}
                   className="flex-1 bg-transparent outline-none text-stone-900 dark:text-stone-100 placeholder:text-stone-400"
                   autoFocus
                   disabled={isCreatingTask}
@@ -2398,7 +2400,7 @@ export function DashboardPage() {
                 type="text"
                 value={editGroupName}
                 onChange={(e) => setEditGroupName(e.target.value)}
-                placeholder="Enter group name"
+                placeholder={t("sidebar.groupNamePlaceholder")}
                 className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400"
                 autoFocus
                 onKeyDown={(e) => {
@@ -2435,7 +2437,7 @@ export function DashboardPage() {
               onClick={handleUpdateGroup}
               disabled={isUpdatingGroup || !editGroupName.trim()}
             >
-              {isUpdatingGroup ? "Saving..." : "Save Changes"}
+              {isUpdatingGroup ? t("common.saving") : t("common.saveChanges")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -2456,7 +2458,7 @@ export function DashboardPage() {
                 type="text"
                 value={editListName}
                 onChange={(e) => setEditListName(e.target.value)}
-                placeholder="Enter list name"
+                placeholder={t("listPanel.listNamePlaceholder")}
                 className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400"
                 autoFocus
                 onKeyDown={(e) => {
@@ -2476,7 +2478,7 @@ export function DashboardPage() {
               onClick={handleUpdateList}
               disabled={isUpdatingList || !editListName.trim()}
             >
-              {isUpdatingList ? "Saving..." : "Save Changes"}
+              {isUpdatingList ? t("common.saving") : t("common.saveChanges")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -2520,7 +2522,7 @@ export function DashboardPage() {
               onClick={handleMoveList}
               disabled={isMovingList || !targetGroupId || targetGroupId === movingList?.group_id}
             >
-              {isMovingList ? "Moving..." : "Move List"}
+              {isMovingList ? t("common.moving") : t("common.moveList")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -2539,7 +2541,7 @@ export function DashboardPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search tasks by name..."
+                placeholder={t("search.searchPlaceholder")}
                 className="w-full pl-10 pr-4 py-3 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400"
                 autoFocus
               />

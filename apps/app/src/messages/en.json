@@ -10,7 +10,11 @@
     "close": "Close",
     "loading": "Loading...",
     "error": "Error",
-    "success": "Success"
+    "success": "Success",
+    "saving": "Saving...",
+    "saveChanges": "Save Changes",
+    "moving": "Moving...",
+    "moveList": "Move List"
   },
   "auth": {
     "login": "Sign In",
@@ -86,7 +90,8 @@
     "calendar": "Calendar",
     "addGroup": "Add Group",
     "noGroups": "No groups yet",
-    "createFirstGroup": "Create your first group"
+    "createFirstGroup": "Create your first group",
+    "groupNamePlaceholder": "Group name"
   },
   "listPanel": {
     "lists": "Lists",
@@ -94,7 +99,8 @@
     "noLists": "No lists in this group yet",
     "createFirstList": "Create your first list",
     "listName": "List name",
-    "selectIcon": "Select an icon"
+    "selectIcon": "Select an icon",
+    "listNamePlaceholder": "List name"
   },
   "taskPanel": {
     "tasks": "Tasks",
@@ -116,7 +122,9 @@
     "delete": "Delete",
     "setDate": "Set date",
     "cancel": "Cancel",
-    "tasksSelected": "tasks selected"
+    "tasksSelected": "tasks selected",
+    "taskNamePlaceholder": "Enter task name...",
+    "subtaskNamePlaceholder": "Subtask name..."
   },
   "taskDetail": {
     "taskDetails": "Task Details",
@@ -159,6 +167,10 @@
     "scopeFuture": "This and future occurrences"
   },
   "filter": {
+    "filter": "Filter",
+    "status": "Status",
+    "star": "Star",
+    "date": "Date",
     "all": "All",
     "completed": "Completed",
     "incomplete": "Incomplete",
@@ -311,6 +323,15 @@
     "deleteListDescription": "This action cannot be undone. All tasks in this list will be permanently deleted.",
     "deleteTask": "Delete this task?",
     "deleteTaskDescription": "This action cannot be undone. All subtasks will also be deleted."
+  },
+  "errors": {
+    "selectListFirst": "Please select a list first",
+    "moveTaskFailed": "Failed to move task. Please try again."
+  },
+  "about": {
+    "title": "PuraToDo v0.2.0",
+    "description": "A task management app with infinite subtask nesting.",
+    "builtWith": "Built with Tauri 2.0, React, and Supabase."
   },
   "emptyStates": {
     "noTaskSelected": "No Task Selected",

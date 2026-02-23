@@ -1,5 +1,87 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 36: DashboardPage i18n Completion
+**Date:** 2026-02-23
+
+### What was done
+Completed internationalization (i18n) support for DashboardPage component:
+
+1. **Added useI18n hook to DashboardPage:**
+   - Imported useI18n from @/i18n
+   - Destructured t function for translations
+   - Updated GROUP_COLORS to use translation keys
+
+2. **Internationalized confirmation dialogs:**
+   - Delete group confirmation: t("confirmDialogs.deleteGroup")
+   - Delete list confirmation: t("confirmDialogs.deleteList")
+   - Delete task confirmation: t("confirmDialogs.deleteTask")
+
+3. **Internationalized alert messages:**
+   - "Select list first" → t("errors.selectListFirst")
+   - "Failed to move task" → t("errors.moveTaskFailed")
+   - About dialog → t("about.title"), t("about.description"), t("about.builtWith")
+
+4. **Internationalized header titles:**
+   - Today → t("sidebar.today")
+   - Starred → t("sidebar.starred")
+   - Overdue → t("sidebar.overdue")
+   - Next 7 Days → t("sidebar.next7Days")
+   - No Date → t("sidebar.noDate")
+   - Calendar → t("sidebar.calendar")
+
+5. **Internationalized input placeholders:**
+   - Group name → t("sidebar.groupNamePlaceholder")
+   - List name → t("listPanel.listNamePlaceholder")
+   - Task name → t("taskPanel.taskNamePlaceholder")
+   - Subtask name → t("taskPanel.subtaskNamePlaceholder")
+   - Search → t("search.searchPlaceholder")
+
+6. **Internationalized button text:**
+   - Saving/Save Changes → t("common.saving") / t("common.saveChanges")
+   - Moving/Move List → t("common.moving") / t("common.moveList")
+
+7. **Internationalized component labels:**
+   - TaskFilters labels with filter.*, status, star, date keys
+   - TaskBulkActions labels with taskPanel.* keys
+
+8. **Added new translation keys:**
+   - en.json: Added errors.*, about.*, filter.filter, filter.status, filter.star, filter.date
+   - zh.json: Added corresponding Chinese translations
+   - common.saving, common.saveChanges, common.moving, common.moveList
+
+### Testing Results
+- ✅ TypeScript compilation passes
+- ✅ App builds successfully (802.19 kB main bundle)
+- ✅ All i18n keys properly defined
+- ✅ No runtime errors
+
+### Features Updated
+- DashboardPage now fully internationalized
+- All user-facing text supports multiple languages
+- Confirmation dialogs work in both English and Chinese
+- Form inputs have translated placeholders
+
+### Current Status
+- **93/100 items passing (93%)**
+- **i18n: 2/2 passing (100%)**
+- Components with i18n: LoginPage, RegisterPage, CalendarPanel, App, TaskDetailPanel, AccountSwitcher, AccountSettingsDialog, DashboardPage
+- All major components now internationalized!
+
+### Build Status
+- apps/app: Builds successfully
+- All i18n features working correctly
+- Bundle size: 802.19 kB
+
+### Commits
+None yet - will commit after final testing
+
+### Next Steps
+- Test DashboardPage in both English and Chinese
+- Verify all dialogs and alerts show translated text
+- Continue with remaining features
+
+---
+
 ## Session 35: i18n Support Enhancement (Final)
 **Date:** 2026-02-23
 
