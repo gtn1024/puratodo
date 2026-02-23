@@ -1,4 +1,5 @@
 import { getApiUrl } from "./config";
+import { translate } from "@/i18n";
 
 export interface ApiError {
   message: string;
@@ -93,7 +94,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
   const isJson = contentType?.includes("application/json");
 
   if (!response.ok) {
-    let errorMessage = "An error occurred";
+    let errorMessage = translate("errors.anErrorOccurred");
     let errors: Record<string, string[]> | undefined;
 
     if (isJson) {

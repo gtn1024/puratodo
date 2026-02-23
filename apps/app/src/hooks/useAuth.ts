@@ -4,6 +4,7 @@ import { authApi, type LoginCredentials, type RegisterCredentials } from "@/lib/
 import { ApiException } from "@/lib/api/client";
 import { getPendingApiUrl, setPendingApiUrl } from "@/lib/api/config";
 import { clearSupabaseClient } from "@/lib/supabase/client";
+import { useI18n } from "@/i18n";
 
 interface UseAuthReturn {
   login: (credentials: LoginCredentials) => Promise<{ success: boolean; error?: string }>;
@@ -19,6 +20,7 @@ export function useAuth(): UseAuthReturn {
   const { login: setLogin, logout: setLogout, signOutCurrentAccount, setCurrentServerUrl } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useI18n();
 
   const login = useCallback(async (credentials: LoginCredentials) => {
     setIsLoading(true);
@@ -43,13 +45,13 @@ export function useAuth(): UseAuthReturn {
       const message =
         err instanceof ApiException
           ? err.message
-          : "An error occurred during login";
+          : t("errors.loginFailed");
       setError(message);
       return { success: false, error: message };
     } finally {
       setIsLoading(false);
     }
-  }, [setLogin, setCurrentServerUrl]);
+  }, [setLogin, setCurrentServerUrl, t]);
 
   const register = useCallback(async (credentials: RegisterCredentials) => {
     setIsLoading(true);
@@ -74,13 +76,13 @@ export function useAuth(): UseAuthReturn {
       const message =
         err instanceof ApiException
           ? err.message
-          : "An error occurred during registration";
+          : t("errors.registrationFailed");
       setError(message);
       return { success: false, error: message };
     } finally {
       setIsLoading(false);
     }
-  }, [setLogin, setCurrentServerUrl]);
+  }, [setLogin, setCurrentServerUrl, t]);
 
   const logout = useCallback(async () => {
     setIsLoading(true);

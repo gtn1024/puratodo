@@ -16,6 +16,39 @@ const messages: Record<Locale, Messages> = {
   zh: zhMessages,
 };
 
+/**
+ * Get the current locale from localStorage or default to browser language
+ */
+function getCurrentLocale(): Locale {
+  const savedLocale = localStorage.getItem("locale") as Locale;
+  if (savedLocale && (savedLocale === "en" || savedLocale === "zh")) {
+    return savedLocale;
+  }
+  // Default to browser language or English
+  return navigator.language.startsWith("zh") ? "zh" : "en";
+}
+
+/**
+ * Translate a key using the current locale from localStorage
+ * This can be used outside of React components
+ */
+export function translate(key: string, locale?: Locale): string {
+  const currentLocale = locale ?? getCurrentLocale();
+  const keys = key.split(".");
+  let value: unknown = messages[currentLocale];
+
+  for (const k of keys) {
+    if (value && typeof value === "object" && k in value) {
+      value = (value as Record<string, unknown>)[k];
+    } else {
+      console.warn(`Translation key not found: ${key}`);
+      return key;
+    }
+  }
+
+  return typeof value === "string" ? value : key;
+}
+
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {

@@ -1,5 +1,57 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 40: Complete Non-Component i18n
+**Date:** 2026-02-23
+
+### What was done
+Extended i18n support to non-component files (utilities, hooks, stores) that had hardcoded strings:
+
+1. **Enhanced i18n System (i18n/index.tsx):**
+   - Added `translate()` function for use outside React components
+   - Reads locale directly from localStorage
+   - Can be imported by stores, API clients, and utility functions
+
+2. **notifications.ts - Notification Strings:**
+   - Title: "PuraToDo Reminder" → translate("reminder.notificationTitle")
+   - Body prefix: "Task:" → translate("reminder.task")
+   - Due prefix: "Due:" → translate("reminder.due")
+   - Overdue prefix: "Overdue:" → translate("reminder.overdue")
+
+3. **useAuth.ts - Auth Error Messages:**
+   - Added useI18n hook
+   - Login error: "An error occurred during login" → t("errors.loginFailed")
+   - Registration error: "An error occurred during registration" → t("errors.registrationFailed")
+
+4. **dataStore.ts - Data Operation Errors:**
+   - All 17 hardcoded error messages now use translate()
+   - fetchGroupsFailed, createGroupFailed, updateGroupFailed, etc.
+   - All CRUD operations for groups, lists, and tasks now have localized error messages
+
+5. **lib/api/client.ts - API Error Fallback:**
+   - Default error: "An error occurred" → translate("errors.anErrorOccurred")
+
+6. **Translation Keys Added:**
+   - reminder.notificationTitle - "PuraToDo Reminder" / "PuraToDo 提醒"
+   - reminder.task - "Task" / "任务"
+   - reminder.due - "Due" / "截止"
+   - reminder.overdue - "Overdue" / "已过期"
+   - errors.anErrorOccurred - "An error occurred" / "发生错误"
+   - errors.loginFailed - "An error occurred during login" / "登录时发生错误"
+   - errors.registrationFailed - "An error occurred during registration" / "注册时发生错误"
+   - errors.fetchGroupsFailed, createGroupFailed, updateGroupFailed, etc. (17 data store error keys)
+
+### Build Status
+- ✅ Vite build successful (808.20 kB main bundle)
+- ✅ TypeScript compilation passes
+- ✅ No missing translation warnings
+
+### Current Status
+- **i18n: 2/2 passing (100%)** - Features 68 & 69
+- All user-facing text (components and utilities) is now fully internationalized
+- Language switching works correctly across entire app
+
+---
+
 ## Session 39: Complete Remaining Components i18n
 **Date:** 2026-02-23
 

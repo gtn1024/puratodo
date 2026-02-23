@@ -3,6 +3,7 @@ import {
   requestPermission,
   sendNotification,
 } from '@tauri-apps/plugin-notification';
+import { translate } from '@/i18n';
 
 /**
  * Request notification permission from the user
@@ -45,15 +46,15 @@ export async function sendTaskReminder(
       return false;
     }
 
-    // Create notification body
-    let body = `Task: ${taskName}`;
+    // Create notification body with i18n
+    let body = `${translate('reminder.task')}: ${taskName}`;
     if (dueDate) {
-      body += `\nDue: ${dueDate}`;
+      body += `\n${translate('reminder.due')}: ${dueDate}`;
     }
 
-    // Send notification
+    // Send notification with i18n title
     sendNotification({
-      title: 'PuraToDo Reminder',
+      title: translate('reminder.notificationTitle'),
       body,
       // Note: icon and sound are optional and platform-specific
     });
@@ -137,7 +138,7 @@ export async function notifyOverdueTask(task: {
     await sendTaskReminder(
       task.name,
       task.id,
-      `Overdue: ${dueDate.toLocaleDateString()}`
+      `${translate('reminder.overdue')}: ${dueDate.toLocaleDateString()}`
     );
   }
 }

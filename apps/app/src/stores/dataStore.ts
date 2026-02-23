@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { groupsApi, type Group, type CreateGroupInput, type UpdateGroupInput } from "@/lib/api/groups";
 import { listsApi, type List, type CreateListInput, type UpdateListInput } from "@/lib/api/lists";
 import { tasksApi, type Task, type CreateTaskInput, type UpdateTaskInput } from "@/lib/api/tasks";
+import { translate } from "@/i18n";
 
 interface DataState {
   groups: Group[];
@@ -52,7 +53,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       groups.sort((a, b) => a.sort_order - b.sort_order);
       set({ groups, error: null });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to fetch groups";
+      const message = error instanceof Error ? error.message : translate("errors.fetchGroupsFailed");
       set({ error: message });
       throw error;
     }
@@ -84,7 +85,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       set({ groups: updatedGroups, error: null });
       return group;
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to create group";
+      const message = error instanceof Error ? error.message : translate("errors.createGroupFailed");
       // Rollback: remove temp group
       set({ groups: previousGroups, error: message });
       throw error;
@@ -109,7 +110,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       set({ groups, error: null });
       return updatedGroup;
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to update group";
+      const message = error instanceof Error ? error.message : translate("errors.updateGroupFailed");
       // Rollback: restore previous groups
       set({ groups: previousGroups, error: message });
       throw error;
@@ -158,7 +159,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       mergedGroups.sort((a, b) => a.sort_order - b.sort_order);
       set({ groups: mergedGroups, error: null });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to reorder groups";
+      const message = error instanceof Error ? error.message : translate("errors.reorderGroupsFailed");
       set({ groups: previousGroups, error: message });
       throw error;
     }
@@ -184,7 +185,7 @@ export const useDataStore = create<DataState>((set, get) => ({
     try {
       await groupsApi.delete(id);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to delete group";
+      const message = error instanceof Error ? error.message : translate("errors.deleteGroupFailed");
       // Rollback: restore all deleted items
       set({ groups: previousGroups, lists: previousLists, tasks: previousTasks, error: message });
       throw error;
@@ -198,7 +199,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       lists.sort((a, b) => a.sort_order - b.sort_order);
       set({ lists, error: null });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to fetch lists";
+      const message = error instanceof Error ? error.message : translate("errors.fetchListsFailed");
       set({ error: message });
       throw error;
     }
@@ -231,7 +232,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       set({ lists: updatedLists, error: null });
       return list;
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to create list";
+      const message = error instanceof Error ? error.message : translate("errors.createListFailed");
       // Rollback: remove temp list
       set({ lists: previousLists, error: message });
       throw error;
@@ -256,7 +257,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       set({ lists, error: null });
       return updatedList;
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to update list";
+      const message = error instanceof Error ? error.message : translate("errors.updateListFailed");
       // Rollback: restore previous lists
       set({ lists: previousLists, error: message });
       throw error;
@@ -281,7 +282,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       set({ lists, error: null });
       return updatedList;
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to move list";
+      const message = error instanceof Error ? error.message : translate("errors.moveListFailed");
       // Rollback: restore previous lists
       set({ lists: previousLists, error: message });
       throw error;
@@ -337,7 +338,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       mergedLists.sort((a, b) => a.sort_order - b.sort_order);
       set({ lists: mergedLists, error: null });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to reorder lists";
+      const message = error instanceof Error ? error.message : translate("errors.reorderListsFailed");
       set({ lists: previousLists, error: message });
       throw error;
     }
@@ -356,7 +357,7 @@ export const useDataStore = create<DataState>((set, get) => ({
     try {
       await listsApi.delete(id);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to delete list";
+      const message = error instanceof Error ? error.message : translate("errors.deleteListFailed");
       // Rollback: restore list and tasks
       set({ lists: previousLists, tasks: previousTasks, error: message });
       throw error;
@@ -375,7 +376,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       });
       set({ tasks, error: null });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to fetch tasks";
+      const message = error instanceof Error ? error.message : translate("errors.fetchTasksFailed");
       set({ error: message });
       throw error;
     }
@@ -411,7 +412,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       set({ tasks: updatedTasks, error: null });
       return newTask;
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to create task";
+      const message = error instanceof Error ? error.message : translate("errors.createTaskFailed");
       // Rollback: remove temp task
       set({ tasks: previousTasks, error: message });
       throw error;
@@ -433,7 +434,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       set({ tasks, error: null });
       return updatedTask;
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to update task";
+      const message = error instanceof Error ? error.message : translate("errors.updateTaskFailed");
       // Rollback: restore previous tasks
       set({ tasks: previousTasks, error: message });
       throw error;
@@ -450,7 +451,7 @@ export const useDataStore = create<DataState>((set, get) => ({
     try {
       await tasksApi.delete(id);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to delete task";
+      const message = error instanceof Error ? error.message : translate("errors.deleteTaskFailed");
       // Rollback: restore previous tasks
       set({ tasks: previousTasks, error: message });
       throw error;
@@ -472,7 +473,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       set({ tasks, error: null });
       return updatedTask;
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to move task";
+      const message = error instanceof Error ? error.message : translate("errors.moveTaskFailedStore");
       // Rollback: restore previous tasks
       set({ tasks: previousTasks, error: message });
       throw error;
@@ -528,7 +529,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       mergedTasks.sort((a, b) => a.sort_order - b.sort_order);
       set({ tasks: mergedTasks, error: null });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to reorder tasks";
+      const message = error instanceof Error ? error.message : translate("errors.reorderTasksFailed");
       set({ tasks: previousTasks, error: message });
       throw error;
     }
