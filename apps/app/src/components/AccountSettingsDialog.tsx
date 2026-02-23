@@ -100,14 +100,14 @@ export function AccountSettingsDialog({
   const handleAddAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password) {
-      setError("Please provide email and password");
+      setError(t("account.provideCredentials"));
       return;
     }
 
     // Validate server URL if provided
     const normalizedServerUrl = serverUrl.trim() ? normalizeApiUrl(serverUrl) : "";
     if (normalizedServerUrl && !isValidApiUrl(normalizedServerUrl)) {
-      setError("Please enter a valid server URL starting with http:// or https://");
+      setError(t("account.enterValidUrl"));
       return;
     }
 
@@ -130,7 +130,7 @@ export function AccountSettingsDialog({
         setCurrentServerUrl(normalizedServerUrl);
       }
 
-      setSuccess("Account added successfully");
+      setSuccess(t("account.addSuccess"));
       setEmail("");
       setPassword("");
       setServerUrl("");
@@ -141,7 +141,7 @@ export function AccountSettingsDialog({
       const message =
         err instanceof ApiException
           ? err.message
-          : "Failed to add account";
+          : t("account.addFailed");
       setError(message);
     } finally {
       setIsSubmitting(false);
@@ -153,7 +153,7 @@ export function AccountSettingsDialog({
     setSuccess(null);
     switchAccount(accountId);
     await onAccountChanged?.();
-    setSuccess("Switched account");
+    setSuccess(t("account.switchSuccess"));
   };
 
   const handleRemoveAccount = (accountId: string) => {
@@ -168,7 +168,7 @@ export function AccountSettingsDialog({
     removeAccount(deleteAccountId);
     setDeleteAccountId(null);
     await onAccountChanged?.();
-    setSuccess("Account removed");
+    setSuccess(t("account.removeSuccess"));
   };
 
   const cancelRemoveAccount = () => {
@@ -194,7 +194,7 @@ export function AccountSettingsDialog({
     const shouldUseDefault = normalizedUrl.length === 0 || normalizedUrl === DEFAULT_API_URL;
 
     if (!shouldUseDefault && !isValidApiUrl(normalizedUrl)) {
-      setError("Invalid server URL");
+      setError(t("account.invalidUrl"));
       return;
     }
 
@@ -212,7 +212,7 @@ export function AccountSettingsDialog({
 
     setEditingServerUrlAccountId(null);
     setEditingServerUrlValue("");
-    setSuccess("Server URL updated");
+    setSuccess(t("account.urlUpdated"));
   };
 
   return (
@@ -223,10 +223,10 @@ export function AccountSettingsDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            <span>Account Settings</span>
+            <span>{t("account.title")}</span>
           </DialogTitle>
           <DialogDescription>
-            Manage multiple signed-in accounts. Each account has its own API server URL.
+            {t("account.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -234,7 +234,7 @@ export function AccountSettingsDialog({
           <div className="space-y-2">
             {sortedAccounts.length === 0 && (
               <p className="rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-500 dark:border-stone-700 dark:text-stone-400">
-                No accounts saved yet.
+                {t("account.noAccounts")}
               </p>
             )}
 
@@ -253,7 +253,7 @@ export function AccountSettingsDialog({
                         {account.user.email}
                       </p>
                       <p className="text-xs text-stone-500 dark:text-stone-400">
-                        {isActive ? "Current account" : "Saved account"}
+                        {isActive ? t("account.currentAccount") : t("account.savedAccount")}
                       </p>
                     </div>
 
@@ -264,12 +264,12 @@ export function AccountSettingsDialog({
                           size="sm"
                           onClick={() => handleSwitchAccount(account.id)}
                         >
-                          Switch
+                          {t("account.switch")}
                         </Button>
                       )}
                       {isActive && (
                         <span className="inline-flex items-center rounded-md bg-green-100 px-2 py-1 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-300">
-                          Active
+                          {t("account.active")}
                         </span>
                       )}
                       <Button
@@ -278,7 +278,7 @@ export function AccountSettingsDialog({
                         className="text-stone-400 hover:text-red-500"
                         onClick={() => handleRemoveAccount(account.id)}
                         disabled={sortedAccounts.length === 1}
-                        title={sortedAccounts.length === 1 ? "At least one account is required" : "Remove account"}
+                        title={sortedAccounts.length === 1 ? t("account.atLeastOne") : t("account.remove")}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -289,7 +289,7 @@ export function AccountSettingsDialog({
                   <div className="mt-2 pt-2 border-t border-stone-100 dark:border-stone-800">
                     <div className="flex items-center gap-2 text-xs text-stone-500 dark:text-stone-400">
                       <Server className="h-3 w-3" />
-                      <span>Server:</span>
+                      <span>{t("account.server")}</span>
                     </div>
                     {isEditingServer ? (
                       <div className="flex items-center gap-2 mt-1">
@@ -331,7 +331,7 @@ export function AccountSettingsDialog({
                           onClick={() => startEditServerUrl(account)}
                           className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400"
                         >
-                          Edit
+                          {t("account.edit")}
                         </button>
                       </div>
                     )}
@@ -380,7 +380,7 @@ export function AccountSettingsDialog({
               }}
             >
               <UserPlus className="h-4 w-4" />
-              <span>Add New Account</span>
+              <span>{t("account.addNew")}</span>
             </Button>
           )}
 
@@ -390,7 +390,7 @@ export function AccountSettingsDialog({
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Account email"
+                placeholder={t("account.email")}
                 icon={<Mail className="h-4 w-4" />}
                 disabled={isSubmitting}
                 autoFocus
@@ -399,7 +399,7 @@ export function AccountSettingsDialog({
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
+                placeholder={t("account.password")}
                 icon={<Lock className="h-4 w-4" />}
                 disabled={isSubmitting}
               />
@@ -407,7 +407,7 @@ export function AccountSettingsDialog({
                 type="url"
                 value={serverUrl}
                 onChange={(e) => setServerUrl(e.target.value)}
-                placeholder={`API Server URL (default: ${DEFAULT_API_URL})`}
+                placeholder={t("account.defaultUrl")}
                 icon={<Server className="h-4 w-4" />}
                 disabled={isSubmitting}
               />
@@ -429,7 +429,7 @@ export function AccountSettingsDialog({
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Adding..." : "Sign in and Add"}
+                  {isSubmitting ? t("account.adding") : t("account.signIn")}
                 </Button>
               </div>
             </form>
@@ -458,10 +458,10 @@ export function AccountSettingsDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
             <AlertCircle className="h-5 w-5" />
-            <span>Remove Account</span>
+            <span>{t("account.removeTitle")}</span>
           </DialogTitle>
           <DialogDescription>
-            Are you sure you want to remove <strong>{accountToDelete?.user.email}</strong>? You can add this account again later.
+            {t("account.removeConfirm")}
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-end gap-2 pt-2">
@@ -472,7 +472,7 @@ export function AccountSettingsDialog({
             variant="destructive"
             onClick={confirmRemoveAccount}
           >
-            Remove
+            {t("account.remove")}
           </Button>
         </div>
       </DialogContent>
