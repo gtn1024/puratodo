@@ -1528,7 +1528,7 @@ export function DashboardPage() {
                     variant="ghost"
                     size="icon"
                     className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
-                    title="Account Settings"
+                    title={t("account.accountSettings")}
                   >
                     <Users className="w-4 h-4" />
                   </Button>
@@ -1539,7 +1539,7 @@ export function DashboardPage() {
                 size="icon"
                 onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
                 className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
-                title={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                title={resolvedTheme === "dark" ? t("account.switchToLightMode") : t("account.switchToDarkMode")}
               >
                 {resolvedTheme === "dark" ? (
                   <Sun className="w-4 h-4" />
@@ -1929,7 +1929,7 @@ export function DashboardPage() {
                     variant="ghost"
                     size="icon"
                     className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
-                    title="Account Settings"
+                    title={t("account.accountSettings")}
                   >
                     <Users className="w-4 h-4" />
                   </Button>
@@ -1940,7 +1940,7 @@ export function DashboardPage() {
                 size="icon"
                 onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
                 className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
-                title={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                title={resolvedTheme === "dark" ? t("account.switchToLightMode") : t("account.switchToDarkMode")}
               >
                 {resolvedTheme === "dark" ? (
                   <Sun className="w-4 h-4" />
@@ -2238,21 +2238,21 @@ export function DashboardPage() {
                   </div>
                   <h2 className="text-lg font-medium text-stone-900 dark:text-stone-100 mb-2">
                     {isLoadingTasks
-                      ? "Loading tasks..."
+                      ? t("emptyStates.loadingTasks")
                       : currentView === 'today'
-                      ? "No tasks for today"
+                      ? t("emptyStates.noTasksForToday")
                       : currentView === 'starred'
-                      ? "No starred tasks"
+                      ? t("emptyStates.noStarredTasks")
                       : selectedList
-                      ? `No tasks in "${selectedList.name}"`
-                      : "No tasks yet"}
+                      ? t("emptyStates.noTasksInList").replace("{name}", selectedList.name)
+                      : t("emptyStates.noTasksYet")}
                   </h2>
                   <p className="text-stone-500 dark:text-stone-400 mb-6">
                     {currentView === 'today'
-                      ? "Tasks with due date or planned date of today will appear here"
+                      ? t("emptyStates.todayHint")
                       : currentView === 'starred'
-                      ? "Star important tasks to see them here"
-                      : "Get started by creating your first task"}
+                      ? t("emptyStates.starredHint")
+                      : t("emptyStates.getStarted")}
                   </p>
                   {showAddTask && (
                     <Button
@@ -2260,7 +2260,7 @@ export function DashboardPage() {
                       className="gap-2"
                     >
                       <Plus className="w-4 h-4" />
-                      <span>Create Task</span>
+                      <span>{t("taskPanel.createTask")}</span>
                     </Button>
                   )}
                 </div>

@@ -124,7 +124,8 @@
     "cancel": "取消",
     "tasksSelected": "个任务已选择",
     "taskNamePlaceholder": "输入任务名称...",
-    "subtaskNamePlaceholder": "子任务名称..."
+    "subtaskNamePlaceholder": "子任务名称...",
+    "createTask": "创建任务"
   },
   "taskDetail": {
     "taskDetails": "任务详情",
@@ -273,7 +274,10 @@
     "accounts": "账户",
     "addAccount": "添加新账户",
     "manageAccounts": "管理账户",
-    "signOut": "退出登录"
+    "signOut": "退出登录",
+    "accountSettings": "账户设置",
+    "switchToLightMode": "切换到浅色模式",
+    "switchToDarkMode": "切换到深色模式"
   },
   "app": {
     "loading": "加载中...",
@@ -335,7 +339,15 @@
   },
   "emptyStates": {
     "noTaskSelected": "未选择任务",
-    "clickTaskToView": "点击任务以在此处查看和编辑其详细信息"
+    "clickTaskToView": "点击任务以在此处查看和编辑其详细信息",
+    "loadingTasks": "加载任务中...",
+    "noTasksForToday": "今天没有任务",
+    "noStarredTasks": "没有星标任务",
+    "noTasksInList": "\"{name}\" 中没有任务",
+    "noTasksYet": "还没有任务",
+    "todayHint": "今天截止或计划的任务会显示在这里",
+    "starredHint": "星标重要任务以在这里查看",
+    "getStarted": "创建你的第一个任务开始吧"
   },
   "taskDetail": {
     "taskDetails": "任务详情",

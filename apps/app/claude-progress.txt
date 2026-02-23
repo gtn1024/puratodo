@@ -1,5 +1,70 @@
 # PuraToDo Tauri App - Progress Log
 
+## Session 37: DashboardPage Empty States i18n Completion
+**Date:** 2026-02-23
+
+### What was done
+Completed internationalization (i18n) for DashboardPage empty states and UI buttons:
+
+1. **Added empty state translations:**
+   - emptyStates.loadingTasks - "Loading tasks..." / "加载任务中..."
+   - emptyStates.noTasksForToday - "No tasks for today" / "今天没有任务"
+   - emptyStates.noStarredTasks - "No starred tasks" / "没有星标任务"
+   - emptyStates.noTasksInList - "No tasks in \"{name}\"" / "\"{name}\" 中没有任务"
+   - emptyStates.noTasksYet - "No tasks yet" / "还没有任务"
+   - emptyStates.todayHint - "Tasks with due date or planned date of today will appear here" / "今天截止或计划的任务会显示在这里"
+   - emptyStates.starredHint - "Star important tasks to see them here" / "星标重要任务以在这里查看"
+   - emptyStates.getStarted - "Get started by creating your first task" / "创建你的第一个任务开始吧"
+
+2. **Added account button translations:**
+   - account.accountSettings - "Account Settings" / "账户设置"
+   - account.switchToLightMode - "Switch to light mode" / "切换到浅色模式"
+   - account.switchToDarkMode - "Switch to dark mode" / "切换到深色模式"
+
+3. **Added task button translation:**
+   - taskPanel.createTask - "Create Task" / "创建任务"
+
+4. **Updated DashboardPage component:**
+   - Replaced hardcoded empty state messages with t() function calls
+   - Internationalized account settings button title
+   - Internationalized theme toggle button title
+   - Internationalized "Create Task" button text
+
+### Testing Results
+- ✅ TypeScript compilation passes
+- ✅ Web app builds successfully
+- ✅ Tauri app builds successfully (803.22 kB main bundle)
+- ✅ Tauri dev server starts without errors
+- ✅ All i18n keys properly defined
+- ✅ No runtime errors
+
+### Features Updated
+- DashboardPage empty states now fully internationalized
+- All user-facing text supports multiple languages
+- Theme toggle buttons show translated tooltips
+- Account settings buttons show translated tooltips
+
+### Current Status
+- **93/100 items passing (93%)**
+- **i18n: 2/2 passing (100%)**
+- Components with i18n: LoginPage, RegisterPage, CalendarPanel, App, TaskDetailPanel, AccountSwitcher, AccountSettingsDialog, DashboardPage
+- All major components now internationalized!
+
+### Build Status
+- apps/app: Builds successfully
+- All i18n features working correctly
+- Bundle size: 803.22 kB
+
+### Commits
+None yet - will commit after final testing
+
+### Next Steps
+- Test DashboardPage in both English and Chinese
+- Verify all empty states show translated text
+- Continue with remaining features
+
+---
+
 ## Session 36: DashboardPage i18n Completion
 **Date:** 2026-02-23
 

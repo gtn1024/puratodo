@@ -124,7 +124,8 @@
     "cancel": "Cancel",
     "tasksSelected": "tasks selected",
     "taskNamePlaceholder": "Enter task name...",
-    "subtaskNamePlaceholder": "Subtask name..."
+    "subtaskNamePlaceholder": "Subtask name...",
+    "createTask": "Create Task"
   },
   "taskDetail": {
     "taskDetails": "Task Details",
@@ -273,7 +274,10 @@
     "accounts": "Accounts",
     "addAccount": "Add new account",
     "manageAccounts": "Manage accounts",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "accountSettings": "Account Settings",
+    "switchToLightMode": "Switch to light mode",
+    "switchToDarkMode": "Switch to dark mode"
   },
   "app": {
     "loading": "Loading...",
@@ -335,7 +339,15 @@
   },
   "emptyStates": {
     "noTaskSelected": "No Task Selected",
-    "clickTaskToView": "Click on a task to view and edit its details here"
+    "clickTaskToView": "Click on a task to view and edit its details here",
+    "loadingTasks": "Loading tasks...",
+    "noTasksForToday": "No tasks for today",
+    "noStarredTasks": "No starred tasks",
+    "noTasksInList": "No tasks in \"{name}\"",
+    "noTasksYet": "No tasks yet",
+    "todayHint": "Tasks with due date or planned date of today will appear here",
+    "starredHint": "Star important tasks to see them here",
+    "getStarted": "Get started by creating your first task"
   },
   "taskDetail": {
     "taskDetails": "Task Details",
