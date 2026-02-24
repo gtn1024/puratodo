@@ -25,6 +25,7 @@ export interface TaskFiltersProps {
   value: TaskFiltersValue;
   onChange: (filters: TaskFiltersValue) => void;
   labels: {
+    status: string;
     all: string;
     incomplete: string;
     completed: string;
@@ -68,7 +69,7 @@ export function TaskFilters({ value, onChange, labels }: TaskFiltersProps) {
       <DropdownMenuContent align="end" className="w-48">
         {/* Status Filter */}
         <div className="px-2 py-1.5 text-xs font-semibold text-stone-500 dark:text-stone-400">
-          Status
+          {labels.status}
         </div>
         <DropdownMenuItem
           onClick={() => onChange({ ...value, status: "all" })}

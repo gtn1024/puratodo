@@ -213,6 +213,7 @@
     }
   },
   "filter": {
+    "status": "状态",
     "all": "全部",
     "completed": "已完成",
     "incomplete": "未完成",

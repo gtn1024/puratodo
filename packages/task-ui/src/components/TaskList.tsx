@@ -124,6 +124,8 @@ export interface TaskListProps {
   isSelectionMode?: boolean;
   selectedTaskIds?: Set<string>;
   onToggleSelect?: (taskId: string) => void;
+  // Translation labels for i18n
+  labels?: TaskItemProps["labels"];
 }
 
 export function TaskList({
@@ -152,6 +154,7 @@ export function TaskList({
   isSelectionMode,
   selectedTaskIds,
   onToggleSelect,
+  labels,
 }: TaskListProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -242,6 +245,7 @@ export function TaskList({
             isSelectionMode={isSelectionMode}
             isSelected={selectedTaskIds?.has(subtask.id)}
             onToggleSelect={onToggleSelect}
+            labels={labels}
           />
         ))}
       </SortableContext>
@@ -279,6 +283,7 @@ export function TaskList({
             isSelectionMode={isSelectionMode}
             isSelected={selectedTaskIds?.has(task.id)}
             onToggleSelect={onToggleSelect}
+            labels={labels}
           />
         ))}
       </ul>
@@ -338,6 +343,7 @@ export function TaskList({
               isSelectionMode={isSelectionMode}
               isSelected={selectedTaskIds?.has(task.id)}
               onToggleSelect={onToggleSelect}
+              labels={labels}
             />
           ))}
         </ul>

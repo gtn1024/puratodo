@@ -51,10 +51,13 @@ export interface TaskDetailFormProps {
   // Translations
   labels: {
     taskName: string;
+    taskNamePlaceholder: string;
     dueDate: string;
     planDate: string;
     duration: string;
+    durationPlaceholder: string;
     comment: string;
+    commentPlaceholder: string;
     selectDueDate: string;
     selectPlanDate: string;
     clear: string;
@@ -273,7 +276,7 @@ export function TaskDetailForm({
           id="name"
           value={name}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-          placeholder="Enter task name"
+          placeholder={labels.taskNamePlaceholder}
         />
       </div>
 
@@ -376,7 +379,7 @@ export function TaskDetailForm({
           min="0"
           value={durationMinutes}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDurationMinutes(e.target.value)}
-          placeholder="e.g., 30"
+          placeholder={labels.durationPlaceholder}
         />
       </div>
 
@@ -413,7 +416,7 @@ export function TaskDetailForm({
           id="comment"
           value={comment}
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setComment(e.target.value)}
-          placeholder="Add notes or comments..."
+          placeholder={labels.commentPlaceholder}
           rows={4}
         />
       </div>

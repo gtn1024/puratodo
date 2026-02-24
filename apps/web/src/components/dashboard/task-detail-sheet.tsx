@@ -120,18 +120,21 @@ export function TaskDetailSheet({
           remindAt={remindAt}
           onRemindAtChange={setRemindAt}
           labels={{
-            taskName: "Task Name",
+            taskName: t("taskDetail.fields.taskName"),
+            taskNamePlaceholder: t("taskDetail.fields.enterTaskName"),
             dueDate: t("taskDetail.dueDate"),
             planDate: t("taskDetail.planDate"),
             duration: t("taskDetail.duration"),
+            durationPlaceholder: t("taskDetail.fields.durationExample"),
             comment: t("taskDetail.comment"),
+            commentPlaceholder: t("taskDetail.fields.addNotes"),
             selectDueDate: t("taskDetail.selectDueDate"),
             selectPlanDate: t("taskDetail.selectPlanDate"),
             clear: t("taskDetail.clear"),
             save: t("common.save"),
-            cancel: "Cancel",
+            cancel: t("common.cancel"),
             loading: t("common.loading"),
-            taskNotFound: "Task not found",
+            taskNotFound: t("taskPanel.emptyStates.taskNotFound"),
           }}
           RecurrenceEditor={RecurrenceFields}
           ReminderEditor={ReminderFields}

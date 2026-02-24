@@ -810,6 +810,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
             value={filters}
             onChange={setFilters}
             labels={{
+              status: t("filter.completed"), // Using "completed" section header as "Status"
               all: t("filter.all"),
               incomplete: t("filter.incomplete"),
               completed: t("filter.completed"),
@@ -1005,6 +1006,12 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
             isSelectionMode={isSelectionMode}
             selectedTaskIds={selectedTaskIds}
             onToggleSelect={handleToggleSelect}
+            labels={{
+              edit: t("common.edit"),
+              addSubtask: t("taskPanel.addSubtask"),
+              moveTo: t("common.move"),
+              delete: t("common.delete"),
+            }}
           />
         )}
       </div>

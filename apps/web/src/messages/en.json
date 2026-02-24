@@ -213,6 +213,7 @@
     }
   },
   "filter": {
+    "status": "Status",
     "all": "All",
     "completed": "Completed",
     "incomplete": "Incomplete",

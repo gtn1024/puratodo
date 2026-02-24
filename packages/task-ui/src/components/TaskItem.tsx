@@ -63,7 +63,22 @@ export interface TaskItemProps {
   isSelectionMode?: boolean;
   isSelected?: boolean;
   onToggleSelect?: (taskId: string) => void;
+  // Translation labels for i18n
+  labels?: {
+    edit?: string;
+    addSubtask?: string;
+    moveTo?: string;
+    delete?: string;
+  };
 }
+
+// Default labels for i18n
+const defaultLabels = {
+  edit: "Edit",
+  addSubtask: "Add Subtask",
+  moveTo: "Move to...",
+  delete: "Delete",
+};
 
 export function TaskItem({
   task,
@@ -91,7 +106,9 @@ export function TaskItem({
   isSelectionMode,
   isSelected,
   onToggleSelect,
+  labels: userLabels,
 }: TaskItemProps) {
+  const labels = { ...defaultLabels, ...userLabels };
   const {
     attributes,
     listeners,
@@ -247,18 +264,18 @@ export function TaskItem({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-36">
             <DropdownMenuItem onClick={() => onEdit(task)}>
-              Edit
+              {labels.edit}
             </DropdownMenuItem>
             {allowSubtaskActions !== false && (
               <DropdownMenuItem onClick={() => onAddSubtask(task)}>
                 <Plus className="h-4 w-4 mr-2" />
-                Add Subtask
+                {labels.addSubtask}
               </DropdownMenuItem>
             )}
             {showInboxMoveMenu && (
               <>
                 <DropdownMenuItem disabled className="text-xs text-stone-500">
-                  Move to...
+                  {labels.moveTo}
                 </DropdownMenuItem>
                 {moveTargets?.map((target) => (
                   <DropdownMenuItem
@@ -279,7 +296,7 @@ export function TaskItem({
               onClick={() => onDelete(task)}
               className="text-red-600 dark:text-red-400"
             >
-              Delete
+              {labels.delete}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
