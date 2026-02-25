@@ -9,7 +9,7 @@ const publicRoutes = [
   '/api/v1/auth/refresh',
 ]
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Only handle /api/v1/* routes
@@ -67,5 +67,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: '/api/v1/:path*',
+  proxy: '/api/v1/:path*',
 }
