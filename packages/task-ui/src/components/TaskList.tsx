@@ -1,131 +1,133 @@
-"use client";
+'use client'
 
-import React from "react";
+import type { DragEndEvent } from '@dnd-kit/core'
+import type { TaskWithSubtasks } from '@puratodo/api-types'
+import type { TaskItemProps } from './TaskItem'
 import {
-  DndContext,
   closestCenter,
+  DndContext,
+
   KeyboardSensor,
   PointerSensor,
+  pointerWithin,
   useSensor,
   useSensors,
-  type DragEndEvent,
-  pointerWithin,
-} from "@dnd-kit/core";
+} from '@dnd-kit/core'
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { TaskItem, type TaskItemProps } from "./TaskItem";
-import type { TaskWithSubtasks } from "@puratodo/api-types";
+} from '@dnd-kit/sortable'
+import * as React from 'react'
+import { TaskItem } from './TaskItem'
 
-const ROOT_SORTABLE_ID = "root-tasks";
-const SUBTASK_SORTABLE_PREFIX = "subtasks-";
+const ROOT_SORTABLE_ID = 'root-tasks'
+const SUBTASK_SORTABLE_PREFIX = 'subtasks-'
 
 function getParentIdFromContainerId(containerId: string): string | null {
   if (containerId === ROOT_SORTABLE_ID) {
-    return null;
+    return null
   }
 
   if (containerId.startsWith(SUBTASK_SORTABLE_PREFIX)) {
-    return containerId.slice(SUBTASK_SORTABLE_PREFIX.length) || null;
+    return containerId.slice(SUBTASK_SORTABLE_PREFIX.length) || null
   }
 
-  return null;
+  return null
 }
 
 function reorderSiblingTasks(
   taskList: TaskWithSubtasks[],
   parentId: string | null,
   activeId: string,
-  overId: string
-): { nextTasks: TaskWithSubtasks[]; orderedIds: string[] } {
+  overId: string,
+): { nextTasks: TaskWithSubtasks[], orderedIds: string[] } {
   if (parentId === null) {
-    const oldIndex = taskList.findIndex((task) => task.id === activeId);
-    const newIndex = taskList.findIndex((task) => task.id === overId);
+    const oldIndex = taskList.findIndex(task => task.id === activeId)
+    const newIndex = taskList.findIndex(task => task.id === overId)
 
     if (oldIndex === -1 || newIndex === -1) {
-      return { nextTasks: taskList, orderedIds: [] };
+      return { nextTasks: taskList, orderedIds: [] }
     }
 
-    const nextTasks = arrayMove(taskList, oldIndex, newIndex);
-    return { nextTasks, orderedIds: nextTasks.map((task) => task.id) };
+    const nextTasks = arrayMove(taskList, oldIndex, newIndex)
+    return { nextTasks, orderedIds: nextTasks.map(task => task.id) }
   }
 
   const reorderInNestedTasks = (
-    tasks: TaskWithSubtasks[]
-  ): { nextTasks: TaskWithSubtasks[]; orderedIds: string[]; changed: boolean } => {
-    let orderedIds: string[] = [];
-    let changed = false;
+    tasks: TaskWithSubtasks[],
+  ): { nextTasks: TaskWithSubtasks[], orderedIds: string[], changed: boolean } => {
+    let orderedIds: string[] = []
+    let changed = false
 
     const nextTasks = tasks.map((task) => {
       if (task.id === parentId) {
-        const subtasks = task.subtasks || [];
-        const oldIndex = subtasks.findIndex((subtask) => subtask.id === activeId);
-        const newIndex = subtasks.findIndex((subtask) => subtask.id === overId);
+        const subtasks = task.subtasks || []
+        const oldIndex = subtasks.findIndex(subtask => subtask.id === activeId)
+        const newIndex = subtasks.findIndex(subtask => subtask.id === overId)
 
         if (oldIndex === -1 || newIndex === -1) {
-          return task;
+          return task
         }
 
-        const reorderedSubtasks = arrayMove(subtasks, oldIndex, newIndex);
-        orderedIds = reorderedSubtasks.map((subtask) => subtask.id);
-        changed = true;
-        return { ...task, subtasks: reorderedSubtasks };
+        const reorderedSubtasks = arrayMove(subtasks, oldIndex, newIndex)
+        orderedIds = reorderedSubtasks.map(subtask => subtask.id)
+        changed = true
+        return { ...task, subtasks: reorderedSubtasks }
       }
 
       if (task.subtasks && task.subtasks.length > 0) {
-        const nested = reorderInNestedTasks(task.subtasks);
+        const nested = reorderInNestedTasks(task.subtasks)
         if (nested.changed) {
-          orderedIds = nested.orderedIds;
-          changed = true;
-          return { ...task, subtasks: nested.nextTasks };
+          orderedIds = nested.orderedIds
+          changed = true
+          return { ...task, subtasks: nested.nextTasks }
         }
       }
 
-      return task;
-    });
+      return task
+    })
 
-    return { nextTasks, orderedIds, changed };
-  };
+    return { nextTasks, orderedIds, changed }
+  }
 
-  const reordered = reorderInNestedTasks(taskList);
+  const reordered = reorderInNestedTasks(taskList)
   return {
     nextTasks: reordered.changed ? reordered.nextTasks : taskList,
     orderedIds: reordered.orderedIds,
-  };
+  }
 }
 
 export interface TaskListProps {
-  tasks: TaskWithSubtasks[];
-  expandedTasks: Set<string>;
-  onToggleExpand: (taskId: string) => void;
-  onToggleComplete: (task: TaskWithSubtasks) => void;
-  onToggleStar: (task: TaskWithSubtasks) => void;
-  onEdit: (task: TaskWithSubtasks) => void;
-  onDelete: (task: TaskWithSubtasks) => void;
-  onAddSubtask: (task: TaskWithSubtasks) => void;
-  onOpenDetail: (task: TaskWithSubtasks) => void;
-  editingTaskId: string | null;
-  editName: string;
-  onEditNameChange: (name: string) => void;
-  onSaveEdit: () => void;
-  onCancelEdit: () => void;
-  canMoveFromInbox?: boolean;
-  moveTargets?: TaskItemProps["moveTargets"];
-  onMoveToList?: (task: TaskWithSubtasks, targetListId: string) => void;
-  disableSorting?: boolean;
-  allowSubtaskActions?: boolean;
-  contextMeta?: Map<string, TaskItemProps["contextMeta"]>;
-  onReorder: (listId: string, orderedIds: string[], parentId?: string) => Promise<void>;
-  listId: string;
+  tasks: TaskWithSubtasks[]
+  expandedTasks: Set<string>
+  onToggleExpand: (taskId: string) => void
+  onToggleComplete: (task: TaskWithSubtasks) => void
+  onToggleStar: (task: TaskWithSubtasks) => void
+  onEdit: (task: TaskWithSubtasks) => void
+  onDelete: (task: TaskWithSubtasks) => void
+  onAddSubtask: (task: TaskWithSubtasks) => void
+  onOpenDetail: (task: TaskWithSubtasks) => void
+  editingTaskId: string | null
+  editName: string
+  onEditNameChange: (name: string) => void
+  onSaveEdit: () => void
+  onCancelEdit: () => void
+  canMoveFromInbox?: boolean
+  moveTargets?: TaskItemProps['moveTargets']
+  onMoveToList?: (task: TaskWithSubtasks, targetListId: string) => void
+  disableSorting?: boolean
+  allowSubtaskActions?: boolean
+  contextMeta?: Map<string, TaskItemProps['contextMeta']>
+  onReorder: (listId: string, orderedIds: string[], parentId?: string) => Promise<void>
+  listId: string
   // Multi-select props
-  isSelectionMode?: boolean;
-  selectedTaskIds?: Set<string>;
-  onToggleSelect?: (taskId: string) => void;
+  isSelectionMode?: boolean
+  selectedTaskIds?: Set<string>
+  onToggleSelect?: (taskId: string) => void
   // Translation labels for i18n
-  labels?: TaskItemProps["labels"];
+  labels?: TaskItemProps['labels']
 }
 
 export function TaskList({
@@ -162,63 +164,65 @@ export function TaskList({
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+    }),
+  )
 
   const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
+    const { active, over } = event
+    if (!over || active.id === over.id)
+      return
 
-    const activeContainerId = String(active.data.current?.sortable.containerId || "");
-    const overContainerId = String(over.data.current?.sortable.containerId || "");
+    const activeContainerId = String(active.data.current?.sortable.containerId || '')
+    const overContainerId = String(over.data.current?.sortable.containerId || '')
 
     if (
-      !activeContainerId ||
-      !overContainerId ||
-      activeContainerId !== overContainerId
+      !activeContainerId
+      || !overContainerId
+      || activeContainerId !== overContainerId
     ) {
-      return;
+      return
     }
 
     if (
-      activeContainerId !== ROOT_SORTABLE_ID &&
-      !activeContainerId.startsWith(SUBTASK_SORTABLE_PREFIX)
+      activeContainerId !== ROOT_SORTABLE_ID
+      && !activeContainerId.startsWith(SUBTASK_SORTABLE_PREFIX)
     ) {
-      return;
+      return
     }
 
-    const parentId = getParentIdFromContainerId(activeContainerId);
-    const activeId = String(active.id);
-    const overId = String(over.id);
+    const parentId = getParentIdFromContainerId(activeContainerId)
+    const activeId = String(active.id)
+    const overId = String(over.id)
 
     const { nextTasks, orderedIds } = reorderSiblingTasks(
       tasks,
       parentId,
       activeId,
-      overId
-    );
+      overId,
+    )
 
     if (orderedIds.length === 0) {
-      return;
+      return
     }
 
     // Call the onReorder callback - the parent is responsible for updating state
-    await onReorder(listId, orderedIds, parentId ?? undefined);
-  };
+    await onReorder(listId, orderedIds, parentId ?? undefined)
+  }
 
   const renderSubtasks = (
     task: TaskWithSubtasks,
-    level: number
+    level: number,
   ): React.ReactNode => {
-    if (!task.subtasks || task.subtasks.length === 0) return null;
+    if (!task.subtasks || task.subtasks.length === 0)
+      return null
 
     return (
       <SortableContext
         id={`${SUBTASK_SORTABLE_PREFIX}${task.id}`}
-        items={task.subtasks.map((subtask) => subtask.id)}
+        items={task.subtasks.map(subtask => subtask.id)}
         strategy={verticalListSortingStrategy}
       >
-        {task.subtasks.map((subtask) => (
+        {task.subtasks.map(subtask => (
           <TaskItem
             key={subtask.id}
             task={subtask}
@@ -249,13 +253,13 @@ export function TaskList({
           />
         ))}
       </SortableContext>
-    );
-  };
+    )
+  }
 
   if (disableSorting) {
     return (
       <ul className="space-y-1">
-        {tasks.map((task) => (
+        {tasks.map(task => (
           <TaskItem
             key={task.id}
             task={task}
@@ -287,7 +291,7 @@ export function TaskList({
           />
         ))}
       </ul>
-    );
+    )
   }
 
   return (
@@ -298,24 +302,24 @@ export function TaskList({
         const pointerCollisions = pointerWithin({
           droppableContainers,
           ...args,
-        });
+        })
         if (pointerCollisions.length > 0) {
-          return pointerCollisions;
+          return pointerCollisions
         }
         return closestCenter({
           droppableContainers,
           ...args,
-        });
+        })
       }}
       onDragEnd={handleDragEnd}
     >
       <SortableContext
         id={ROOT_SORTABLE_ID}
-        items={tasks.map((t) => t.id)}
+        items={tasks.map(t => t.id)}
         strategy={verticalListSortingStrategy}
       >
         <ul className="space-y-1">
-          {tasks.map((task) => (
+          {tasks.map(task => (
             <TaskItem
               key={task.id}
               task={task}
@@ -349,5 +353,5 @@ export function TaskList({
         </ul>
       </SortableContext>
     </DndContext>
-  );
+  )
 }

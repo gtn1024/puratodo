@@ -1,148 +1,148 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
+import type { TaskWithSubtasks } from '@puratodo/api-types'
 import {
   Button,
+  Calendar,
   Input,
   Label,
-  Textarea,
   Popover,
   PopoverContent,
   PopoverTrigger,
-  Calendar,
-} from "@puratodo/ui";
-import { CalendarIcon, Clock, FileText, X, Loader2 } from "lucide-react";
-import { format } from "date-fns";
-import type { TaskWithSubtasks } from "@puratodo/api-types";
+  Textarea,
+} from '@puratodo/ui'
+import { format } from 'date-fns'
+import { CalendarIcon, Clock, FileText, Loader2, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
-export type RecurrenceFrequency = "" | "daily" | "weekly" | "monthly" | "custom";
-export type RecurrenceEndType = "never" | "onDate" | "afterCount";
-export type RecurrenceUpdateScope = "single" | "future";
+export type RecurrenceFrequency = '' | 'daily' | 'weekly' | 'monthly' | 'custom'
+export type RecurrenceEndType = 'never' | 'onDate' | 'afterCount'
+export type RecurrenceUpdateScope = 'single' | 'future'
 
-export type RecurrenceEditorValue = {
-  frequency: RecurrenceFrequency;
-  interval: string;
-  weekdays: number[];
-  endType: RecurrenceEndType;
-  endDate: Date | undefined;
-  endCount: string;
-  rule: string;
-  timezone: string;
-};
+export interface RecurrenceEditorValue {
+  frequency: RecurrenceFrequency
+  interval: string
+  weekdays: number[]
+  endType: RecurrenceEndType
+  endDate: Date | undefined
+  endCount: string
+  rule: string
+  timezone: string
+}
 
 export interface TaskDetailFormProps {
-  task: TaskWithSubtasks | null;
-  isLoading?: boolean;
-  onSave: (updates: TaskUpdatePayload) => Promise<void>;
-  onCancel: () => void;
-  onClearDueDate?: () => void;
-  onClearPlanDate?: () => void;
+  task: TaskWithSubtasks | null
+  isLoading?: boolean
+  onSave: (updates: TaskUpdatePayload) => Promise<void>
+  onCancel: () => void
+  onClearDueDate?: () => void
+  onClearPlanDate?: () => void
 
   // Recurrence fields
-  recurrence: RecurrenceEditorValue;
-  onRecurrenceChange: (value: RecurrenceEditorValue) => void;
-  recurrenceScope: RecurrenceUpdateScope;
-  onRecurrenceScopeChange: (scope: RecurrenceUpdateScope) => void;
+  recurrence: RecurrenceEditorValue
+  onRecurrenceChange: (value: RecurrenceEditorValue) => void
+  recurrenceScope: RecurrenceUpdateScope
+  onRecurrenceScopeChange: (scope: RecurrenceUpdateScope) => void
 
   // Reminder fields
-  remindAt: string | null;
-  onRemindAtChange: (remindAt: string | null) => void;
+  remindAt: string | null
+  onRemindAtChange: (remindAt: string | null) => void
 
   // Translations
   labels: {
-    taskName: string;
-    taskNamePlaceholder: string;
-    dueDate: string;
-    planDate: string;
-    duration: string;
-    durationPlaceholder: string;
-    comment: string;
-    commentPlaceholder: string;
-    selectDueDate: string;
-    selectPlanDate: string;
-    clear: string;
-    save: string;
-    cancel: string;
-    loading: string;
-    taskNotFound: string;
-  };
+    taskName: string
+    taskNamePlaceholder: string
+    dueDate: string
+    planDate: string
+    duration: string
+    durationPlaceholder: string
+    comment: string
+    commentPlaceholder: string
+    selectDueDate: string
+    selectPlanDate: string
+    clear: string
+    save: string
+    cancel: string
+    loading: string
+    taskNotFound: string
+  }
 
   // Recurrence editor component (injected for flexibility)
   RecurrenceEditor?: React.ComponentType<{
-    value: RecurrenceEditorValue;
-    onChange: (value: RecurrenceEditorValue) => void;
-    updateScope: RecurrenceUpdateScope;
-    onUpdateScopeChange: (scope: RecurrenceUpdateScope) => void;
-  }>;
+    value: RecurrenceEditorValue
+    onChange: (value: RecurrenceEditorValue) => void
+    updateScope: RecurrenceUpdateScope
+    onUpdateScopeChange: (scope: RecurrenceUpdateScope) => void
+  }>
 
   // Reminder editor component (injected for flexibility)
   ReminderEditor?: React.ComponentType<{
-    remindAt: string | null;
-    dueDate: string | null;
-    planDate: string | null;
-    onChange: (value: { remindAt: string | null }) => void;
-  }>;
+    remindAt: string | null
+    dueDate: string | null
+    planDate: string | null
+    onChange: (value: { remindAt: string | null }) => void
+  }>
 }
 
-export type TaskUpdatePayload = {
-  name: string;
-  due_date: string | null;
-  plan_date: string | null;
-  comment: string | null;
-  duration_minutes: number | null;
-  recurrence_frequency: string | null;
-  recurrence_interval: number | null;
-  recurrence_weekdays: number[] | null;
-  recurrence_end_date: string | null;
-  recurrence_end_count: number | null;
-  recurrence_rule: string | null;
-  recurrence_timezone: string | null;
-  recurrence_update_scope: RecurrenceUpdateScope;
-  remind_at: string | null;
-};
+export interface TaskUpdatePayload {
+  name: string
+  due_date: string | null
+  plan_date: string | null
+  comment: string | null
+  duration_minutes: number | null
+  recurrence_frequency: string | null
+  recurrence_interval: number | null
+  recurrence_weekdays: number[] | null
+  recurrence_end_date: string | null
+  recurrence_end_count: number | null
+  recurrence_rule: string | null
+  recurrence_timezone: string | null
+  recurrence_update_scope: RecurrenceUpdateScope
+  remind_at: string | null
+}
 
 // Helper to normalize recurrence frequency
 function normalizeRecurrenceFrequency(frequency: string | null): RecurrenceFrequency {
   if (
-    frequency === "daily" ||
-    frequency === "weekly" ||
-    frequency === "monthly" ||
-    frequency === "custom"
+    frequency === 'daily'
+    || frequency === 'weekly'
+    || frequency === 'monthly'
+    || frequency === 'custom'
   ) {
-    return frequency;
+    return frequency
   }
-  return "";
+  return ''
 }
 
 // Helper to create recurrence editor value from task
 export function createRecurrenceEditorValue(task: TaskWithSubtasks): RecurrenceEditorValue {
-  const frequency = normalizeRecurrenceFrequency(task.recurrence_frequency);
-  const fallbackTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  const frequency = normalizeRecurrenceFrequency(task.recurrence_frequency)
+  const fallbackTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
 
   return {
     frequency,
-    interval: task.recurrence_interval?.toString() || (frequency ? "1" : ""),
+    interval: task.recurrence_interval?.toString() || (frequency ? '1' : ''),
     weekdays: task.recurrence_weekdays || [],
     endType: task.recurrence_end_date
-      ? "onDate"
+      ? 'onDate'
       : task.recurrence_end_count
-        ? "afterCount"
-        : "never",
+        ? 'afterCount'
+        : 'never',
     endDate: task.recurrence_end_date
       ? new Date(task.recurrence_end_date)
       : undefined,
-    endCount: task.recurrence_end_count?.toString() || "",
-    rule: task.recurrence_rule || "",
-    timezone: task.recurrence_timezone || (frequency ? fallbackTimezone : ""),
-  };
+    endCount: task.recurrence_end_count?.toString() || '',
+    rule: task.recurrence_rule || '',
+    timezone: task.recurrence_timezone || (frequency ? fallbackTimezone : ''),
+  }
 }
 
 // Convert Date to local YYYY-MM-DD string (avoiding timezone issues)
 export function toLocalDateString(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 export function TaskDetailForm({
@@ -160,30 +160,31 @@ export function TaskDetailForm({
   RecurrenceEditor,
   ReminderEditor,
 }: TaskDetailFormProps) {
-  const [name, setName] = useState("");
-  const [dueDate, setDueDate] = useState<Date | undefined>();
-  const [planDate, setPlanDate] = useState<Date | undefined>();
-  const [comment, setComment] = useState("");
-  const [durationMinutes, setDurationMinutes] = useState<string>("");
-  const [isSaving, setIsSaving] = useState(false);
+  const [name, setName] = useState('')
+  const [dueDate, setDueDate] = useState<Date | undefined>()
+  const [planDate, setPlanDate] = useState<Date | undefined>()
+  const [comment, setComment] = useState('')
+  const [durationMinutes, setDurationMinutes] = useState<string>('')
+  const [isSaving, setIsSaving] = useState(false)
 
   // Initialize form when task changes
   useEffect(() => {
     if (task) {
-      setName(task.name);
-      setDueDate(task.due_date ? new Date(task.due_date) : undefined);
-      setPlanDate(task.plan_date ? new Date(task.plan_date) : undefined);
-      setComment(task.comment || "");
-      setDurationMinutes(task.duration_minutes?.toString() || "");
+      setName(task.name)
+      setDueDate(task.due_date ? new Date(task.due_date) : undefined)
+      setPlanDate(task.plan_date ? new Date(task.plan_date) : undefined)
+      setComment(task.comment || '')
+      setDurationMinutes(task.duration_minutes?.toString() || '')
     }
-  }, [task]);
+  }, [task])
 
   const handleSave = async () => {
-    if (!task || !name.trim()) return;
+    if (!task || !name.trim())
+      return
 
-    const fallbackTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-    const parsedInterval = parseInt(recurrence.interval, 10);
-    const parsedEndCount = parseInt(recurrence.endCount, 10);
+    const fallbackTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+    const parsedInterval = Number.parseInt(recurrence.interval, 10)
+    const parsedEndCount = Number.parseInt(recurrence.endCount, 10)
 
     const recurrencePayload = recurrence.frequency
       ? {
@@ -193,23 +194,23 @@ export function TaskDetailForm({
               ? parsedInterval
               : 1,
           recurrence_weekdays:
-            recurrence.frequency === "weekly" || recurrence.frequency === "custom"
+            recurrence.frequency === 'weekly' || recurrence.frequency === 'custom'
               ? recurrence.weekdays.length > 0
                 ? Array.from(new Set(recurrence.weekdays)).sort((a, b) => a - b)
                 : null
               : null,
           recurrence_end_date:
-            recurrence.endType === "onDate" && recurrence.endDate
+            recurrence.endType === 'onDate' && recurrence.endDate
               ? toLocalDateString(recurrence.endDate)
               : null,
           recurrence_end_count:
-            recurrence.endType === "afterCount" &&
-            Number.isInteger(parsedEndCount) &&
-            parsedEndCount > 0
+            recurrence.endType === 'afterCount'
+            && Number.isInteger(parsedEndCount)
+            && parsedEndCount > 0
               ? parsedEndCount
               : null,
           recurrence_rule:
-            recurrence.frequency === "custom"
+            recurrence.frequency === 'custom'
               ? recurrence.rule.trim() || null
               : null,
           recurrence_timezone:
@@ -223,37 +224,38 @@ export function TaskDetailForm({
           recurrence_end_count: null,
           recurrence_rule: null,
           recurrence_timezone: null,
-        };
+        }
 
-    setIsSaving(true);
+    setIsSaving(true)
 
     const updates: TaskUpdatePayload = {
       name: name.trim(),
       due_date: dueDate ? toLocalDateString(dueDate) : null,
       plan_date: planDate ? toLocalDateString(planDate) : null,
       comment: comment.trim() || null,
-      duration_minutes: durationMinutes ? parseInt(durationMinutes, 10) : null,
+      duration_minutes: durationMinutes ? Number.parseInt(durationMinutes, 10) : null,
       ...recurrencePayload,
       recurrence_update_scope: recurrenceScope,
       remind_at: remindAt,
-    };
+    }
 
     try {
-      await onSave(updates);
-    } finally {
-      setIsSaving(false);
+      await onSave(updates)
     }
-  };
+    finally {
+      setIsSaving(false)
+    }
+  }
 
-  const clearDueDate = () => setDueDate(undefined);
-  const clearPlanDate = () => setPlanDate(undefined);
+  const clearDueDate = () => setDueDate(undefined)
+  const clearPlanDate = () => setPlanDate(undefined)
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-stone-400" />
       </div>
-    );
+    )
   }
 
   if (!task) {
@@ -262,7 +264,7 @@ export function TaskDetailForm({
         <X className="h-8 w-8 text-stone-400 mb-4" />
         <p className="text-stone-500">{labels.taskNotFound}</p>
       </div>
-    );
+    )
   }
 
   return (
@@ -304,11 +306,11 @@ export function TaskDetailForm({
             <Button
               variant="outline"
               className={`w-full justify-start text-left font-normal ${
-                !dueDate ? "text-stone-500" : ""
+                !dueDate ? 'text-stone-500' : ''
               }`}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {dueDate ? format(dueDate, "PPP") : labels.selectDueDate}
+              {dueDate ? format(dueDate, 'PPP') : labels.selectDueDate}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
@@ -346,11 +348,11 @@ export function TaskDetailForm({
             <Button
               variant="outline"
               className={`w-full justify-start text-left font-normal ${
-                !planDate ? "text-stone-500" : ""
+                !planDate ? 'text-stone-500' : ''
               }`}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {planDate ? format(planDate, "PPP") : labels.selectPlanDate}
+              {planDate ? format(planDate, 'PPP') : labels.selectPlanDate}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
@@ -435,5 +437,5 @@ export function TaskDetailForm({
         </Button>
       </div>
     </div>
-  );
+  )
 }

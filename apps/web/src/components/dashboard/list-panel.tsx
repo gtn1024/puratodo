@@ -1,89 +1,91 @@
-"use client";
+'use client'
 
-import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
-import { useI18n } from "@/i18n";
-import { Button } from "@/components/ui/button";
+import type { DragEndEvent } from '@dnd-kit/core'
+import type { Group } from '@/actions/groups'
+import type { List } from '@/actions/lists'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  createList,
-  updateList,
-  deleteList,
-  reorderLists,
-  moveListToGroup,
-  type List,
-} from "@/actions/lists";
-import { MoreHorizontal, Plus, ListTodo, GripVertical, FolderInput } from "lucide-react";
-import type { Group } from "@/actions/groups";
-import {
-  DndContext,
   closestCenter,
+  DndContext,
+
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
+} from '@dnd-kit/core'
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { FolderInput, GripVertical, ListTodo, MoreHorizontal, Plus } from 'lucide-react'
+import { useEffect, useImperativeHandle, useState } from 'react'
+import {
+  createList,
+  deleteList,
+
+  moveListToGroup,
+  reorderLists,
+  updateList,
+} from '@/actions/lists'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { useI18n } from '@/i18n'
 
 interface ListPanelProps {
-  group: Group | null;
-  lists: List[];
-  allGroups: Group[];
-  onListsChange: () => void;
-  onListSelect: (listId: string, groupId: string) => void;
+  group: Group | null
+  lists: List[]
+  allGroups: Group[]
+  onListsChange: () => void
+  onListSelect: (listId: string, groupId: string) => void
 }
 
 export interface ListPanelRef {
-  triggerCreateList: () => void;
+  triggerCreateList: () => void
 }
 
 // Common emoji icons for lists
 const LIST_ICONS = [
-  "📋",
-  "📝",
-  "📌",
-  "🎯",
-  "💼",
-  "🏠",
-  "🛒",
-  "📚",
-  "💡",
-  "🎨",
-  "🔧",
-  "⭐",
-];
+  '📋',
+  '📝',
+  '📌',
+  '🎯',
+  '💼',
+  '🏠',
+  '🛒',
+  '📚',
+  '💡',
+  '🎨',
+  '🔧',
+  '⭐',
+]
 
 interface SortableListItemProps {
-  list: List;
-  onEdit: (list: List) => void;
-  onDelete: (list: List) => void;
-  onMove: (list: List) => void;
-  onSelect: (list: List) => void;
+  list: List
+  onEdit: (list: List) => void
+  onDelete: (list: List) => void
+  onMove: (list: List) => void
+  onSelect: (list: List) => void
 }
 
 function SortableListItem({ list, onEdit, onDelete, onMove, onSelect }: SortableListItemProps) {
-  const { t } = useI18n();
+  const { t } = useI18n()
   const {
     attributes,
     listeners,
@@ -91,22 +93,22 @@ function SortableListItem({ list, onEdit, onDelete, onMove, onSelect }: Sortable
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: list.id });
+  } = useSortable({ id: list.id })
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-  };
+  }
 
   const handleClick = (e: React.MouseEvent) => {
-    const target = e.target as HTMLElement;
+    const target = e.target as HTMLElement
     // Ignore clicks on drag handle, dropdown menu, or buttons
     if (target.closest('button') || target.closest('[data-radix-collection-item]')) {
-      return;
+      return
     }
-    onSelect(list);
-  };
+    onSelect(list)
+  }
 
   return (
     <li
@@ -124,7 +126,7 @@ function SortableListItem({ list, onEdit, onDelete, onMove, onSelect }: Sortable
         <GripVertical className="h-4 w-4" />
       </button>
 
-      <span className="text-xl">{list.icon || "📋"}</span>
+      <span className="text-xl">{list.icon || '📋'}</span>
       <span className="flex-1 font-medium text-stone-900 dark:text-stone-100">
         {list.name}
       </span>
@@ -140,51 +142,50 @@ function SortableListItem({ list, onEdit, onDelete, onMove, onSelect }: Sortable
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-32">
           <DropdownMenuItem onClick={() => onEdit(list)}>
-            {t("common.edit")}
+            {t('common.edit')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => onMove(list)}>
             <FolderInput className="h-4 w-4 mr-2" />
-            {t("common.move")}
+            {t('common.move')}
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => onDelete(list)}
             className="text-red-600 dark:text-red-400"
           >
-            {t("common.delete")}
+            {t('common.delete')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </li>
-  );
+  )
 }
 
-export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
-  function ListPanel({ group, lists, allGroups, onListsChange, onListSelect }, ref) {
-  const { t } = useI18n();
-  const [localLists, setLocalLists] = useState(lists);
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [isMoveOpen, setIsMoveOpen] = useState(false);
-  const [selectedList, setSelectedList] = useState<List | null>(null);
-  const [targetGroupId, setTargetGroupId] = useState<string | null>(null);
-  const [name, setName] = useState("");
-  const [icon, setIcon] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+export function ListPanel({ ref, group, lists, allGroups, onListsChange, onListSelect }: ListPanelProps & { ref?: React.RefObject<ListPanelRef | null> }) {
+  const { t } = useI18n()
+  const [localLists, setLocalLists] = useState(lists)
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [isEditOpen, setIsEditOpen] = useState(false)
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const [isMoveOpen, setIsMoveOpen] = useState(false)
+  const [selectedList, setSelectedList] = useState<List | null>(null)
+  const [targetGroupId, setTargetGroupId] = useState<string | null>(null)
+  const [name, setName] = useState('')
+  const [icon, setIcon] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   // Expose methods to parent via ref
   useImperativeHandle(ref, () => ({
     triggerCreateList: () => {
-      setName("");
-      setIcon(null);
-      setIsCreateOpen(true);
+      setName('')
+      setIcon(null)
+      setIsCreateOpen(true)
     },
-  }), []);
+  }), [])
 
   // Sync local lists when props change
   useEffect(() => {
-    setLocalLists(lists);
-  }, [lists]);
+    setLocalLists(lists)
+  }, [lists])
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -192,98 +193,102 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+    }),
+  )
 
   const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
+    const { active, over } = event
     if (over && active.id !== over.id && group) {
-      const oldIndex = localLists.findIndex((l) => l.id === active.id);
-      const newIndex = localLists.findIndex((l) => l.id === over.id);
-      const newLists = arrayMove(localLists, oldIndex, newIndex);
-      setLocalLists(newLists);
-      const orderedIds = newLists.map((l) => l.id);
-      await reorderLists(group.id, orderedIds);
-      onListsChange();
+      const oldIndex = localLists.findIndex(l => l.id === active.id)
+      const newIndex = localLists.findIndex(l => l.id === over.id)
+      const newLists = arrayMove(localLists, oldIndex, newIndex)
+      setLocalLists(newLists)
+      const orderedIds = newLists.map(l => l.id)
+      await reorderLists(group.id, orderedIds)
+      onListsChange()
     }
-  };
+  }
 
   const handleCreate = async () => {
-    if (!group || !name.trim()) return;
-    setIsLoading(true);
-    const result = await createList(group.id, name.trim(), icon || undefined);
+    if (!group || !name.trim())
+      return
+    setIsLoading(true)
+    const result = await createList(group.id, name.trim(), icon || undefined)
     if (result.success) {
-      setIsCreateOpen(false);
-      setName("");
-      setIcon(null);
-      onListsChange();
+      setIsCreateOpen(false)
+      setName('')
+      setIcon(null)
+      onListsChange()
     }
-    setIsLoading(false);
-  };
+    setIsLoading(false)
+  }
 
   const handleEdit = async () => {
-    if (!selectedList || !name.trim()) return;
-    setIsLoading(true);
+    if (!selectedList || !name.trim())
+      return
+    setIsLoading(true)
     const result = await updateList(selectedList.id, {
       name: name.trim(),
       icon: icon || undefined,
-    });
+    })
     if (result.success) {
-      setIsEditOpen(false);
-      setSelectedList(null);
-      setName("");
-      setIcon(null);
-      onListsChange();
+      setIsEditOpen(false)
+      setSelectedList(null)
+      setName('')
+      setIcon(null)
+      onListsChange()
     }
-    setIsLoading(false);
-  };
+    setIsLoading(false)
+  }
 
   const handleDelete = async () => {
-    if (!selectedList) return;
-    setIsLoading(true);
-    const result = await deleteList(selectedList.id);
+    if (!selectedList)
+      return
+    setIsLoading(true)
+    const result = await deleteList(selectedList.id)
     if (result.success) {
-      setIsDeleteOpen(false);
-      setSelectedList(null);
-      onListsChange();
+      setIsDeleteOpen(false)
+      setSelectedList(null)
+      onListsChange()
     }
-    setIsLoading(false);
-  };
+    setIsLoading(false)
+  }
 
   const openEditDialog = (list: List) => {
-    setSelectedList(list);
-    setName(list.name);
-    setIcon(list.icon);
-    setIsEditOpen(true);
-  };
+    setSelectedList(list)
+    setName(list.name)
+    setIcon(list.icon)
+    setIsEditOpen(true)
+  }
 
   const openDeleteDialog = (list: List) => {
-    setSelectedList(list);
-    setIsDeleteOpen(true);
-  };
+    setSelectedList(list)
+    setIsDeleteOpen(true)
+  }
 
   const openMoveDialog = (list: List) => {
-    setSelectedList(list);
-    setTargetGroupId(null);
-    setIsMoveOpen(true);
-  };
+    setSelectedList(list)
+    setTargetGroupId(null)
+    setIsMoveOpen(true)
+  }
 
   const handleListSelect = (list: List) => {
-    onListSelect(list.id, list.group_id);
-  };
+    onListSelect(list.id, list.group_id)
+  }
 
   const handleMove = async () => {
-    if (!selectedList || !targetGroupId) return;
-    setIsLoading(true);
-    const result = await moveListToGroup(selectedList.id, targetGroupId);
+    if (!selectedList || !targetGroupId)
+      return
+    setIsLoading(true)
+    const result = await moveListToGroup(selectedList.id, targetGroupId)
     if (result.success) {
-      setIsMoveOpen(false);
-      setSelectedList(null);
-      setTargetGroupId(null);
-      onListsChange();
+      setIsMoveOpen(false)
+      setSelectedList(null)
+      setTargetGroupId(null)
+      onListsChange()
     }
-    setIsLoading(false);
-  };
+    setIsLoading(false)
+  }
 
   if (!group) {
     return (
@@ -304,16 +309,16 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
           </svg>
         </div>
         <h2 className="text-xl font-semibold text-stone-900 dark:text-stone-100 mb-2">
-          {t("listPanel.emptyStates.welcome")}
+          {t('listPanel.emptyStates.welcome')}
         </h2>
         <p className="text-stone-500 dark:text-stone-400 mb-6">
-          {t("listPanel.emptyStates.createGroupToStart")}
+          {t('listPanel.emptyStates.createGroupToStart')}
         </p>
         <p className="text-sm text-stone-400 dark:text-stone-500">
-          {t("listPanel.emptyStates.clickPlusButton")}
+          {t('listPanel.emptyStates.clickPlusButton')}
         </p>
       </div>
-    );
+    )
   }
 
   return (
@@ -324,73 +329,77 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
           <div className="flex items-center gap-3">
             <div
               className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: group.color || "#6b7280" }}
+              style={{ backgroundColor: group.color || '#6b7280' }}
             />
             <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
               {group.name}
             </h2>
             <span className="text-sm text-stone-500 dark:text-stone-400">
-              {lists.length} {lists.length === 1 ? t("listPanel.labels.list") : t("listPanel.labels.lists")}
+              {lists.length}
+              {' '}
+              {lists.length === 1 ? t('listPanel.labels.list') : t('listPanel.labels.lists')}
             </span>
           </div>
           <Button
             variant="outline"
             size="sm"
             onClick={() => {
-              setName("");
-              setIcon(null);
-              setIsCreateOpen(true);
+              setName('')
+              setIcon(null)
+              setIsCreateOpen(true)
             }}
           >
             <Plus className="h-4 w-4 mr-1" />
-            {t("listPanel.addList")}
+            {t('listPanel.addList')}
           </Button>
         </div>
 
         {/* List Content */}
         <div className="p-4">
-          {localLists.length === 0 ? (
-            <div className="py-12 text-center">
-              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center">
-                <ListTodo className="h-6 w-6 text-stone-400" />
-              </div>
-              <p className="text-stone-500 dark:text-stone-400 mb-4">
-                {t("listPanel.noLists")}
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsCreateOpen(true)}
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                {t("listPanel.createFirstList")}
-              </Button>
-            </div>
-          ) : (
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={localLists.map((l) => l.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                <ul className="grid gap-2">
-                  {localLists.map((list) => (
-                    <SortableListItem
-                      key={list.id}
-                      list={list}
-                      onEdit={openEditDialog}
-                      onDelete={openDeleteDialog}
-                      onMove={openMoveDialog}
-                      onSelect={handleListSelect}
-                    />
-                  ))}
-                </ul>
-              </SortableContext>
-            </DndContext>
-          )}
+          {localLists.length === 0
+            ? (
+                <div className="py-12 text-center">
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center">
+                    <ListTodo className="h-6 w-6 text-stone-400" />
+                  </div>
+                  <p className="text-stone-500 dark:text-stone-400 mb-4">
+                    {t('listPanel.noLists')}
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsCreateOpen(true)}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    {t('listPanel.createFirstList')}
+                  </Button>
+                </div>
+              )
+            : (
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={localLists.map(l => l.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <ul className="grid gap-2">
+                      {localLists.map(list => (
+                        <SortableListItem
+                          key={list.id}
+                          list={list}
+                          onEdit={openEditDialog}
+                          onDelete={openDeleteDialog}
+                          onMove={openMoveDialog}
+                          onSelect={handleListSelect}
+                        />
+                      ))}
+                    </ul>
+                  </SortableContext>
+                </DndContext>
+              )}
         </div>
       </div>
 
@@ -398,30 +407,34 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{t("common.create")} {t("listPanel.lists").toLowerCase()}</DialogTitle>
+            <DialogTitle>
+              {t('common.create')}
+              {' '}
+              {t('listPanel.lists').toLowerCase()}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="create-name">{t("listPanel.labels.name")}</Label>
+              <Label htmlFor="create-name">{t('listPanel.labels.name')}</Label>
               <Input
                 id="create-name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder={t("listPanel.listName")}
+                onChange={e => setName(e.target.value)}
+                placeholder={t('listPanel.listName')}
                 autoFocus
               />
             </div>
             <div className="space-y-2">
-              <Label>{t("listPanel.selectIcon")}</Label>
+              <Label>{t('listPanel.selectIcon')}</Label>
               <div className="flex gap-2 flex-wrap">
-                {LIST_ICONS.map((emoji) => (
+                {LIST_ICONS.map(emoji => (
                   <button
                     key={emoji}
                     type="button"
                     className={`w-10 h-10 rounded-lg text-xl flex items-center justify-center transition-all ${
                       icon === emoji
-                        ? "bg-stone-200 dark:bg-stone-700 ring-2 ring-stone-400"
-                        : "bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700"
+                        ? 'bg-stone-200 dark:bg-stone-700 ring-2 ring-stone-400'
+                        : 'bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700'
                     }`}
                     onClick={() => setIcon(emoji)}
                   >
@@ -433,10 +446,10 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
-              {t("common.cancel")}
+              {t('common.cancel')}
             </Button>
             <Button onClick={handleCreate} disabled={isLoading || !name.trim()}>
-              {t("common.create")}
+              {t('common.create')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -446,29 +459,33 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{t("common.edit")} {t("listPanel.lists").toLowerCase()}</DialogTitle>
+            <DialogTitle>
+              {t('common.edit')}
+              {' '}
+              {t('listPanel.lists').toLowerCase()}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-name">{t("listPanel.labels.name")}</Label>
+              <Label htmlFor="edit-name">{t('listPanel.labels.name')}</Label>
               <Input
                 id="edit-name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder={t("listPanel.listName")}
+                onChange={e => setName(e.target.value)}
+                placeholder={t('listPanel.listName')}
               />
             </div>
             <div className="space-y-2">
-              <Label>{t("listPanel.selectIcon")}</Label>
+              <Label>{t('listPanel.selectIcon')}</Label>
               <div className="flex gap-2 flex-wrap">
-                {LIST_ICONS.map((emoji) => (
+                {LIST_ICONS.map(emoji => (
                   <button
                     key={emoji}
                     type="button"
                     className={`w-10 h-10 rounded-lg text-xl flex items-center justify-center transition-all ${
                       icon === emoji
-                        ? "bg-stone-200 dark:bg-stone-700 ring-2 ring-stone-400"
-                        : "bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700"
+                        ? 'bg-stone-200 dark:bg-stone-700 ring-2 ring-stone-400'
+                        : 'bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700'
                     }`}
                     onClick={() => setIcon(emoji)}
                   >
@@ -480,10 +497,10 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditOpen(false)}>
-              {t("common.cancel")}
+              {t('common.cancel')}
             </Button>
             <Button onClick={handleEdit} disabled={isLoading || !name.trim()}>
-              {t("common.save")}
+              {t('common.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -493,21 +510,29 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>{t("common.delete")} {t("listPanel.lists").toLowerCase()}</DialogTitle>
+            <DialogTitle>
+              {t('common.delete')}
+              {' '}
+              {t('listPanel.lists').toLowerCase()}
+            </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-stone-500 dark:text-stone-400">
-            {t("common.confirm")} &ldquo;{selectedList?.name}&rdquo;?
+            {t('common.confirm')}
+            {' '}
+            &ldquo;
+            {selectedList?.name}
+            &rdquo;?
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>
-              {t("common.cancel")}
+              {t('common.cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={isLoading}
             >
-              {t("common.delete")}
+              {t('common.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -517,52 +542,52 @@ export const ListPanel = forwardRef<ListPanelRef, ListPanelProps>(
       <Dialog open={isMoveOpen} onOpenChange={setIsMoveOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{t("listPanel.lists")}</DialogTitle>
+            <DialogTitle>{t('listPanel.lists')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-stone-500 dark:text-stone-400">
-              {t("listPanel.dialogs.moveToList").replace("{listName}", selectedList?.name || "")}
+              {t('listPanel.dialogs.moveToList').replace('{listName}', selectedList?.name || '')}
             </p>
             <div className="space-y-2">
               {allGroups
-                .filter((g) => g.id !== group?.id)
-                .map((g) => (
+                .filter(g => g.id !== group?.id)
+                .map(g => (
                   <button
                     key={g.id}
                     type="button"
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg border transition-all ${
                       targetGroupId === g.id
-                        ? "border-stone-400 dark:border-stone-500 bg-stone-50 dark:bg-stone-800"
-                        : "border-stone-200 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800/50"
+                        ? 'border-stone-400 dark:border-stone-500 bg-stone-50 dark:bg-stone-800'
+                        : 'border-stone-200 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800/50'
                     }`}
                     onClick={() => setTargetGroupId(g.id)}
                   >
                     <div
                       className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: g.color || "#6b7280" }}
+                      style={{ backgroundColor: g.color || '#6b7280' }}
                     />
                     <span className="font-medium text-stone-900 dark:text-stone-100">
                       {g.name}
                     </span>
                   </button>
                 ))}
-              {allGroups.filter((g) => g.id !== group?.id).length === 0 && (
+              {allGroups.filter(g => g.id !== group?.id).length === 0 && (
                 <p className="text-sm text-stone-400 dark:text-stone-500 text-center py-4">
-                  {t("listPanel.dialogs.noOtherGroups")}
+                  {t('listPanel.dialogs.noOtherGroups')}
                 </p>
               )}
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsMoveOpen(false)}>
-              {t("common.cancel")}
+              {t('common.cancel')}
             </Button>
             <Button onClick={handleMove} disabled={isLoading || !targetGroupId}>
-              {t("common.save")}
+              {t('common.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
-  );
-});
+  )
+}

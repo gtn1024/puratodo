@@ -1,14 +1,14 @@
+// Calendar
+export * from './calendar'
+
 // Components
-export * from './components';
+export * from './components'
 
 // Contexts
-export * from './contexts';
+export * from './contexts'
 
 // Hooks
-export * from './hooks';
+export * from './hooks'
 
 // Types
-export * from './types';
-
-// Calendar
-export * from './calendar';
+export * from './types'

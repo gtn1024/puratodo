@@ -1,5 +1,5 @@
-import { TaskAdapter } from "@puratodo/api-types";
-import * as taskActions from "./taskActions";
+import type { TaskAdapter } from '@puratodo/api-types'
+import * as taskActions from './taskActions'
 
 /**
  * SupabaseTaskAdapter - Implements TaskAdapter interface using Supabase Server Actions
@@ -26,4 +26,4 @@ export const SupabaseTaskAdapter: TaskAdapter = {
   bulkDelete: taskActions.bulkDelete,
   bulkMove: taskActions.bulkMove,
   bulkSetDate: taskActions.bulkSetDate,
-};
+}

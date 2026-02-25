@@ -1,204 +1,209 @@
-import { getApiUrl } from "./config";
-import { translate } from "@/i18n";
+import { translate } from '@/i18n'
+import { getApiUrl } from './config'
 
 export interface ApiError {
-  message: string;
-  status: number;
-  errors?: Record<string, string[]>;
+  message: string
+  status: number
+  errors?: Record<string, string[]>
 }
 
 // Internal client response wrapper
 export interface ClientResponse<T> {
-  data: T | null;
-  error: ApiError | null;
+  data: T | null
+  error: ApiError | null
 }
 
 // Custom error class for API errors
 export class ApiException extends Error {
-  status: number;
-  errors?: Record<string, string[]>;
+  status: number
+  errors?: Record<string, string[]>
 
   constructor(message: string, status: number, errors?: Record<string, string[]>) {
-    super(message);
-    this.name = "ApiException";
-    this.status = status;
-    this.errors = errors;
+    super(message)
+    this.name = 'ApiException'
+    this.status = status
+    this.errors = errors
   }
 }
 
 // Special error to indicate token refresh needed
 export class TokenExpiredError extends ApiException {
   constructor() {
-    super("Token expired", 401);
-    this.name = "TokenExpiredError";
+    super('Token expired', 401)
+    this.name = 'TokenExpiredError'
   }
 }
 
 // Callback for token refresh - set by authStore
-let onTokenRefreshed: ((accessToken: string, refreshToken: string) => void) | null = null;
-let onRefreshFailed: (() => void) | null = null;
+let onTokenRefreshed: ((accessToken: string, refreshToken: string) => void) | null = null
+let onRefreshFailed: (() => void) | null = null
 
 export function setTokenRefreshCallback(
-  callback: (accessToken: string, refreshToken: string) => void
+  callback: (accessToken: string, refreshToken: string) => void,
 ): void {
-  onTokenRefreshed = callback;
+  onTokenRefreshed = callback
 }
 
 export function setRefreshFailedCallback(callback: () => void): void {
-  onRefreshFailed = callback;
+  onRefreshFailed = callback
 }
 
 // Get auth token from storage
 export function getAuthToken(): string | null {
-  return localStorage.getItem("authToken");
+  return localStorage.getItem('authToken')
 }
 
 // Get refresh token from storage
 function getRefreshToken(): string | null {
-  return localStorage.getItem("refreshToken");
+  return localStorage.getItem('refreshToken')
 }
 
 // Update tokens in storage
 function updateTokens(accessToken: string, refreshToken: string): void {
-  localStorage.setItem("authToken", accessToken);
-  localStorage.setItem("refreshToken", refreshToken);
+  localStorage.setItem('authToken', accessToken)
+  localStorage.setItem('refreshToken', refreshToken)
 }
 
 // Build full URL with path
 function buildUrl(path: string): string {
-  const baseUrl = getApiUrl();
-  const cleanPath = path.startsWith("/") ? path : `/${path}`;
-  return `${baseUrl}${cleanPath}`;
+  const baseUrl = getApiUrl()
+  const cleanPath = path.startsWith('/') ? path : `/${path}`
+  return `${baseUrl}${cleanPath}`
 }
 
 // Default headers for API requests
 function getHeaders(includeAuth = true): HeadersInit {
   const headers: HeadersInit = {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-  };
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  }
 
   if (includeAuth) {
-    const token = getAuthToken();
+    const token = getAuthToken()
     if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
+      headers.Authorization = `Bearer ${token}`
     }
   }
 
-  return headers;
+  return headers
 }
 
 // Handle API response
 async function handleResponse<T>(response: Response): Promise<T> {
-  const contentType = response.headers.get("content-type");
-  const isJson = contentType?.includes("application/json");
+  const contentType = response.headers.get('content-type')
+  const isJson = contentType?.includes('application/json')
 
   if (!response.ok) {
-    let errorMessage = translate("errors.anErrorOccurred");
-    let errors: Record<string, string[]> | undefined;
+    let errorMessage = translate('errors.anErrorOccurred')
+    let errors: Record<string, string[]> | undefined
 
     if (isJson) {
       try {
-        const errorData = await response.json();
-        errorMessage = errorData.message || errorData.error || errorMessage;
-        errors = errorData.errors;
-      } catch {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorData.error || errorMessage
+        errors = errorData.errors
+      }
+      catch {
         // Ignore JSON parse errors
       }
-    } else {
-      errorMessage = response.statusText || errorMessage;
+    }
+    else {
+      errorMessage = response.statusText || errorMessage
     }
 
-    throw new ApiException(errorMessage, response.status, errors);
+    throw new ApiException(errorMessage, response.status, errors)
   }
 
   if (isJson) {
-    return response.json();
+    return response.json()
   }
 
-  return {} as T;
+  return {} as T
 }
 
 // Refresh token state to prevent multiple refresh requests
-let isRefreshing = false;
-let refreshPromise: Promise<boolean> | null = null;
+let isRefreshing = false
+let refreshPromise: Promise<boolean> | null = null
 
 async function refreshAccessToken(): Promise<boolean> {
   // If already refreshing, wait for the existing refresh
   if (isRefreshing && refreshPromise) {
-    return refreshPromise;
+    return refreshPromise
   }
 
-  const refreshToken = getRefreshToken();
+  const refreshToken = getRefreshToken()
   if (!refreshToken) {
-    return false;
+    return false
   }
 
-  isRefreshing = true;
+  isRefreshing = true
   refreshPromise = (async () => {
     try {
-      const response = await fetch(buildUrl("/api/v1/auth/refresh"), {
-        method: "POST",
+      const response = await fetch(buildUrl('/api/v1/auth/refresh'), {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify({ refresh_token: refreshToken }),
-      });
+      })
 
       if (!response.ok) {
-        return false;
+        return false
       }
 
-      const data = await response.json();
+      const data = await response.json()
       if (data.success && data.data) {
-        updateTokens(data.data.access_token, data.data.refresh_token);
+        updateTokens(data.data.access_token, data.data.refresh_token)
         // Notify authStore about the new tokens
         if (onTokenRefreshed) {
-          onTokenRefreshed(data.data.access_token, data.data.refresh_token);
+          onTokenRefreshed(data.data.access_token, data.data.refresh_token)
         }
-        return true;
+        return true
       }
 
-      return false;
-    } catch {
-      return false;
-    } finally {
-      isRefreshing = false;
-      refreshPromise = null;
+      return false
     }
-  })();
+    catch {
+      return false
+    }
+    finally {
+      isRefreshing = false
+      refreshPromise = null
+    }
+  })()
 
-  return refreshPromise;
+  return refreshPromise
 }
 
 // Make a fetch request with automatic token refresh on 401
 async function fetchWithRefresh(
   url: string,
   options: RequestInit,
-  includeAuth: boolean
+  includeAuth: boolean,
 ): Promise<Response> {
-  const response = await fetch(url, options);
+  const response = await fetch(url, options)
 
   // If 401 and we have auth, try to refresh token and retry
   if (response.status === 401 && includeAuth) {
-    const refreshed = await refreshAccessToken();
+    const refreshed = await refreshAccessToken()
     if (refreshed) {
       // Retry with new token
-      const newHeaders = getHeaders(true);
+      const newHeaders = getHeaders(true)
       return fetch(url, {
         ...options,
         headers: newHeaders,
-      });
-    } else {
+      })
+    }
+    else {
       // Refresh failed, notify authStore to logout
       if (onRefreshFailed) {
-        onRefreshFailed();
+        onRefreshFailed()
       }
     }
   }
 
-  return response;
+  return response
 }
 
 // API client object with methods for different HTTP verbs
@@ -207,67 +212,67 @@ export const api = {
     const response = await fetchWithRefresh(
       buildUrl(path),
       {
-        method: "GET",
+        method: 'GET',
         headers: getHeaders(includeAuth),
       },
-      includeAuth
-    );
+      includeAuth,
+    )
 
-    return handleResponse<T>(response);
+    return handleResponse<T>(response)
   },
 
   async post<T>(path: string, body?: unknown, includeAuth = true): Promise<T> {
     const response = await fetchWithRefresh(
       buildUrl(path),
       {
-        method: "POST",
+        method: 'POST',
         headers: getHeaders(includeAuth),
         body: body ? JSON.stringify(body) : undefined,
       },
-      includeAuth
-    );
+      includeAuth,
+    )
 
-    return handleResponse<T>(response);
+    return handleResponse<T>(response)
   },
 
   async put<T>(path: string, body?: unknown, includeAuth = true): Promise<T> {
     const response = await fetchWithRefresh(
       buildUrl(path),
       {
-        method: "PUT",
+        method: 'PUT',
         headers: getHeaders(includeAuth),
         body: body ? JSON.stringify(body) : undefined,
       },
-      includeAuth
-    );
+      includeAuth,
+    )
 
-    return handleResponse<T>(response);
+    return handleResponse<T>(response)
   },
 
   async patch<T>(path: string, body?: unknown, includeAuth = true): Promise<T> {
     const response = await fetchWithRefresh(
       buildUrl(path),
       {
-        method: "PATCH",
+        method: 'PATCH',
         headers: getHeaders(includeAuth),
         body: body ? JSON.stringify(body) : undefined,
       },
-      includeAuth
-    );
+      includeAuth,
+    )
 
-    return handleResponse<T>(response);
+    return handleResponse<T>(response)
   },
 
   async delete<T>(path: string, includeAuth = true): Promise<T> {
     const response = await fetchWithRefresh(
       buildUrl(path),
       {
-        method: "DELETE",
+        method: 'DELETE',
         headers: getHeaders(includeAuth),
       },
-      includeAuth
-    );
+      includeAuth,
+    )
 
-    return handleResponse<T>(response);
+    return handleResponse<T>(response)
   },
-};
+}

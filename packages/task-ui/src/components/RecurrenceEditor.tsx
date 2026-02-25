@@ -1,82 +1,82 @@
-"use client";
+'use client'
 
+import type {
+  RecurrenceEditorValue,
+  RecurrenceEndType,
+  RecurrenceFrequency,
+  RecurrenceUpdateScope,
+} from './TaskDetailForm'
 import {
   Button,
+  Calendar,
   Checkbox,
   Input,
   Label,
   Popover,
   PopoverContent,
   PopoverTrigger,
-  Calendar,
-} from "@puratodo/ui";
-import { CalendarIcon, Repeat, X } from "lucide-react";
-import { format } from "date-fns";
-import type {
-  RecurrenceFrequency,
-  RecurrenceEndType,
-  RecurrenceUpdateScope,
-  RecurrenceEditorValue,
-} from "./TaskDetailForm";
+} from '@puratodo/ui'
+import { format } from 'date-fns'
+import { CalendarIcon, Repeat, X } from 'lucide-react'
 
 export interface RecurrenceEditorProps {
-  value: RecurrenceEditorValue;
-  onChange: (value: RecurrenceEditorValue) => void;
-  updateScope: RecurrenceUpdateScope;
-  onUpdateScopeChange: (scope: RecurrenceUpdateScope) => void;
+  value: RecurrenceEditorValue
+  onChange: (value: RecurrenceEditorValue) => void
+  updateScope: RecurrenceUpdateScope
+  onUpdateScopeChange: (scope: RecurrenceUpdateScope) => void
   labels: {
-    recurrence: string;
-    recurrenceNone: string;
-    recurrenceDaily: string;
-    recurrenceWeekly: string;
-    recurrenceMonthly: string;
-    recurrenceCustom: string;
-    clear: string;
-    every: string;
-    intervalUnitDays: string;
-    intervalUnitWeeks: string;
-    intervalUnitMonths: string;
-    weekdays: string;
-    weekdaySun: string;
-    weekdayMon: string;
-    weekdayTue: string;
-    weekdayWed: string;
-    weekdayThu: string;
-    weekdayFri: string;
-    weekdaySat: string;
-    customRule: string;
-    customRulePlaceholder: string;
-    timezone: string;
-    timezonePlaceholder: string;
-    end: string;
-    endNever: string;
-    endOnDate: string;
-    endAfterCount: string;
-    selectEndDate: string;
-    applyScope: string;
-    scopeSingle: string;
-    scopeFuture: string;
-  };
+    recurrence: string
+    recurrenceNone: string
+    recurrenceDaily: string
+    recurrenceWeekly: string
+    recurrenceMonthly: string
+    recurrenceCustom: string
+    clear: string
+    every: string
+    intervalUnitDays: string
+    intervalUnitWeeks: string
+    intervalUnitMonths: string
+    weekdays: string
+    weekdaySun: string
+    weekdayMon: string
+    weekdayTue: string
+    weekdayWed: string
+    weekdayThu: string
+    weekdayFri: string
+    weekdaySat: string
+    customRule: string
+    customRulePlaceholder: string
+    timezone: string
+    timezonePlaceholder: string
+    end: string
+    endNever: string
+    endOnDate: string
+    endAfterCount: string
+    selectEndDate: string
+    applyScope: string
+    scopeSingle: string
+    scopeFuture: string
+  }
 }
 
 const WEEKDAY_OPTIONS = [
-  { value: 0, labelKey: "weekdaySun" },
-  { value: 1, labelKey: "weekdayMon" },
-  { value: 2, labelKey: "weekdayTue" },
-  { value: 3, labelKey: "weekdayWed" },
-  { value: 4, labelKey: "weekdayThu" },
-  { value: 5, labelKey: "weekdayFri" },
-  { value: 6, labelKey: "weekdaySat" },
-] as const;
+  { value: 0, labelKey: 'weekdaySun' },
+  { value: 1, labelKey: 'weekdayMon' },
+  { value: 2, labelKey: 'weekdayTue' },
+  { value: 3, labelKey: 'weekdayWed' },
+  { value: 4, labelKey: 'weekdayThu' },
+  { value: 5, labelKey: 'weekdayFri' },
+  { value: 6, labelKey: 'weekdaySat' },
+] as const
 
 function getIntervalUnitKey(frequency: RecurrenceFrequency): string {
   switch (frequency) {
-    case "weekly":
-      return "intervalUnitWeeks";
-    case "monthly":
-      return "intervalUnitMonths";
+    case 'weekly':
+      return 'intervalUnitWeeks'
+    case 'monthly':
+      return 'intervalUnitMonths'
     default:
-      return "intervalUnitDays";
+      return 'intervalUnitDays'
   }
 }
 
@@ -88,67 +88,67 @@ export function RecurrenceEditor({
   labels,
 }: RecurrenceEditorProps) {
   const update = (patch: Partial<RecurrenceEditorValue>) => {
-    onChange({ ...value, ...patch });
-  };
+    onChange({ ...value, ...patch })
+  }
 
   const clearRecurrence = () => {
     onChange({
-      frequency: "",
-      interval: "",
+      frequency: '',
+      interval: '',
       weekdays: [],
-      endType: "never",
+      endType: 'never',
       endDate: undefined,
-      endCount: "",
-      rule: "",
-      timezone: "",
-    });
-  };
+      endCount: '',
+      rule: '',
+      timezone: '',
+    })
+  }
 
   const toggleWeekday = (day: number, checked: boolean) => {
     const next = checked
       ? Array.from(new Set([...value.weekdays, day])).sort((a, b) => a - b)
-      : value.weekdays.filter((entry) => entry !== day);
-    update({ weekdays: next });
-  };
+      : value.weekdays.filter(entry => entry !== day)
+    update({ weekdays: next })
+  }
 
   const handleFrequencyChange = (frequency: RecurrenceFrequency) => {
     if (!frequency) {
-      clearRecurrence();
-      return;
+      clearRecurrence()
+      return
     }
 
-    const fallbackTimezone =
-      Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    const fallbackTimezone
+      = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
 
     update({
       frequency,
-      interval: value.interval || "1",
+      interval: value.interval || '1',
       weekdays:
-        frequency === "weekly"
+        frequency === 'weekly'
           ? value.weekdays.length > 0
             ? value.weekdays
             : [new Date().getDay()]
-          : frequency === "custom"
+          : frequency === 'custom'
             ? value.weekdays
             : [],
-      rule: frequency === "custom" ? value.rule : "",
+      rule: frequency === 'custom' ? value.rule : '',
       timezone: value.timezone || fallbackTimezone,
-    });
-  };
+    })
+  }
 
   const handleEndTypeChange = (endType: RecurrenceEndType) => {
-    if (endType === "never") {
-      update({ endType, endDate: undefined, endCount: "" });
-      return;
+    if (endType === 'never') {
+      update({ endType, endDate: undefined, endCount: '' })
+      return
     }
 
-    if (endType === "onDate") {
-      update({ endType, endCount: "" });
-      return;
+    if (endType === 'onDate') {
+      update({ endType, endCount: '' })
+      return
     }
 
-    update({ endType, endDate: undefined });
-  };
+    update({ endType, endDate: undefined })
+  }
 
   if (!value.frequency) {
     return (
@@ -160,8 +160,7 @@ export function RecurrenceEditor({
         <select
           value={value.frequency}
           onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
-            handleFrequencyChange(event.target.value as RecurrenceFrequency)
-          }
+            handleFrequencyChange(event.target.value as RecurrenceFrequency)}
           className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30"
         >
           <option value="">{labels.recurrenceNone}</option>
@@ -171,7 +170,7 @@ export function RecurrenceEditor({
           <option value="custom">{labels.recurrenceCustom}</option>
         </select>
       </div>
-    );
+    )
   }
 
   return (
@@ -195,8 +194,7 @@ export function RecurrenceEditor({
       <select
         value={value.frequency}
         onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
-          handleFrequencyChange(event.target.value as RecurrenceFrequency)
-        }
+          handleFrequencyChange(event.target.value as RecurrenceFrequency)}
         className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30"
       >
         <option value="daily">{labels.recurrenceDaily}</option>
@@ -221,22 +219,21 @@ export function RecurrenceEditor({
         </span>
       </div>
 
-      {(value.frequency === "weekly" || value.frequency === "custom") && (
+      {(value.frequency === 'weekly' || value.frequency === 'custom') && (
         <div className="space-y-2">
           <Label className="font-medium text-stone-700 dark:text-stone-300">
             {labels.weekdays}
           </Label>
           <div className="flex flex-wrap gap-2">
-            {WEEKDAY_OPTIONS.map((day) => (
+            {WEEKDAY_OPTIONS.map(day => (
               <label
                 key={day.value}
                 className="inline-flex items-center gap-2 rounded-md border border-stone-200 px-2 py-1 text-xs dark:border-stone-700"
               >
                 <Checkbox
                   checked={value.weekdays.includes(day.value)}
-                  onCheckedChange={(checked: boolean | "indeterminate") =>
-                    toggleWeekday(day.value, checked === true)
-                  }
+                  onCheckedChange={(checked: boolean | 'indeterminate') =>
+                    toggleWeekday(day.value, checked === true)}
                 />
                 <span>{labels[day.labelKey as keyof typeof labels]}</span>
               </label>
@@ -245,14 +242,14 @@ export function RecurrenceEditor({
         </div>
       )}
 
-      {value.frequency === "custom" && (
+      {value.frequency === 'custom' && (
         <div className="space-y-2">
           <Label className="font-medium text-stone-700 dark:text-stone-300">
             {labels.customRule}
           </Label>
           <Input
             value={value.rule}
-            onChange={(event) => update({ rule: event.target.value })}
+            onChange={event => update({ rule: event.target.value })}
             placeholder={labels.customRulePlaceholder}
           />
         </div>
@@ -264,7 +261,7 @@ export function RecurrenceEditor({
         </Label>
         <Input
           value={value.timezone}
-          onChange={(event) => update({ timezone: event.target.value })}
+          onChange={event => update({ timezone: event.target.value })}
           placeholder={labels.timezonePlaceholder}
         />
       </div>
@@ -276,8 +273,7 @@ export function RecurrenceEditor({
         <select
           value={value.endType}
           onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
-            handleEndTypeChange(event.target.value as RecurrenceEndType)
-          }
+            handleEndTypeChange(event.target.value as RecurrenceEndType)}
           className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30"
         >
           <option value="never">{labels.endNever}</option>
@@ -286,7 +282,7 @@ export function RecurrenceEditor({
         </select>
       </div>
 
-      {value.endType === "onDate" && (
+      {value.endType === 'onDate' && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label className="font-medium text-stone-700 dark:text-stone-300">
@@ -309,12 +305,12 @@ export function RecurrenceEditor({
               <Button
                 variant="outline"
                 className={`w-full justify-start text-left font-normal ${
-                  !value.endDate ? "text-stone-500" : ""
+                  !value.endDate ? 'text-stone-500' : ''
                 }`}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {value.endDate
-                  ? format(value.endDate, "PPP")
+                  ? format(value.endDate, 'PPP')
                   : labels.selectEndDate}
               </Button>
             </PopoverTrigger>
@@ -330,7 +326,7 @@ export function RecurrenceEditor({
         </div>
       )}
 
-      {value.endType === "afterCount" && (
+      {value.endType === 'afterCount' && (
         <div className="space-y-2">
           <Label className="font-medium text-stone-700 dark:text-stone-300">
             {labels.endAfterCount}
@@ -339,7 +335,7 @@ export function RecurrenceEditor({
             type="number"
             min="1"
             value={value.endCount}
-            onChange={(event) => update({ endCount: event.target.value })}
+            onChange={event => update({ endCount: event.target.value })}
             placeholder="10"
           />
         </div>
@@ -352,8 +348,7 @@ export function RecurrenceEditor({
         <select
           value={updateScope}
           onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
-            onUpdateScopeChange(event.target.value as RecurrenceUpdateScope)
-          }
+            onUpdateScopeChange(event.target.value as RecurrenceUpdateScope)}
           className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-input/30"
         >
           <option value="single">{labels.scopeSingle}</option>
@@ -361,5 +356,5 @@ export function RecurrenceEditor({
         </select>
       </div>
     </div>
-  );
+  )
 }

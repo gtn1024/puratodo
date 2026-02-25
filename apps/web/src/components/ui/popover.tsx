@@ -1,10 +1,10 @@
 // Re-export from shared UI package
 export {
   Popover,
-  PopoverTrigger,
-  PopoverContent,
   PopoverAnchor,
+  PopoverContent,
+  PopoverDescription,
   PopoverHeader,
   PopoverTitle,
-  PopoverDescription,
-} from "@puratodo/ui";
+  PopoverTrigger,
+} from '@puratodo/ui'

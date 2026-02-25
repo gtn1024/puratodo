@@ -1,19 +1,19 @@
-"use client";
+'use client'
 
-import { useEffect, useCallback } from "react";
+import { useCallback, useEffect } from 'react'
 
 export interface KeyboardShortcut {
-  key: string;
-  ctrl?: boolean;
-  shift?: boolean;
-  alt?: boolean;
-  action: () => void;
-  description: string;
+  key: string
+  ctrl?: boolean
+  shift?: boolean
+  alt?: boolean
+  action: () => void
+  description: string
 }
 
 interface UseKeyboardShortcutsProps {
-  shortcuts: KeyboardShortcut[];
-  enabled?: boolean;
+  shortcuts: KeyboardShortcut[]
+  enabled?: boolean
 }
 
 export function useKeyboardShortcuts({
@@ -23,43 +23,44 @@ export function useKeyboardShortcuts({
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       // Ignore if typing in input, textarea, or contentEditable
-      const target = event.target as HTMLElement;
+      const target = event.target as HTMLElement
       if (
-        target.tagName === "INPUT" ||
-        target.tagName === "TEXTAREA" ||
-        target.isContentEditable
+        target.tagName === 'INPUT'
+        || target.tagName === 'TEXTAREA'
+        || target.isContentEditable
       ) {
-        return;
+        return
       }
 
       for (const shortcut of shortcuts) {
-        const keyMatch = event.key.toLowerCase() === shortcut.key.toLowerCase();
-        const ctrlMatch = shortcut.ctrl ? event.ctrlKey || event.metaKey : !event.ctrlKey && !event.metaKey;
-        const shiftMatch = shortcut.shift ? event.shiftKey : !event.shiftKey;
-        const altMatch = shortcut.alt ? event.altKey : !event.altKey;
+        const keyMatch = event.key.toLowerCase() === shortcut.key.toLowerCase()
+        const ctrlMatch = shortcut.ctrl ? event.ctrlKey || event.metaKey : !event.ctrlKey && !event.metaKey
+        const shiftMatch = shortcut.shift ? event.shiftKey : !event.shiftKey
+        const altMatch = shortcut.alt ? event.altKey : !event.altKey
 
         if (keyMatch && ctrlMatch && shiftMatch && altMatch) {
-          event.preventDefault();
-          shortcut.action();
-          return;
+          event.preventDefault()
+          shortcut.action()
+          return
         }
       }
     },
-    [shortcuts]
-  );
+    [shortcuts],
+  )
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled)
+      return
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleKeyDown, enabled]);
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [handleKeyDown, enabled])
 }
 
 export const SHORTCUTS = {
-  NEW_TASK: { key: "n", description: "New task" },
-  NEW_LIST: { key: "l", description: "New list" },
-  SEARCH: { key: "/", description: "Search" },
-  HELP: { key: "?", description: "Show shortcuts" },
-  ESCAPE: { key: "Escape", description: "Close dialog" },
-} as const;
+  NEW_TASK: { key: 'n', description: 'New task' },
+  NEW_LIST: { key: 'l', description: 'New list' },
+  SEARCH: { key: '/', description: 'Search' },
+  HELP: { key: '?', description: 'Show shortcuts' },
+  ESCAPE: { key: 'Escape', description: 'Close dialog' },
+} as const

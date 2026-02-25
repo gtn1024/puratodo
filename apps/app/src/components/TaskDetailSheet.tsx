@@ -1,20 +1,20 @@
-import React from "react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@puratodo/ui";
-import { FileText, Loader2 } from "lucide-react";
-import { useDataStore } from "@/stores/dataStore";
+import type { RecurrenceEditorValue, RecurrenceUpdateScope } from '@puratodo/task-ui'
 import {
-  TaskDetailForm,
   createRecurrenceEditorValue,
-  type RecurrenceEditorValue,
-  type RecurrenceUpdateScope,
-} from "@puratodo/task-ui";
-import { useI18n } from "@/i18n";
+
+  TaskDetailForm,
+} from '@puratodo/task-ui'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@puratodo/ui'
+import { FileText, Loader2 } from 'lucide-react'
+import * as React from 'react'
+import { useI18n } from '@/i18n'
+import { useDataStore } from '@/stores/dataStore'
 
 interface TaskDetailSheetProps {
-  taskId: string | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onTaskUpdated: () => void;
+  taskId: string | null
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onTaskUpdated: () => void
 }
 
 function TaskDetailSheetContent({
@@ -22,58 +22,60 @@ function TaskDetailSheetContent({
   onTaskUpdated,
   onClose,
 }: {
-  taskId: string | null;
-  onTaskUpdated: () => void;
-  onClose: () => void;
+  taskId: string | null
+  onTaskUpdated: () => void
+  onClose: () => void
 }) {
-  const { tasks, updateTask } = useDataStore();
-  const { t } = useI18n();
+  const { tasks, updateTask } = useDataStore()
+  const { t } = useI18n()
 
   // Find the task from store
-  const task = taskId ? tasks.find((t) => t.id === taskId) : null;
+  const task = taskId ? tasks.find(t => t.id === taskId) : null
 
   // Recurrence and reminder state
   const defaultRecurrence: RecurrenceEditorValue = {
-    frequency: "",
-    interval: "",
+    frequency: '',
+    interval: '',
     weekdays: [],
-    endType: "never",
+    endType: 'never',
     endDate: undefined,
-    endCount: "",
-    rule: "",
-    timezone: "",
-  };
-  const [recurrence, setRecurrence] = React.useState<RecurrenceEditorValue>(defaultRecurrence);
-  const [recurrenceScope, setRecurrenceScope] = React.useState<RecurrenceUpdateScope>("single");
-  const [remindAt, setRemindAt] = React.useState<string | null>(null);
+    endCount: '',
+    rule: '',
+    timezone: '',
+  }
+  const [recurrence, setRecurrence] = React.useState<RecurrenceEditorValue>(defaultRecurrence)
+  const [recurrenceScope, setRecurrenceScope] = React.useState<RecurrenceUpdateScope>('single')
+  const [remindAt, setRemindAt] = React.useState<string | null>(null)
 
   // Load recurrence and remindAt data when taskId changes
   React.useEffect(() => {
     if (!taskId) {
-      setRecurrence(defaultRecurrence);
-      setRemindAt(null);
-      return;
+      setRecurrence(defaultRecurrence)
+      setRemindAt(null)
+      return
     }
 
-    const foundTask = tasks.find((t) => t.id === taskId);
+    const foundTask = tasks.find(t => t.id === taskId)
     if (foundTask) {
-      setRecurrence(createRecurrenceEditorValue(foundTask));
-      setRemindAt(foundTask.remind_at || null);
+      setRecurrence(createRecurrenceEditorValue(foundTask))
+      setRemindAt(foundTask.remind_at || null)
     }
-  }, [taskId, tasks]);
+  }, [taskId, tasks])
 
   const handleSave = async (updates: any) => {
-    if (!task) return;
+    if (!task)
+      return
 
     try {
-      await updateTask(task.id, updates);
-      onTaskUpdated();
-      onClose();
-    } catch (err) {
-      console.error("Failed to save task:", err);
-      throw err;
+      await updateTask(task.id, updates)
+      onTaskUpdated()
+      onClose()
     }
-  };
+    catch (err) {
+      console.error('Failed to save task:', err)
+      throw err
+    }
+  }
 
   // Empty state - no task selected
   if (!taskId) {
@@ -83,13 +85,13 @@ function TaskDetailSheetContent({
           <FileText className="h-8 w-8 text-stone-400" />
         </div>
         <h3 className="text-lg font-medium text-stone-900 dark:text-stone-100 mb-2">
-          {t("taskSheet.noTaskSelected")}
+          {t('taskSheet.noTaskSelected')}
         </h3>
         <p className="text-sm text-stone-500 dark:text-stone-400 max-w-xs">
-          {t("taskSheet.clickTaskToView")}
+          {t('taskSheet.clickTaskToView')}
         </p>
       </div>
-    );
+    )
   }
 
   // Loading state
@@ -98,7 +100,7 @@ function TaskDetailSheetContent({
       <div className="h-full flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-stone-400" />
       </div>
-    );
+    )
   }
 
   return (
@@ -115,21 +117,21 @@ function TaskDetailSheetContent({
       remindAt={remindAt}
       onRemindAtChange={setRemindAt}
       labels={{
-        taskName: t("taskDetail.taskName"),
-        dueDate: t("taskDetail.dueDate"),
-        planDate: t("taskDetail.planDate"),
-        duration: t("taskDetail.duration"),
-        comment: t("taskDetail.notes"),
-        selectDueDate: t("taskDetail.selectDueDate"),
-        selectPlanDate: t("taskDetail.selectPlanDate"),
-        clear: t("taskDetail.clear"),
-        save: t("taskDetail.save"),
-        cancel: t("taskDetail.close"),
-        loading: t("common.loading"),
-        taskNotFound: t("errors.taskNotFound"),
+        taskName: t('taskDetail.taskName'),
+        dueDate: t('taskDetail.dueDate'),
+        planDate: t('taskDetail.planDate'),
+        duration: t('taskDetail.duration'),
+        comment: t('taskDetail.notes'),
+        selectDueDate: t('taskDetail.selectDueDate'),
+        selectPlanDate: t('taskDetail.selectPlanDate'),
+        clear: t('taskDetail.clear'),
+        save: t('taskDetail.save'),
+        cancel: t('taskDetail.close'),
+        loading: t('common.loading'),
+        taskNotFound: t('errors.taskNotFound'),
       }}
     />
-  );
+  )
 }
 
 export function TaskDetailSheet({
@@ -138,7 +140,7 @@ export function TaskDetailSheet({
   onOpenChange,
   onTaskUpdated,
 }: TaskDetailSheetProps) {
-  const { t } = useI18n();
+  const { t } = useI18n()
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -148,8 +150,8 @@ export function TaskDetailSheet({
         showCloseButton={false}
       >
         <SheetHeader className="sr-only">
-          <SheetTitle>{t("taskSheet.taskDetails")}</SheetTitle>
-          <SheetDescription>{t("taskSheet.editTaskDetails")}</SheetDescription>
+          <SheetTitle>{t('taskSheet.taskDetails')}</SheetTitle>
+          <SheetDescription>{t('taskSheet.editTaskDetails')}</SheetDescription>
         </SheetHeader>
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-2">
@@ -162,5 +164,5 @@ export function TaskDetailSheet({
         />
       </SheetContent>
     </Sheet>
-  );
+  )
 }

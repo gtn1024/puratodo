@@ -10,4 +10,4 @@ export {
   DialogPortal,
   DialogTitle,
   DialogTrigger,
-} from "@puratodo/ui";
+} from '@puratodo/ui'

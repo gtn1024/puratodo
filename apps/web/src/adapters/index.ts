@@ -6,7 +6,7 @@
  * to interact with data, abstracting away the specific backend implementation.
  */
 
-export { SupabaseTaskAdapter } from "./SupabaseTaskAdapter";
-export { SupabaseListAdapter } from "./SupabaseListAdapter";
-export { SupabaseGroupAdapter } from "./SupabaseGroupAdapter";
-export { SupabaseAdapterProvider } from "./SupabaseAdapterProvider";
+export { SupabaseAdapterProvider } from './SupabaseAdapterProvider'
+export { SupabaseGroupAdapter } from './SupabaseGroupAdapter'
+export { SupabaseListAdapter } from './SupabaseListAdapter'
+export { SupabaseTaskAdapter } from './SupabaseTaskAdapter'

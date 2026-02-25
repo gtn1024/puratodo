@@ -1,39 +1,39 @@
-"use client";
+'use client'
 
-import * as React from "react";
+import { Keyboard } from 'lucide-react'
+import * as React from 'react'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Keyboard } from "lucide-react";
-import { useI18n } from "@/i18n";
+} from '@/components/ui/dialog'
+import { useI18n } from '@/i18n'
 
 interface ShortcutItem {
-  keys: string[];
-  descriptionKey: string;
+  keys: string[]
+  descriptionKey: string
 }
 
 const SHORTCUTS_LIST: ShortcutItem[] = [
-  { keys: ["N"], descriptionKey: "shortcuts.createNewTask" },
-  { keys: ["L"], descriptionKey: "shortcuts.createNewList" },
-  { keys: ["Ctrl", "K"], descriptionKey: "shortcuts.searchTasks" },
-  { keys: ["?"], descriptionKey: "shortcuts.showThisHelp" },
-  { keys: ["Esc"], descriptionKey: "shortcuts.closeDialogMenu" },
-];
+  { keys: ['N'], descriptionKey: 'shortcuts.createNewTask' },
+  { keys: ['L'], descriptionKey: 'shortcuts.createNewList' },
+  { keys: ['Ctrl', 'K'], descriptionKey: 'shortcuts.searchTasks' },
+  { keys: ['?'], descriptionKey: 'shortcuts.showThisHelp' },
+  { keys: ['Esc'], descriptionKey: 'shortcuts.closeDialogMenu' },
+]
 
 interface KeyboardShortcutsDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
 export function KeyboardShortcutsDialog({
   open,
   onOpenChange,
 }: KeyboardShortcutsDialogProps) {
-  const { t } = useI18n();
+  const { t } = useI18n()
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -41,7 +41,7 @@ export function KeyboardShortcutsDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Keyboard className="h-5 w-5" />
-            {t("shortcuts.title")}
+            {t('shortcuts.title')}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-2">
@@ -68,16 +68,16 @@ export function KeyboardShortcutsDialog({
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
 
 // Button to trigger the dialog
 export function KeyboardShortcutsButton({
   onClick,
 }: {
-  onClick: () => void;
+  onClick: () => void
 }) {
-  const { t } = useI18n();
+  const { t } = useI18n()
 
   return (
     <Button
@@ -85,10 +85,10 @@ export function KeyboardShortcutsButton({
       size="icon-xs"
       className="h-6 w-6"
       onClick={onClick}
-      title={t("shortcuts.buttonTitle")}
+      title={t('shortcuts.buttonTitle')}
     >
       <Keyboard className="h-3.5 w-3.5" />
-      <span className="sr-only">{t("shortcuts.buttonSrOnly")}</span>
+      <span className="sr-only">{t('shortcuts.buttonSrOnly')}</span>
     </Button>
-  );
+  )
 }

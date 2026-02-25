@@ -1,90 +1,92 @@
-import { NextRequest } from "next/server";
-import { getAuthenticatedUser } from "@/lib/api/auth";
-import { getOrCreateInboxListForUser } from "@/lib/inbox";
+import type { NextRequest } from 'next/server'
+import type { Task } from '../route'
+import { getAuthenticatedUser } from '@/lib/api/auth'
 import {
-  successResponse,
+  corsPreflightResponse,
   errorResponse,
+  successResponse,
   unauthorizedResponse,
   withCors,
-  corsPreflightResponse,
-} from "@/lib/api/response";
-import { parseRecurrenceFields } from "@/lib/recurrence";
-import { Task } from "../route";
+} from '@/lib/api/response'
+import { getOrCreateInboxListForUser } from '@/lib/inbox'
+import { parseRecurrenceFields } from '@/lib/recurrence'
 
 // OPTIONS - CORS preflight
 export async function OPTIONS() {
-  return corsPreflightResponse();
+  return corsPreflightResponse()
 }
 
 // GET /api/v1/tasks/inbox - Get inbox tasks with optional filters
 export async function GET(request: NextRequest) {
-  const auth = await getAuthenticatedUser(request.headers.get("Authorization"));
+  const auth = await getAuthenticatedUser(request.headers.get('Authorization'))
 
   if (!auth) {
-    return withCors(unauthorizedResponse());
+    return withCors(unauthorizedResponse())
   }
 
   try {
-    const inboxList = await getOrCreateInboxListForUser(auth.supabase, auth.id);
+    const inboxList = await getOrCreateInboxListForUser(auth.supabase, auth.id)
     if (!inboxList) {
-      return withCors(errorResponse("Failed to resolve inbox list", 500));
+      return withCors(errorResponse('Failed to resolve inbox list', 500))
     }
 
-    const { searchParams } = new URL(request.url);
-    const completed = searchParams.get("completed");
-    const starred = searchParams.get("starred");
-    const parentId = searchParams.get("parent_id");
+    const { searchParams } = new URL(request.url)
+    const completed = searchParams.get('completed')
+    const starred = searchParams.get('starred')
+    const parentId = searchParams.get('parent_id')
 
     let query = auth.supabase
-      .from("tasks")
-      .select("*")
-      .eq("user_id", auth.id)
-      .eq("list_id", inboxList.id)
-      .order("sort_order", { ascending: true });
+      .from('tasks')
+      .select('*')
+      .eq('user_id', auth.id)
+      .eq('list_id', inboxList.id)
+      .order('sort_order', { ascending: true })
 
     if (completed !== null) {
-      query = query.eq("completed", completed === "true");
+      query = query.eq('completed', completed === 'true')
     }
 
     if (starred !== null) {
-      query = query.eq("starred", starred === "true");
+      query = query.eq('starred', starred === 'true')
     }
 
     if (parentId !== null) {
-      if (parentId === "null" || parentId === "") {
-        query = query.is("parent_id", null);
-      } else {
-        query = query.eq("parent_id", parentId);
+      if (parentId === 'null' || parentId === '') {
+        query = query.is('parent_id', null)
+      }
+      else {
+        query = query.eq('parent_id', parentId)
       }
     }
 
-    const { data, error } = await query;
+    const { data, error } = await query
     if (error) {
-      return withCors(errorResponse(error.message, 500));
+      return withCors(errorResponse(error.message, 500))
     }
 
-    return withCors(successResponse<Task[]>(data || []));
-  } catch (err) {
-    console.error("Error fetching inbox tasks:", err);
-    return withCors(errorResponse("Failed to fetch inbox tasks", 500));
+    return withCors(successResponse<Task[]>(data || []))
+  }
+  catch (err) {
+    console.error('Error fetching inbox tasks:', err)
+    return withCors(errorResponse('Failed to fetch inbox tasks', 500))
   }
 }
 
 // POST /api/v1/tasks/inbox - Create a new inbox task
 export async function POST(request: NextRequest) {
-  const auth = await getAuthenticatedUser(request.headers.get("Authorization"));
+  const auth = await getAuthenticatedUser(request.headers.get('Authorization'))
 
   if (!auth) {
-    return withCors(unauthorizedResponse());
+    return withCors(unauthorizedResponse())
   }
 
   try {
-    const inboxList = await getOrCreateInboxListForUser(auth.supabase, auth.id);
+    const inboxList = await getOrCreateInboxListForUser(auth.supabase, auth.id)
     if (!inboxList) {
-      return withCors(errorResponse("Failed to resolve inbox list", 500));
+      return withCors(errorResponse('Failed to resolve inbox list', 500))
     }
 
-    const body = await request.json();
+    const body = await request.json()
     const {
       parent_id,
       name,
@@ -94,54 +96,55 @@ export async function POST(request: NextRequest) {
       plan_date,
       comment,
       duration_minutes,
-    } = body;
+    } = body
 
-    const recurrenceResult = parseRecurrenceFields(body as Record<string, unknown>);
+    const recurrenceResult = parseRecurrenceFields(body as Record<string, unknown>)
     if (recurrenceResult.error) {
-      return withCors(errorResponse(recurrenceResult.error));
+      return withCors(errorResponse(recurrenceResult.error))
     }
 
-    if (!name || typeof name !== "string" || name.trim() === "") {
-      return withCors(errorResponse("Name is required"));
+    if (!name || typeof name !== 'string' || name.trim() === '') {
+      return withCors(errorResponse('Name is required'))
     }
 
     if (parent_id) {
       const { data: parentTask, error: parentError } = await auth.supabase
-        .from("tasks")
-        .select("id, list_id")
-        .eq("id", parent_id)
-        .eq("user_id", auth.id)
-        .single();
+        .from('tasks')
+        .select('id, list_id')
+        .eq('id', parent_id)
+        .eq('user_id', auth.id)
+        .single()
 
       if (parentError || !parentTask) {
-        return withCors(errorResponse("Parent task not found", 404));
+        return withCors(errorResponse('Parent task not found', 404))
       }
 
       if (parentTask.list_id !== inboxList.id) {
-        return withCors(errorResponse("Parent task must be in Inbox"));
+        return withCors(errorResponse('Parent task must be in Inbox'))
       }
     }
 
     let sortQuery = auth.supabase
-      .from("tasks")
-      .select("sort_order")
-      .eq("list_id", inboxList.id)
-      .eq("user_id", auth.id);
+      .from('tasks')
+      .select('sort_order')
+      .eq('list_id', inboxList.id)
+      .eq('user_id', auth.id)
 
     if (parent_id) {
-      sortQuery = sortQuery.eq("parent_id", parent_id);
-    } else {
-      sortQuery = sortQuery.is("parent_id", null);
+      sortQuery = sortQuery.eq('parent_id', parent_id)
+    }
+    else {
+      sortQuery = sortQuery.is('parent_id', null)
     }
 
     const { data: existingTasks } = await sortQuery
-      .order("sort_order", { ascending: false })
-      .limit(1);
+      .order('sort_order', { ascending: false })
+      .limit(1)
 
-    const maxOrder = existingTasks?.[0]?.sort_order ?? -1;
+    const maxOrder = existingTasks?.[0]?.sort_order ?? -1
 
     const { data, error } = await auth.supabase
-      .from("tasks")
+      .from('tasks')
       .insert({
         user_id: auth.id,
         list_id: inboxList.id,
@@ -157,15 +160,16 @@ export async function POST(request: NextRequest) {
         sort_order: maxOrder + 1,
       })
       .select()
-      .single();
+      .single()
 
     if (error) {
-      return withCors(errorResponse(error.message, 500));
+      return withCors(errorResponse(error.message, 500))
     }
 
-    return withCors(successResponse<Task>(data, 201));
-  } catch (err) {
-    console.error("Error creating inbox task:", err);
-    return withCors(errorResponse("Failed to create inbox task", 500));
+    return withCors(successResponse<Task>(data, 201))
+  }
+  catch (err) {
+    console.error('Error creating inbox task:', err)
+    return withCors(errorResponse('Failed to create inbox task', 500))
   }
 }

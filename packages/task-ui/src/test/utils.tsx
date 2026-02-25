@@ -1,5 +1,6 @@
-import { ReactElement } from 'react'
-import { render, RenderOptions } from '@testing-library/react'
+import type { RenderOptions } from '@testing-library/react'
+import type { ReactElement } from 'react'
+import { render } from '@testing-library/react'
 
 // Simple wrapper for components that need providers
 function AllProviders({ children }: { children: React.ReactNode }) {
@@ -8,7 +9,7 @@ function AllProviders({ children }: { children: React.ReactNode }) {
 
 function customRender(
   ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>
+  options?: Omit<RenderOptions, 'wrapper'>,
 ) {
   return render(ui, { wrapper: AllProviders, ...options })
 }

@@ -1,5 +1,5 @@
-import { ListAdapter } from "@puratodo/api-types";
-import * as listActions from "./listActions";
+import type { ListAdapter } from '@puratodo/api-types'
+import * as listActions from './listActions'
 
 /**
  * SupabaseListAdapter - Implements ListAdapter interface using Supabase Server Actions
@@ -17,4 +17,4 @@ export const SupabaseListAdapter: ListAdapter = {
   getAllLists: listActions.getAllLists,
   moveList: listActions.moveList,
   reorderLists: listActions.reorderLists,
-};
+}

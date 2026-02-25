@@ -1,48 +1,48 @@
-import * as React from "react";
-import { Mail, Lock, User, ArrowRight, AlertCircle, Server } from "lucide-react";
-import { Button, Input } from "@puratodo/ui";
-import { ApiServerSettingsDialog } from "@/components/ApiServerSettingsDialog";
-import { useAuth } from "@/hooks/useAuth";
-import { useI18n } from "@/i18n";
+import { Button, Input } from '@puratodo/ui'
+import { AlertCircle, ArrowRight, Lock, Mail, User } from 'lucide-react'
+import * as React from 'react'
+import { ApiServerSettingsDialog } from '@/components/ApiServerSettingsDialog'
+import { useAuth } from '@/hooks/useAuth'
+import { useI18n } from '@/i18n'
 
 interface RegisterPageProps {
-  onSwitchToLogin: () => void;
+  onSwitchToLogin: () => void
 }
 
 export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
-  const { t } = useI18n();
-  const [name, setName] = React.useState("");
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [confirmPassword, setConfirmPassword] = React.useState("");
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [validationError, setValidationError] = React.useState<string | null>(null);
-  const { register, isLoading, error, clearError } = useAuth();
+  const { t } = useI18n()
+  const [name, setName] = React.useState('')
+  const [email, setEmail] = React.useState('')
+  const [password, setPassword] = React.useState('')
+  const [confirmPassword, setConfirmPassword] = React.useState('')
+  const [showPassword, setShowPassword] = React.useState(false)
+  const [validationError, setValidationError] = React.useState<string | null>(null)
+  const { register, isLoading, error, clearError } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    clearError();
-    setValidationError(null);
+    e.preventDefault()
+    clearError()
+    setValidationError(null)
 
     // Client-side validation
     if (password !== confirmPassword) {
-      setValidationError(t("auth.passwordsDoNotMatch"));
-      return;
+      setValidationError(t('auth.passwordsDoNotMatch'))
+      return
     }
 
     if (password.length < 8) {
-      setValidationError(t("auth.passwordTooShort"));
-      return;
+      setValidationError(t('auth.passwordTooShort'))
+      return
     }
 
-    const result = await register({ email, password, name: name || undefined });
+    const result = await register({ email, password, name: name || undefined })
     if (result.success) {
       // Navigation will be handled by the auth state change
-      console.log("Registration successful");
+      console.log('Registration successful')
     }
-  };
+  }
 
-  const displayError = validationError || error;
+  const displayError = validationError || error
 
   return (
     <main className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-stone-50 via-stone-100 to-stone-50 dark:from-stone-950 dark:via-stone-900 dark:to-stone-950">
@@ -52,16 +52,16 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
           className="absolute -top-1/2 -left-1/2 w-full h-full opacity-30 dark:opacity-20"
           style={{
             background:
-              "radial-gradient(circle, oklch(0.7 0.02 85) 0%, transparent 50%)",
-            animation: "float 20s ease-in-out infinite",
+              'radial-gradient(circle, oklch(0.7 0.02 85) 0%, transparent 50%)',
+            animation: 'float 20s ease-in-out infinite',
           }}
         />
         <div
           className="absolute -bottom-1/2 -right-1/2 w-full h-full opacity-30 dark:opacity-20"
           style={{
             background:
-              "radial-gradient(circle, oklch(0.7 0.03 180) 0%, transparent 50%)",
-            animation: "float 25s ease-in-out infinite reverse",
+              'radial-gradient(circle, oklch(0.7 0.03 180) 0%, transparent 50%)',
+            animation: 'float 25s ease-in-out infinite reverse',
           }}
         />
         {/* Grain texture overlay */}
@@ -76,7 +76,7 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
       {/* Register Card */}
       <div
         className="w-full max-w-md relative z-10 rounded-xl border border-stone-200/60 dark:border-stone-800/60 shadow-2xl shadow-stone-900/5 dark:shadow-stone-900/30 bg-white/80 dark:bg-stone-900/80 backdrop-blur-xl p-8"
-        style={{ animation: "slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)" }}
+        style={{ animation: 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)' }}
       >
         {/* API Server button */}
         <div className="mb-6 flex justify-end">
@@ -86,7 +86,7 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
                 type="button"
                 className="text-sm font-medium text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200"
               >
-                {t("apiServer.title")}
+                {t('apiServer.title')}
               </button>
             )}
           />
@@ -95,7 +95,7 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
         {/* Logo / Brand */}
         <div
           className="flex items-center justify-center mb-4"
-          style={{ animation: "fadeIn 0.8s ease-out 0.2s both" }}
+          style={{ animation: 'fadeIn 0.8s ease-out 0.2s both' }}
         >
           <div className="relative">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-stone-800 to-stone-600 dark:from-stone-100 dark:to-stone-300 flex items-center justify-center shadow-lg shadow-stone-900/20 dark:shadow-stone-900/40">
@@ -110,15 +110,15 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
 
         <h1
           className="text-2xl font-semibold tracking-tight text-center text-stone-900 dark:text-stone-100 mb-1"
-          style={{ animation: "fadeIn 0.8s ease-out 0.3s both" }}
+          style={{ animation: 'fadeIn 0.8s ease-out 0.3s both' }}
         >
-          {t("register.createYourAccount")}
+          {t('register.createYourAccount')}
         </h1>
         <p
           className="text-sm text-stone-500 dark:text-stone-400 text-center mb-6"
-          style={{ animation: "fadeIn 0.8s ease-out 0.4s both" }}
+          style={{ animation: 'fadeIn 0.8s ease-out 0.4s both' }}
         >
-          {t("register.getStartedFree")}
+          {t('register.getStartedFree')}
         </p>
 
         {/* Error message */}
@@ -135,21 +135,21 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
         <form
           onSubmit={handleSubmit}
           className="space-y-4"
-          style={{ animation: "fadeIn 0.8s ease-out 0.5s both" }}
+          style={{ animation: 'fadeIn 0.8s ease-out 0.5s both' }}
         >
           <div className="space-y-2">
             <label
               htmlFor="name"
               className="text-sm font-medium text-stone-700 dark:text-stone-300"
             >
-              {t("register.name")}
+              {t('register.name')}
             </label>
             <Input
               id="name"
               type="text"
-              placeholder={t("register.namePlaceholder")}
+              placeholder={t('register.namePlaceholder')}
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={e => setName(e.target.value)}
               icon={<User className="h-5 w-5" />}
               disabled={isLoading}
             />
@@ -160,14 +160,14 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
               htmlFor="email"
               className="text-sm font-medium text-stone-700 dark:text-stone-300"
             >
-              {t("auth.email")}
+              {t('auth.email')}
             </label>
             <Input
               id="email"
               type="email"
-              placeholder={t("register.emailPlaceholder")}
+              placeholder={t('register.emailPlaceholder')}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               icon={<Mail className="h-5 w-5" />}
               required
               disabled={isLoading}
@@ -179,14 +179,14 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
               htmlFor="password"
               className="text-sm font-medium text-stone-700 dark:text-stone-300"
             >
-              {t("auth.password")}
+              {t('auth.password')}
             </label>
             <Input
               id="password"
-              type={showPassword ? "text" : "password"}
-              placeholder={t("register.passwordPlaceholder")}
+              type={showPassword ? 'text' : 'password'}
+              placeholder={t('register.passwordPlaceholder')}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               icon={<Lock className="h-5 w-5" />}
               required
               disabled={isLoading}
@@ -199,14 +199,14 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
               htmlFor="confirmPassword"
               className="text-sm font-medium text-stone-700 dark:text-stone-300"
             >
-              {t("auth.confirmPassword")}
+              {t('auth.confirmPassword')}
             </label>
             <Input
               id="confirmPassword"
-              type={showPassword ? "text" : "password"}
-              placeholder={t("register.confirmPasswordPlaceholder")}
+              type={showPassword ? 'text' : 'password'}
+              placeholder={t('register.confirmPasswordPlaceholder')}
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={e => setConfirmPassword(e.target.value)}
               icon={<Lock className="h-5 w-5" />}
               required
               disabled={isLoading}
@@ -220,7 +220,7 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
               className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-300 transition-colors"
               disabled={isLoading}
             >
-              {showPassword ? t("register.hidePasswords") : t("register.showPasswords")}
+              {showPassword ? t('register.hidePasswords') : t('register.showPasswords')}
             </button>
           </div>
 
@@ -229,47 +229,53 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
             className="w-full h-12 text-base font-medium bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-700 dark:hover:bg-stone-600 dark:text-stone-100 transition-all duration-200 shadow-lg shadow-stone-900/20 dark:shadow-stone-900/40"
             disabled={isLoading}
           >
-            {isLoading ? (
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>{t("auth.creatingAccount")}</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <span>{t("auth.createAccount")}</span>
-                <ArrowRight className="w-5 h-5" />
-              </div>
-            )}
+            {isLoading
+              ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>{t('auth.creatingAccount')}</span>
+                  </div>
+                )
+              : (
+                  <div className="flex items-center gap-2">
+                    <span>{t('auth.createAccount')}</span>
+                    <ArrowRight className="w-5 h-5" />
+                  </div>
+                )}
           </Button>
         </form>
 
         <div
           className="mt-6 text-center text-sm text-stone-500 dark:text-stone-400"
-          style={{ animation: "fadeIn 0.8s ease-out 0.6s both" }}
+          style={{ animation: 'fadeIn 0.8s ease-out 0.6s both' }}
         >
-          {t("auth.alreadyHaveAccount")}{" "}
+          {t('auth.alreadyHaveAccount')}
+          {' '}
           <button
             type="button"
             onClick={onSwitchToLogin}
             className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors underline-offset-4 hover:underline"
           >
-            {t("auth.signIn")}
+            {t('auth.signIn')}
           </button>
         </div>
 
         <p className="mt-8 text-center text-xs text-stone-400 dark:text-stone-500">
-          {t("register.byCreatingAccount")}{" "}
+          {t('register.byCreatingAccount')}
+          {' '}
           <a href="#" className="underline hover:text-stone-600 dark:hover:text-stone-300">
-            {t("register.termsOfService")}
-          </a>{" "}
-          {t("register.and")}{" "}
+            {t('register.termsOfService')}
+          </a>
+          {' '}
+          {t('register.and')}
+          {' '}
           <a href="#" className="underline hover:text-stone-600 dark:hover:text-stone-300">
-            {t("register.privacyPolicy")}
+            {t('register.privacyPolicy')}
           </a>
         </p>
       </div>
     </main>
-  );
+  )
 }
 
-export default RegisterPage;
+export default RegisterPage

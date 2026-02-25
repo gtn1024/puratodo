@@ -1,8 +1,8 @@
 // Contexts barrel export
 export {
   AdapterProvider,
-  useTaskAdapter,
-  useListAdapter,
-  useGroupAdapter,
   useAdapters,
-} from './TaskAdapterContext';
+  useGroupAdapter,
+  useListAdapter,
+  useTaskAdapter,
+} from './TaskAdapterContext'

@@ -1,4 +1,4 @@
-import { SidebarSkeleton, ListPanelSkeleton } from "@/components/dashboard/skeletons";
+import { ListPanelSkeleton, SidebarSkeleton } from '@/components/dashboard/skeletons'
 
 export default function DashboardLoading() {
   return (
@@ -23,5 +23,5 @@ export default function DashboardLoading() {
         </main>
       </div>
     </div>
-  );
+  )
 }

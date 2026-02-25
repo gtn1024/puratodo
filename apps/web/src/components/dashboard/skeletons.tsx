@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from '@/components/ui/skeleton'
 
 export function SidebarSkeleton() {
   return (
@@ -20,7 +20,7 @@ export function SidebarSkeleton() {
 
         {/* Group Items */}
         <div className="space-y-0.5">
-          {[1, 2, 3].map((i) => (
+          {[1, 2, 3].map(i => (
             <div key={i} className="px-2 py-1.5">
               <div className="flex items-center gap-1">
                 <Skeleton className="h-3.5 w-3.5 rounded" />
@@ -34,7 +34,7 @@ export function SidebarSkeleton() {
         </div>
       </div>
     </aside>
-  );
+  )
 }
 
 export function ListPanelSkeleton() {
@@ -51,7 +51,7 @@ export function ListPanelSkeleton() {
 
       {/* List Items */}
       <div className="space-y-1">
-        {[1, 2, 3].map((i) => (
+        {[1, 2, 3].map(i => (
           <div
             key={i}
             className="flex items-center gap-3 px-4 py-3 rounded-lg border border-stone-200 dark:border-stone-800"
@@ -64,7 +64,7 @@ export function ListPanelSkeleton() {
         ))}
       </div>
     </div>
-  );
+  )
 }
 
 export function TaskPanelSkeleton() {
@@ -87,7 +87,7 @@ export function TaskPanelSkeleton() {
 
       {/* Task Items */}
       <div className="space-y-1">
-        {[1, 2, 3, 4].map((i) => (
+        {[1, 2, 3, 4].map(i => (
           <div
             key={i}
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-stone-200 dark:border-stone-800"
@@ -102,5 +102,5 @@ export function TaskPanelSkeleton() {
         ))}
       </div>
     </div>
-  );
+  )
 }

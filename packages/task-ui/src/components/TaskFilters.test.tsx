@@ -1,14 +1,16 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { render } from '../test/utils'
-import {
-  TaskFilters,
+import type {
   TaskFiltersProps,
   TaskFiltersValue,
 } from '../components/TaskFilters'
+import { screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  TaskFilters,
+} from '../components/TaskFilters'
+import { render } from '../test/utils'
 
-describe('TaskFilters', () => {
+describe('taskFilters', () => {
   const defaultValue: TaskFiltersValue = {
     status: 'all',
     star: 'all',

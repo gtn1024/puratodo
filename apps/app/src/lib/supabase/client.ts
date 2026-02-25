@@ -1,35 +1,34 @@
 // Supabase client for Tauri app
 // Uses config fetched from server
 
-import { createClient } from "@supabase/supabase-js";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js'
+import { getAuthToken } from '@/lib/api/client'
 import {
-  fetchSupabaseConfig,
-  getCachedSupabaseConfig,
   clearSupabaseConfig,
-} from "@/lib/api/supabase-config";
-import { getAuthToken } from "@/lib/api/client";
+  fetchSupabaseConfig,
+} from '@/lib/api/supabase-config'
 
-let supabaseClient: SupabaseClient | null = null;
+let supabaseClient: SupabaseClient | null = null
 
 export async function initializeSupabaseClient(): Promise<SupabaseClient | null> {
   // Check if already initialized
   if (supabaseClient) {
-    return supabaseClient;
+    return supabaseClient
   }
 
   // Get config from server
-  const config = await fetchSupabaseConfig();
+  const config = await fetchSupabaseConfig()
   if (!config) {
-    console.warn("Failed to fetch Supabase config");
-    return null;
+    console.warn('Failed to fetch Supabase config')
+    return null
   }
 
   // Get current auth token
-  const token = getAuthToken();
+  const token = getAuthToken()
   if (!token) {
-    console.warn("No auth token available");
-    return null;
+    console.warn('No auth token available')
+    return null
   }
 
   // Create Supabase client
@@ -43,22 +42,22 @@ export async function initializeSupabaseClient(): Promise<SupabaseClient | null>
         Authorization: `Bearer ${token}`,
       },
     },
-  });
+  })
 
-  return supabaseClient;
+  return supabaseClient
 }
 
 export function getSupabaseClient(): SupabaseClient | null {
-  return supabaseClient;
+  return supabaseClient
 }
 
 export function clearSupabaseClient(): void {
-  supabaseClient = null;
-  clearSupabaseConfig();
+  supabaseClient = null
+  clearSupabaseConfig()
 }
 
 // Re-initialize client with new auth token
 export async function reinitializeSupabaseClient(): Promise<SupabaseClient | null> {
-  clearSupabaseClient();
-  return await initializeSupabaseClient();
+  clearSupabaseClient()
+  return await initializeSupabaseClient()
 }

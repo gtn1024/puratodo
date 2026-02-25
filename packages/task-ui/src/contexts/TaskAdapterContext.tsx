@@ -1,30 +1,32 @@
-'use client';
+'use client'
 
-import React, { createContext, useContext, ReactNode } from 'react';
-import { TaskAdapter, ListAdapter, GroupAdapter } from '@puratodo/api-types';
+import type { GroupAdapter, ListAdapter, TaskAdapter } from '@puratodo/api-types'
+import type { ReactNode } from 'react'
+import * as React from 'react'
+import { createContext, use } from 'react'
 
 /**
  * AdapterContextValue - The value provided by the AdapterProvider
  */
 interface AdapterContextValue {
-  taskAdapter: TaskAdapter;
-  listAdapter: ListAdapter;
-  groupAdapter: GroupAdapter;
+  taskAdapter: TaskAdapter
+  listAdapter: ListAdapter
+  groupAdapter: GroupAdapter
 }
 
 /**
  * AdapterContext - React Context for providing adapters to components
  */
-const AdapterContext = createContext<AdapterContextValue | null>(null);
+const AdapterContext = createContext<AdapterContextValue | null>(null)
 
 /**
  * AdapterProvider Props
  */
 interface AdapterProviderProps {
-  taskAdapter: TaskAdapter;
-  listAdapter: ListAdapter;
-  groupAdapter: GroupAdapter;
-  children: ReactNode;
+  taskAdapter: TaskAdapter
+  listAdapter: ListAdapter
+  groupAdapter: GroupAdapter
+  children: ReactNode
 }
 
 /**
@@ -51,13 +53,13 @@ export function AdapterProvider({
     taskAdapter,
     listAdapter,
     groupAdapter,
-  };
+  }
 
   return (
-    <AdapterContext.Provider value={value}>
+    <AdapterContext value={value}>
       {children}
-    </AdapterContext.Provider>
-  );
+    </AdapterContext>
+  )
 }
 
 /**
@@ -73,11 +75,11 @@ export function AdapterProvider({
  * ```
  */
 export function useTaskAdapter(): TaskAdapter {
-  const context = useContext(AdapterContext);
+  const context = use(AdapterContext)
   if (!context) {
-    throw new Error('useTaskAdapter must be used within an AdapterProvider');
+    throw new Error('useTaskAdapter must be used within an AdapterProvider')
   }
-  return context.taskAdapter;
+  return context.taskAdapter
 }
 
 /**
@@ -87,11 +89,11 @@ export function useTaskAdapter(): TaskAdapter {
  * @returns ListAdapter instance
  */
 export function useListAdapter(): ListAdapter {
-  const context = useContext(AdapterContext);
+  const context = use(AdapterContext)
   if (!context) {
-    throw new Error('useListAdapter must be used within an AdapterProvider');
+    throw new Error('useListAdapter must be used within an AdapterProvider')
   }
-  return context.listAdapter;
+  return context.listAdapter
 }
 
 /**
@@ -101,11 +103,11 @@ export function useListAdapter(): ListAdapter {
  * @returns GroupAdapter instance
  */
 export function useGroupAdapter(): GroupAdapter {
-  const context = useContext(AdapterContext);
+  const context = use(AdapterContext)
   if (!context) {
-    throw new Error('useGroupAdapter must be used within an AdapterProvider');
+    throw new Error('useGroupAdapter must be used within an AdapterProvider')
   }
-  return context.groupAdapter;
+  return context.groupAdapter
 }
 
 /**
@@ -120,9 +122,9 @@ export function useGroupAdapter(): GroupAdapter {
  * ```
  */
 export function useAdapters(): AdapterContextValue {
-  const context = useContext(AdapterContext);
+  const context = use(AdapterContext)
   if (!context) {
-    throw new Error('useAdapters must be used within an AdapterProvider');
+    throw new Error('useAdapters must be used within an AdapterProvider')
   }
-  return context;
+  return context
 }

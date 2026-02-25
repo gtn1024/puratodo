@@ -1,23 +1,25 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { screen, fireEvent, waitFor } from '@testing-library/react'
-import { render } from '../test/utils'
+import type { TaskWithSubtasks } from '@puratodo/api-types'
+import type {
+  RecurrenceEditorValue,
+  TaskDetailFormProps,
+} from '../components/TaskDetailForm'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   TaskDetailForm,
-  TaskDetailFormProps,
-  RecurrenceEditorValue,
-  RecurrenceUpdateScope,
 } from '../components/TaskDetailForm'
-import { TaskWithSubtasks } from '@puratodo/api-types'
+import { render } from '../test/utils'
 
 // Mock date-fns
 vi.mock('date-fns', () => ({
   format: vi.fn((date, formatStr) => {
-    if (formatStr === 'yyyy-MM-dd') return '2026-02-21'
+    if (formatStr === 'yyyy-MM-dd')
+      return '2026-02-21'
     return 'Feb 21, 2026'
   }),
 }))
 
-describe('TaskDetailForm', () => {
+describe('taskDetailForm', () => {
   const mockTask: TaskWithSubtasks = {
     id: 'task-1',
     name: 'Test Task',

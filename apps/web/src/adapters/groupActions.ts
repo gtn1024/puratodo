@@ -1,95 +1,97 @@
-"use server";
+'use server'
 
-import { Group, GroupInsert, GroupUpdate } from "@puratodo/api-types";
+import type { Group, GroupInsert, GroupUpdate } from '@puratodo/api-types'
 import {
   createGroup as dbCreateGroup,
-  getGroups,
-  updateGroup as dbUpdateGroup,
   deleteGroup as dbDeleteGroup,
   reorderGroups as dbReorderGroups,
-} from "@/actions/groups";
-import { createClient } from "@/lib/supabase/server";
+  updateGroup as dbUpdateGroup,
+  getGroups,
+} from '@/actions/groups'
+import { createClient } from '@/lib/supabase/server'
 
 export async function createGroup(group: GroupInsert): Promise<Group> {
-  const result = await dbCreateGroup(group.name, group.color || undefined);
+  const result = await dbCreateGroup(group.name, group.color || undefined)
 
   if (!result.success) {
-    throw new Error(result.error || "Failed to create group");
+    throw new Error(result.error || 'Failed to create group')
   }
 
-  const groups = await getGroups();
+  const groups = await getGroups()
   const createdGroup = groups.find(g =>
-    g.name === group.name &&
-    g.color === group.color
-  );
+    g.name === group.name
+    && g.color === group.color,
+  )
 
   if (!createdGroup) {
-    throw new Error("Failed to fetch created group");
+    throw new Error('Failed to fetch created group')
   }
 
-  return createdGroup;
+  return createdGroup
 }
 
 export async function getGroup(id: string): Promise<Group | null> {
-  const supabase = await createClient();
+  const supabase = await createClient()
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getUser()
 
   if (!user) {
-    return null;
+    return null
   }
 
   const { data, error } = await supabase
-    .from("groups")
-    .select("*")
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .single();
+    .from('groups')
+    .select('*')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .single()
 
   if (error) {
-    console.error("Error fetching group:", error);
-    return null;
+    console.error('Error fetching group:', error)
+    return null
   }
 
-  return data;
+  return data
 }
 
 export async function updateGroup(id: string, updates: GroupUpdate): Promise<Group> {
-  const updateData: { name?: string; color?: string } = {};
-  if (updates.name !== undefined) updateData.name = updates.name;
-  if (updates.color !== undefined) updateData.color = updates.color || undefined;
+  const updateData: { name?: string, color?: string } = {}
+  if (updates.name !== undefined)
+    updateData.name = updates.name
+  if (updates.color !== undefined)
+    updateData.color = updates.color || undefined
 
-  const result = await dbUpdateGroup(id, updateData);
+  const result = await dbUpdateGroup(id, updateData)
 
   if (!result.success) {
-    throw new Error(result.error || "Failed to update group");
+    throw new Error(result.error || 'Failed to update group')
   }
 
-  const updatedGroup = await getGroup(id);
+  const updatedGroup = await getGroup(id)
   if (!updatedGroup) {
-    throw new Error("Failed to fetch updated group");
+    throw new Error('Failed to fetch updated group')
   }
 
-  return updatedGroup;
+  return updatedGroup
 }
 
 export async function deleteGroup(id: string): Promise<void> {
-  const result = await dbDeleteGroup(id);
+  const result = await dbDeleteGroup(id)
 
   if (!result.success) {
-    throw new Error(result.error || "Failed to delete group");
+    throw new Error(result.error || 'Failed to delete group')
   }
 }
 
 export async function getAllGroups(): Promise<Group[]> {
-  return await getGroups();
+  return await getGroups()
 }
 
 export async function reorderGroups(groupIds: string[]): Promise<void> {
-  const result = await dbReorderGroups(groupIds);
+  const result = await dbReorderGroups(groupIds)
 
   if (!result.success) {
-    throw new Error(result.error || "Failed to reorder groups");
+    throw new Error(result.error || 'Failed to reorder groups')
   }
 }

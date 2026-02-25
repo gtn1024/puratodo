@@ -1,8 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { screen, fireEvent } from '@testing-library/react'
+import type { TaskWithSubtasks } from '@puratodo/api-types'
+import type { TaskListProps } from '../components/TaskList'
+import { fireEvent, screen } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { TaskList } from '../components/TaskList'
 import { render } from '../test/utils'
-import { TaskList, TaskListProps } from '../components/TaskList'
-import { TaskWithSubtasks } from '@puratodo/api-types'
 
 // Mock @dnd-kit
 vi.mock('@dnd-kit/core', () => ({
@@ -43,7 +44,7 @@ vi.mock('@dnd-kit/utilities', () => ({
   },
 }))
 
-describe('TaskList', () => {
+describe('taskList', () => {
   const mockTasks: TaskWithSubtasks[] = [
     {
       id: 'task-1',
@@ -109,7 +110,7 @@ describe('TaskList', () => {
 
   it('renders task with subtasks when expanded', () => {
     render(
-      <TaskList {...defaultProps} expandedTasks={new Set(['task-2'])} />
+      <TaskList {...defaultProps} expandedTasks={new Set(['task-2'])} />,
     )
     expect(screen.getByText('Task 2')).toBeInTheDocument()
     expect(screen.getByText('Subtask 1')).toBeInTheDocument()
@@ -149,13 +150,13 @@ describe('TaskList', () => {
         isSelectionMode={true}
         selectedTaskIds={new Set()}
         onToggleSelect={vi.fn()}
-      />
+      />,
     )
 
     // Should show Square icons for unselected tasks
     const buttons = screen.getAllByRole('button')
     const selectButtons = buttons.filter(btn =>
-      btn.querySelector('svg.lucide-square') || btn.querySelector('svg.lucide-check-square')
+      btn.querySelector('svg.lucide-square') || btn.querySelector('svg.lucide-check-square'),
     )
     expect(selectButtons.length).toBeGreaterThan(0)
   })
@@ -167,13 +168,13 @@ describe('TaskList', () => {
         isSelectionMode={true}
         selectedTaskIds={new Set(['task-1'])}
         onToggleSelect={vi.fn()}
-      />
+      />,
     )
 
     // Task 1 should be selected (CheckSquare icon)
     const buttons = screen.getAllByRole('button')
     const selectedButton = buttons.find(btn =>
-      btn.querySelector('svg.text-blue-500') || btn.querySelector('svg.lucide-check-square')
+      btn.querySelector('svg.text-blue-500') || btn.querySelector('svg.lucide-check-square'),
     )
     expect(selectedButton).toBeTruthy()
   })
@@ -186,7 +187,7 @@ describe('TaskList', () => {
         isSelectionMode={true}
         selectedTaskIds={new Set()}
         onToggleSelect={onToggleSelect}
-      />
+      />,
     )
 
     // Find and click a selection button
@@ -204,7 +205,7 @@ describe('TaskList', () => {
         {...defaultProps}
         editingTaskId="task-1"
         editName="Edited Task"
-      />
+      />,
     )
 
     const input = screen.getByDisplayValue('Edited Task')

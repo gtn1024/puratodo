@@ -1,10 +1,10 @@
+import { getLocalDateString } from '@puratodo/shared'
 import {
   isPermissionGranted,
   requestPermission,
   sendNotification,
-} from '@tauri-apps/plugin-notification';
-import { translate } from '@/i18n';
-import { getLocalDateString } from '@puratodo/shared';
+} from '@tauri-apps/plugin-notification'
+import { translate } from '@/i18n'
 
 /**
  * Request notification permission from the user
@@ -13,18 +13,19 @@ import { getLocalDateString } from '@puratodo/shared';
 export async function requestNotificationPermission(): Promise<boolean> {
   try {
     // Check if permission is already granted
-    let permissionGranted = await isPermissionGranted();
+    let permissionGranted = await isPermissionGranted()
 
     // If not, request permission
     if (!permissionGranted) {
-      const permission = await requestPermission();
-      permissionGranted = permission === 'granted';
+      const permission = await requestPermission()
+      permissionGranted = permission === 'granted'
     }
 
-    return permissionGranted;
-  } catch (error) {
-    console.error('Failed to request notification permission:', error);
-    return false;
+    return permissionGranted
+  }
+  catch (error) {
+    console.error('Failed to request notification permission:', error)
+    return false
   }
 }
 
@@ -37,20 +38,20 @@ export async function requestNotificationPermission(): Promise<boolean> {
 export async function sendTaskReminder(
   taskName: string,
   taskId: string,
-  dueDate?: string
+  dueDate?: string,
 ): Promise<boolean> {
   try {
-    const permissionGranted = await requestNotificationPermission();
+    const permissionGranted = await requestNotificationPermission()
 
     if (!permissionGranted) {
-      console.warn('Notification permission not granted');
-      return false;
+      console.warn('Notification permission not granted')
+      return false
     }
 
     // Create notification body with i18n
-    let body = `${translate('reminder.task')}: ${taskName}`;
+    let body = `${translate('reminder.task')}: ${taskName}`
     if (dueDate) {
-      body += `\n${translate('reminder.due')}: ${dueDate}`;
+      body += `\n${translate('reminder.due')}: ${dueDate}`
     }
 
     // Send notification with i18n title
@@ -58,12 +59,13 @@ export async function sendTaskReminder(
       title: translate('reminder.notificationTitle'),
       body,
       // Note: icon and sound are optional and platform-specific
-    });
+    })
 
-    return true;
-  } catch (error) {
-    console.error('Failed to send notification:', error);
-    return false;
+    return true
+  }
+  catch (error) {
+    console.error('Failed to send notification:', error)
+    return false
   }
 }
 
@@ -75,35 +77,37 @@ export async function sendTaskReminder(
  */
 export function scheduleTaskReminders(
   tasks: Array<{
-    id: string;
-    name: string;
-    due_date: string | null;
-    completed: boolean;
-  }>
+    id: string
+    name: string
+    due_date: string | null
+    completed: boolean
+  }>,
 ): void {
   // Check tasks every minute
-  const checkInterval = 60 * 1000; // 1 minute in milliseconds
+  const checkInterval = 60 * 1000 // 1 minute in milliseconds
 
   setInterval(async () => {
-    const now = new Date();
-    const today = getLocalDateString(now);
-    const currentTime = now.getHours() * 60 + now.getMinutes(); // Minutes since midnight
+    const now = new Date()
+    const today = getLocalDateString(now)
+    const currentTime = now.getHours() * 60 + now.getMinutes() // Minutes since midnight
 
     for (const task of tasks) {
       // Skip completed tasks
-      if (task.completed) continue;
+      if (task.completed)
+        continue
 
       // Skip tasks without due date
-      if (!task.due_date) continue;
+      if (!task.due_date)
+        continue
 
-      const dueDate = new Date(task.due_date);
-      const dueDateStr = getLocalDateString(dueDate);
-      const dueTime = dueDate.getHours() * 60 + dueDate.getMinutes();
+      const dueDate = new Date(task.due_date)
+      const dueDateStr = getLocalDateString(dueDate)
+      const dueTime = dueDate.getHours() * 60 + dueDate.getMinutes()
 
       // Check if task is due today and within the next hour
       if (dueDateStr === today && dueTime <= currentTime + 60 && dueTime > currentTime) {
         // Send reminder for tasks due within the next hour
-        const timeUntilDue = dueTime - currentTime;
+        const timeUntilDue = dueTime - currentTime
         if (timeUntilDue <= 60 && timeUntilDue > 0) {
           await sendTaskReminder(
             task.name,
@@ -112,12 +116,12 @@ export function scheduleTaskReminders(
               hour: 'numeric',
               minute: '2-digit',
               hour12: true,
-            })
-          );
+            }),
+          )
         }
       }
     }
-  }, checkInterval);
+  }, checkInterval)
 }
 
 /**
@@ -125,21 +129,22 @@ export function scheduleTaskReminders(
  * @param task - Task to check
  */
 export async function notifyOverdueTask(task: {
-  id: string;
-  name: string;
-  due_date: string | null;
-  completed: boolean;
+  id: string
+  name: string
+  due_date: string | null
+  completed: boolean
 }): Promise<void> {
-  if (!task.due_date || task.completed) return;
+  if (!task.due_date || task.completed)
+    return
 
-  const dueDate = new Date(task.due_date);
-  const now = new Date();
+  const dueDate = new Date(task.due_date)
+  const now = new Date()
 
   if (dueDate < now) {
     await sendTaskReminder(
       task.name,
       task.id,
-      `${translate('reminder.overdue')}: ${dueDate.toLocaleDateString()}`
-    );
+      `${translate('reminder.overdue')}: ${dueDate.toLocaleDateString()}`,
+    )
   }
 }

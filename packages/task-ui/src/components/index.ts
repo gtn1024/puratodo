@@ -1,69 +1,69 @@
-// Components barrel export
-export { TaskItem } from "./TaskItem";
+export { CommandPalette } from './CommandPalette'
 export type {
-  TaskItemProps,
-  TaskContextMeta,
-  InboxMoveTarget,
-} from "./TaskItem";
+  CommandPaletteLabels,
+  CommandPaletteProps,
+  SearchResult,
+} from './CommandPalette'
 
-export { TaskList } from "./TaskList";
-export type { TaskListProps } from "./TaskList";
-
-export { TaskDetailForm, createRecurrenceEditorValue, toLocalDateString } from "./TaskDetailForm";
-export type {
-  TaskDetailFormProps,
-  TaskUpdatePayload,
-  RecurrenceFrequency,
-  RecurrenceEndType,
-  RecurrenceUpdateScope,
-  RecurrenceEditorValue,
-} from "./TaskDetailForm";
+export { EmptyState } from './EmptyState'
+export type { EmptyStateProps } from './EmptyState'
 
 export {
-  TaskFilters,
-  filterTasksByFilterValue,
-  hasActiveFilterValues,
-} from "./TaskFilters";
+  ListPanelSkeleton,
+  LoadingState,
+  SidebarSkeleton,
+  TaskListSkeleton,
+} from './LoadingState'
+export type { LoadingStateProps } from './LoadingState'
+
+export { RecurrenceEditor } from './RecurrenceEditor'
+export type { RecurrenceEditorProps } from './RecurrenceEditor'
+
+export { ReminderEditor } from './ReminderEditor'
+export type { ReminderEditorProps, ReminderEditorValue, ReminderPreset } from './ReminderEditor'
+
+export { Sidebar } from './Sidebar'
 export type {
-  TaskFiltersValue,
-  TaskFiltersProps,
-  StatusFilter,
-  StarFilter,
-  DateFilter,
-} from "./TaskFilters";
-
-export { TaskBulkActions } from "./TaskBulkActions";
-export type { TaskBulkActionsProps } from "./TaskBulkActions";
-
-export { RecurrenceEditor } from "./RecurrenceEditor";
-export type { RecurrenceEditorProps } from "./RecurrenceEditor";
-
-export { ReminderEditor } from "./ReminderEditor";
-export type { ReminderEditorProps, ReminderEditorValue, ReminderPreset } from "./ReminderEditor";
-
-export { Sidebar } from "./Sidebar";
-export type {
-  SidebarProps,
-  SidebarLabels,
   Group,
   List,
+  SidebarLabels,
+  SidebarProps,
   SmartView,
-} from "./Sidebar";
+} from './Sidebar'
 
-export { CommandPalette } from "./CommandPalette";
+export { TaskBulkActions } from './TaskBulkActions'
+export type { TaskBulkActionsProps } from './TaskBulkActions'
+
+export { createRecurrenceEditorValue, TaskDetailForm, toLocalDateString } from './TaskDetailForm'
 export type {
-  CommandPaletteProps,
-  CommandPaletteLabels,
-  SearchResult,
-} from "./CommandPalette";
-
-export { EmptyState } from "./EmptyState";
-export type { EmptyStateProps } from "./EmptyState";
+  RecurrenceEditorValue,
+  RecurrenceEndType,
+  RecurrenceFrequency,
+  RecurrenceUpdateScope,
+  TaskDetailFormProps,
+  TaskUpdatePayload,
+} from './TaskDetailForm'
 
 export {
-  LoadingState,
-  TaskListSkeleton,
-  ListPanelSkeleton,
-  SidebarSkeleton,
-} from "./LoadingState";
-export type { LoadingStateProps } from "./LoadingState";
+  filterTasksByFilterValue,
+  hasActiveFilterValues,
+  TaskFilters,
+} from './TaskFilters'
+export type {
+  DateFilter,
+  StarFilter,
+  StatusFilter,
+  TaskFiltersProps,
+  TaskFiltersValue,
+} from './TaskFilters'
+
+// Components barrel export
+export { TaskItem } from './TaskItem'
+export type {
+  InboxMoveTarget,
+  TaskContextMeta,
+  TaskItemProps,
+} from './TaskItem'
+
+export { TaskList } from './TaskList'
+export type { TaskListProps } from './TaskList'

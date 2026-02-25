@@ -1,13 +1,13 @@
-"use client";
+'use client'
 
-import { useEffect, useCallback, useRef } from "react";
-import { createClient } from "@/lib/supabase/client";
-import { useReminders } from "@/hooks/use-reminders";
-import type { Task } from "@/actions/tasks";
+import type { Task } from '@/actions/tasks'
+import { useCallback, useEffect, useRef } from 'react'
+import { useReminders } from '@/hooks/use-reminders'
+import { createClient } from '@/lib/supabase/client'
 
 interface ReminderSchedulerProps {
   /** Whether to enable reminders */
-  enabled?: boolean;
+  enabled?: boolean
 }
 
 /**
@@ -15,79 +15,81 @@ interface ReminderSchedulerProps {
  * This should be mounted once in the dashboard to handle all reminders.
  */
 export function ReminderScheduler({ enabled = true }: ReminderSchedulerProps) {
-  const tasksRef = useRef<Task[]>([]);
+  const tasksRef = useRef<Task[]>([])
   const { scheduleReminders, clearAllReminders } = useReminders({
     tasks: tasksRef.current,
     enabled,
-  });
+  })
 
   // Fetch tasks with reminders
   const fetchTasksWithReminders = useCallback(async () => {
-    const supabase = createClient();
+    const supabase = createClient()
     const {
       data: { user },
-    } = await supabase.auth.getUser();
+    } = await supabase.auth.getUser()
 
     if (!user) {
-      return;
+      return
     }
 
     // Fetch tasks that have reminders and are not completed
     const { data: tasks, error } = await supabase
-      .from("tasks")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("completed", false)
-      .not("remind_at", "is", null);
+      .from('tasks')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('completed', false)
+      .not('remind_at', 'is', null)
 
     if (error) {
-      console.error("Error fetching tasks with reminders:", error);
-      return;
+      console.error('Error fetching tasks with reminders:', error)
+      return
     }
 
-    tasksRef.current = (tasks as Task[]) || [];
-    scheduleReminders();
-  }, [scheduleReminders]);
+    tasksRef.current = (tasks as Task[]) || []
+    scheduleReminders()
+  }, [scheduleReminders])
 
   // Initial fetch
   useEffect(() => {
     if (enabled) {
-      fetchTasksWithReminders();
-    } else {
-      clearAllReminders();
+      fetchTasksWithReminders()
     }
-  }, [enabled, fetchTasksWithReminders, clearAllReminders]);
+    else {
+      clearAllReminders()
+    }
+  }, [enabled, fetchTasksWithReminders, clearAllReminders])
 
   // Set up realtime subscription for task changes
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled)
+      return
 
-    const supabase = createClient();
+    const supabase = createClient()
     const channel = supabase
-      .channel("reminder-tasks-changes")
+      .channel('reminder-tasks-changes')
       .on(
-        "postgres_changes",
+        'postgres_changes',
         {
-          event: "*",
-          schema: "public",
-          table: "tasks",
+          event: '*',
+          schema: 'public',
+          table: 'tasks',
         },
         () => {
           // Refetch tasks when any task changes
-          fetchTasksWithReminders();
-        }
+          fetchTasksWithReminders()
+        },
       )
-      .subscribe();
+      .subscribe()
 
     // Refresh reminders every minute to handle time-based changes
-    const interval = setInterval(fetchTasksWithReminders, 60000);
+    const interval = setInterval(fetchTasksWithReminders, 60000)
 
     return () => {
-      channel.unsubscribe();
-      clearInterval(interval);
-    };
-  }, [enabled, fetchTasksWithReminders]);
+      channel.unsubscribe()
+      clearInterval(interval)
+    }
+  }, [enabled, fetchTasksWithReminders])
 
   // This component doesn't render anything
-  return null;
+  return null
 }

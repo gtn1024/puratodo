@@ -1,5 +1,5 @@
-import { createClient } from "@supabase/supabase-js";
-import { successResponse, errorResponse, corsPreflightResponse } from "@/lib/api/response";
+import { createClient } from '@supabase/supabase-js'
+import { corsPreflightResponse, errorResponse, successResponse } from '@/lib/api/response'
 
 /**
  * @swagger
@@ -21,32 +21,34 @@ import { successResponse, errorResponse, corsPreflightResponse } from "@/lib/api
  */
 export async function POST(request: Request) {
   try {
-    const body = await request.json().catch(() => ({}));
-    const { refresh_token } = body;
+    const body = await request.json().catch(() => ({}))
+    const { refresh_token } = body
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    )
 
     // If refresh_token is provided, sign out with that scope
     if (refresh_token) {
-      const { error } = await supabase.auth.admin.signOut(refresh_token);
+      const { error } = await supabase.auth.admin.signOut(refresh_token)
       if (error) {
-        return errorResponse(error.message, 400);
+        return errorResponse(error.message, 400)
       }
-    } else {
+    }
+    else {
       // Sign out all sessions for the user if no specific token
-      await supabase.auth.signOut({ scope: "global" });
+      await supabase.auth.signOut({ scope: 'global' })
     }
 
-    return successResponse({ message: "Logged out successfully" });
-  } catch (err) {
-    console.error("Logout error:", err);
-    return errorResponse("An unexpected error occurred", 500);
+    return successResponse({ message: 'Logged out successfully' })
+  }
+  catch (err) {
+    console.error('Logout error:', err)
+    return errorResponse('An unexpected error occurred', 500)
   }
 }
 
 export async function OPTIONS() {
-  return corsPreflightResponse();
+  return corsPreflightResponse()
 }

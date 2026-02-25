@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 // Re-export from @puratodo/shared
-export * from '@puratodo/shared';
+export * from '@puratodo/shared'

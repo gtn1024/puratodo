@@ -1,5 +1,5 @@
-import { GroupAdapter } from "@puratodo/api-types";
-import * as groupActions from "./groupActions";
+import type { GroupAdapter } from '@puratodo/api-types'
+import * as groupActions from './groupActions'
 
 /**
  * SupabaseGroupAdapter - Implements GroupAdapter interface using Supabase Server Actions
@@ -15,4 +15,4 @@ export const SupabaseGroupAdapter: GroupAdapter = {
   deleteGroup: groupActions.deleteGroup,
   getAllGroups: groupActions.getAllGroups,
   reorderGroups: groupActions.reorderGroups,
-};
+}

@@ -1,161 +1,161 @@
-"use server";
+'use server'
 
-import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath } from 'next/cache'
+import { createClient } from '@/lib/supabase/server'
 
-export type Group = {
-  id: string;
-  user_id: string;
-  name: string;
-  color: string | null;
-  sort_order: number;
-  created_at: string;
-  updated_at: string;
-};
+export interface Group {
+  id: string
+  user_id: string
+  name: string
+  color: string | null
+  sort_order: number
+  created_at: string
+  updated_at: string
+}
 
 export async function getGroups(): Promise<Group[]> {
-  const supabase = await createClient();
+  const supabase = await createClient()
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getUser()
 
   if (!user) {
-    return [];
+    return []
   }
 
   const { data, error } = await supabase
-    .from("groups")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("sort_order", { ascending: true });
+    .from('groups')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('sort_order', { ascending: true })
 
   if (error) {
-    console.error("Error fetching groups:", error);
-    return [];
+    console.error('Error fetching groups:', error)
+    return []
   }
 
-  return data || [];
+  return data || []
 }
 
 export async function createGroup(
   name: string,
-  color?: string
-): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient();
+  color?: string,
+): Promise<{ success: boolean, error?: string }> {
+  const supabase = await createClient()
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getUser()
 
   if (!user) {
-    return { success: false, error: "Not authenticated" };
+    return { success: false, error: 'Not authenticated' }
   }
 
   // Get max sort_order
   const { data: existingGroups } = await supabase
-    .from("groups")
-    .select("sort_order")
-    .eq("user_id", user.id)
-    .order("sort_order", { ascending: false })
-    .limit(1);
+    .from('groups')
+    .select('sort_order')
+    .eq('user_id', user.id)
+    .order('sort_order', { ascending: false })
+    .limit(1)
 
-  const maxOrder = existingGroups?.[0]?.sort_order ?? -1;
+  const maxOrder = existingGroups?.[0]?.sort_order ?? -1
 
-  const { error } = await supabase.from("groups").insert({
+  const { error } = await supabase.from('groups').insert({
     user_id: user.id,
     name,
     color: color || null,
     sort_order: maxOrder + 1,
-  });
+  })
 
   if (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: error.message }
   }
 
-  revalidatePath("/dashboard");
-  return { success: true };
+  revalidatePath('/dashboard')
+  return { success: true }
 }
 
 export async function updateGroup(
   id: string,
-  data: { name?: string; color?: string }
-): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient();
+  data: { name?: string, color?: string },
+): Promise<{ success: boolean, error?: string }> {
+  const supabase = await createClient()
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getUser()
 
   if (!user) {
-    return { success: false, error: "Not authenticated" };
+    return { success: false, error: 'Not authenticated' }
   }
 
   const { error } = await supabase
-    .from("groups")
+    .from('groups')
     .update(data)
-    .eq("id", id)
-    .eq("user_id", user.id);
+    .eq('id', id)
+    .eq('user_id', user.id)
 
   if (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: error.message }
   }
 
-  revalidatePath("/dashboard");
-  return { success: true };
+  revalidatePath('/dashboard')
+  return { success: true }
 }
 
 export async function deleteGroup(
-  id: string
-): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient();
+  id: string,
+): Promise<{ success: boolean, error?: string }> {
+  const supabase = await createClient()
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getUser()
 
   if (!user) {
-    return { success: false, error: "Not authenticated" };
+    return { success: false, error: 'Not authenticated' }
   }
 
   const { error } = await supabase
-    .from("groups")
+    .from('groups')
     .delete()
-    .eq("id", id)
-    .eq("user_id", user.id);
+    .eq('id', id)
+    .eq('user_id', user.id)
 
   if (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: error.message }
   }
 
-  revalidatePath("/dashboard");
-  return { success: true };
+  revalidatePath('/dashboard')
+  return { success: true }
 }
 
 export async function reorderGroups(
-  orderedIds: string[]
-): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient();
+  orderedIds: string[],
+): Promise<{ success: boolean, error?: string }> {
+  const supabase = await createClient()
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getUser()
 
   if (!user) {
-    return { success: false, error: "Not authenticated" };
+    return { success: false, error: 'Not authenticated' }
   }
 
   // Update sort_order for each group
   const updates = orderedIds.map((id, index) =>
     supabase
-      .from("groups")
+      .from('groups')
       .update({ sort_order: index })
-      .eq("id", id)
-      .eq("user_id", user.id)
-  );
+      .eq('id', id)
+      .eq('user_id', user.id),
+  )
 
-  const results = await Promise.all(updates);
-  const errors = results.filter((r) => r.error);
+  const results = await Promise.all(updates)
+  const errors = results.filter(r => r.error)
 
   if (errors.length > 0) {
-    return { success: false, error: errors[0].error?.message };
+    return { success: false, error: errors[0].error?.message }
   }
 
-  revalidatePath("/dashboard");
-  return { success: true };
+  revalidatePath('/dashboard')
+  return { success: true }
 }

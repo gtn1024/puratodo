@@ -1,5 +1,5 @@
-import * as React from "react";
-import { Skeleton } from "@puratodo/ui";
+import { Skeleton } from '@puratodo/ui'
+import * as React from 'react'
 
 /**
  * LoadingState Component
@@ -16,26 +16,26 @@ export interface LoadingStateProps {
    * - "card": Card-based skeleton
    * - "sidebar": Sidebar skeleton with groups
    */
-  type?: "generic" | "list" | "card" | "sidebar";
+  type?: 'generic' | 'list' | 'card' | 'sidebar'
 
   /**
    * Number of skeleton items to display (for list type)
    * @default 3
    */
-  count?: number;
+  count?: number
 
   /**
    * Additional CSS classes
    */
-  className?: string;
+  className?: string
 }
 
 export function LoadingState({
-  type = "generic",
+  type = 'generic',
   count = 3,
-  className = "",
+  className = '',
 }: LoadingStateProps) {
-  if (type === "generic") {
+  if (type === 'generic') {
     return (
       <div className={`py-12 text-center ${className}`}>
         <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center animate-pulse">
@@ -43,10 +43,10 @@ export function LoadingState({
         </div>
         <Skeleton className="h-4 w-32 mx-auto" />
       </div>
-    );
+    )
   }
 
-  if (type === "list") {
+  if (type === 'list') {
     return (
       <div className={`space-y-2 ${className}`}>
         {Array.from({ length: count }).map((_, i) => (
@@ -61,10 +61,10 @@ export function LoadingState({
           </div>
         ))}
       </div>
-    );
+    )
   }
 
-  if (type === "card") {
+  if (type === 'card') {
     return (
       <div className={`space-y-4 ${className}`}>
         {Array.from({ length: count }).map((_, i) => (
@@ -86,10 +86,10 @@ export function LoadingState({
           </div>
         ))}
       </div>
-    );
+    )
   }
 
-  if (type === "sidebar") {
+  if (type === 'sidebar') {
     return (
       <aside className={`w-64 h-screen bg-white dark:bg-stone-900 border-r border-stone-200 dark:border-stone-800 flex flex-col ${className}`}>
         {/* Header */}
@@ -123,10 +123,10 @@ export function LoadingState({
           </div>
         </div>
       </aside>
-    );
+    )
   }
 
-  return null;
+  return null
 }
 
 /**
@@ -170,7 +170,7 @@ export function TaskListSkeleton({ count = 4 }: { count?: number }) {
         ))}
       </div>
     </div>
-  );
+  )
 }
 
 export function ListPanelSkeleton() {
@@ -200,7 +200,7 @@ export function ListPanelSkeleton() {
         ))}
       </div>
     </div>
-  );
+  )
 }
 
 export function SidebarSkeleton() {
@@ -237,5 +237,5 @@ export function SidebarSkeleton() {
         </div>
       </div>
     </aside>
-  );
+  )
 }

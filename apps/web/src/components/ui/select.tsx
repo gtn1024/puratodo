@@ -10,4 +10,4 @@ export {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
-} from "@puratodo/ui";
+} from '@puratodo/ui'

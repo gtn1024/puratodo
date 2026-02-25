@@ -1,10 +1,10 @@
-"use client";
+'use client'
 
-import { ReactNode, useMemo } from "react";
-import { AdapterProvider } from "@puratodo/task-ui";
-import { SupabaseTaskAdapter } from "./SupabaseTaskAdapter";
-import { SupabaseListAdapter } from "./SupabaseListAdapter";
-import { SupabaseGroupAdapter } from "./SupabaseGroupAdapter";
+import type { ReactNode } from 'react'
+import { AdapterProvider } from '@puratodo/task-ui'
+import { SupabaseGroupAdapter } from './SupabaseGroupAdapter'
+import { SupabaseListAdapter } from './SupabaseListAdapter'
+import { SupabaseTaskAdapter } from './SupabaseTaskAdapter'
 
 /**
  * SupabaseAdapterProvider - Provides Supabase adapters to the component tree
@@ -32,5 +32,5 @@ export function SupabaseAdapterProvider({ children }: { children: ReactNode }) {
     >
       {children}
     </AdapterProvider>
-  );
+  )
 }

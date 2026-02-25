@@ -1,6 +1,6 @@
-import * as React from "react";
-import { Button } from "@puratodo/ui";
-import { LucideIcon } from "lucide-react";
+import type { LucideIcon } from 'lucide-react'
+import { Button } from '@puratodo/ui'
+import * as React from 'react'
 
 /**
  * EmptyState Component
@@ -13,31 +13,31 @@ export interface EmptyStateProps {
   /**
    * Icon to display in the empty state
    */
-  icon: LucideIcon;
+  icon: LucideIcon
 
   /**
    * Title text for the empty state
    */
-  title: string;
+  title: string
 
   /**
    * Optional description text
    */
-  description?: string;
+  description?: string
 
   /**
    * Optional action button configuration
    */
   action?: {
-    label: string;
-    onClick: () => void;
-    icon?: LucideIcon;
-  };
+    label: string
+    onClick: () => void
+    icon?: LucideIcon
+  }
 
   /**
    * Additional CSS classes
    */
-  className?: string;
+  className?: string
 }
 
 export function EmptyState({
@@ -45,7 +45,7 @@ export function EmptyState({
   title,
   description,
   action,
-  className = "",
+  className = '',
 }: EmptyStateProps) {
   return (
     <div className={`py-12 text-center ${className}`}>
@@ -65,5 +65,5 @@ export function EmptyState({
         </Button>
       )}
     </div>
-  );
+  )
 }

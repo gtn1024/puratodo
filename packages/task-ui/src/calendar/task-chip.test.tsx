@@ -1,10 +1,10 @@
-import { describe, it, expect, vi } from 'vitest'
-import { screen, fireEvent } from '@testing-library/react'
+import type { CalendarTask } from './types'
+import { fireEvent, screen } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
 import { render } from '../test/utils'
-import { TaskChip, TaskChipProps } from './task-chip'
-import { CalendarTask } from './types'
+import { TaskChip } from './task-chip'
 
-describe('TaskChip', () => {
+describe('taskChip', () => {
   const mockTask: CalendarTask = {
     id: 'task-1',
     name: 'Test Task',

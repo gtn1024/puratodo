@@ -1,5 +1,5 @@
-import { successResponse, errorResponse, corsPreflightResponse } from "@/lib/api/response";
-import { verifyToken } from "@/lib/api/auth";
+import { verifyToken } from '@/lib/api/auth'
+import { corsPreflightResponse, errorResponse, successResponse } from '@/lib/api/response'
 
 /**
  * @swagger
@@ -16,19 +16,19 @@ import { verifyToken } from "@/lib/api/auth";
  *         description: Unauthorized
  */
 export async function GET(request: Request) {
-  const authHeader = request.headers.get("Authorization");
-  const user = await verifyToken(authHeader);
+  const authHeader = request.headers.get('Authorization')
+  const user = await verifyToken(authHeader)
 
   if (!user) {
-    return errorResponse("Unauthorized", 401);
+    return errorResponse('Unauthorized', 401)
   }
 
   return successResponse({
     id: user.id,
     email: user.email,
-  });
+  })
 }
 
 export async function OPTIONS() {
-  return corsPreflightResponse();
+  return corsPreflightResponse()
 }

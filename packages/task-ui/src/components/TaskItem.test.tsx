@@ -1,7 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { screen, fireEvent } from '@testing-library/react'
+import type { TaskItemProps, TaskWithSubtasks } from '../components/TaskItem'
+import { fireEvent, screen } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { TaskItem } from '../components/TaskItem'
 import { render } from '../test/utils'
-import { TaskItem, TaskItemProps, TaskWithSubtasks } from '../components/TaskItem'
 
 // Mock @dnd-kit/sortable
 vi.mock('@dnd-kit/sortable', () => ({
@@ -23,7 +24,7 @@ vi.mock('@dnd-kit/utilities', () => ({
   },
 }))
 
-describe('TaskItem', () => {
+describe('taskItem', () => {
   const mockTask: TaskWithSubtasks = {
     id: 'task-1',
     name: 'Test Task',
@@ -112,7 +113,7 @@ describe('TaskItem', () => {
     // Expand button should be visible (has opacity-100 class)
     const buttons = screen.getAllByRole('button')
     const expandButton = buttons.find(btn =>
-      btn.querySelector('svg.lucide-chevron-right') || btn.querySelector('svg.lucide-chevron-down')
+      btn.querySelector('svg.lucide-chevron-right') || btn.querySelector('svg.lucide-chevron-down'),
     )
     expect(expandButton).toBeInTheDocument()
     expect(expandButton).toHaveClass('opacity-100')
@@ -129,13 +130,13 @@ describe('TaskItem', () => {
         {...defaultProps}
         task={taskWithSubtasks}
         onToggleExpand={onToggleExpand}
-      />
+      />,
     )
 
     // Find the expand button (chevron icon button)
     const buttons = screen.getAllByRole('button')
     const expandButton = buttons.find(
-      (btn) => btn.querySelector('svg.lucide-chevron-right') || btn.querySelector('svg.lucide-chevron-down')
+      btn => btn.querySelector('svg.lucide-chevron-right') || btn.querySelector('svg.lucide-chevron-down'),
     )
 
     if (expandButton) {
@@ -146,7 +147,7 @@ describe('TaskItem', () => {
 
   it('shows selection checkbox in selection mode', () => {
     render(
-      <TaskItem {...defaultProps} isSelectionMode={true} isSelected={false} />
+      <TaskItem {...defaultProps} isSelectionMode={true} isSelected={false} />,
     )
 
     // Should show Square icon (unselected state) for selection
@@ -163,7 +164,7 @@ describe('TaskItem', () => {
         isSelectionMode={true}
         isSelected={true}
         onToggleSelect={onToggleSelect}
-      />
+      />,
     )
 
     // Find the CheckSquare icon button (selected state)
@@ -171,7 +172,7 @@ describe('TaskItem', () => {
     const buttons = screen.getAllByRole('button')
     // Look for the button that has blue-500 text color (selected state)
     const selectButton = buttons.find(btn =>
-      btn.querySelector('svg.text-blue-500') || btn.querySelector('svg.lucide-check-square')
+      btn.querySelector('svg.text-blue-500') || btn.querySelector('svg.lucide-check-square'),
     )
     expect(selectButton).toBeTruthy()
     expect(selectButton?.querySelector('svg')).toBeTruthy()
@@ -183,7 +184,7 @@ describe('TaskItem', () => {
         {...defaultProps}
         editingTaskId="task-1"
         editName="Edited Task"
-      />
+      />,
     )
 
     const input = screen.getByDisplayValue('Edited Task')
@@ -198,7 +199,7 @@ describe('TaskItem', () => {
         editingTaskId="task-1"
         editName="Edited Task"
         onSaveEdit={onSaveEdit}
-      />
+      />,
     )
 
     const input = screen.getByDisplayValue('Edited Task')
@@ -215,7 +216,7 @@ describe('TaskItem', () => {
         editingTaskId="task-1"
         editName="Edited Task"
         onCancelEdit={onCancelEdit}
-      />
+      />,
     )
 
     const input = screen.getByDisplayValue('Edited Task')

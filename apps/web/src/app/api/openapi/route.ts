@@ -1,19 +1,19 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server'
 
 const openApiSpec = {
-  openapi: "3.0.0",
+  openapi: '3.0.0',
   info: {
-    title: "PuraToDo API",
-    version: "1.0.0",
-    description: "A modern todo application API with support for groups, lists, and nested tasks",
+    title: 'PuraToDo API',
+    version: '1.0.0',
+    description: 'A modern todo application API with support for groups, lists, and nested tasks',
     contact: {
-      name: "PuraToDo",
+      name: 'PuraToDo',
     },
   },
   servers: [
     {
-      url: "/api/v1",
-      description: "API Server",
+      url: '/api/v1',
+      description: 'API Server',
     },
   ],
   security: [
@@ -24,283 +24,283 @@ const openApiSpec = {
   components: {
     securitySchemes: {
       BearerAuth: {
-        type: "http",
-        scheme: "bearer",
-        bearerFormat: "JWT",
-        description: "JWT token obtained from /api/v1/auth/login",
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'JWT token obtained from /api/v1/auth/login',
       },
     },
     schemas: {
       Group: {
-        type: "object",
+        type: 'object',
         properties: {
-          id: { type: "string", format: "uuid" },
-          user_id: { type: "string", format: "uuid" },
-          name: { type: "string" },
-          color: { type: "string", nullable: true },
-          sort_order: { type: "integer" },
-          created_at: { type: "string", format: "date-time" },
-          updated_at: { type: "string", format: "date-time" },
+          id: { type: 'string', format: 'uuid' },
+          user_id: { type: 'string', format: 'uuid' },
+          name: { type: 'string' },
+          color: { type: 'string', nullable: true },
+          sort_order: { type: 'integer' },
+          created_at: { type: 'string', format: 'date-time' },
+          updated_at: { type: 'string', format: 'date-time' },
         },
       },
       List: {
-        type: "object",
+        type: 'object',
         properties: {
-          id: { type: "string", format: "uuid" },
-          user_id: { type: "string", format: "uuid" },
-          group_id: { type: "string", format: "uuid" },
-          name: { type: "string" },
-          icon: { type: "string", nullable: true },
-          sort_order: { type: "integer" },
-          created_at: { type: "string", format: "date-time" },
-          updated_at: { type: "string", format: "date-time" },
+          id: { type: 'string', format: 'uuid' },
+          user_id: { type: 'string', format: 'uuid' },
+          group_id: { type: 'string', format: 'uuid' },
+          name: { type: 'string' },
+          icon: { type: 'string', nullable: true },
+          sort_order: { type: 'integer' },
+          created_at: { type: 'string', format: 'date-time' },
+          updated_at: { type: 'string', format: 'date-time' },
         },
       },
       Task: {
-        type: "object",
+        type: 'object',
         properties: {
-          id: { type: "string", format: "uuid" },
-          user_id: { type: "string", format: "uuid" },
-          list_id: { type: "string", format: "uuid" },
-          parent_id: { type: "string", format: "uuid", nullable: true },
-          name: { type: "string" },
-          completed: { type: "boolean" },
-          starred: { type: "boolean" },
-          due_date: { type: "string", format: "date", nullable: true },
-          plan_date: { type: "string", format: "date", nullable: true },
-          comment: { type: "string", nullable: true },
-          duration_minutes: { type: "integer", nullable: true },
+          id: { type: 'string', format: 'uuid' },
+          user_id: { type: 'string', format: 'uuid' },
+          list_id: { type: 'string', format: 'uuid' },
+          parent_id: { type: 'string', format: 'uuid', nullable: true },
+          name: { type: 'string' },
+          completed: { type: 'boolean' },
+          starred: { type: 'boolean' },
+          due_date: { type: 'string', format: 'date', nullable: true },
+          plan_date: { type: 'string', format: 'date', nullable: true },
+          comment: { type: 'string', nullable: true },
+          duration_minutes: { type: 'integer', nullable: true },
           recurrence_frequency: {
-            type: "string",
+            type: 'string',
             nullable: true,
-            enum: ["daily", "weekly", "monthly", "custom"],
+            enum: ['daily', 'weekly', 'monthly', 'custom'],
           },
-          recurrence_interval: { type: "integer", nullable: true, minimum: 1 },
+          recurrence_interval: { type: 'integer', nullable: true, minimum: 1 },
           recurrence_weekdays: {
-            type: "array",
+            type: 'array',
             nullable: true,
-            items: { type: "integer", minimum: 0, maximum: 6 },
+            items: { type: 'integer', minimum: 0, maximum: 6 },
           },
           recurrence_end_date: {
-            type: "string",
-            format: "date",
+            type: 'string',
+            format: 'date',
             nullable: true,
           },
-          recurrence_end_count: { type: "integer", nullable: true, minimum: 1 },
-          recurrence_rule: { type: "string", nullable: true },
-          recurrence_timezone: { type: "string", nullable: true },
+          recurrence_end_count: { type: 'integer', nullable: true, minimum: 1 },
+          recurrence_rule: { type: 'string', nullable: true },
+          recurrence_timezone: { type: 'string', nullable: true },
           recurrence_source_task_id: {
-            type: "string",
-            format: "uuid",
+            type: 'string',
+            format: 'uuid',
             nullable: true,
           },
           remind_at: {
-            type: "string",
-            format: "date-time",
+            type: 'string',
+            format: 'date-time',
             nullable: true,
-            description: "When to send a reminder notification",
+            description: 'When to send a reminder notification',
           },
           reminder_sent_at: {
-            type: "string",
-            format: "date-time",
+            type: 'string',
+            format: 'date-time',
             nullable: true,
-            description: "When the reminder was sent",
+            description: 'When the reminder was sent',
           },
-          sort_order: { type: "integer" },
-          created_at: { type: "string", format: "date-time" },
-          updated_at: { type: "string", format: "date-time" },
+          sort_order: { type: 'integer' },
+          created_at: { type: 'string', format: 'date-time' },
+          updated_at: { type: 'string', format: 'date-time' },
           subtasks: {
-            type: "array",
-            items: { $ref: "#/components/schemas/Task" },
+            type: 'array',
+            items: { $ref: '#/components/schemas/Task' },
           },
         },
       },
       User: {
-        type: "object",
+        type: 'object',
         properties: {
-          id: { type: "string", format: "uuid" },
-          email: { type: "string", format: "email" },
-          created_at: { type: "string", format: "date-time" },
+          id: { type: 'string', format: 'uuid' },
+          email: { type: 'string', format: 'email' },
+          created_at: { type: 'string', format: 'date-time' },
         },
       },
       LoginResponse: {
-        type: "object",
+        type: 'object',
         properties: {
-          access_token: { type: "string" },
-          refresh_token: { type: "string" },
-          expires_at: { type: "integer" },
-          user: { $ref: "#/components/schemas/User" },
+          access_token: { type: 'string' },
+          refresh_token: { type: 'string' },
+          expires_at: { type: 'integer' },
+          user: { $ref: '#/components/schemas/User' },
         },
       },
       ApiSuccessResponse: {
-        type: "object",
+        type: 'object',
         properties: {
-          success: { type: "boolean", enum: [true] },
-          data: { type: "object" },
+          success: { type: 'boolean', enum: [true] },
+          data: { type: 'object' },
         },
       },
       ApiErrorResponse: {
-        type: "object",
+        type: 'object',
         properties: {
-          success: { type: "boolean", enum: [false] },
-          error: { type: "string" },
+          success: { type: 'boolean', enum: [false] },
+          error: { type: 'string' },
         },
       },
       PaginatedResponse: {
-        type: "object",
+        type: 'object',
         properties: {
-          data: { type: "array", items: {} },
-          total: { type: "integer" },
-          page: { type: "integer" },
-          limit: { type: "integer" },
-          total_pages: { type: "integer" },
+          data: { type: 'array', items: {} },
+          total: { type: 'integer' },
+          page: { type: 'integer' },
+          limit: { type: 'integer' },
+          total_pages: { type: 'integer' },
         },
       },
     },
   },
   paths: {
-    "/auth/login": {
+    '/auth/login': {
       post: {
-        summary: "Login to get access token",
+        summary: 'Login to get access token',
         security: [],
         requestBody: {
           required: true,
           content: {
-            "application/json": {
+            'application/json': {
               schema: {
-                type: "object",
-                required: ["email", "password"],
+                type: 'object',
+                required: ['email', 'password'],
                 properties: {
-                  email: { type: "string", format: "email" },
-                  password: { type: "string", minLength: 6 },
+                  email: { type: 'string', format: 'email' },
+                  password: { type: 'string', minLength: 6 },
                 },
               },
             },
           },
         },
         responses: {
-          "200": {
-            description: "Login successful",
+          200: {
+            description: 'Login successful',
             content: {
-              "application/json": {
+              'application/json': {
                 schema: {
-                  $ref: "#/components/schemas/LoginResponse",
+                  $ref: '#/components/schemas/LoginResponse',
                 },
               },
             },
           },
-          "401": {
-            description: "Invalid credentials",
+          401: {
+            description: 'Invalid credentials',
           },
         },
       },
     },
-    "/auth/register": {
+    '/auth/register': {
       post: {
-        summary: "Register a new user",
+        summary: 'Register a new user',
         security: [],
         requestBody: {
           required: true,
           content: {
-            "application/json": {
+            'application/json': {
               schema: {
-                type: "object",
-                required: ["email", "password"],
+                type: 'object',
+                required: ['email', 'password'],
                 properties: {
-                  email: { type: "string", format: "email" },
-                  password: { type: "string", minLength: 6 },
+                  email: { type: 'string', format: 'email' },
+                  password: { type: 'string', minLength: 6 },
                 },
               },
             },
           },
         },
         responses: {
-          "200": {
-            description: "Registration successful",
+          200: {
+            description: 'Registration successful',
           },
-          "400": {
-            description: "Email already exists",
+          400: {
+            description: 'Email already exists',
           },
         },
       },
     },
-    "/auth/refresh": {
+    '/auth/refresh': {
       post: {
-        summary: "Refresh access token",
+        summary: 'Refresh access token',
         requestBody: {
           required: true,
           content: {
-            "application/json": {
+            'application/json': {
               schema: {
-                type: "object",
-                required: ["refresh_token"],
+                type: 'object',
+                required: ['refresh_token'],
                 properties: {
-                  refresh_token: { type: "string" },
+                  refresh_token: { type: 'string' },
                 },
               },
             },
           },
         },
         responses: {
-          "200": {
-            description: "Token refreshed",
+          200: {
+            description: 'Token refreshed',
           },
         },
       },
     },
-    "/auth/logout": {
+    '/auth/logout': {
       post: {
-        summary: "Logout and invalidate session",
+        summary: 'Logout and invalidate session',
         requestBody: {
           content: {
-            "application/json": {
+            'application/json': {
               schema: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  refresh_token: { type: "string" },
+                  refresh_token: { type: 'string' },
                 },
               },
             },
           },
         },
         responses: {
-          "200": {
-            description: "Logout successful",
+          200: {
+            description: 'Logout successful',
           },
         },
       },
     },
-    "/auth/me": {
+    '/auth/me': {
       get: {
-        summary: "Get current user info",
+        summary: 'Get current user info',
         responses: {
-          "200": {
-            description: "User info",
+          200: {
+            description: 'User info',
             content: {
-              "application/json": {
+              'application/json': {
                 schema: {
-                  $ref: "#/components/schemas/User",
+                  $ref: '#/components/schemas/User',
                 },
               },
             },
           },
-          "401": {
-            description: "Unauthorized",
+          401: {
+            description: 'Unauthorized',
           },
         },
       },
     },
-    "/groups": {
+    '/groups': {
       get: {
-        summary: "Get all groups",
+        summary: 'Get all groups',
         responses: {
-          "200": {
-            description: "List of groups",
+          200: {
+            description: 'List of groups',
             content: {
-              "application/json": {
+              'application/json': {
                 schema: {
-                  type: "array",
-                  items: { $ref: "#/components/schemas/Group" },
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/Group' },
                 },
               },
             },
@@ -308,109 +308,109 @@ const openApiSpec = {
         },
       },
       post: {
-        summary: "Create a new group",
+        summary: 'Create a new group',
         requestBody: {
           required: true,
           content: {
-            "application/json": {
+            'application/json': {
               schema: {
-                type: "object",
-                required: ["name"],
+                type: 'object',
+                required: ['name'],
                 properties: {
-                  name: { type: "string" },
-                  color: { type: "string" },
+                  name: { type: 'string' },
+                  color: { type: 'string' },
                 },
               },
             },
           },
         },
         responses: {
-          "201": {
-            description: "Group created",
+          201: {
+            description: 'Group created',
           },
         },
       },
     },
-    "/groups/{id}": {
+    '/groups/{id}': {
       get: {
-        summary: "Get a group by ID",
+        summary: 'Get a group by ID',
         parameters: [
           {
-            name: "id",
-            in: "path",
+            name: 'id',
+            in: 'path',
             required: true,
-            schema: { type: "string", format: "uuid" },
+            schema: { type: 'string', format: 'uuid' },
           },
         ],
         responses: {
-          "200": {
-            description: "Group details",
+          200: {
+            description: 'Group details',
           },
-          "404": {
-            description: "Group not found",
+          404: {
+            description: 'Group not found',
           },
         },
       },
       patch: {
-        summary: "Update a group",
+        summary: 'Update a group',
         parameters: [
           {
-            name: "id",
-            in: "path",
+            name: 'id',
+            in: 'path',
             required: true,
-            schema: { type: "string", format: "uuid" },
+            schema: { type: 'string', format: 'uuid' },
           },
         ],
         requestBody: {
           content: {
-            "application/json": {
+            'application/json': {
               schema: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  name: { type: "string" },
-                  color: { type: "string" },
+                  name: { type: 'string' },
+                  color: { type: 'string' },
                 },
               },
             },
           },
         },
         responses: {
-          "200": {
-            description: "Group updated",
+          200: {
+            description: 'Group updated',
           },
         },
       },
       delete: {
-        summary: "Delete a group",
+        summary: 'Delete a group',
         parameters: [
           {
-            name: "id",
-            in: "path",
+            name: 'id',
+            in: 'path',
             required: true,
-            schema: { type: "string", format: "uuid" },
+            schema: { type: 'string', format: 'uuid' },
           },
         ],
         responses: {
-          "200": {
-            description: "Group deleted",
+          200: {
+            description: 'Group deleted',
           },
         },
       },
     },
-    "/groups/reorder": {
+    '/groups/reorder': {
       patch: {
-        summary: "Reorder groups",
+        summary: 'Reorder groups',
         requestBody: {
           required: true,
           content: {
-            "application/json": {
+            'application/json': {
               schema: {
-                type: "object",
-                required: ["groupIds"],
+                type: 'object',
+                required: ['groupIds'],
                 properties: {
                   groupIds: {
-                    type: "array",
-                    items: { type: "string", format: "uuid" },
+                    type: 'array',
+                    items: { type: 'string', format: 'uuid' },
                   },
                 },
               },
@@ -418,244 +418,244 @@ const openApiSpec = {
           },
         },
         responses: {
-          "200": {
-            description: "Groups reordered",
+          200: {
+            description: 'Groups reordered',
           },
         },
       },
     },
-    "/lists": {
+    '/lists': {
       get: {
-        summary: "Get all lists",
+        summary: 'Get all lists',
         parameters: [
           {
-            name: "group_id",
-            in: "query",
-            schema: { type: "string", format: "uuid" },
-            description: "Filter by group ID",
+            name: 'group_id',
+            in: 'query',
+            schema: { type: 'string', format: 'uuid' },
+            description: 'Filter by group ID',
           },
         ],
         responses: {
-          "200": {
-            description: "List of lists",
+          200: {
+            description: 'List of lists',
           },
         },
       },
       post: {
-        summary: "Create a new list",
+        summary: 'Create a new list',
         requestBody: {
           required: true,
           content: {
-            "application/json": {
+            'application/json': {
               schema: {
-                type: "object",
-                required: ["name", "group_id"],
+                type: 'object',
+                required: ['name', 'group_id'],
                 properties: {
-                  name: { type: "string" },
-                  icon: { type: "string" },
-                  group_id: { type: "string", format: "uuid" },
+                  name: { type: 'string' },
+                  icon: { type: 'string' },
+                  group_id: { type: 'string', format: 'uuid' },
                 },
               },
             },
           },
         },
         responses: {
-          "201": {
-            description: "List created",
+          201: {
+            description: 'List created',
           },
         },
       },
     },
-    "/lists/{id}": {
+    '/lists/{id}': {
       get: {
-        summary: "Get a list by ID",
+        summary: 'Get a list by ID',
         parameters: [
           {
-            name: "id",
-            in: "path",
+            name: 'id',
+            in: 'path',
             required: true,
-            schema: { type: "string", format: "uuid" },
+            schema: { type: 'string', format: 'uuid' },
           },
         ],
         responses: {
-          "200": {
-            description: "List details",
+          200: {
+            description: 'List details',
           },
         },
       },
       patch: {
-        summary: "Update a list",
+        summary: 'Update a list',
         parameters: [
           {
-            name: "id",
-            in: "path",
+            name: 'id',
+            in: 'path',
             required: true,
-            schema: { type: "string", format: "uuid" },
+            schema: { type: 'string', format: 'uuid' },
           },
         ],
         requestBody: {
           content: {
-            "application/json": {
+            'application/json': {
               schema: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  name: { type: "string" },
-                  icon: { type: "string" },
+                  name: { type: 'string' },
+                  icon: { type: 'string' },
                 },
               },
             },
           },
         },
         responses: {
-          "200": {
-            description: "List updated",
+          200: {
+            description: 'List updated',
           },
         },
       },
       delete: {
-        summary: "Delete a list",
+        summary: 'Delete a list',
         parameters: [
           {
-            name: "id",
-            in: "path",
+            name: 'id',
+            in: 'path',
             required: true,
-            schema: { type: "string", format: "uuid" },
+            schema: { type: 'string', format: 'uuid' },
           },
         ],
         responses: {
-          "200": {
-            description: "List deleted",
+          200: {
+            description: 'List deleted',
           },
         },
       },
     },
-    "/lists/{id}/move": {
+    '/lists/{id}/move': {
       patch: {
-        summary: "Move a list to another group",
+        summary: 'Move a list to another group',
         parameters: [
           {
-            name: "id",
-            in: "path",
+            name: 'id',
+            in: 'path',
             required: true,
-            schema: { type: "string", format: "uuid" },
+            schema: { type: 'string', format: 'uuid' },
           },
         ],
         requestBody: {
           required: true,
           content: {
-            "application/json": {
+            'application/json': {
               schema: {
-                type: "object",
-                required: ["group_id"],
+                type: 'object',
+                required: ['group_id'],
                 properties: {
-                  group_id: { type: "string", format: "uuid" },
+                  group_id: { type: 'string', format: 'uuid' },
                 },
               },
             },
           },
         },
         responses: {
-          "200": {
-            description: "List moved",
+          200: {
+            description: 'List moved',
           },
         },
       },
     },
-    "/lists/reorder": {
+    '/lists/reorder': {
       patch: {
-        summary: "Reorder lists within a group",
+        summary: 'Reorder lists within a group',
         requestBody: {
           required: true,
           content: {
-            "application/json": {
+            'application/json': {
               schema: {
-                type: "object",
-                required: ["listIds", "group_id"],
+                type: 'object',
+                required: ['listIds', 'group_id'],
                 properties: {
                   listIds: {
-                    type: "array",
-                    items: { type: "string", format: "uuid" },
+                    type: 'array',
+                    items: { type: 'string', format: 'uuid' },
                   },
-                  group_id: { type: "string", format: "uuid" },
+                  group_id: { type: 'string', format: 'uuid' },
                 },
               },
             },
           },
         },
         responses: {
-          "200": {
-            description: "Lists reordered",
+          200: {
+            description: 'Lists reordered',
           },
         },
       },
     },
-    "/tasks": {
+    '/tasks': {
       get: {
-        summary: "Get all tasks with optional filters",
+        summary: 'Get all tasks with optional filters',
         parameters: [
           {
-            name: "list_id",
-            in: "query",
-            schema: { type: "string", format: "uuid" },
+            name: 'list_id',
+            in: 'query',
+            schema: { type: 'string', format: 'uuid' },
           },
           {
-            name: "completed",
-            in: "query",
-            schema: { type: "boolean" },
+            name: 'completed',
+            in: 'query',
+            schema: { type: 'boolean' },
           },
           {
-            name: "starred",
-            in: "query",
-            schema: { type: "boolean" },
+            name: 'starred',
+            in: 'query',
+            schema: { type: 'boolean' },
           },
           {
-            name: "parent_id",
-            in: "query",
-            schema: { type: "string" },
-            description: "Filter by parent task ID, use 'null' for top-level tasks",
+            name: 'parent_id',
+            in: 'query',
+            schema: { type: 'string' },
+            description: 'Filter by parent task ID, use \'null\' for top-level tasks',
           },
         ],
         responses: {
-          "200": {
-            description: "List of tasks",
+          200: {
+            description: 'List of tasks',
           },
         },
       },
       post: {
-        summary: "Create a new task",
+        summary: 'Create a new task',
         requestBody: {
           required: true,
           content: {
-            "application/json": {
+            'application/json': {
               schema: {
-                type: "object",
-                required: ["name", "list_id"],
+                type: 'object',
+                required: ['name', 'list_id'],
                 properties: {
-                  name: { type: "string" },
-                  list_id: { type: "string", format: "uuid" },
-                  parent_id: { type: "string", format: "uuid" },
-                  completed: { type: "boolean" },
-                  starred: { type: "boolean" },
-                  due_date: { type: "string", format: "date" },
-                  plan_date: { type: "string", format: "date" },
-                  comment: { type: "string" },
-                  duration_minutes: { type: "integer" },
+                  name: { type: 'string' },
+                  list_id: { type: 'string', format: 'uuid' },
+                  parent_id: { type: 'string', format: 'uuid' },
+                  completed: { type: 'boolean' },
+                  starred: { type: 'boolean' },
+                  due_date: { type: 'string', format: 'date' },
+                  plan_date: { type: 'string', format: 'date' },
+                  comment: { type: 'string' },
+                  duration_minutes: { type: 'integer' },
                   recurrence_frequency: {
-                    type: "string",
-                    enum: ["daily", "weekly", "monthly", "custom"],
+                    type: 'string',
+                    enum: ['daily', 'weekly', 'monthly', 'custom'],
                   },
-                  recurrence_interval: { type: "integer", minimum: 1 },
+                  recurrence_interval: { type: 'integer', minimum: 1 },
                   recurrence_weekdays: {
-                    type: "array",
-                    items: { type: "integer", minimum: 0, maximum: 6 },
+                    type: 'array',
+                    items: { type: 'integer', minimum: 0, maximum: 6 },
                   },
-                  recurrence_end_date: { type: "string", format: "date" },
-                  recurrence_end_count: { type: "integer", minimum: 1 },
-                  recurrence_rule: { type: "string" },
-                  recurrence_timezone: { type: "string" },
+                  recurrence_end_date: { type: 'string', format: 'date' },
+                  recurrence_end_count: { type: 'integer', minimum: 1 },
+                  recurrence_rule: { type: 'string' },
+                  recurrence_timezone: { type: 'string' },
                   recurrence_source_task_id: {
-                    type: "string",
-                    format: "uuid",
+                    type: 'string',
+                    format: 'uuid',
                   },
                 },
               },
@@ -663,73 +663,73 @@ const openApiSpec = {
           },
         },
         responses: {
-          "201": {
-            description: "Task created",
+          201: {
+            description: 'Task created',
           },
         },
       },
     },
-    "/tasks/inbox": {
+    '/tasks/inbox': {
       get: {
-        summary: "Get inbox tasks with optional filters",
+        summary: 'Get inbox tasks with optional filters',
         parameters: [
           {
-            name: "completed",
-            in: "query",
-            schema: { type: "boolean" },
+            name: 'completed',
+            in: 'query',
+            schema: { type: 'boolean' },
           },
           {
-            name: "starred",
-            in: "query",
-            schema: { type: "boolean" },
+            name: 'starred',
+            in: 'query',
+            schema: { type: 'boolean' },
           },
           {
-            name: "parent_id",
-            in: "query",
-            schema: { type: "string" },
-            description: "Filter by parent task ID, use 'null' for top-level tasks",
+            name: 'parent_id',
+            in: 'query',
+            schema: { type: 'string' },
+            description: 'Filter by parent task ID, use \'null\' for top-level tasks',
           },
         ],
         responses: {
-          "200": {
-            description: "Inbox task list",
+          200: {
+            description: 'Inbox task list',
           },
         },
       },
       post: {
-        summary: "Create a new inbox task",
+        summary: 'Create a new inbox task',
         requestBody: {
           required: true,
           content: {
-            "application/json": {
+            'application/json': {
               schema: {
-                type: "object",
-                required: ["name"],
+                type: 'object',
+                required: ['name'],
                 properties: {
-                  name: { type: "string" },
-                  parent_id: { type: "string", format: "uuid" },
-                  completed: { type: "boolean" },
-                  starred: { type: "boolean" },
-                  due_date: { type: "string", format: "date" },
-                  plan_date: { type: "string", format: "date" },
-                  comment: { type: "string" },
-                  duration_minutes: { type: "integer" },
+                  name: { type: 'string' },
+                  parent_id: { type: 'string', format: 'uuid' },
+                  completed: { type: 'boolean' },
+                  starred: { type: 'boolean' },
+                  due_date: { type: 'string', format: 'date' },
+                  plan_date: { type: 'string', format: 'date' },
+                  comment: { type: 'string' },
+                  duration_minutes: { type: 'integer' },
                   recurrence_frequency: {
-                    type: "string",
-                    enum: ["daily", "weekly", "monthly", "custom"],
+                    type: 'string',
+                    enum: ['daily', 'weekly', 'monthly', 'custom'],
                   },
-                  recurrence_interval: { type: "integer", minimum: 1 },
+                  recurrence_interval: { type: 'integer', minimum: 1 },
                   recurrence_weekdays: {
-                    type: "array",
-                    items: { type: "integer", minimum: 0, maximum: 6 },
+                    type: 'array',
+                    items: { type: 'integer', minimum: 0, maximum: 6 },
                   },
-                  recurrence_end_date: { type: "string", format: "date" },
-                  recurrence_end_count: { type: "integer", minimum: 1 },
-                  recurrence_rule: { type: "string" },
-                  recurrence_timezone: { type: "string" },
+                  recurrence_end_date: { type: 'string', format: 'date' },
+                  recurrence_end_count: { type: 'integer', minimum: 1 },
+                  recurrence_rule: { type: 'string' },
+                  recurrence_timezone: { type: 'string' },
                   recurrence_source_task_id: {
-                    type: "string",
-                    format: "uuid",
+                    type: 'string',
+                    format: 'uuid',
                   },
                 },
               },
@@ -737,92 +737,92 @@ const openApiSpec = {
           },
         },
         responses: {
-          "201": {
-            description: "Inbox task created",
+          201: {
+            description: 'Inbox task created',
           },
         },
       },
     },
-    "/tasks/inbox/{id}": {
+    '/tasks/inbox/{id}': {
       get: {
-        summary: "Get an inbox task by ID with subtasks",
+        summary: 'Get an inbox task by ID with subtasks',
         parameters: [
           {
-            name: "id",
-            in: "path",
+            name: 'id',
+            in: 'path',
             required: true,
-            schema: { type: "string", format: "uuid" },
+            schema: { type: 'string', format: 'uuid' },
           },
         ],
         responses: {
-          "200": {
-            description: "Inbox task details",
+          200: {
+            description: 'Inbox task details',
           },
-          "404": {
-            description: "Inbox task not found",
+          404: {
+            description: 'Inbox task not found',
           },
         },
       },
       patch: {
-        summary: "Update an inbox task",
+        summary: 'Update an inbox task',
         parameters: [
           {
-            name: "id",
-            in: "path",
+            name: 'id',
+            in: 'path',
             required: true,
-            schema: { type: "string", format: "uuid" },
+            schema: { type: 'string', format: 'uuid' },
           },
         ],
         requestBody: {
           content: {
-            "application/json": {
+            'application/json': {
               schema: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  name: { type: "string" },
-                  completed: { type: "boolean" },
-                  starred: { type: "boolean" },
-                  due_date: { type: "string", format: "date", nullable: true },
-                  plan_date: { type: "string", format: "date", nullable: true },
-                  comment: { type: "string", nullable: true },
-                  duration_minutes: { type: "integer", nullable: true },
+                  name: { type: 'string' },
+                  completed: { type: 'boolean' },
+                  starred: { type: 'boolean' },
+                  due_date: { type: 'string', format: 'date', nullable: true },
+                  plan_date: { type: 'string', format: 'date', nullable: true },
+                  comment: { type: 'string', nullable: true },
+                  duration_minutes: { type: 'integer', nullable: true },
                   recurrence_frequency: {
-                    type: "string",
+                    type: 'string',
                     nullable: true,
-                    enum: ["daily", "weekly", "monthly", "custom"],
+                    enum: ['daily', 'weekly', 'monthly', 'custom'],
                   },
                   recurrence_interval: {
-                    type: "integer",
+                    type: 'integer',
                     nullable: true,
                     minimum: 1,
                   },
                   recurrence_weekdays: {
-                    type: "array",
+                    type: 'array',
                     nullable: true,
-                    items: { type: "integer", minimum: 0, maximum: 6 },
+                    items: { type: 'integer', minimum: 0, maximum: 6 },
                   },
                   recurrence_end_date: {
-                    type: "string",
-                    format: "date",
+                    type: 'string',
+                    format: 'date',
                     nullable: true,
                   },
                   recurrence_end_count: {
-                    type: "integer",
+                    type: 'integer',
                     nullable: true,
                     minimum: 1,
                   },
-                  recurrence_rule: { type: "string", nullable: true },
-                  recurrence_timezone: { type: "string", nullable: true },
+                  recurrence_rule: { type: 'string', nullable: true },
+                  recurrence_timezone: { type: 'string', nullable: true },
                   recurrence_source_task_id: {
-                    type: "string",
-                    format: "uuid",
+                    type: 'string',
+                    format: 'uuid',
                     nullable: true,
                   },
                   recurrence_update_scope: {
-                    type: "string",
-                    enum: ["single", "future"],
+                    type: 'string',
+                    enum: ['single', 'future'],
                     description:
-                      "When updating recurrence fields, apply only this task or this and future occurrences",
+                      'When updating recurrence fields, apply only this task or this and future occurrences',
                   },
                 },
               },
@@ -830,111 +830,111 @@ const openApiSpec = {
           },
         },
         responses: {
-          "200": {
-            description: "Inbox task updated",
+          200: {
+            description: 'Inbox task updated',
           },
-          "404": {
-            description: "Inbox task not found",
+          404: {
+            description: 'Inbox task not found',
           },
         },
       },
       delete: {
-        summary: "Delete an inbox task",
+        summary: 'Delete an inbox task',
         parameters: [
           {
-            name: "id",
-            in: "path",
+            name: 'id',
+            in: 'path',
             required: true,
-            schema: { type: "string", format: "uuid" },
+            schema: { type: 'string', format: 'uuid' },
           },
         ],
         responses: {
-          "200": {
-            description: "Inbox task deleted",
+          200: {
+            description: 'Inbox task deleted',
           },
-          "404": {
-            description: "Inbox task not found",
+          404: {
+            description: 'Inbox task not found',
           },
         },
       },
     },
-    "/tasks/{id}": {
+    '/tasks/{id}': {
       get: {
-        summary: "Get a task by ID with subtasks",
+        summary: 'Get a task by ID with subtasks',
         parameters: [
           {
-            name: "id",
-            in: "path",
+            name: 'id',
+            in: 'path',
             required: true,
-            schema: { type: "string", format: "uuid" },
+            schema: { type: 'string', format: 'uuid' },
           },
         ],
         responses: {
-          "200": {
-            description: "Task details with recursive subtasks",
+          200: {
+            description: 'Task details with recursive subtasks',
           },
         },
       },
       patch: {
-        summary: "Update a task",
+        summary: 'Update a task',
         parameters: [
           {
-            name: "id",
-            in: "path",
+            name: 'id',
+            in: 'path',
             required: true,
-            schema: { type: "string", format: "uuid" },
+            schema: { type: 'string', format: 'uuid' },
           },
         ],
         requestBody: {
           content: {
-            "application/json": {
+            'application/json': {
               schema: {
-                type: "object",
+                type: 'object',
                 properties: {
-                  name: { type: "string" },
-                  completed: { type: "boolean" },
-                  starred: { type: "boolean" },
-                  due_date: { type: "string", format: "date", nullable: true },
-                  plan_date: { type: "string", format: "date", nullable: true },
-                  comment: { type: "string", nullable: true },
-                  duration_minutes: { type: "integer", nullable: true },
+                  name: { type: 'string' },
+                  completed: { type: 'boolean' },
+                  starred: { type: 'boolean' },
+                  due_date: { type: 'string', format: 'date', nullable: true },
+                  plan_date: { type: 'string', format: 'date', nullable: true },
+                  comment: { type: 'string', nullable: true },
+                  duration_minutes: { type: 'integer', nullable: true },
                   recurrence_frequency: {
-                    type: "string",
+                    type: 'string',
                     nullable: true,
-                    enum: ["daily", "weekly", "monthly", "custom"],
+                    enum: ['daily', 'weekly', 'monthly', 'custom'],
                   },
                   recurrence_interval: {
-                    type: "integer",
+                    type: 'integer',
                     nullable: true,
                     minimum: 1,
                   },
                   recurrence_weekdays: {
-                    type: "array",
+                    type: 'array',
                     nullable: true,
-                    items: { type: "integer", minimum: 0, maximum: 6 },
+                    items: { type: 'integer', minimum: 0, maximum: 6 },
                   },
                   recurrence_end_date: {
-                    type: "string",
-                    format: "date",
+                    type: 'string',
+                    format: 'date',
                     nullable: true,
                   },
                   recurrence_end_count: {
-                    type: "integer",
+                    type: 'integer',
                     nullable: true,
                     minimum: 1,
                   },
-                  recurrence_rule: { type: "string", nullable: true },
-                  recurrence_timezone: { type: "string", nullable: true },
+                  recurrence_rule: { type: 'string', nullable: true },
+                  recurrence_timezone: { type: 'string', nullable: true },
                   recurrence_source_task_id: {
-                    type: "string",
-                    format: "uuid",
+                    type: 'string',
+                    format: 'uuid',
                     nullable: true,
                   },
                   recurrence_update_scope: {
-                    type: "string",
-                    enum: ["single", "future"],
+                    type: 'string',
+                    enum: ['single', 'future'],
                     description:
-                      "When updating recurrence fields, apply only this task or this and future occurrences",
+                      'When updating recurrence fields, apply only this task or this and future occurrences',
                   },
                 },
               },
@@ -942,108 +942,108 @@ const openApiSpec = {
           },
         },
         responses: {
-          "200": {
-            description: "Task updated",
+          200: {
+            description: 'Task updated',
           },
         },
       },
       delete: {
-        summary: "Delete a task",
+        summary: 'Delete a task',
         parameters: [
           {
-            name: "id",
-            in: "path",
+            name: 'id',
+            in: 'path',
             required: true,
-            schema: { type: "string", format: "uuid" },
+            schema: { type: 'string', format: 'uuid' },
           },
         ],
         responses: {
-          "200": {
-            description: "Task deleted",
+          200: {
+            description: 'Task deleted',
           },
         },
       },
     },
-    "/tasks/reorder": {
+    '/tasks/reorder': {
       patch: {
-        summary: "Reorder tasks within a list",
+        summary: 'Reorder tasks within a list',
         requestBody: {
           required: true,
           content: {
-            "application/json": {
+            'application/json': {
               schema: {
-                type: "object",
-                required: ["taskIds", "list_id"],
+                type: 'object',
+                required: ['taskIds', 'list_id'],
                 properties: {
                   taskIds: {
-                    type: "array",
-                    items: { type: "string", format: "uuid" },
+                    type: 'array',
+                    items: { type: 'string', format: 'uuid' },
                   },
-                  list_id: { type: "string", format: "uuid" },
-                  parent_id: { type: "string", format: "uuid" },
+                  list_id: { type: 'string', format: 'uuid' },
+                  parent_id: { type: 'string', format: 'uuid' },
                 },
               },
             },
           },
         },
         responses: {
-          "200": {
-            description: "Tasks reordered",
+          200: {
+            description: 'Tasks reordered',
           },
         },
       },
     },
-    "/tasks/today": {
+    '/tasks/today': {
       get: {
-        summary: "Get tasks with plan_date = today",
+        summary: 'Get tasks with plan_date = today',
         responses: {
-          "200": {
-            description: "Today's tasks with list/group info",
+          200: {
+            description: 'Today\'s tasks with list/group info',
           },
         },
       },
     },
-    "/tasks/starred": {
+    '/tasks/starred': {
       get: {
-        summary: "Get all starred tasks",
+        summary: 'Get all starred tasks',
         responses: {
-          "200": {
-            description: "Starred tasks",
+          200: {
+            description: 'Starred tasks',
           },
         },
       },
     },
-    "/search/tasks": {
+    '/search/tasks': {
       get: {
-        summary: "Search tasks by name",
+        summary: 'Search tasks by name',
         parameters: [
           {
-            name: "q",
-            in: "query",
+            name: 'q',
+            in: 'query',
             required: true,
-            schema: { type: "string" },
-            description: "Search query",
+            schema: { type: 'string' },
+            description: 'Search query',
           },
           {
-            name: "page",
-            in: "query",
-            schema: { type: "integer", minimum: 1 },
-            description: "Page number (default: 1)",
+            name: 'page',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1 },
+            description: 'Page number (default: 1)',
           },
           {
-            name: "limit",
-            in: "query",
-            schema: { type: "integer", minimum: 1, maximum: 100 },
-            description: "Items per page (default: 50, max: 100)",
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 100 },
+            description: 'Items per page (default: 50, max: 100)',
           },
         ],
         responses: {
-          "200": {
-            description: "Search results with pagination",
+          200: {
+            description: 'Search results with pagination',
             content: {
-              "application/json": {
+              'application/json': {
                 schema: {
-                  $ref: "#/components/schemas/PaginatedResponse",
+                  $ref: '#/components/schemas/PaginatedResponse',
                 },
               },
             },
@@ -1052,8 +1052,8 @@ const openApiSpec = {
       },
     },
   },
-};
+}
 
 export async function GET() {
-  return NextResponse.json(openApiSpec);
+  return NextResponse.json(openApiSpec)
 }

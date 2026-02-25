@@ -2,11 +2,11 @@
 export {
   Command,
   CommandDialog,
-  CommandInput,
-  CommandList,
   CommandEmpty,
   CommandGroup,
+  CommandInput,
   CommandItem,
-  CommandShortcut,
+  CommandList,
   CommandSeparator,
-} from "@puratodo/ui";
+  CommandShortcut,
+} from '@puratodo/ui'

@@ -1,84 +1,87 @@
-"use client";
+'use client'
 
-import { useState, useEffect, useCallback } from "react";
+import type { TaskSearchResult } from '@/actions/tasks'
+import { format } from 'date-fns'
+import { Calendar, Check, Circle, Loader2, Search, Star } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
+import { searchTasks } from '@/actions/tasks'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { searchTasks, type TaskSearchResult } from "@/actions/tasks";
-import { Check, Circle, Star, Calendar, Search, Loader2 } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import { useI18n } from "@/i18n";
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { useI18n } from '@/i18n'
+import { cn } from '@/lib/utils'
 
 interface SearchDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onTaskSelect: (taskId: string, listId: string, groupId: string) => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onTaskSelect: (taskId: string, listId: string, groupId: string) => void
 }
 
 export function SearchDialog({ open, onOpenChange, onTaskSelect }: SearchDialogProps) {
-  const { t } = useI18n();
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState<TaskSearchResult[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const { t } = useI18n()
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState<TaskSearchResult[]>([])
+  const [isLoading, setIsLoading] = useState(false)
 
   // Debounced search
   useEffect(() => {
-    if (!open) return;
+    if (!open)
+      return
 
     if (!query.trim()) {
-      setResults([]);
-      return;
+      setResults([])
+      return
     }
 
     const timer = setTimeout(async () => {
-      setIsLoading(true);
+      setIsLoading(true)
       try {
-        const data = await searchTasks(query);
-        setResults(data);
-      } catch (error) {
-        console.error("Search error:", error);
-        setResults([]);
+        const data = await searchTasks(query)
+        setResults(data)
       }
-      setIsLoading(false);
-    }, 300);
+      catch (error) {
+        console.error('Search error:', error)
+        setResults([])
+      }
+      setIsLoading(false)
+    }, 300)
 
-    return () => clearTimeout(timer);
-  }, [query, open]);
+    return () => clearTimeout(timer)
+  }, [query, open])
 
   // Reset state when dialog closes
   useEffect(() => {
     if (!open) {
-      setQuery("");
-      setResults([]);
+      setQuery('')
+      setResults([])
     }
-  }, [open]);
+  }, [open])
 
   const handleSelect = useCallback(
     (task: TaskSearchResult) => {
-      onTaskSelect(task.id, task.list_id, "");
-      onOpenChange(false);
+      onTaskSelect(task.id, task.list_id, '')
+      onOpenChange(false)
     },
-    [onTaskSelect, onOpenChange]
-  );
+    [onTaskSelect, onOpenChange],
+  )
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg p-0 gap-0">
         <DialogHeader className="sr-only">
-          <DialogTitle>{t("searchDialog.title")}</DialogTitle>
+          <DialogTitle>{t('searchDialog.title')}</DialogTitle>
         </DialogHeader>
         {/* Search Input */}
         <div className="flex items-center gap-2 border-b px-4 py-3">
           <Search className="h-4 w-4 text-stone-400 flex-shrink-0" />
           <Input
-            placeholder={t("searchDialog.placeholder")}
+            placeholder={t('searchDialog.placeholder')}
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={e => setQuery(e.target.value)}
             className="border-0 shadow-none focus-visible:ring-0 px-0 h-9"
             autoFocus
           />
@@ -87,21 +90,21 @@ export function SearchDialog({ open, onOpenChange, onTaskSelect }: SearchDialogP
 
         {/* Results */}
         <div className="max-h-[300px] overflow-y-auto">
-          {query.trim() === "" ? (
+          {query.trim() === '' ? (
             <div className="py-8 text-center text-sm text-stone-500">
-              {t("searchDialog.typeToSearch")}
+              {t('searchDialog.typeToSearch')}
             </div>
           ) : isLoading ? (
             <div className="py-8 text-center text-sm text-stone-500">
-              {t("searchDialog.searching")}
+              {t('searchDialog.searching')}
             </div>
           ) : results.length === 0 ? (
             <div className="py-8 text-center text-sm text-stone-500">
-              {t("searchDialog.noTasksFound").replace("{query}", query)}
+              {t('searchDialog.noTasksFound').replace('{query}', query)}
             </div>
           ) : (
             <ul className="py-1">
-              {results.map((task) => (
+              {results.map(task => (
                 <li
                   key={task.id}
                   onClick={() => handleSelect(task)}
@@ -109,19 +112,21 @@ export function SearchDialog({ open, onOpenChange, onTaskSelect }: SearchDialogP
                 >
                   <div className="flex items-center gap-2">
                     {/* Completion status */}
-                    {task.completed ? (
-                      <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                    ) : (
-                      <Circle className="h-4 w-4 text-stone-300 dark:text-stone-600 flex-shrink-0" />
-                    )}
+                    {task.completed
+                      ? (
+                          <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        )
+                      : (
+                          <Circle className="h-4 w-4 text-stone-300 dark:text-stone-600 flex-shrink-0" />
+                        )}
 
                     {/* Task name */}
                     <span
                       className={cn(
-                        "flex-1 truncate text-sm",
+                        'flex-1 truncate text-sm',
                         task.completed
-                          ? "line-through text-stone-400"
-                          : "text-stone-900 dark:text-stone-100"
+                          ? 'line-through text-stone-400'
+                          : 'text-stone-900 dark:text-stone-100',
                       )}
                     >
                       {task.name}
@@ -136,7 +141,7 @@ export function SearchDialog({ open, onOpenChange, onTaskSelect }: SearchDialogP
                     {task.due_date && (
                       <div className="flex items-center gap-1 text-xs text-stone-500">
                         <Calendar className="h-3 w-3" />
-                        {format(new Date(task.due_date), "MMM d")}
+                        {format(new Date(task.due_date), 'MMM d')}
                       </div>
                     )}
                   </div>
@@ -160,9 +165,9 @@ export function SearchDialog({ open, onOpenChange, onTaskSelect }: SearchDialogP
 
         {/* Footer */}
         <div className="border-t px-4 py-2 text-xs text-stone-400 text-center">
-          {t("searchDialog.pressEscToClose")}
+          {t('searchDialog.pressEscToClose')}
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

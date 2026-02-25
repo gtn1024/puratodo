@@ -1,711 +1,727 @@
-"use client";
+'use client'
 
-import { useState, useEffect, useCallback, forwardRef, useImperativeHandle, useRef } from "react";
-import { useI18n } from "@/i18n";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import type { InboxMoveTarget, TaskContextMeta, TaskFiltersValue } from '@puratodo/task-ui'
+import type { List } from '@/actions/lists'
+import type { Task, TaskSearchResult } from '@/actions/tasks'
+import { getLocalDateString } from '@puratodo/shared'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
+  TaskFilters as SharedTaskFilters,
+  TaskBulkActions,
+
+  TaskList,
+} from '@puratodo/task-ui'
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+  CheckCircle,
+  CheckSquare,
+  Circle,
+  Filter,
+  Plus,
+} from 'lucide-react'
+import { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import {
-  getTasksWithSubtasks,
+  bulkDeleteTasks,
+  bulkUpdateTasks,
   createTask,
-  updateTask,
   deleteTask,
   getNext7DaysTasks,
   getNoDateTasks,
   getOverdueTasks,
   getStarredTasks,
+  getTasksWithSubtasks,
   moveInboxTaskToList,
   reorderTasks,
-  bulkUpdateTasks,
-  bulkDeleteTasks,
-  type Task,
-  type TaskSearchResult,
-} from "@/actions/tasks";
+
+  updateTask,
+} from '@/actions/tasks'
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
 import {
-  MoreHorizontal,
-  Plus,
-  Circle,
-  CheckCircle,
-  Star,
-  Filter,
-  CheckSquare,
-  Square,
-  Trash2,
-  Star as StarIcon,
-  X,
-} from "lucide-react";
-import { TaskPanelSkeleton } from "./skeletons";
-import type { List } from "@/actions/lists";
-import { useRealtime } from "@/hooks/use-realtime";
-import { getLocalDateString } from "@puratodo/shared";
-import {
-  TaskFilters as SharedTaskFilters,
-  TaskBulkActions,
-  TaskList,
-  type TaskFiltersValue,
-  type TaskContextMeta,
-  type InboxMoveTarget,
-} from "@puratodo/task-ui";
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+
+import { useRealtime } from '@/hooks/use-realtime'
+import { useI18n } from '@/i18n'
+import { TaskPanelSkeleton } from './skeletons'
 
 // Local filter types for internal use (maps to shared types)
-type StatusFilter = TaskFiltersValue["status"];
-type StarFilter = TaskFiltersValue["star"];
-type DateFilter = TaskFiltersValue["date"];
+type StatusFilter = TaskFiltersValue['status']
+type StarFilter = TaskFiltersValue['star']
+type DateFilter = TaskFiltersValue['date']
 
 interface TaskFilters {
-  status: StatusFilter;
-  star: StarFilter;
-  date: DateFilter;
+  status: StatusFilter
+  star: StarFilter
+  date: DateFilter
 }
 
-type GroupOption = {
-  id: string;
-  name: string;
-};
+interface GroupOption {
+  id: string
+  name: string
+}
 
-type SmartViewType = "starred" | "overdue" | "next7days" | "nodate";
+type SmartViewType = 'starred' | 'overdue' | 'next7days' | 'nodate'
 
 interface TaskPanelProps {
-  list: List | null;
-  selectedTaskId?: string | null;
-  allLists?: List[];
-  allGroups?: GroupOption[];
-  isInboxMode?: boolean;
-  smartView?: SmartViewType | null;
-  onTaskSelect?: (taskId: string | null) => void;
+  list: List | null
+  selectedTaskId?: string | null
+  allLists?: List[]
+  allGroups?: GroupOption[]
+  isInboxMode?: boolean
+  smartView?: SmartViewType | null
+  onTaskSelect?: (taskId: string | null) => void
 }
 
 export interface TaskPanelRef {
-  triggerCreateTask: () => void;
+  triggerCreateTask: () => void
 }
 
-export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
-  function TaskPanel(
-    { list, selectedTaskId, allLists, allGroups, isInboxMode, smartView, onTaskSelect },
-    ref
-  ) {
-  const { t } = useI18n();
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [newTaskName, setNewTaskName] = useState("");
-  const [isAdding, setIsAdding] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingTasks, setIsLoadingTasks] = useState(true);
-  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
-  const [editName, setEditName] = useState("");
-  const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
-  const [addingSubtaskTo, setAddingSubtaskTo] = useState<string | null>(null);
-  const [newSubtaskName, setNewSubtaskName] = useState("");
-  const [taskContextById, setTaskContextById] = useState<Map<string, TaskContextMeta>>(new Map());
+export function TaskPanel({ ref, list, selectedTaskId, allLists, allGroups, isInboxMode, smartView, onTaskSelect }: TaskPanelProps & { ref?: React.RefObject<TaskPanelRef | null> }) {
+  const { t } = useI18n()
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [newTaskName, setNewTaskName] = useState('')
+  const [isAdding, setIsAdding] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingTasks, setIsLoadingTasks] = useState(true)
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
+  const [editName, setEditName] = useState('')
+  const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null)
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set())
+  const [addingSubtaskTo, setAddingSubtaskTo] = useState<string | null>(null)
+  const [newSubtaskName, setNewSubtaskName] = useState('')
+  const [taskContextById, setTaskContextById] = useState<Map<string, TaskContextMeta>>(new Map())
   const [filters, setFilters] = useState<TaskFilters>({
-    status: "all",
-    star: "all",
-    date: "all",
-  });
+    status: 'all',
+    star: 'all',
+    date: 'all',
+  })
 
   // Multi-select state
-  const [isSelectionMode, setIsSelectionMode] = useState(false);
-  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
+  const [isSelectionMode, setIsSelectionMode] = useState(false)
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set())
 
-  const newTaskInputRef = useRef<HTMLInputElement>(null);
-  const smartViewPollingInFlightRef = useRef(false);
-  const isSmartViewMode = Boolean(smartView);
-  const isDateDrivenSmartView = smartView === "overdue" || smartView === "next7days";
-  const canCreateTasks = Boolean(list) && !isSmartViewMode;
+  const newTaskInputRef = useRef<HTMLInputElement>(null)
+  const smartViewPollingInFlightRef = useRef(false)
+  const isSmartViewMode = Boolean(smartView)
+  const isDateDrivenSmartView = smartView === 'overdue' || smartView === 'next7days'
+  const canCreateTasks = Boolean(list) && !isSmartViewMode
 
   const applySmartViewResults = useCallback((items: TaskSearchResult[]) => {
-    setTasks(items as Task[]);
-    const context = new Map<string, TaskContextMeta>();
+    setTasks(items as Task[])
+    const context = new Map<string, TaskContextMeta>()
     items.forEach((task) => {
       context.set(task.id, {
         listName: task.list_name,
         listIcon: task.list_icon,
         groupName: task.group_name,
         groupColor: task.group_color,
-      });
-    });
-    setTaskContextById(context);
-  }, []);
+      })
+    })
+    setTaskContextById(context)
+  }, [])
 
   const loadSmartViewTasks = useCallback(async (view: SmartViewType): Promise<TaskSearchResult[]> => {
-    if (view === "starred") return getStarredTasks();
-    if (view === "overdue") return getOverdueTasks();
-    if (view === "next7days") return getNext7DaysTasks();
-    return getNoDateTasks();
-  }, []);
+    if (view === 'starred')
+      return getStarredTasks()
+    if (view === 'overdue')
+      return getOverdueTasks()
+    if (view === 'next7days')
+      return getNext7DaysTasks()
+    return getNoDateTasks()
+  }, [])
 
   const reloadTasks = useCallback(async () => {
     if (smartView) {
-      const data = await loadSmartViewTasks(smartView);
-      applySmartViewResults(data);
-      return;
+      const data = await loadSmartViewTasks(smartView)
+      applySmartViewResults(data)
+      return
     }
 
     if (list) {
-      const data = await getTasksWithSubtasks(list.id);
-      setTasks(data);
-      setTaskContextById(new Map());
-      return;
+      const data = await getTasksWithSubtasks(list.id)
+      setTasks(data)
+      setTaskContextById(new Map())
+      return
     }
 
-    setTasks([]);
-    setTaskContextById(new Map());
-  }, [applySmartViewResults, list, loadSmartViewTasks, smartView]);
+    setTasks([])
+    setTaskContextById(new Map())
+  }, [applySmartViewResults, list, loadSmartViewTasks, smartView])
 
   // Realtime subscription for tasks
   useRealtime({
-    channel: smartView ? `smart-view-tasks-${smartView}` : `tasks-${list?.id || "none"}`,
-    table: "tasks",
+    channel: smartView ? `smart-view-tasks-${smartView}` : `tasks-${list?.id || 'none'}`,
+    table: 'tasks',
     onInsert: () => reloadTasks(),
     onUpdate: () => reloadTasks(),
     onDelete: () => reloadTasks(),
     enabled: !!list || isSmartViewMode,
-  });
+  })
 
   // Keep smart-view labels fresh when lists/groups are renamed.
   useRealtime({
-    channel: `smart-view-lists-${smartView || "none"}`,
-    table: "lists",
+    channel: `smart-view-lists-${smartView || 'none'}`,
+    table: 'lists',
     onInsert: () => reloadTasks(),
     onUpdate: () => reloadTasks(),
     onDelete: () => reloadTasks(),
     enabled: isSmartViewMode,
-  });
+  })
 
   useRealtime({
-    channel: `smart-view-groups-${smartView || "none"}`,
-    table: "groups",
+    channel: `smart-view-groups-${smartView || 'none'}`,
+    table: 'groups',
     onInsert: () => reloadTasks(),
     onUpdate: () => reloadTasks(),
     onDelete: () => reloadTasks(),
     enabled: isSmartViewMode,
-  });
+  })
 
   // Expose methods to parent via ref
   useImperativeHandle(ref, () => ({
     triggerCreateTask: () => {
-      if (!canCreateTasks) return;
-      setIsAdding(true);
+      if (!canCreateTasks)
+        return
+      setIsAdding(true)
       // Focus the input after a brief delay to ensure it's rendered
       setTimeout(() => {
-        newTaskInputRef.current?.focus();
-      }, 50);
+        newTaskInputRef.current?.focus()
+      }, 50)
     },
-  }), [canCreateTasks]);
+  }), [canCreateTasks])
 
   useEffect(() => {
     async function loadTasks() {
-      setIsLoadingTasks(true);
-      setIsAdding(false);
-      setAddingSubtaskTo(null);
-      setNewTaskName("");
-      setNewSubtaskName("");
-      await reloadTasks();
-      setIsLoadingTasks(false);
+      setIsLoadingTasks(true)
+      setIsAdding(false)
+      setAddingSubtaskTo(null)
+      setNewTaskName('')
+      setNewSubtaskName('')
+      await reloadTasks()
+      setIsLoadingTasks(false)
     }
-    loadTasks();
-  }, [reloadTasks]);
+    loadTasks()
+  }, [reloadTasks])
 
   // Date-based smart views need a local-midnight refresh even without DB changes.
   useEffect(() => {
     if (!isDateDrivenSmartView) {
-      return;
+      return
     }
 
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null
 
     const scheduleNextMidnightReload = () => {
-      const now = new Date();
-      const nextMidnight = new Date(now);
-      nextMidnight.setHours(24, 0, 2, 0);
-      const delay = Math.max(1000, nextMidnight.getTime() - now.getTime());
+      const now = new Date()
+      const nextMidnight = new Date(now)
+      nextMidnight.setHours(24, 0, 2, 0)
+      const delay = Math.max(1000, nextMidnight.getTime() - now.getTime())
 
       timeoutId = setTimeout(async () => {
-        await reloadTasks();
-        scheduleNextMidnightReload();
-      }, delay);
-    };
+        await reloadTasks()
+        scheduleNextMidnightReload()
+      }, delay)
+    }
 
-    scheduleNextMidnightReload();
+    scheduleNextMidnightReload()
 
     return () => {
       if (timeoutId) {
-        clearTimeout(timeoutId);
+        clearTimeout(timeoutId)
       }
-    };
-  }, [isDateDrivenSmartView, reloadTasks]);
+    }
+  }, [isDateDrivenSmartView, reloadTasks])
 
   // Fallback refresh for Smart Views when external edits are made from another session/device.
   // This keeps membership changes (e.g. Starred/No Date/Overdue) visible even if realtime events are delayed.
   useEffect(() => {
     if (!isSmartViewMode) {
-      return;
+      return
     }
 
-    let intervalId: ReturnType<typeof setInterval> | null = null;
-    let disposed = false;
+    let intervalId: ReturnType<typeof setInterval> | null = null
+    let disposed = false
 
     const safeReload = async () => {
       if (disposed || smartViewPollingInFlightRef.current) {
-        return;
+        return
       }
 
-      if (typeof document !== "undefined" && document.visibilityState !== "visible") {
-        return;
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
+        return
       }
 
-      smartViewPollingInFlightRef.current = true;
+      smartViewPollingInFlightRef.current = true
       try {
-        await reloadTasks();
-      } finally {
-        smartViewPollingInFlightRef.current = false;
+        await reloadTasks()
       }
-    };
+      finally {
+        smartViewPollingInFlightRef.current = false
+      }
+    }
 
     // Refresh quickly on focus/visibility changes.
     const handleFocus = () => {
-      void safeReload();
-    };
+      void safeReload()
+    }
     const handleVisibilityChange = () => {
-      void safeReload();
-    };
+      void safeReload()
+    }
 
-    if (typeof window !== "undefined") {
-      window.addEventListener("focus", handleFocus);
-      document.addEventListener("visibilitychange", handleVisibilityChange);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('focus', handleFocus)
+      document.addEventListener('visibilitychange', handleVisibilityChange)
     }
 
     // Periodic fallback for cross-session updates.
     intervalId = setInterval(() => {
-      void safeReload();
-    }, 3000);
+      void safeReload()
+    }, 3000)
 
     return () => {
-      disposed = true;
+      disposed = true
       if (intervalId) {
-        clearInterval(intervalId);
+        clearInterval(intervalId)
       }
-      if (typeof window !== "undefined") {
-        window.removeEventListener("focus", handleFocus);
-        document.removeEventListener("visibilitychange", handleVisibilityChange);
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('focus', handleFocus)
+        document.removeEventListener('visibilitychange', handleVisibilityChange)
       }
-    };
-  }, [isSmartViewMode, reloadTasks]);
+    }
+  }, [isSmartViewMode, reloadTasks])
 
   const handleAddTask = async () => {
-    if (!canCreateTasks || !list || !newTaskName.trim()) return;
-    setIsLoading(true);
-    const result = await createTask(list.id, newTaskName.trim());
+    if (!canCreateTasks || !list || !newTaskName.trim())
+      return
+    setIsLoading(true)
+    const result = await createTask(list.id, newTaskName.trim())
     if (result.success) {
-      setNewTaskName("");
-      setIsAdding(false);
-      await reloadTasks();
+      setNewTaskName('')
+      setIsAdding(false)
+      await reloadTasks()
     }
-    setIsLoading(false);
-  };
+    setIsLoading(false)
+  }
 
   const handleAddSubtask = async (parentId: string) => {
-    if (!canCreateTasks || !list || !newSubtaskName.trim()) return;
-    setIsLoading(true);
-    const result = await createTask(list.id, newSubtaskName.trim(), parentId);
+    if (!canCreateTasks || !list || !newSubtaskName.trim())
+      return
+    setIsLoading(true)
+    const result = await createTask(list.id, newSubtaskName.trim(), parentId)
     if (result.success) {
-      setNewSubtaskName("");
-      setAddingSubtaskTo(null);
-      await reloadTasks();
+      setNewSubtaskName('')
+      setAddingSubtaskTo(null)
+      await reloadTasks()
       // Expand parent task to show new subtask
-      setExpandedTasks((prev) => new Set(prev).add(parentId));
+      setExpandedTasks(prev => new Set(prev).add(parentId))
     }
-    setIsLoading(false);
-  };
+    setIsLoading(false)
+  }
 
   const handleToggleComplete = async (task: Task) => {
     // Optimistic update - immediately update UI
-    const newCompletedState = !task.completed;
+    const newCompletedState = !task.completed
 
     // Update local state immediately
     const updateTaskInList = (tasks: Task[]): Task[] => {
-      return tasks.map(t => {
+      return tasks.map((t) => {
         if (t.id === task.id) {
-          return { ...t, completed: newCompletedState };
+          return { ...t, completed: newCompletedState }
         }
         if (t.subtasks) {
-          return { ...t, subtasks: updateTaskInList(t.subtasks) };
+          return { ...t, subtasks: updateTaskInList(t.subtasks) }
         }
-        return t;
-      });
-    };
+        return t
+      })
+    }
 
-    setTasks(prev => updateTaskInList(prev));
+    setTasks(prev => updateTaskInList(prev))
 
     // Send request to server (don't await, let it happen in background)
     try {
-      await updateTask(task.id, { completed: newCompletedState });
+      await updateTask(task.id, { completed: newCompletedState })
       // Reload to sync with server state (subtle, in background)
-      reloadTasks();
-    } catch (error) {
-      // Revert on error
-      setTasks(prev => updateTaskInList(prev));
-      console.error('Failed to update task:', error);
+      reloadTasks()
     }
-  };
+    catch (error) {
+      // Revert on error
+      setTasks(prev => updateTaskInList(prev))
+      console.error('Failed to update task:', error)
+    }
+  }
 
   const handleToggleStar = async (task: Task) => {
     // Optimistic update - immediately update UI
-    const newStarredState = !task.starred;
+    const newStarredState = !task.starred
 
     const updateTaskInList = (tasks: Task[]): Task[] => {
-      return tasks.map(t => {
+      return tasks.map((t) => {
         if (t.id === task.id) {
-          return { ...t, starred: newStarredState };
+          return { ...t, starred: newStarredState }
         }
         if (t.subtasks) {
-          return { ...t, subtasks: updateTaskInList(t.subtasks) };
+          return { ...t, subtasks: updateTaskInList(t.subtasks) }
         }
-        return t;
-      });
-    };
+        return t
+      })
+    }
 
-    setTasks(prev => updateTaskInList(prev));
+    setTasks(prev => updateTaskInList(prev))
 
     try {
-      await updateTask(task.id, { starred: newStarredState });
-      reloadTasks();
-    } catch (error) {
-      setTasks(prev => updateTaskInList(prev));
-      console.error('Failed to update task star:', error);
+      await updateTask(task.id, { starred: newStarredState })
+      reloadTasks()
     }
-  };
+    catch (error) {
+      setTasks(prev => updateTaskInList(prev))
+      console.error('Failed to update task star:', error)
+    }
+  }
 
   const handleEdit = (task: Task) => {
-    setEditingTaskId(task.id);
-    setEditName(task.name);
-  };
+    setEditingTaskId(task.id)
+    setEditName(task.name)
+  }
 
   const handleSaveEdit = async () => {
-    if (!editingTaskId || !editName.trim()) return;
-    await updateTask(editingTaskId, { name: editName.trim() });
-    setEditingTaskId(null);
-    setEditName("");
-    await reloadTasks();
-  };
+    if (!editingTaskId || !editName.trim())
+      return
+    await updateTask(editingTaskId, { name: editName.trim() })
+    setEditingTaskId(null)
+    setEditName('')
+    await reloadTasks()
+  }
 
   const handleCancelEdit = () => {
-    setEditingTaskId(null);
-    setEditName("");
-  };
+    setEditingTaskId(null)
+    setEditName('')
+  }
 
   const handleOpenDetail = (task: Task) => {
-    onTaskSelect?.(task.id);
-  };
+    onTaskSelect?.(task.id)
+  }
 
   const openDeleteDialog = (task: Task) => {
-    setDeleteTaskId(task.id);
-    setIsDeleteOpen(true);
-  };
+    setDeleteTaskId(task.id)
+    setIsDeleteOpen(true)
+  }
 
   const handleConfirmDelete = async () => {
-    if (!deleteTaskId) return;
-    setIsLoading(true);
-    await deleteTask(deleteTaskId);
-    setIsDeleteOpen(false);
-    setDeleteTaskId(null);
-    await reloadTasks();
-    setIsLoading(false);
-  };
+    if (!deleteTaskId)
+      return
+    setIsLoading(true)
+    await deleteTask(deleteTaskId)
+    setIsDeleteOpen(false)
+    setDeleteTaskId(null)
+    await reloadTasks()
+    setIsLoading(false)
+  }
 
   const handleToggleExpand = (taskId: string) => {
     setExpandedTasks((prev) => {
-      const next = new Set(prev);
+      const next = new Set(prev)
       if (next.has(taskId)) {
-        next.delete(taskId);
-      } else {
-        next.add(taskId);
+        next.delete(taskId)
       }
-      return next;
-    });
-  };
+      else {
+        next.add(taskId)
+      }
+      return next
+    })
+  }
 
   // Handle task reordering from TaskList component
   const handleReorder = async (listId: string, orderedIds: string[], parentId?: string) => {
-    await reorderTasks(listId, orderedIds, parentId);
-    await reloadTasks();
-  };
+    await reorderTasks(listId, orderedIds, parentId)
+    await reloadTasks()
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleAddTask();
-    } else if (e.key === "Escape") {
-      setNewTaskName("");
-      setIsAdding(false);
+    if (e.key === 'Enter') {
+      handleAddTask()
     }
-  };
+    else if (e.key === 'Escape') {
+      setNewTaskName('')
+      setIsAdding(false)
+    }
+  }
 
   const handleSubtaskKeyDown = (e: React.KeyboardEvent, parentId: string) => {
-    if (e.key === "Enter") {
-      handleAddSubtask(parentId);
-    } else if (e.key === "Escape") {
-      setNewSubtaskName("");
-      setAddingSubtaskTo(null);
+    if (e.key === 'Enter') {
+      handleAddSubtask(parentId)
     }
-  };
+    else if (e.key === 'Escape') {
+      setNewSubtaskName('')
+      setAddingSubtaskTo(null)
+    }
+  }
 
   const countAllTasks = (taskList: Task[]): number => {
     return taskList.reduce((count, task) => {
-      return count + 1 + (task.subtasks ? countAllTasks(task.subtasks) : 0);
-    }, 0);
-  };
+      return count + 1 + (task.subtasks ? countAllTasks(task.subtasks) : 0)
+    }, 0)
+  }
 
   // Check if any filter is active
-  const hasActiveFilters = filters.status !== "all" || filters.star !== "all" || filters.date !== "all";
+  const hasActiveFilters = filters.status !== 'all' || filters.star !== 'all' || filters.date !== 'all'
 
   // Filter tasks based on current filters
   const filterTasks = useCallback((taskList: Task[]): Task[] => {
-    const today = getLocalDateString(new Date());
+    const today = getLocalDateString(new Date())
 
     const matchesFilter = (task: Task): boolean => {
       // Status filter
-      if (filters.status === "completed" && !task.completed) return false;
-      if (filters.status === "incomplete" && task.completed) return false;
+      if (filters.status === 'completed' && !task.completed)
+        return false
+      if (filters.status === 'incomplete' && task.completed)
+        return false
 
       // Star filter
-      if (filters.star === "starred" && !task.starred) return false;
-      if (filters.star === "unstarred" && task.starred) return false;
+      if (filters.star === 'starred' && !task.starred)
+        return false
+      if (filters.star === 'unstarred' && task.starred)
+        return false
 
       // Date filter
-      if (filters.date === "overdue") {
-        if (!task.due_date || task.completed) return false;
-        if (task.due_date >= today) return false;
+      if (filters.date === 'overdue') {
+        if (!task.due_date || task.completed)
+          return false
+        if (task.due_date >= today)
+          return false
       }
-      if (filters.date === "today") {
-        if (!task.due_date) return false;
-        if (task.due_date !== today) return false;
+      if (filters.date === 'today') {
+        if (!task.due_date)
+          return false
+        if (task.due_date !== today)
+          return false
       }
-      if (filters.date === "upcoming") {
-        if (!task.due_date || task.completed) return false;
-        if (task.due_date <= today) return false;
+      if (filters.date === 'upcoming') {
+        if (!task.due_date || task.completed)
+          return false
+        if (task.due_date <= today)
+          return false
       }
-      if (filters.date === "nodate" && task.due_date) return false;
+      if (filters.date === 'nodate' && task.due_date)
+        return false
 
-      return true;
-    };
+      return true
+    }
 
     return taskList.filter(matchesFilter).map(task => ({
       ...task,
-      subtasks: task.subtasks ? filterTasks(task.subtasks) : []
-    }));
-  }, [filters]);
+      subtasks: task.subtasks ? filterTasks(task.subtasks) : [],
+    }))
+  }, [filters])
 
   // Get filtered tasks
-  const filteredTasks = hasActiveFilters ? filterTasks(tasks) : tasks;
-  const groupNameById = new Map((allGroups || []).map((group) => [group.id, group.name]));
-  const inboxMoveTargets: InboxMoveTarget[] =
-    isInboxMode && list
+  const filteredTasks = hasActiveFilters ? filterTasks(tasks) : tasks
+  const groupNameById = new Map((allGroups || []).map(group => [group.id, group.name]))
+  const inboxMoveTargets: InboxMoveTarget[]
+    = isInboxMode && list
       ? (allLists || [])
-          .filter((candidate) => candidate.id !== list.id)
-          .map((candidate) => ({
+          .filter(candidate => candidate.id !== list.id)
+          .map(candidate => ({
             listId: candidate.id,
             listName: candidate.name,
             listIcon: candidate.icon ?? undefined,
-            groupName: groupNameById.get(candidate.group_id) || t("taskPanel.labels.unknownGroup"),
+            groupName: groupNameById.get(candidate.group_id) || t('taskPanel.labels.unknownGroup'),
           }))
           .sort(
             (a, b) =>
-              a.groupName.localeCompare(b.groupName) ||
-              a.listName.localeCompare(b.listName)
+              a.groupName.localeCompare(b.groupName)
+              || a.listName.localeCompare(b.listName),
           )
-      : [];
+      : []
 
   // Multi-select handlers
   const handleToggleSelectionMode = () => {
-    setIsSelectionMode((prev) => !prev);
+    setIsSelectionMode(prev => !prev)
     if (isSelectionMode) {
-      setSelectedTaskIds(new Set());
+      setSelectedTaskIds(new Set())
     }
-  };
+  }
 
   const handleToggleSelect = (taskId: string) => {
     setSelectedTaskIds((prev) => {
-      const next = new Set(prev);
+      const next = new Set(prev)
       if (next.has(taskId)) {
-        next.delete(taskId);
-      } else {
-        next.add(taskId);
+        next.delete(taskId)
       }
-      return next;
-    });
-  };
+      else {
+        next.add(taskId)
+      }
+      return next
+    })
+  }
 
   const handleSelectAll = () => {
-    const allTopLevelTaskIds = filteredTasks.map((t) => t.id);
-    setSelectedTaskIds(new Set(allTopLevelTaskIds));
-  };
+    const allTopLevelTaskIds = filteredTasks.map(t => t.id)
+    setSelectedTaskIds(new Set(allTopLevelTaskIds))
+  }
 
   const handleDeselectAll = () => {
-    setSelectedTaskIds(new Set());
-  };
+    setSelectedTaskIds(new Set())
+  }
 
-  const selectedCount = selectedTaskIds.size;
+  const selectedCount = selectedTaskIds.size
 
   // Bulk operation handlers
   const handleBulkComplete = async (completed: boolean) => {
-    const taskIds = Array.from(selectedTaskIds);
-    setIsLoading(true);
+    const taskIds = Array.from(selectedTaskIds)
+    setIsLoading(true)
 
     // Optimistic update
     const updateInList = (tasks: Task[]): Task[] => {
-      return tasks.map(t => {
+      return tasks.map((t) => {
         if (selectedTaskIds.has(t.id)) {
-          return { ...t, completed };
+          return { ...t, completed }
         }
         if (t.subtasks) {
-          return { ...t, subtasks: updateInList(t.subtasks) };
+          return { ...t, subtasks: updateInList(t.subtasks) }
         }
-        return t;
-      });
-    };
-    setTasks(prev => updateInList(prev));
+        return t
+      })
+    }
+    setTasks(prev => updateInList(prev))
 
     try {
-      await bulkUpdateTasks(taskIds, { completed });
-      await reloadTasks();
-    } catch (error) {
-      console.error('Failed to bulk update tasks:', error);
-      await reloadTasks();
+      await bulkUpdateTasks(taskIds, { completed })
+      await reloadTasks()
     }
-    setIsLoading(false);
-  };
+    catch (error) {
+      console.error('Failed to bulk update tasks:', error)
+      await reloadTasks()
+    }
+    setIsLoading(false)
+  }
 
   const handleBulkStar = async (starred: boolean) => {
-    const taskIds = Array.from(selectedTaskIds);
-    setIsLoading(true);
+    const taskIds = Array.from(selectedTaskIds)
+    setIsLoading(true)
 
     // Optimistic update
     const updateInList = (tasks: Task[]): Task[] => {
-      return tasks.map(t => {
+      return tasks.map((t) => {
         if (selectedTaskIds.has(t.id)) {
-          return { ...t, starred };
+          return { ...t, starred }
         }
         if (t.subtasks) {
-          return { ...t, subtasks: updateInList(t.subtasks) };
+          return { ...t, subtasks: updateInList(t.subtasks) }
         }
-        return t;
-      });
-    };
-    setTasks(prev => updateInList(prev));
+        return t
+      })
+    }
+    setTasks(prev => updateInList(prev))
 
     try {
-      await bulkUpdateTasks(taskIds, { starred });
-      await reloadTasks();
-    } catch (error) {
-      console.error('Failed to bulk update tasks:', error);
-      await reloadTasks();
+      await bulkUpdateTasks(taskIds, { starred })
+      await reloadTasks()
     }
-    setIsLoading(false);
-  };
+    catch (error) {
+      console.error('Failed to bulk update tasks:', error)
+      await reloadTasks()
+    }
+    setIsLoading(false)
+  }
 
-  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false)
 
   const openBulkDeleteDialog = () => {
-    setIsBulkDeleteOpen(true);
-  };
+    setIsBulkDeleteOpen(true)
+  }
 
   const handleBulkDelete = async () => {
-    const taskIds = Array.from(selectedTaskIds);
-    setIsLoading(true);
-    setIsBulkDeleteOpen(false);
+    const taskIds = Array.from(selectedTaskIds)
+    setIsLoading(true)
+    setIsBulkDeleteOpen(false)
 
     // Optimistic update - remove deleted tasks from local state
     const removeFromList = (tasks: Task[]): Task[] => {
-      return tasks.filter(t => !selectedTaskIds.has(t.id)).map(t => {
+      return tasks.filter(t => !selectedTaskIds.has(t.id)).map((t) => {
         if (t.subtasks) {
-          return { ...t, subtasks: removeFromList(t.subtasks) };
+          return { ...t, subtasks: removeFromList(t.subtasks) }
         }
-        return t;
-      });
-    };
-    setTasks(prev => removeFromList(prev));
-    setSelectedTaskIds(new Set());
+        return t
+      })
+    }
+    setTasks(prev => removeFromList(prev))
+    setSelectedTaskIds(new Set())
 
     try {
-      await bulkDeleteTasks(taskIds);
-      await reloadTasks();
-    } catch (error) {
-      console.error('Failed to bulk delete tasks:', error);
-      await reloadTasks();
+      await bulkDeleteTasks(taskIds)
+      await reloadTasks()
     }
-    setIsLoading(false);
-  };
+    catch (error) {
+      console.error('Failed to bulk delete tasks:', error)
+      await reloadTasks()
+    }
+    setIsLoading(false)
+  }
 
-  const [isBulkDateDialogOpen, setIsBulkDateDialogOpen] = useState(false);
-  const [bulkDateValue, setBulkDateValue] = useState<Date | undefined>(undefined);
+  const [isBulkDateDialogOpen, setIsBulkDateDialogOpen] = useState(false)
+  const [bulkDateValue, setBulkDateValue] = useState<Date | undefined>(undefined)
 
   const handleBulkSetDate = async () => {
-    const taskIds = Array.from(selectedTaskIds);
-    const dateStr = bulkDateValue ? getLocalDateString(bulkDateValue) : null;
-    setIsLoading(true);
-    setIsBulkDateDialogOpen(false);
+    const taskIds = Array.from(selectedTaskIds)
+    const dateStr = bulkDateValue ? getLocalDateString(bulkDateValue) : null
+    setIsLoading(true)
+    setIsBulkDateDialogOpen(false)
 
     // Optimistic update
     const updateInList = (tasks: Task[]): Task[] => {
-      return tasks.map(t => {
+      return tasks.map((t) => {
         if (selectedTaskIds.has(t.id)) {
-          return { ...t, due_date: dateStr };
+          return { ...t, due_date: dateStr }
         }
         if (t.subtasks) {
-          return { ...t, subtasks: updateInList(t.subtasks) };
+          return { ...t, subtasks: updateInList(t.subtasks) }
         }
-        return t;
-      });
-    };
-    setTasks(prev => updateInList(prev));
-    setSelectedTaskIds(new Set());
+        return t
+      })
+    }
+    setTasks(prev => updateInList(prev))
+    setSelectedTaskIds(new Set())
 
     try {
-      await bulkUpdateTasks(taskIds, { due_date: dateStr });
-      await reloadTasks();
-    } catch (error) {
-      console.error('Failed to bulk update tasks:', error);
-      await reloadTasks();
+      await bulkUpdateTasks(taskIds, { due_date: dateStr })
+      await reloadTasks()
     }
-    setIsLoading(false);
-    setBulkDateValue(undefined);
-  };
+    catch (error) {
+      console.error('Failed to bulk update tasks:', error)
+      await reloadTasks()
+    }
+    setIsLoading(false)
+    setBulkDateValue(undefined)
+  }
 
   const startAddSubtask = (task: Task) => {
-    setAddingSubtaskTo(task.id);
-    setNewSubtaskName("");
+    setAddingSubtaskTo(task.id)
+    setNewSubtaskName('')
     // Make sure parent is expanded
     if (!expandedTasks.has(task.id)) {
-      setExpandedTasks((prev) => new Set(prev).add(task.id));
+      setExpandedTasks(prev => new Set(prev).add(task.id))
     }
-  };
+  }
 
   const handleMoveToList = async (task: Task, targetListId: string) => {
-    setIsLoading(true);
-    const result = await moveInboxTaskToList(task.id, targetListId);
+    setIsLoading(true)
+    const result = await moveInboxTaskToList(task.id, targetListId)
     if (result.success) {
       if (selectedTaskId === task.id) {
-        onTaskSelect?.(null);
+        onTaskSelect?.(null)
       }
-      await reloadTasks();
-    } else {
-      console.error("Failed to move inbox task:", result.error);
+      await reloadTasks()
     }
-    setIsLoading(false);
-  };
+    else {
+      console.error('Failed to move inbox task:', result.error)
+    }
+    setIsLoading(false)
+  }
 
   if (!list && !smartView) {
     return (
@@ -726,53 +742,53 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
           </svg>
         </div>
         <h2 className="text-xl font-semibold text-stone-900 dark:text-stone-100 mb-2">
-          {t("taskPanel.emptyStates.selectList")}
+          {t('taskPanel.emptyStates.selectList')}
         </h2>
         <p className="text-stone-500 dark:text-stone-400">
-          {t("taskPanel.emptyStates.chooseListFromSidebar")}
+          {t('taskPanel.emptyStates.chooseListFromSidebar')}
         </p>
       </div>
-    );
+    )
   }
 
   // Show skeleton while loading
   if (isLoadingTasks) {
-    return <TaskPanelSkeleton />;
+    return <TaskPanelSkeleton />
   }
 
-  const totalTasks = countAllTasks(tasks);
+  const totalTasks = countAllTasks(tasks)
   const smartViewTitle = smartView
-    ? smartView === "starred"
-      ? t("sidebar.starred")
-      : smartView === "overdue"
-        ? t("sidebar.overdue")
-        : smartView === "next7days"
-          ? t("sidebar.next7Days")
-          : t("sidebar.noDate")
-    : "";
-  const panelTitle = smartView ? smartViewTitle : list?.name || t("taskPanel.tasks");
+    ? smartView === 'starred'
+      ? t('sidebar.starred')
+      : smartView === 'overdue'
+        ? t('sidebar.overdue')
+        : smartView === 'next7days'
+          ? t('sidebar.next7Days')
+          : t('sidebar.noDate')
+    : ''
+  const panelTitle = smartView ? smartViewTitle : list?.name || t('taskPanel.tasks')
   const panelIcon = smartView
-    ? smartView === "starred"
-      ? "⭐"
-      : smartView === "overdue"
-        ? "⚠️"
-        : smartView === "next7days"
-          ? "🗓️"
-          : "◯"
-    : list?.icon || "📋";
+    ? smartView === 'starred'
+      ? '⭐'
+      : smartView === 'overdue'
+        ? '⚠️'
+        : smartView === 'next7days'
+          ? '🗓️'
+          : '◯'
+    : list?.icon || '📋'
   const smartViewEmptyTitle = smartView
-    ? smartView === "starred"
-      ? t("taskPanel.emptyStates.noStarredTasks")
-      : smartView === "overdue"
-        ? t("taskPanel.emptyStates.noOverdueTasks")
-        : smartView === "next7days"
-          ? t("taskPanel.emptyStates.noUpcomingTasks")
-          : t("taskPanel.emptyStates.noNoDateTasks")
-    : t("taskPanel.noTasks");
+    ? smartView === 'starred'
+      ? t('taskPanel.emptyStates.noStarredTasks')
+      : smartView === 'overdue'
+        ? t('taskPanel.emptyStates.noOverdueTasks')
+        : smartView === 'next7days'
+          ? t('taskPanel.emptyStates.noUpcomingTasks')
+          : t('taskPanel.emptyStates.noNoDateTasks')
+    : t('taskPanel.noTasks')
   const smartViewEmptyHint = smartView
-    ? t("taskPanel.emptyStates.smartViewHint")
-    : "";
-  const displayedCount = hasActiveFilters ? countAllTasks(filteredTasks) : totalTasks;
+    ? t('taskPanel.emptyStates.smartViewHint')
+    : ''
+  const displayedCount = hasActiveFilters ? countAllTasks(filteredTasks) : totalTasks
 
   return (
     <div className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800">
@@ -784,11 +800,13 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
             {panelTitle}
           </h2>
           <span className="text-sm text-stone-500 dark:text-stone-400">
-            {hasActiveFilters ? `${displayedCount} of ${totalTasks}` : totalTasks} {totalTasks === 1 ? t("taskPanel.labels.task") : t("taskPanel.labels.tasks")}
+            {hasActiveFilters ? `${displayedCount} of ${totalTasks}` : totalTasks}
+            {' '}
+            {totalTasks === 1 ? t('taskPanel.labels.task') : t('taskPanel.labels.tasks')}
           </span>
           {smartView && (
             <span className="hidden md:inline text-xs text-stone-500 dark:text-stone-400 rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5">
-              {t("taskPanel.labels.crossListView")}
+              {t('taskPanel.labels.crossListView')}
             </span>
           )}
         </div>
@@ -796,13 +814,13 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
           {/* Selection Mode Toggle */}
           {!isSmartViewMode && (
             <Button
-              variant={isSelectionMode ? "default" : "outline"}
+              variant={isSelectionMode ? 'default' : 'outline'}
               size="sm"
               onClick={handleToggleSelectionMode}
-              className={isSelectionMode ? "bg-blue-500 hover:bg-blue-600" : ""}
+              className={isSelectionMode ? 'bg-blue-500 hover:bg-blue-600' : ''}
             >
               <CheckSquare className="h-4 w-4 mr-1" />
-              {isSelectionMode ? `${selectedCount} ${t("taskPanel.selected")}` : t("taskPanel.select")}
+              {isSelectionMode ? `${selectedCount} ${t('taskPanel.selected')}` : t('taskPanel.select')}
             </Button>
           )}
           {/* Filter Dropdown */}
@@ -810,19 +828,19 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
             value={filters}
             onChange={setFilters}
             labels={{
-              status: t("filter.completed"), // Using "completed" section header as "Status"
-              all: t("filter.all"),
-              incomplete: t("filter.incomplete"),
-              completed: t("filter.completed"),
-              starred: t("filter.starred"),
-              unstarred: t("filter.unstarred"),
-              dueDate: t("taskDetail.dueDate"),
-              overdue: t("filter.overdue"),
-              today: t("filter.today"),
-              upcoming: t("filter.upcoming"),
-              noDueDate: t("filter.noDueDate"),
-              clearFilters: t("taskPanel.clearFilters"),
-              filter: t("taskPanel.labels.filter"),
+              status: t('filter.completed'), // Using "completed" section header as "Status"
+              all: t('filter.all'),
+              incomplete: t('filter.incomplete'),
+              completed: t('filter.completed'),
+              starred: t('filter.starred'),
+              unstarred: t('filter.unstarred'),
+              dueDate: t('taskDetail.dueDate'),
+              overdue: t('filter.overdue'),
+              today: t('filter.today'),
+              upcoming: t('filter.upcoming'),
+              noDueDate: t('filter.noDueDate'),
+              clearFilters: t('taskPanel.clearFilters'),
+              filter: t('taskPanel.labels.filter'),
             }}
           />
 
@@ -834,7 +852,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
               disabled={isAdding}
             >
               <Plus className="h-4 w-4 mr-1" />
-              {t("taskPanel.addTask")}
+              {t('taskPanel.addTask')}
             </Button>
           )}
         </div>
@@ -854,16 +872,16 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
           onSetDate={() => setIsBulkDateDialogOpen(true)}
           onCancel={handleToggleSelectionMode}
           labels={{
-            tasksSelected: t("taskPanel.tasksSelected"),
-            selectAll: t("taskPanel.selectAll"),
-            deselect: t("taskPanel.deselect"),
-            complete: t("taskPanel.complete"),
-            incomplete: t("taskPanel.incomplete"),
-            star: t("taskPanel.star"),
-            unstar: t("taskPanel.unstar"),
-            delete: t("taskPanel.delete"),
-            setDate: t("taskPanel.setDate"),
-            cancel: t("taskPanel.cancel"),
+            tasksSelected: t('taskPanel.tasksSelected'),
+            selectAll: t('taskPanel.selectAll'),
+            deselect: t('taskPanel.deselect'),
+            complete: t('taskPanel.complete'),
+            incomplete: t('taskPanel.incomplete'),
+            star: t('taskPanel.star'),
+            unstar: t('taskPanel.unstar'),
+            delete: t('taskPanel.delete'),
+            setDate: t('taskPanel.setDate'),
+            cancel: t('taskPanel.cancel'),
           }}
         />
       )}
@@ -878,9 +896,9 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
               ref={newTaskInputRef}
               type="text"
               value={newTaskName}
-              onChange={(e) => setNewTaskName(e.target.value)}
+              onChange={e => setNewTaskName(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={t("taskPanel.placeholders.taskName")}
+              placeholder={t('taskPanel.placeholders.taskName')}
               className="flex-1 bg-transparent outline-none text-stone-900 dark:text-stone-100 placeholder:text-stone-400"
               autoFocus
               disabled={isLoading}
@@ -890,17 +908,17 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
               onClick={handleAddTask}
               disabled={isLoading || !newTaskName.trim()}
             >
-              {t("common.add")}
+              {t('common.add')}
             </Button>
             <Button
               size="sm"
               variant="ghost"
               onClick={() => {
-                setNewTaskName("");
-                setIsAdding(false);
+                setNewTaskName('')
+                setIsAdding(false)
               }}
             >
-              {t("common.cancel")}
+              {t('common.cancel')}
             </Button>
           </div>
         )}
@@ -912,9 +930,9 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
             <input
               type="text"
               value={newSubtaskName}
-              onChange={(e) => setNewSubtaskName(e.target.value)}
-              onKeyDown={(e) => handleSubtaskKeyDown(e, addingSubtaskTo)}
-              placeholder={t("taskPanel.placeholders.subtaskName")}
+              onChange={e => setNewSubtaskName(e.target.value)}
+              onKeyDown={e => handleSubtaskKeyDown(e, addingSubtaskTo)}
+              placeholder={t('taskPanel.placeholders.subtaskName')}
               className="flex-1 bg-transparent outline-none text-stone-900 dark:text-stone-100 placeholder:text-stone-400"
               autoFocus
               disabled={isLoading}
@@ -924,117 +942,123 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
               onClick={() => handleAddSubtask(addingSubtaskTo)}
               disabled={isLoading || !newSubtaskName.trim()}
             >
-              {t("common.add")}
+              {t('common.add')}
             </Button>
             <Button
               size="sm"
               variant="ghost"
               onClick={() => {
-                setNewSubtaskName("");
-                setAddingSubtaskTo(null);
+                setNewSubtaskName('')
+                setAddingSubtaskTo(null)
               }}
             >
-              {t("common.cancel")}
+              {t('common.cancel')}
             </Button>
           </div>
         )}
 
         {/* Task Items */}
-        {tasks.length === 0 && !isAdding ? (
-          <div className="py-12 text-center">
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center">
-              <CheckCircle className="h-6 w-6 text-stone-400" />
-            </div>
-            <p className="text-stone-500 dark:text-stone-400 mb-4">
-              {smartView ? smartViewEmptyTitle : t("taskPanel.noTasks")}
-            </p>
-            {smartView ? (
-              <p className="text-sm text-stone-400 dark:text-stone-500">
-                {smartViewEmptyHint}
-              </p>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsAdding(true)}
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                {t("taskPanel.createFirstTask")}
-              </Button>
-            )}
-          </div>
-        ) : filteredTasks.length === 0 && !isAdding ? (
-          <div className="py-12 text-center">
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center">
-              <Filter className="h-6 w-6 text-stone-400" />
-            </div>
-            <p className="text-stone-500 dark:text-stone-400 mb-4">
-              {t("taskPanel.noTasksMatchFilters")}
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setFilters({ status: "all", star: "all", date: "all" })}
-            >
-              {t("taskPanel.clearFilters")}
-            </Button>
-          </div>
-        ) : (
-          <TaskList
-            tasks={filteredTasks}
-            expandedTasks={expandedTasks}
-            onToggleExpand={handleToggleExpand}
-            onToggleComplete={handleToggleComplete}
-            onToggleStar={handleToggleStar}
-            onEdit={handleEdit}
-            onDelete={openDeleteDialog}
-            onAddSubtask={startAddSubtask}
-            onOpenDetail={handleOpenDetail}
-            editingTaskId={editingTaskId}
-            editName={editName}
-            onEditNameChange={setEditName}
-            onSaveEdit={handleSaveEdit}
-            onCancelEdit={handleCancelEdit}
-            canMoveFromInbox={isInboxMode}
-            moveTargets={inboxMoveTargets}
-            onMoveToList={handleMoveToList}
-            disableSorting={isSmartViewMode}
-            allowSubtaskActions={!isSmartViewMode}
-            contextMeta={taskContextById}
-            onReorder={handleReorder}
-            listId={list?.id || ""}
-            isSelectionMode={isSelectionMode}
-            selectedTaskIds={selectedTaskIds}
-            onToggleSelect={handleToggleSelect}
-            labels={{
-              edit: t("common.edit"),
-              addSubtask: t("taskPanel.addSubtask"),
-              moveTo: t("common.move"),
-              delete: t("common.delete"),
-            }}
-          />
-        )}
+        {tasks.length === 0 && !isAdding
+          ? (
+              <div className="py-12 text-center">
+                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center">
+                  <CheckCircle className="h-6 w-6 text-stone-400" />
+                </div>
+                <p className="text-stone-500 dark:text-stone-400 mb-4">
+                  {smartView ? smartViewEmptyTitle : t('taskPanel.noTasks')}
+                </p>
+                {smartView
+                  ? (
+                      <p className="text-sm text-stone-400 dark:text-stone-500">
+                        {smartViewEmptyHint}
+                      </p>
+                    )
+                  : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsAdding(true)}
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        {t('taskPanel.createFirstTask')}
+                      </Button>
+                    )}
+              </div>
+            )
+          : filteredTasks.length === 0 && !isAdding
+            ? (
+                <div className="py-12 text-center">
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center">
+                    <Filter className="h-6 w-6 text-stone-400" />
+                  </div>
+                  <p className="text-stone-500 dark:text-stone-400 mb-4">
+                    {t('taskPanel.noTasksMatchFilters')}
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setFilters({ status: 'all', star: 'all', date: 'all' })}
+                  >
+                    {t('taskPanel.clearFilters')}
+                  </Button>
+                </div>
+              )
+            : (
+                <TaskList
+                  tasks={filteredTasks}
+                  expandedTasks={expandedTasks}
+                  onToggleExpand={handleToggleExpand}
+                  onToggleComplete={handleToggleComplete}
+                  onToggleStar={handleToggleStar}
+                  onEdit={handleEdit}
+                  onDelete={openDeleteDialog}
+                  onAddSubtask={startAddSubtask}
+                  onOpenDetail={handleOpenDetail}
+                  editingTaskId={editingTaskId}
+                  editName={editName}
+                  onEditNameChange={setEditName}
+                  onSaveEdit={handleSaveEdit}
+                  onCancelEdit={handleCancelEdit}
+                  canMoveFromInbox={isInboxMode}
+                  moveTargets={inboxMoveTargets}
+                  onMoveToList={handleMoveToList}
+                  disableSorting={isSmartViewMode}
+                  allowSubtaskActions={!isSmartViewMode}
+                  contextMeta={taskContextById}
+                  onReorder={handleReorder}
+                  listId={list?.id || ''}
+                  isSelectionMode={isSelectionMode}
+                  selectedTaskIds={selectedTaskIds}
+                  onToggleSelect={handleToggleSelect}
+                  labels={{
+                    edit: t('common.edit'),
+                    addSubtask: t('taskPanel.addSubtask'),
+                    moveTo: t('common.move'),
+                    delete: t('common.delete'),
+                  }}
+                />
+              )}
       </div>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>{t("taskPanel.dialogs.deleteTask")}</DialogTitle>
+            <DialogTitle>{t('taskPanel.dialogs.deleteTask')}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-stone-500 dark:text-stone-400">
-            {t("taskPanel.dialogs.deleteTaskDesc")}
+            {t('taskPanel.dialogs.deleteTaskDesc')}
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>
-              {t("common.cancel")}
+              {t('common.cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={handleConfirmDelete}
               disabled={isLoading}
             >
-              {t("common.delete")}
+              {t('common.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1044,21 +1068,21 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
       <Dialog open={isBulkDeleteOpen} onOpenChange={setIsBulkDeleteOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>{t("taskPanel.dialogs.deleteTasks").replace("{count}", String(selectedCount))}</DialogTitle>
+            <DialogTitle>{t('taskPanel.dialogs.deleteTasks').replace('{count}', String(selectedCount))}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-stone-500 dark:text-stone-400">
-            {t("taskPanel.dialogs.deleteTasksDesc").replace("{count}", String(selectedCount))}
+            {t('taskPanel.dialogs.deleteTasksDesc').replace('{count}', String(selectedCount))}
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsBulkDeleteOpen(false)}>
-              {t("common.cancel")}
+              {t('common.cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={handleBulkDelete}
               disabled={isLoading}
             >
-              {t("common.delete")}
+              {t('common.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1068,7 +1092,7 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
       <Dialog open={isBulkDateDialogOpen} onOpenChange={setIsBulkDateDialogOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>{t("taskPanel.dialogs.setDueDateForTasks").replace("{count}", String(selectedCount))}</DialogTitle>
+            <DialogTitle>{t('taskPanel.dialogs.setDueDateForTasks').replace('{count}', String(selectedCount))}</DialogTitle>
           </DialogHeader>
           <div className="py-4">
             <Calendar
@@ -1082,26 +1106,26 @@ export const TaskPanel = forwardRef<TaskPanelRef, TaskPanelProps>(
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  setBulkDateValue(undefined);
+                  setBulkDateValue(undefined)
                 }}
               >
-                {t("taskPanel.dialogs.clearDate")}
+                {t('taskPanel.dialogs.clearDate')}
               </Button>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsBulkDateDialogOpen(false)}>
-              {t("common.cancel")}
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={handleBulkSetDate}
               disabled={isLoading}
             >
-              {t("taskPanel.dialogs.setDate")}
+              {t('taskPanel.dialogs.setDate')}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  );
-});
+  )
+}

@@ -1,13 +1,13 @@
-import { Metadata } from "next";
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: "API Documentation - PuraToDo",
-  description: "PuraToDo REST API Documentation",
-};
+  title: 'API Documentation - PuraToDo',
+  description: 'PuraToDo REST API Documentation',
+}
 
 export default function ApiDocsPage() {
   return (
-    <div style={{ height: "100vh" }}>
+    <div style={{ height: '100vh' }}>
       <head>
         <link
           rel="stylesheet"
@@ -38,5 +38,5 @@ export default function ApiDocsPage() {
         }}
       />
     </div>
-  );
+  )
 }

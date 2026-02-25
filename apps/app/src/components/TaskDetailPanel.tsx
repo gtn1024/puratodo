@@ -1,94 +1,102 @@
-import React from "react";
-import { Button } from "@puratodo/ui";
-import { CalendarIcon, Clock, FileText, X, Loader2, Star } from "lucide-react";
-import { useDataStore } from "@/stores/dataStore";
-import { useI18n } from "@/i18n";
-import { getLocalDateString } from "@puratodo/shared";
+import { getLocalDateString } from '@puratodo/shared'
+import { Button } from '@puratodo/ui'
+import { CalendarIcon, Clock, FileText, Loader2, Star, X } from 'lucide-react'
+import * as React from 'react'
+import { useI18n } from '@/i18n'
+import { useDataStore } from '@/stores/dataStore'
 
 interface TaskDetailPanelProps {
-  taskId: string | null;
-  onTaskUpdated: () => void;
-  onClose: () => void;
+  taskId: string | null
+  onTaskUpdated: () => void
+  onClose: () => void
 }
 
 export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPanelProps) {
-  const { t } = useI18n();
-  const { tasks, updateTask } = useDataStore();
+  const { t } = useI18n()
+  const { tasks, updateTask } = useDataStore()
 
   // Find the task from store
-  const task = taskId ? tasks.find((t) => t.id === taskId) : null;
+  const task = taskId ? tasks.find(t => t.id === taskId) : null
 
   // Local state for editing
-  const [name, setName] = React.useState("");
-  const [dueDate, setDueDate] = React.useState<Date | undefined>();
-  const [planDate, setPlanDate] = React.useState<Date | undefined>();
-  const [comment, setComment] = React.useState("");
-  const [durationMinutes, setDurationMinutes] = React.useState<string>("");
-  const [isSaving, setIsSaving] = React.useState(false);
-  const [isLoaded, setIsLoaded] = React.useState(false);
+  const [name, setName] = React.useState('')
+  const [dueDate, setDueDate] = React.useState<Date | undefined>()
+  const [planDate, setPlanDate] = React.useState<Date | undefined>()
+  const [comment, setComment] = React.useState('')
+  const [durationMinutes, setDurationMinutes] = React.useState<string>('')
+  const [isSaving, setIsSaving] = React.useState(false)
+  const [isLoaded, setIsLoaded] = React.useState(false)
 
   // Load task data when taskId changes
   React.useEffect(() => {
     if (!taskId) {
-      setIsLoaded(false);
-      return;
+      setIsLoaded(false)
+      return
     }
 
-    const foundTask = tasks.find((t) => t.id === taskId);
+    const foundTask = tasks.find(t => t.id === taskId)
     if (foundTask) {
-      setName(foundTask.name);
-      setDueDate(foundTask.due_date ? new Date(foundTask.due_date) : undefined);
-      setPlanDate(foundTask.plan_date ? new Date(foundTask.plan_date) : undefined);
-      setComment(foundTask.comment || "");
-      setDurationMinutes(foundTask.duration_minutes?.toString() || "");
-      setIsLoaded(true);
-    } else {
-      setIsLoaded(false);
+      setName(foundTask.name)
+      setDueDate(foundTask.due_date ? new Date(foundTask.due_date) : undefined)
+      setPlanDate(foundTask.plan_date ? new Date(foundTask.plan_date) : undefined)
+      setComment(foundTask.comment || '')
+      setDurationMinutes(foundTask.duration_minutes?.toString() || '')
+      setIsLoaded(true)
     }
-  }, [taskId, tasks]);
+    else {
+      setIsLoaded(false)
+    }
+  }, [taskId, tasks])
 
   const handleSave = async () => {
-    if (!task || !name.trim()) return;
+    if (!task || !name.trim())
+      return
 
-    setIsSaving(true);
+    setIsSaving(true)
     try {
       await updateTask(task.id, {
         name: name.trim(),
         due_date: dueDate ? getLocalDateString(dueDate) : null,
         plan_date: planDate ? getLocalDateString(planDate) : null,
         comment: comment.trim() || null,
-        duration_minutes: durationMinutes ? parseInt(durationMinutes, 10) : null,
-      });
-      onTaskUpdated();
-    } catch (err) {
-      console.error("Failed to save task:", err);
-    } finally {
-      setIsSaving(false);
+        duration_minutes: durationMinutes ? Number.parseInt(durationMinutes, 10) : null,
+      })
+      onTaskUpdated()
     }
-  };
+    catch (err) {
+      console.error('Failed to save task:', err)
+    }
+    finally {
+      setIsSaving(false)
+    }
+  }
 
-  const clearDueDate = () => setDueDate(undefined);
-  const clearPlanDate = () => setPlanDate(undefined);
+  const clearDueDate = () => setDueDate(undefined)
+  const clearPlanDate = () => setPlanDate(undefined)
 
   const toggleStarred = async () => {
-    if (!task) return;
+    if (!task)
+      return
     try {
-      await updateTask(task.id, { starred: !task.starred });
-      onTaskUpdated();
-    } catch (err) {
-      console.error("Failed to toggle star:", err);
+      await updateTask(task.id, { starred: !task.starred })
+      onTaskUpdated()
     }
-  };
+    catch (err) {
+      console.error('Failed to toggle star:', err)
+    }
+  }
 
   const toggleCompleted = async () => {
-    if (!task) return;
+    if (!task)
+      return
     try {
-      await updateTask(task.id, { completed: !task.completed });
-      onTaskUpdated();
-    } catch (err) {
-      console.error("Failed to toggle completion:", err);
+      await updateTask(task.id, { completed: !task.completed })
+      onTaskUpdated()
     }
-  };
+    catch (err) {
+      console.error('Failed to toggle completion:', err)
+    }
+  }
 
   // Empty state - no task selected
   if (!taskId) {
@@ -98,13 +106,13 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
           <FileText className="h-8 w-8 text-stone-400" />
         </div>
         <h3 className="text-lg font-medium text-stone-900 dark:text-stone-100 mb-2">
-          {t("app.noTaskSelected")}
+          {t('app.noTaskSelected')}
         </h3>
         <p className="text-sm text-stone-500 dark:text-stone-400 max-w-xs">
-          {t("app.clickTaskToView")}
+          {t('app.clickTaskToView')}
         </p>
       </div>
-    );
+    )
   }
 
   // Loading state
@@ -113,7 +121,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
       <div className="h-full flex items-center justify-center border-l border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900">
         <Loader2 className="h-8 w-8 animate-spin text-stone-400" />
       </div>
-    );
+    )
   }
 
   return (
@@ -121,7 +129,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200 dark:border-stone-800">
         <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-          {t("taskDetail.taskDetails")}
+          {t('taskDetail.taskDetails')}
         </h2>
         <Button
           variant="ghost"
@@ -139,13 +147,13 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
           {/* Task Name */}
           <div className="space-y-2">
             <label className="font-medium text-stone-700 dark:text-stone-300">
-              {t("taskDetail.taskName")}
+              {t('taskDetail.taskName')}
             </label>
             <input
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={t("taskDetail.enterTaskName")}
+              onChange={e => setName(e.target.value)}
+              placeholder={t('taskDetail.enterTaskName')}
               className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400"
             />
           </div>
@@ -156,8 +164,8 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
               <div
                 className={`w-5 h-5 rounded-full border flex items-center justify-center cursor-pointer hover:border-green-500 ${
                   task.completed
-                    ? "border-green-500 bg-green-500 text-white"
-                    : "border-stone-300 dark:border-stone-600"
+                    ? 'border-green-500 bg-green-500 text-white'
+                    : 'border-stone-300 dark:border-stone-600'
                 }`}
                 onClick={toggleCompleted}
               >
@@ -168,20 +176,20 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
                 )}
               </div>
               <span className="text-sm text-stone-700 dark:text-stone-300">
-                {task.completed ? t("taskDetail.completed") : t("taskDetail.markComplete")}
+                {task.completed ? t('taskDetail.completed') : t('taskDetail.markComplete')}
               </span>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={toggleStarred}
                 className={`p-1 rounded ${
-                  task.starred ? "text-yellow-500" : "text-stone-300 dark:text-stone-600"
+                  task.starred ? 'text-yellow-500' : 'text-stone-300 dark:text-stone-600'
                 }`}
               >
-                <Star className="w-5 h-5" fill={task.starred ? "currentColor" : "none"} />
+                <Star className="w-5 h-5" fill={task.starred ? 'currentColor' : 'none'} />
               </button>
               <span className="text-sm text-stone-700 dark:text-stone-300">
-                {task.starred ? t("taskDetail.starred") : t("taskDetail.star")}
+                {task.starred ? t('taskDetail.starred') : t('taskDetail.star')}
               </span>
             </div>
           </div>
@@ -191,7 +199,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
                 <CalendarIcon className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-                {t("taskDetail.dueDate")}
+                {t('taskDetail.dueDate')}
               </label>
               {dueDate && (
                 <Button
@@ -201,16 +209,16 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
                   className="h-6 px-2 text-stone-500"
                 >
                   <X className="h-3 w-3 mr-1" />
-                  {t("taskDetail.clear")}
+                  {t('taskDetail.clear')}
                 </Button>
               )}
             </div>
             <input
               type="date"
-              value={dueDate ? getLocalDateString(dueDate) : ""}
+              value={dueDate ? getLocalDateString(dueDate) : ''}
               onChange={(e) => {
-                const newDate = e.target.value ? new Date(e.target.value) : undefined;
-                setDueDate(newDate);
+                const newDate = e.target.value ? new Date(e.target.value) : undefined
+                setDueDate(newDate)
               }}
               className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100"
             />
@@ -221,7 +229,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
                 <CalendarIcon className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-                {t("taskDetail.planDate")}
+                {t('taskDetail.planDate')}
               </label>
               {planDate && (
                 <Button
@@ -231,16 +239,16 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
                   className="h-6 px-2 text-stone-500"
                 >
                   <X className="h-3 w-3 mr-1" />
-                  {t("taskDetail.clear")}
+                  {t('taskDetail.clear')}
                 </Button>
               )}
             </div>
             <input
               type="date"
-              value={planDate ? getLocalDateString(planDate) : ""}
+              value={planDate ? getLocalDateString(planDate) : ''}
               onChange={(e) => {
-                const newDate = e.target.value ? new Date(e.target.value) : undefined;
-                setPlanDate(newDate);
+                const newDate = e.target.value ? new Date(e.target.value) : undefined
+                setPlanDate(newDate)
               }}
               className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100"
             />
@@ -250,14 +258,14 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
           <div className="space-y-2">
             <label className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
               <Clock className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-              {t("taskDetail.duration")}
+              {t('taskDetail.duration')}
             </label>
             <input
               type="number"
               min="0"
               value={durationMinutes}
-              onChange={(e) => setDurationMinutes(e.target.value)}
-              placeholder={t("taskDetail.durationPlaceholder")}
+              onChange={e => setDurationMinutes(e.target.value)}
+              placeholder={t('taskDetail.durationPlaceholder')}
               className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100"
             />
           </div>
@@ -266,12 +274,12 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
           <div className="space-y-2">
             <label className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
               <FileText className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-              {t("taskDetail.notes")}
+              {t('taskDetail.notes')}
             </label>
             <textarea
               value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder={t("taskDetail.notesPlaceholder")}
+              onChange={e => setComment(e.target.value)}
+              placeholder={t('taskDetail.notesPlaceholder')}
               rows={4}
               className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 resize-none"
             />
@@ -287,24 +295,26 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
             onClick={handleSave}
             disabled={isSaving || !name.trim()}
           >
-            {isSaving ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                {t("taskDetail.saving")}
-              </>
-            ) : (
-              t("taskDetail.save")
-            )}
+            {isSaving
+              ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    {t('taskDetail.saving')}
+                  </>
+                )
+              : (
+                  t('taskDetail.save')
+                )}
           </Button>
           <Button
             variant="outline"
             onClick={onClose}
             disabled={isSaving}
           >
-            {t("taskDetail.close")}
+            {t('taskDetail.close')}
           </Button>
         </div>
       </div>
     </div>
-  );
+  )
 }

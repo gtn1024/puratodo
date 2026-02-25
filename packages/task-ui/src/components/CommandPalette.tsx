@@ -1,58 +1,58 @@
-"use client";
+'use client'
 
-import * as React from "react";
-import { Dialog, DialogContent, Input, cn } from "@puratodo/ui";
-import { Check, Circle, Star, Calendar, Search, Loader2 } from "lucide-react";
-import { format } from "date-fns";
+import { cn, Dialog, DialogContent, Input } from '@puratodo/ui'
+import { format } from 'date-fns'
+import { Calendar, Check, Circle, Loader2, Search, Star } from 'lucide-react'
+import * as React from 'react'
 
 /**
  * Search result item structure
  */
 export interface SearchResult {
-  id: string;
-  name: string;
-  completed: boolean;
-  starred: boolean;
-  due_date: string | null;
-  list_id: string;
-  list_name: string;
-  list_icon: string;
-  group_name: string;
-  group_color: string;
+  id: string
+  name: string
+  completed: boolean
+  starred: boolean
+  due_date: string | null
+  list_id: string
+  list_name: string
+  list_icon: string
+  group_name: string
+  group_color: string
 }
 
 /**
  * Labels for i18n support
  */
 export interface CommandPaletteLabels {
-  title: string;
-  placeholder: string;
-  emptyPrompt: string;
-  searching: string;
-  noResults: string;
-  escToClose: string;
+  title: string
+  placeholder: string
+  emptyPrompt: string
+  searching: string
+  noResults: string
+  escToClose: string
 }
 
 /**
  * Props for CommandPalette component
  */
 export interface CommandPaletteProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSearch: (query: string) => Promise<SearchResult[]>;
-  onSelect: (result: SearchResult) => void;
-  labels?: Partial<CommandPaletteLabels>;
-  className?: string;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onSearch: (query: string) => Promise<SearchResult[]>
+  onSelect: (result: SearchResult) => void
+  labels?: Partial<CommandPaletteLabels>
+  className?: string
 }
 
 const DEFAULT_LABELS: CommandPaletteLabels = {
-  title: "Search Tasks",
-  placeholder: "Search tasks...",
-  emptyPrompt: "Type to search your tasks",
-  searching: "Searching...",
-  noResults: "No tasks found",
-  escToClose: "Press Esc to close",
-};
+  title: 'Search Tasks',
+  placeholder: 'Search tasks...',
+  emptyPrompt: 'Type to search your tasks',
+  searching: 'Searching...',
+  noResults: 'No tasks found',
+  escToClose: 'Press Esc to close',
+}
 
 /**
  * CommandPalette (Search Dialog) component
@@ -75,54 +75,56 @@ export function CommandPalette({
   labels: labelsProp,
   className,
 }: CommandPaletteProps) {
-  const labels = { ...DEFAULT_LABELS, ...labelsProp };
-  const [query, setQuery] = React.useState("");
-  const [results, setResults] = React.useState<SearchResult[]>([]);
-  const [isLoading, setIsLoading] = React.useState(false);
+  const labels = { ...DEFAULT_LABELS, ...labelsProp }
+  const [query, setQuery] = React.useState('')
+  const [results, setResults] = React.useState<SearchResult[]>([])
+  const [isLoading, setIsLoading] = React.useState(false)
 
   // Debounced search
   React.useEffect(() => {
-    if (!open) return;
+    if (!open)
+      return
 
     if (!query.trim()) {
-      setResults([]);
-      return;
+      setResults([])
+      return
     }
 
     const timer = setTimeout(async () => {
-      setIsLoading(true);
+      setIsLoading(true)
       try {
-        const data = await onSearch(query);
-        setResults(data);
-      } catch (error) {
-        console.error("Search error:", error);
-        setResults([]);
+        const data = await onSearch(query)
+        setResults(data)
       }
-      setIsLoading(false);
-    }, 300);
+      catch (error) {
+        console.error('Search error:', error)
+        setResults([])
+      }
+      setIsLoading(false)
+    }, 300)
 
-    return () => clearTimeout(timer);
-  }, [query, open, onSearch]);
+    return () => clearTimeout(timer)
+  }, [query, open, onSearch])
 
   // Reset state when dialog closes
   React.useEffect(() => {
     if (!open) {
-      setQuery("");
-      setResults([]);
+      setQuery('')
+      setResults([])
     }
-  }, [open]);
+  }, [open])
 
   const handleSelect = React.useCallback(
     (result: SearchResult) => {
-      onSelect(result);
-      onOpenChange(false);
+      onSelect(result)
+      onOpenChange(false)
     },
-    [onSelect, onOpenChange]
-  );
+    [onSelect, onOpenChange],
+  )
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`sm:max-w-lg p-0 gap-0 ${className || ""}`}>
+      <DialogContent className={`sm:max-w-lg p-0 gap-0 ${className || ''}`}>
         {/* Visually hidden title for accessibility */}
         <div className="sr-only">
           <h2>{labels.title}</h2>
@@ -134,7 +136,7 @@ export function CommandPalette({
           <Input
             placeholder={labels.placeholder}
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={e => setQuery(e.target.value)}
             className="border-0 shadow-none focus-visible:ring-0 px-0 h-9"
             autoFocus
           />
@@ -143,7 +145,7 @@ export function CommandPalette({
 
         {/* Results */}
         <div className="max-h-[300px] overflow-y-auto">
-          {query.trim() === "" ? (
+          {query.trim() === '' ? (
             <div className="py-8 text-center text-sm text-stone-500">
               {labels.emptyPrompt}
             </div>
@@ -153,11 +155,15 @@ export function CommandPalette({
             </div>
           ) : results.length === 0 ? (
             <div className="py-8 text-center text-sm text-stone-500">
-              {labels.noResults} for &ldquo;{query}&rdquo;
+              {labels.noResults}
+              {' '}
+              for &ldquo;
+              {query}
+              &rdquo;
             </div>
           ) : (
             <ul className="py-1">
-              {results.map((result) => (
+              {results.map(result => (
                 <li
                   key={result.id}
                   onClick={() => handleSelect(result)}
@@ -165,19 +171,21 @@ export function CommandPalette({
                 >
                   <div className="flex items-center gap-2">
                     {/* Completion status */}
-                    {result.completed ? (
-                      <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                    ) : (
-                      <Circle className="h-4 w-4 text-stone-300 dark:text-stone-600 flex-shrink-0" />
-                    )}
+                    {result.completed
+                      ? (
+                          <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        )
+                      : (
+                          <Circle className="h-4 w-4 text-stone-300 dark:text-stone-600 flex-shrink-0" />
+                        )}
 
                     {/* Task name */}
                     <span
                       className={cn(
-                        "flex-1 truncate text-sm",
+                        'flex-1 truncate text-sm',
                         result.completed
-                          ? "line-through text-stone-400"
-                          : "text-stone-900 dark:text-stone-100"
+                          ? 'line-through text-stone-400'
+                          : 'text-stone-900 dark:text-stone-100',
                       )}
                     >
                       {result.name}
@@ -192,7 +200,7 @@ export function CommandPalette({
                     {result.due_date && (
                       <div className="flex items-center gap-1 text-xs text-stone-500">
                         <Calendar className="h-3 w-3" />
-                        {format(new Date(result.due_date), "MMM d")}
+                        {format(new Date(result.due_date), 'MMM d')}
                       </div>
                     )}
                   </div>
@@ -216,10 +224,11 @@ export function CommandPalette({
 
         {/* Footer */}
         <div className="border-t px-4 py-2 text-xs text-stone-400 text-center">
-          {labels.escToClose}{" "}
+          {labels.escToClose}
+          {' '}
           <kbd className="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-800 rounded">Esc</kbd>
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

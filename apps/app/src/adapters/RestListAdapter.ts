@@ -1,6 +1,5 @@
-import { ListAdapter } from "@puratodo/api-types";
-import { listsApi } from "../lib/api/lists";
-import type { List, ListInsert, ListUpdate } from "@puratodo/api-types";
+import type { List, ListAdapter, ListInsert, ListUpdate } from '@puratodo/api-types'
+import { listsApi } from '../lib/api/lists'
 
 /**
  * RestListAdapter - Implements ListAdapter interface using REST API
@@ -12,47 +11,49 @@ export const RestListAdapter: ListAdapter = {
       group_id: list.group_id,
       name: list.name,
       icon: list.icon,
-    });
+    })
   },
 
   async getList(id: string): Promise<List | null> {
     try {
-      const allLists = await listsApi.list();
-      return allLists.find(l => l.id === id) || null;
-    } catch {
-      return null;
+      const allLists = await listsApi.list()
+      return allLists.find(l => l.id === id) || null
+    }
+    catch {
+      return null
     }
   },
 
   async updateList(id: string, updates: ListUpdate): Promise<List> {
-    return await listsApi.update(id, updates);
+    return await listsApi.update(id, updates)
   },
 
   async deleteList(id: string): Promise<void> {
-    await listsApi.delete(id);
+    await listsApi.delete(id)
   },
 
   async getListsByGroup(groupId: string): Promise<List[]> {
-    const allLists = await listsApi.list();
-    return allLists.filter(l => l.group_id === groupId);
+    const allLists = await listsApi.list()
+    return allLists.filter(l => l.group_id === groupId)
   },
 
   async getAllLists(): Promise<List[]> {
-    return await listsApi.list();
+    return await listsApi.list()
   },
 
   async moveList(listId: string, targetGroupId: string): Promise<List> {
-    return await listsApi.move(listId, targetGroupId);
+    return await listsApi.move(listId, targetGroupId)
   },
 
   async reorderLists(listIds: string[]): Promise<void> {
-    if (listIds.length === 0) return;
+    if (listIds.length === 0)
+      return
 
     // Update sort_order for each list
     await Promise.all(
       listIds.map((id, index) =>
-        this.updateList(id, { sort_order: index })
-      )
-    );
+        this.updateList(id, { sort_order: index }),
+      ),
+    )
   },
-};
+}

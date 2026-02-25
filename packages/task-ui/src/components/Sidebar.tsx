@@ -1,9 +1,27 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@puratodo/ui";
+import type { DragEndEvent } from '@dnd-kit/core'
+import {
+  closestCenter,
+  DndContext,
+
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@puratodo/ui'
 import {
   AlertTriangle,
+  Calendar,
   CalendarDays,
   ChevronDown,
   ChevronRight,
@@ -15,25 +33,8 @@ import {
   Plus,
   Star,
   Sun,
-  Calendar,
-} from "lucide-react";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+} from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 /**
  * Sidebar component for PuraToDo apps
@@ -47,106 +48,106 @@ import { CSS } from "@dnd-kit/utilities";
  */
 
 export interface Group {
-  id: string;
-  name: string;
-  color: string | null;
-  sort_order: number;
+  id: string
+  name: string
+  color: string | null
+  sort_order: number
 }
 
 export interface List {
-  id: string;
-  group_id: string;
-  name: string;
-  icon: string | null;
-  sort_order: number;
+  id: string
+  group_id: string
+  name: string
+  icon: string | null
+  sort_order: number
 }
 
-export type SmartView = "starred" | "overdue" | "next7days" | "nodate";
+export type SmartView = 'starred' | 'overdue' | 'next7days' | 'nodate'
 
 export interface SidebarLabels {
-  today: string;
-  calendar: string;
-  inbox: string;
-  smartViews: string;
-  starred: string;
-  overdue: string;
-  next7Days: string;
-  noDate: string;
-  groups: string;
-  addGroup: string;
-  noGroups: string;
-  createFirstGroup: string;
-  addList: string;
-  edit: string;
-  delete: string;
+  today: string
+  calendar: string
+  inbox: string
+  smartViews: string
+  starred: string
+  overdue: string
+  next7Days: string
+  noDate: string
+  groups: string
+  addGroup: string
+  noGroups: string
+  createFirstGroup: string
+  addList: string
+  edit: string
+  delete: string
 }
 
 export interface SidebarProps {
-  groups: Group[];
-  lists: List[];
-  selectedGroupId: string | null;
-  selectedListId: string | null;
-  showTodayView: boolean;
-  showCalendarView: boolean;
-  showInboxView: boolean;
-  selectedSmartView: SmartView | null;
-  onGroupSelect: (groupId: string | null) => void;
-  onListSelect: (listId: string | null, groupId: string) => void;
-  onTodaySelect: () => void;
-  onCalendarSelect: () => void;
-  onInboxSelect: () => void;
-  onSmartViewSelect: (view: SmartView) => void;
-  onGroupEdit: (group: Group) => void;
-  onGroupDelete: (group: Group) => void;
-  onAddListRequest: (groupId: string) => void;
-  onListEdit?: (list: List) => void;
-  onListDelete?: (list: List) => void;
-  onGroupReorder: (groupIds: string[]) => void;
-  onListReorder: (groupId: string, listIds: string[]) => void;
-  onAddGroupRequest?: () => void;
-  labels: SidebarLabels;
-  headerContent?: React.ReactNode;
-  footerContent?: React.ReactNode;
+  groups: Group[]
+  lists: List[]
+  selectedGroupId: string | null
+  selectedListId: string | null
+  showTodayView: boolean
+  showCalendarView: boolean
+  showInboxView: boolean
+  selectedSmartView: SmartView | null
+  onGroupSelect: (groupId: string | null) => void
+  onListSelect: (listId: string | null, groupId: string) => void
+  onTodaySelect: () => void
+  onCalendarSelect: () => void
+  onInboxSelect: () => void
+  onSmartViewSelect: (view: SmartView) => void
+  onGroupEdit: (group: Group) => void
+  onGroupDelete: (group: Group) => void
+  onAddListRequest: (groupId: string) => void
+  onListEdit?: (list: List) => void
+  onListDelete?: (list: List) => void
+  onGroupReorder: (groupIds: string[]) => void
+  onListReorder: (groupId: string, listIds: string[]) => void
+  onAddGroupRequest?: () => void
+  labels: SidebarLabels
+  headerContent?: React.ReactNode
+  footerContent?: React.ReactNode
 }
 
 const PRESET_COLORS = [
-  "#ef4444", // red
-  "#f97316", // orange
-  "#eab308", // yellow
-  "#22c55e", // green
-  "#06b6d4", // cyan
-  "#3b82f6", // blue
-  "#8b5cf6", // violet
-  "#ec4899", // pink
-  "#6b7280", // gray
-];
+  '#ef4444', // red
+  '#f97316', // orange
+  '#eab308', // yellow
+  '#22c55e', // green
+  '#06b6d4', // cyan
+  '#3b82f6', // blue
+  '#8b5cf6', // violet
+  '#ec4899', // pink
+  '#6b7280', // gray
+]
 
 interface SortableGroupItemProps {
-  group: Group;
-  lists: List[];
-  isExpanded: boolean;
-  onToggleExpand: () => void;
-  onEdit: (group: Group) => void;
-  onDelete: (group: Group) => void;
-  isSelected: boolean;
-  onSelect: (groupId: string) => void;
-  selectedListId: string | null;
-  onListSelect: (listId: string, groupId: string) => void;
-  onAddList: (groupId: string) => void;
-  onReorderLists: (groupId: string, orderedIds: string[]) => void;
-  onListEdit?: (list: List) => void;
-  onListDelete?: (list: List) => void;
-  labels: SidebarLabels;
+  group: Group
+  lists: List[]
+  isExpanded: boolean
+  onToggleExpand: () => void
+  onEdit: (group: Group) => void
+  onDelete: (group: Group) => void
+  isSelected: boolean
+  onSelect: (groupId: string) => void
+  selectedListId: string | null
+  onListSelect: (listId: string, groupId: string) => void
+  onAddList: (groupId: string) => void
+  onReorderLists: (groupId: string, orderedIds: string[]) => void
+  onListEdit?: (list: List) => void
+  onListDelete?: (list: List) => void
+  labels: SidebarLabels
 }
 
 interface SortableSidebarListItemProps {
-  list: List;
-  groupId: string;
-  isSelected: boolean;
-  onSelect: (listId: string, groupId: string) => void;
-  onEdit?: (list: List) => void;
-  onDelete?: (list: List) => void;
-  labels: SidebarLabels;
+  list: List
+  groupId: string
+  isSelected: boolean
+  onSelect: (listId: string, groupId: string) => void
+  onEdit?: (list: List) => void
+  onDelete?: (list: List) => void
+  labels: SidebarLabels
 }
 
 function SortableSidebarListItem({
@@ -165,13 +166,13 @@ function SortableSidebarListItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: list.id });
+  } = useSortable({ id: list.id })
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-  };
+  }
 
   return (
     <li
@@ -179,8 +180,8 @@ function SortableSidebarListItem({
       style={style}
       className={`flex items-center gap-1 px-2 py-1.5 rounded-md cursor-pointer group ${
         isSelected
-          ? "bg-stone-100 dark:bg-stone-800"
-          : "hover:bg-stone-100 dark:hover:bg-stone-800"
+          ? 'bg-stone-100 dark:bg-stone-800'
+          : 'hover:bg-stone-100 dark:hover:bg-stone-800'
       }`}
       onClick={() => onSelect(list.id, groupId)}
     >
@@ -191,7 +192,7 @@ function SortableSidebarListItem({
       >
         <GripVertical className="h-3 w-3" />
       </button>
-      <span className="text-base">{list.icon || "📋"}</span>
+      <span className="text-base">{list.icon || '📋'}</span>
       <span className="flex-1 text-sm text-stone-600 dark:text-stone-400 truncate">
         {list.name}
       </span>
@@ -220,7 +221,7 @@ function SortableSidebarListItem({
         </DropdownMenu>
       )}
     </li>
-  );
+  )
 }
 
 function SortableGroupItem({
@@ -240,11 +241,11 @@ function SortableGroupItem({
   onListDelete,
   labels,
 }: SortableGroupItemProps) {
-  const [localLists, setLocalLists] = useState(lists);
+  const [localLists, setLocalLists] = useState(lists)
 
   useEffect(() => {
-    setLocalLists(lists);
-  }, [lists]);
+    setLocalLists(lists)
+  }, [lists])
 
   const {
     attributes,
@@ -253,7 +254,7 @@ function SortableGroupItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: group.id });
+  } = useSortable({ id: group.id })
 
   const listSensors = useSensors(
     useSensor(PointerSensor, {
@@ -261,61 +262,65 @@ function SortableGroupItem({
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+    }),
+  )
 
   const handleListDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
+    const { active, over } = event
     if (over && active.id !== over.id) {
-      const oldIndex = localLists.findIndex((l) => l.id === active.id);
-      const newIndex = localLists.findIndex((l) => l.id === over.id);
-      const newLists = arrayMove(localLists, oldIndex, newIndex);
-      setLocalLists(newLists);
-      const orderedIds = newLists.map((l) => l.id);
-      onReorderLists(group.id, orderedIds);
+      const oldIndex = localLists.findIndex(l => l.id === active.id)
+      const newIndex = localLists.findIndex(l => l.id === over.id)
+      const newLists = arrayMove(localLists, oldIndex, newIndex)
+      setLocalLists(newLists)
+      const orderedIds = newLists.map(l => l.id)
+      onReorderLists(group.id, orderedIds)
     }
-  };
+  }
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-  };
+  }
 
   const handleClick = (e: React.MouseEvent) => {
-    const target = e.target as HTMLElement;
+    const target = e.target as HTMLElement
     if (target.closest('[data-radix-collection-item]') || target.closest('button[data-state]')) {
-      return;
+      return
     }
-    onSelect(group.id);
-  };
+    onSelect(group.id)
+  }
 
   return (
     <li ref={setNodeRef} style={style}>
       <div
         className={`flex items-center gap-1 px-2 py-1.5 rounded-md group cursor-pointer ${
           isSelected && !selectedListId
-            ? "bg-stone-100 dark:bg-stone-800"
-            : "hover:bg-stone-100 dark:hover:bg-stone-800"
+            ? 'bg-stone-100 dark:bg-stone-800'
+            : 'hover:bg-stone-100 dark:hover:bg-stone-800'
         }`}
         onClick={handleClick}
       >
         <button
           className="p-0.5 rounded hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
           onClick={(e) => {
-            e.stopPropagation();
-            onToggleExpand();
+            e.stopPropagation()
+            onToggleExpand()
           }}
         >
-          {lists.length > 0 ? (
-            isExpanded ? (
-              <ChevronDown className="h-3.5 w-3.5 text-stone-500" />
-            ) : (
-              <ChevronRight className="h-3.5 w-3.5 text-stone-500" />
-            )
-          ) : (
-            <div className="h-3.5 w-3.5" />
-          )}
+          {lists.length > 0
+            ? (
+                isExpanded
+                  ? (
+                      <ChevronDown className="h-3.5 w-3.5 text-stone-500" />
+                    )
+                  : (
+                      <ChevronRight className="h-3.5 w-3.5 text-stone-500" />
+                    )
+              )
+            : (
+                <div className="h-3.5 w-3.5" />
+              )}
         </button>
 
         <button
@@ -328,7 +333,7 @@ function SortableGroupItem({
 
         <div
           className="w-3 h-3 rounded-full flex-shrink-0"
-          style={{ backgroundColor: group.color || "#6b7280" }}
+          style={{ backgroundColor: group.color || '#6b7280' }}
         />
 
         <Folder className="h-4 w-4 text-stone-400 flex-shrink-0" />
@@ -375,11 +380,11 @@ function SortableGroupItem({
           onDragEnd={handleListDragEnd}
         >
           <SortableContext
-            items={localLists.map((l) => l.id)}
+            items={localLists.map(l => l.id)}
             strategy={verticalListSortingStrategy}
           >
             <ul className="ml-8 mt-1 space-y-0.5 border-l-2 border-stone-200 dark:border-stone-700 pl-3">
-              {localLists.map((list) => (
+              {localLists.map(list => (
                 <SortableSidebarListItem
                   key={list.id}
                   list={list}
@@ -396,7 +401,7 @@ function SortableGroupItem({
         </DndContext>
       )}
     </li>
-  );
+  )
 }
 
 export function Sidebar({
@@ -426,14 +431,14 @@ export function Sidebar({
   headerContent,
   footerContent,
 }: SidebarProps) {
-  const [groups, setGroups] = useState(initialGroups);
+  const [groups, setGroups] = useState(initialGroups)
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
-    new Set(initialGroups.map((g) => g.id))
-  );
+    new Set(initialGroups.map(g => g.id)),
+  )
 
   useEffect(() => {
-    setGroups(initialGroups);
-  }, [initialGroups]);
+    setGroups(initialGroups)
+  }, [initialGroups])
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -441,32 +446,33 @@ export function Sidebar({
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+    }),
+  )
 
   const toggleExpand = (groupId: string) => {
     setExpandedGroups((prev) => {
-      const next = new Set(prev);
+      const next = new Set(prev)
       if (next.has(groupId)) {
-        next.delete(groupId);
-      } else {
-        next.add(groupId);
+        next.delete(groupId)
       }
-      return next;
-    });
-  };
+      else {
+        next.add(groupId)
+      }
+      return next
+    })
+  }
 
   const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
+    const { active, over } = event
     if (over && active.id !== over.id) {
-      const oldIndex = groups.findIndex((g) => g.id === active.id);
-      const newIndex = groups.findIndex((g) => g.id === over.id);
-      const newGroups = arrayMove(groups, oldIndex, newIndex);
-      setGroups(newGroups);
-      const orderedIds = newGroups.map((g) => g.id);
-      onGroupReorder(orderedIds);
+      const oldIndex = groups.findIndex(g => g.id === active.id)
+      const newIndex = groups.findIndex(g => g.id === over.id)
+      const newGroups = arrayMove(groups, oldIndex, newIndex)
+      setGroups(newGroups)
+      const orderedIds = newGroups.map(g => g.id)
+      onGroupReorder(orderedIds)
     }
-  };
+  }
 
   return (
     <aside className="w-64 h-screen bg-white dark:bg-stone-900 border-r border-stone-200 dark:border-stone-800 flex flex-col">
@@ -478,33 +484,33 @@ export function Sidebar({
           onClick={onTodaySelect}
           className={`w-full flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
             showTodayView
-              ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300"
-              : "hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300"
+              ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
+              : 'hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300'
           }`}
         >
-          <Sun className={`h-4 w-4 ${showTodayView ? "text-amber-500" : ""}`} />
+          <Sun className={`h-4 w-4 ${showTodayView ? 'text-amber-500' : ''}`} />
           <span className="text-sm font-medium">{labels.today}</span>
         </button>
         <button
           onClick={onCalendarSelect}
           className={`mt-1 w-full flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
             showCalendarView
-              ? "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300"
-              : "hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300"
+              ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'
+              : 'hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300'
           }`}
         >
-          <Calendar className={`h-4 w-4 ${showCalendarView ? "text-violet-500" : ""}`} />
+          <Calendar className={`h-4 w-4 ${showCalendarView ? 'text-violet-500' : ''}`} />
           <span className="text-sm font-medium">{labels.calendar}</span>
         </button>
         <button
           onClick={onInboxSelect}
           className={`mt-1 w-full flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
             showInboxView
-              ? "bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300"
-              : "hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300"
+              ? 'bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300'
+              : 'hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300'
           }`}
         >
-          <Inbox className={`h-4 w-4 ${showInboxView ? "text-sky-500" : ""}`} />
+          <Inbox className={`h-4 w-4 ${showInboxView ? 'text-sky-500' : ''}`} />
           <span className="text-sm font-medium">{labels.inbox}</span>
         </button>
       </div>
@@ -515,47 +521,47 @@ export function Sidebar({
           {labels.smartViews}
         </div>
         <button
-          onClick={() => onSmartViewSelect("starred")}
+          onClick={() => onSmartViewSelect('starred')}
           className={`w-full flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
-            selectedSmartView === "starred"
-              ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300"
-              : "hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300"
+            selectedSmartView === 'starred'
+              ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'
+              : 'hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300'
           }`}
         >
-          <Star className={`h-4 w-4 ${selectedSmartView === "starred" ? "text-yellow-500" : ""}`} />
+          <Star className={`h-4 w-4 ${selectedSmartView === 'starred' ? 'text-yellow-500' : ''}`} />
           <span className="text-sm">{labels.starred}</span>
         </button>
         <button
-          onClick={() => onSmartViewSelect("overdue")}
+          onClick={() => onSmartViewSelect('overdue')}
           className={`mt-1 w-full flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
-            selectedSmartView === "overdue"
-              ? "bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300"
-              : "hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300"
+            selectedSmartView === 'overdue'
+              ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300'
+              : 'hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300'
           }`}
         >
-          <AlertTriangle className={`h-4 w-4 ${selectedSmartView === "overdue" ? "text-rose-500" : ""}`} />
+          <AlertTriangle className={`h-4 w-4 ${selectedSmartView === 'overdue' ? 'text-rose-500' : ''}`} />
           <span className="text-sm">{labels.overdue}</span>
         </button>
         <button
-          onClick={() => onSmartViewSelect("next7days")}
+          onClick={() => onSmartViewSelect('next7days')}
           className={`mt-1 w-full flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
-            selectedSmartView === "next7days"
-              ? "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
-              : "hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300"
+            selectedSmartView === 'next7days'
+              ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300'
+              : 'hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300'
           }`}
         >
-          <CalendarDays className={`h-4 w-4 ${selectedSmartView === "next7days" ? "text-indigo-500" : ""}`} />
+          <CalendarDays className={`h-4 w-4 ${selectedSmartView === 'next7days' ? 'text-indigo-500' : ''}`} />
           <span className="text-sm">{labels.next7Days}</span>
         </button>
         <button
-          onClick={() => onSmartViewSelect("nodate")}
+          onClick={() => onSmartViewSelect('nodate')}
           className={`mt-1 w-full flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
-            selectedSmartView === "nodate"
-              ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-              : "hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300"
+            selectedSmartView === 'nodate'
+              ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+              : 'hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300'
           }`}
         >
-          <Circle className={`h-4 w-4 ${selectedSmartView === "nodate" ? "text-slate-500" : ""}`} />
+          <Circle className={`h-4 w-4 ${selectedSmartView === 'nodate' ? 'text-slate-500' : ''}`} />
           <span className="text-sm">{labels.noDate}</span>
         </button>
       </div>
@@ -579,63 +585,65 @@ export function Sidebar({
           )}
         </div>
 
-        {groups.length === 0 ? (
-          <div className="px-2 py-4 text-center">
-            <p className="text-sm text-stone-500 dark:text-stone-400">
-              {labels.noGroups}
-            </p>
-            {onAddGroupRequest && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="mt-2 text-xs"
-                onClick={onAddGroupRequest}
+        {groups.length === 0
+          ? (
+              <div className="px-2 py-4 text-center">
+                <p className="text-sm text-stone-500 dark:text-stone-400">
+                  {labels.noGroups}
+                </p>
+                {onAddGroupRequest && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="mt-2 text-xs"
+                    onClick={onAddGroupRequest}
+                  >
+                    {labels.createFirstGroup}
+                  </Button>
+                )}
+              </div>
+            )
+          : (
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
               >
-                {labels.createFirstGroup}
-              </Button>
+                <SortableContext
+                  items={groups.map(g => g.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <ul className="space-y-0.5">
+                    {groups.map((group) => {
+                      const groupLists = lists.filter(l => l.group_id === group.id)
+                      return (
+                        <SortableGroupItem
+                          key={group.id}
+                          group={group}
+                          lists={groupLists}
+                          isExpanded={expandedGroups.has(group.id)}
+                          onToggleExpand={() => toggleExpand(group.id)}
+                          onEdit={onGroupEdit}
+                          onDelete={onGroupDelete}
+                          isSelected={selectedGroupId === group.id}
+                          onSelect={onGroupSelect}
+                          selectedListId={selectedListId}
+                          onListSelect={onListSelect}
+                          onAddList={onAddListRequest}
+                          onReorderLists={onListReorder}
+                          onListEdit={onListEdit}
+                          onListDelete={onListDelete}
+                          labels={labels}
+                        />
+                      )
+                    })}
+                  </ul>
+                </SortableContext>
+              </DndContext>
             )}
-          </div>
-        ) : (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={groups.map((g) => g.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              <ul className="space-y-0.5">
-                {groups.map((group) => {
-                  const groupLists = lists.filter((l) => l.group_id === group.id);
-                  return (
-                    <SortableGroupItem
-                      key={group.id}
-                      group={group}
-                      lists={groupLists}
-                      isExpanded={expandedGroups.has(group.id)}
-                      onToggleExpand={() => toggleExpand(group.id)}
-                      onEdit={onGroupEdit}
-                      onDelete={onGroupDelete}
-                      isSelected={selectedGroupId === group.id}
-                      onSelect={onGroupSelect}
-                      selectedListId={selectedListId}
-                      onListSelect={onListSelect}
-                      onAddList={onAddListRequest}
-                      onReorderLists={onListReorder}
-                      onListEdit={onListEdit}
-                      onListDelete={onListDelete}
-                      labels={labels}
-                    />
-                  );
-                })}
-              </ul>
-            </SortableContext>
-          </DndContext>
-        )}
       </div>
 
       {footerContent}
     </aside>
-  );
+  )
 }

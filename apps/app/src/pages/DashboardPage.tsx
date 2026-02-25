@@ -1,104 +1,95 @@
-import * as React from "react";
+import type { DragEndEvent, DragStartEvent, UniqueIdentifier } from '@dnd-kit/core'
+import type { TaskWithSubtasks } from '@puratodo/api-types'
+import type { InboxMoveTarget, TaskFiltersValue } from '@puratodo/task-ui'
+import type { Group } from '@/lib/api/groups'
+import type { List as ListType } from '@/lib/api/lists'
+import type { Task } from '@/lib/api/tasks'
+import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import {
-  LogOut,
-  CheckCircle2,
-  Plus,
-  Folder,
-  List,
-  Star,
-  ChevronDown,
-  ChevronRight,
-  X,
-  Check,
-  Pencil,
-  Trash2,
-  Users,
-  Move,
-  Calendar,
-  Search,
-  Moon,
-  Sun,
-  Menu,
-  Circle,
-  AlertTriangle,
-  CalendarDays,
-} from "lucide-react";
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { getLocalDateString } from '@puratodo/shared'
+import {
+  filterTasksByFilterValue,
+
+  TaskBulkActions,
+
+  TaskFilters,
+
+  TaskList,
+} from '@puratodo/task-ui'
 import {
   Button,
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
+  DragHandle,
   Sheet,
   SheetContent,
-  DragHandle,
   Skeleton,
-} from "@puratodo/ui";
+} from '@puratodo/ui'
 import {
-  TaskFilters,
-  TaskBulkActions,
-  TaskList,
-  type TaskFiltersValue,
-  type TaskContextMeta,
-  type InboxMoveTarget,
-  filterTasksByFilterValue,
-} from "@puratodo/task-ui";
-import { AccountSettingsDialog } from "@/components/AccountSettingsDialog";
-import { AccountSwitcher } from "@/components/AccountSwitcher";
-import { TaskDetailPanel } from "@/components/TaskDetailPanel";
-import { TaskDetailSheet } from "@/components/TaskDetailSheet";
-import { CalendarPanel } from "@/components/CalendarPanel";
-import { useAuth } from "@/hooks/useAuth";
-import { useTheme } from "@/hooks/useTheme";
-import { useBreakpoint } from "@/hooks/useBreakpoint";
-import { useGroupRealtime, useListRealtime, useTaskRealtime } from "@/hooks/use-realtime";
-import { requestNotificationPermission, scheduleTaskReminders } from "@/lib/notifications";
-import { useI18n } from "@/i18n";
-import { useAuthStore } from "@/stores/authStore";
-import { useDataStore } from "@/stores/dataStore";
-import { getLocalDateString } from "@puratodo/shared";
-import type { List as ListType } from "@/lib/api/lists";
-import type { Group } from "@/lib/api/groups";
-import type { Task } from "@/lib/api/tasks";
-import type { TaskWithSubtasks } from "@puratodo/api-types";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragStartEvent,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  useSortable,
-  SortableContext,
-  verticalListSortingStrategy,
-  sortableKeyboardCoordinates,
-  arrayMove,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import type { UniqueIdentifier } from "@dnd-kit/core";
+  AlertTriangle,
+  Calendar,
+  CalendarDays,
+  Check,
+  CheckCircle2,
+  ChevronDown,
+  Circle,
+  Folder,
+  List,
+  LogOut,
+  Menu,
+  Moon,
+  Move,
+  Pencil,
+  Plus,
+  Search,
+  Star,
+  Sun,
+  Trash2,
+  Users,
+  X,
+} from 'lucide-react'
+import * as React from 'react'
+import { AccountSettingsDialog } from '@/components/AccountSettingsDialog'
+import { AccountSwitcher } from '@/components/AccountSwitcher'
+import { CalendarPanel } from '@/components/CalendarPanel'
+import { TaskDetailPanel } from '@/components/TaskDetailPanel'
+import { TaskDetailSheet } from '@/components/TaskDetailSheet'
+import { useGroupRealtime, useListRealtime, useTaskRealtime } from '@/hooks/use-realtime'
+import { useAuth } from '@/hooks/useAuth'
+import { useBreakpoint } from '@/hooks/useBreakpoint'
+import { useTheme } from '@/hooks/useTheme'
+import { useI18n } from '@/i18n'
+import { requestNotificationPermission, scheduleTaskReminders } from '@/lib/notifications'
+import { useAuthStore } from '@/stores/authStore'
+import { useDataStore } from '@/stores/dataStore'
 
 // Color options for groups (names will be translated)
 const GROUP_COLORS = [
-  { name: "colors.violet", value: "#8b5cf6" },
-  { name: "colors.blue", value: "#3b82f6" },
-  { name: "colors.green", value: "#22c55e" },
-  { name: "colors.yellow", value: "#eab308" },
-  { name: "colors.orange", value: "#f97316" },
-  { name: "colors.red", value: "#ef4444" },
-  { name: "colors.pink", value: "#ec4899" },
-  { name: "colors.cyan", value: "#06b6d4" },
-];
+  { name: 'colors.violet', value: '#8b5cf6' },
+  { name: 'colors.blue', value: '#3b82f6' },
+  { name: 'colors.green', value: '#22c55e' },
+  { name: 'colors.yellow', value: '#eab308' },
+  { name: 'colors.orange', value: '#f97316' },
+  { name: 'colors.red', value: '#ef4444' },
+  { name: 'colors.pink', value: '#ec4899' },
+  { name: 'colors.cyan', value: '#06b6d4' },
+]
 
 export function DashboardPage() {
-  const { t } = useI18n();
-  const { logout } = useAuth();
-  const { resolvedTheme, setTheme } = useTheme();
-  const { user, activeAccountId } = useAuthStore();
+  const { t } = useI18n()
+  const { logout } = useAuth()
+  const { resolvedTheme, setTheme } = useTheme()
+  const { user, activeAccountId } = useAuthStore()
   const {
     groups,
     lists,
@@ -121,880 +112,939 @@ export function DashboardPage() {
     deleteTask,
     reorderTasks,
     clear,
-  } = useDataStore();
-  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
-  const [isLoadingTasks, setIsLoadingTasks] = React.useState(false);
-  const [selectedListId, setSelectedListId] = React.useState<string | null>(null);
-  const [currentView, setCurrentView] = React.useState<'today' | 'starred' | 'overdue' | 'next7days' | 'nodate' | 'list' | 'calendar'>('today');
-  const [expandedGroups, setExpandedGroups] = React.useState<Set<string>>(new Set());
-  const [expandedTasks, setExpandedTasks] = React.useState<Set<string>>(new Set());
-  const [showNewGroupInput, setShowNewGroupInput] = React.useState(false);
-  const [newGroupName, setNewGroupName] = React.useState("");
-  const [newGroupColor, setNewGroupColor] = React.useState(GROUP_COLORS[0].value);
-  const [isCreatingGroup, setIsCreatingGroup] = React.useState(false);
+  } = useDataStore()
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false)
+  const [isLoadingTasks, setIsLoadingTasks] = React.useState(false)
+  const [selectedListId, setSelectedListId] = React.useState<string | null>(null)
+  const [currentView, setCurrentView] = React.useState<'today' | 'starred' | 'overdue' | 'next7days' | 'nodate' | 'list' | 'calendar'>('today')
+  const [expandedGroups, setExpandedGroups] = React.useState<Set<string>>(new Set())
+  const [expandedTasks, setExpandedTasks] = React.useState<Set<string>>(new Set())
+  const [showNewGroupInput, setShowNewGroupInput] = React.useState(false)
+  const [newGroupName, setNewGroupName] = React.useState('')
+  const [newGroupColor, setNewGroupColor] = React.useState(GROUP_COLORS[0].value)
+  const [isCreatingGroup, setIsCreatingGroup] = React.useState(false)
 
   // Edit group state
-  const [editingGroup, setEditingGroup] = React.useState<Group | null>(null);
-  const [editGroupName, setEditGroupName] = React.useState("");
-  const [editGroupColor, setEditGroupColor] = React.useState("");
-  const [isUpdatingGroup, setIsUpdatingGroup] = React.useState(false);
+  const [editingGroup, setEditingGroup] = React.useState<Group | null>(null)
+  const [editGroupName, setEditGroupName] = React.useState('')
+  const [editGroupColor, setEditGroupColor] = React.useState('')
+  const [isUpdatingGroup, setIsUpdatingGroup] = React.useState(false)
 
   // Create list state
-  const [showNewListInput, setShowNewListInput] = React.useState<string | null>(null); // group_id
-  const [newListName, setNewListName] = React.useState("");
-  const [isCreatingList, setIsCreatingList] = React.useState(false);
+  const [showNewListInput, setShowNewListInput] = React.useState<string | null>(null) // group_id
+  const [newListName, setNewListName] = React.useState('')
+  const [isCreatingList, setIsCreatingList] = React.useState(false)
 
   // Edit list state
-  const [editingList, setEditingList] = React.useState<ListType | null>(null);
-  const [editListName, setEditListName] = React.useState("");
-  const [isUpdatingList, setIsUpdatingList] = React.useState(false);
+  const [editingList, setEditingList] = React.useState<ListType | null>(null)
+  const [editListName, setEditListName] = React.useState('')
+  const [isUpdatingList, setIsUpdatingList] = React.useState(false)
 
   // Move list state
-  const [movingList, setMovingList] = React.useState<ListType | null>(null);
-  const [targetGroupId, setTargetGroupId] = React.useState<string>("");
-  const [isMovingList, setIsMovingList] = React.useState(false);
+  const [movingList, setMovingList] = React.useState<ListType | null>(null)
+  const [targetGroupId, setTargetGroupId] = React.useState<string>('')
+  const [isMovingList, setIsMovingList] = React.useState(false)
 
   // DnD state for tracking active item (setters are used in handlers)
-  const [, setActiveGroupId] = React.useState<UniqueIdentifier | null>(null);
-  const [, setActiveListId] = React.useState<UniqueIdentifier | null>(null);
+  const [, setActiveGroupId] = React.useState<UniqueIdentifier | null>(null)
+  const [, setActiveListId] = React.useState<UniqueIdentifier | null>(null)
 
   // Create task state
-  const [showNewTaskInput, setShowNewTaskInput] = React.useState(false);
-  const [newTaskName, setNewTaskName] = React.useState("");
-  const [isCreatingTask, setIsCreatingTask] = React.useState(false);
+  const [showNewTaskInput, setShowNewTaskInput] = React.useState(false)
+  const [newTaskName, setNewTaskName] = React.useState('')
+  const [isCreatingTask, setIsCreatingTask] = React.useState(false)
 
   // Filter state
   const [filterValues, setFilterValues] = React.useState<TaskFiltersValue>({
     status: 'all',
     star: 'all',
     date: 'all',
-  });
+  })
 
   // Multi-select state
-  const [isSelectionMode, setIsSelectionMode] = React.useState(false);
-  const [selectedTaskIds, setSelectedTaskIds] = React.useState<Set<string>>(new Set());
+  const [isSelectionMode, setIsSelectionMode] = React.useState(false)
+  const [selectedTaskIds, setSelectedTaskIds] = React.useState<Set<string>>(new Set())
 
   // Bulk date dialog state
-  const [isBulkDateDialogOpen, setIsBulkDateDialogOpen] = React.useState(false);
-  const [bulkDateValue, setBulkDateValue] = React.useState<Date | undefined>(undefined);
+  const [isBulkDateDialogOpen, setIsBulkDateDialogOpen] = React.useState(false)
+  const [bulkDateValue, setBulkDateValue] = React.useState<Date | undefined>(undefined)
 
   // Bulk delete dialog state
-  const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = React.useState(false);
+  const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = React.useState(false)
 
   // Edit task state
-  const [editingTaskId, setEditingTaskId] = React.useState<string | null>(null);
-  const [editingTaskName, setEditingTaskName] = React.useState("");
+  const [editingTaskId, setEditingTaskId] = React.useState<string | null>(null)
+  const [editingTaskName, setEditingTaskName] = React.useState('')
 
   // Add subtask state
-  const [addingSubtaskTo, setAddingSubtaskTo] = React.useState<string | null>(null);
-  const [newSubtaskName, setNewSubtaskName] = React.useState("");
+  const [addingSubtaskTo, setAddingSubtaskTo] = React.useState<string | null>(null)
+  const [newSubtaskName, setNewSubtaskName] = React.useState('')
 
   // Context menu state for tasks
   const [taskContextMenu, setTaskContextMenu] = React.useState<{
-    x: number;
-    y: number;
-    taskId: string;
-    taskName: string;
-  } | null>(null);
+    x: number
+    y: number
+    taskId: string
+    taskName: string
+  } | null>(null)
 
   // Responsive three-column layout state
-  const { showDetailPanel, showSidebarSheet, isXs, isSm, isMd } = useBreakpoint();
-  const [sidebarOpen, setSidebarOpen] = React.useState(false);
-  const [selectedTaskId, setSelectedTaskId] = React.useState<string | null>(null);
-  const [mobileDetailOpen, setMobileDetailOpen] = React.useState(false);
+  const { showDetailPanel, showSidebarSheet, isXs, isSm, isMd } = useBreakpoint()
+  const [sidebarOpen, setSidebarOpen] = React.useState(false)
+  const [selectedTaskId, setSelectedTaskId] = React.useState<string | null>(null)
+  const [mobileDetailOpen, setMobileDetailOpen] = React.useState(false)
 
   // Search state
-  const [showSearch, setShowSearch] = React.useState(false);
-  const [searchQuery, setSearchQuery] = React.useState("");
+  const [showSearch, setShowSearch] = React.useState(false)
+  const [searchQuery, setSearchQuery] = React.useState('')
 
   // Context menu state for groups
   const [contextMenu, setContextMenu] = React.useState<{
-    x: number;
-    y: number;
-    group: Group;
-  } | null>(null);
+    x: number
+    y: number
+    group: Group
+  } | null>(null)
 
   // Context menu state for lists
   const [listContextMenu, setListContextMenu] = React.useState<{
-    x: number;
-    y: number;
-    list: ListType;
-  } | null>(null);
+    x: number
+    y: number
+    list: ListType
+  } | null>(null)
 
   // Refetch data when active account changes
   React.useEffect(() => {
-    if (!activeAccountId) return;
-    clear();
-    setSelectedListId(null);
-    void fetchAll();
-  }, [activeAccountId, clear, fetchAll]);
+    if (!activeAccountId)
+      return
+    clear()
+    setSelectedListId(null)
+    void fetchAll()
+  }, [activeAccountId, clear, fetchAll])
 
   // Realtime subscriptions - refetch data when changes occur
   const handleRealtimeChange = React.useCallback(() => {
-    void fetchAll();
-  }, [fetchAll]);
+    void fetchAll()
+  }, [fetchAll])
 
-  useGroupRealtime(handleRealtimeChange, !!activeAccountId);
-  useListRealtime(handleRealtimeChange, !!activeAccountId);
-  useTaskRealtime(handleRealtimeChange, !!activeAccountId);
+  useGroupRealtime(handleRealtimeChange, !!activeAccountId)
+  useListRealtime(handleRealtimeChange, !!activeAccountId)
+  useTaskRealtime(handleRealtimeChange, !!activeAccountId)
 
   // Request notification permission and setup reminders on mount
   React.useEffect(() => {
-    if (!activeAccountId || tasks.length === 0) return;
+    if (!activeAccountId || tasks.length === 0)
+      return
 
     // Request notification permission
     requestNotificationPermission().then((granted) => {
       if (granted) {
-        console.log('Notification permission granted');
+        console.log('Notification permission granted')
         // Schedule reminders for all tasks
-        scheduleTaskReminders(tasks);
-      } else {
-        console.log('Notification permission denied');
+        scheduleTaskReminders(tasks)
       }
-    });
-  }, [activeAccountId, tasks]);
+      else {
+        console.log('Notification permission denied')
+      }
+    })
+  }, [activeAccountId, tasks])
 
   // Toggle group expansion
   const toggleGroup = (groupId: string) => {
     setExpandedGroups((prev) => {
-      const next = new Set(prev);
+      const next = new Set(prev)
       if (next.has(groupId)) {
-        next.delete(groupId);
-      } else {
-        next.add(groupId);
+        next.delete(groupId)
       }
-      return next;
-    });
-  };
+      else {
+        next.add(groupId)
+      }
+      return next
+    })
+  }
 
   // Toggle task expansion (for subtasks)
   const toggleTaskExpand = (taskId: string) => {
     setExpandedTasks((prev) => {
-      const next = new Set(prev);
+      const next = new Set(prev)
       if (next.has(taskId)) {
-        next.delete(taskId);
-      } else {
-        next.add(taskId);
+        next.delete(taskId)
       }
-      return next;
-    });
-  };
+      else {
+        next.add(taskId)
+      }
+      return next
+    })
+  }
 
   // Get subtasks for a task
   const getSubtasks = (parentId: string): Task[] => {
-    return tasks.filter((task) => task.parent_id === parentId);
-  };
+    return tasks.filter(task => task.parent_id === parentId)
+  }
 
   // Get root tasks (no parent)
   const getRootTasks = (listId: string): Task[] => {
     return tasks
-      .filter((task) => task.list_id === listId && !task.parent_id)
-      .sort((a, b) => a.sort_order - b.sort_order);
-  };
+      .filter(task => task.list_id === listId && !task.parent_id)
+      .sort((a, b) => a.sort_order - b.sort_order)
+  }
 
   // Get lists for a group
   const getListsForGroup = (groupId: string): ListType[] => {
-    return lists.filter((list) => list.group_id === groupId);
-  };
+    return lists.filter(list => list.group_id === groupId)
+  }
 
   // Handle creating new group
   const handleCreateGroup = async () => {
-    if (!newGroupName.trim()) return;
+    if (!newGroupName.trim())
+      return
 
-    setIsCreatingGroup(true);
+    setIsCreatingGroup(true)
     try {
       await createGroup({
         name: newGroupName.trim(),
         color: newGroupColor,
-      });
-      setNewGroupName("");
-      setNewGroupColor(GROUP_COLORS[0].value);
-      setShowNewGroupInput(false);
-    } catch (err) {
-      console.error("Failed to create group:", err);
-    } finally {
-      setIsCreatingGroup(false);
+      })
+      setNewGroupName('')
+      setNewGroupColor(GROUP_COLORS[0].value)
+      setShowNewGroupInput(false)
     }
-  };
+    catch (err) {
+      console.error('Failed to create group:', err)
+    }
+    finally {
+      setIsCreatingGroup(false)
+    }
+  }
 
   // Handle deleting a group
   const handleDeleteGroup = async (groupId: string, e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    setContextMenu(null);
-    if (!confirm(t("confirmDialogs.deleteGroup"))) return;
+    e?.stopPropagation()
+    setContextMenu(null)
+    if (!confirm(t('confirmDialogs.deleteGroup')))
+      return
 
     try {
-      await deleteGroup(groupId);
-    } catch (err) {
-      console.error("Failed to delete group:", err);
+      await deleteGroup(groupId)
     }
-  };
+    catch (err) {
+      console.error('Failed to delete group:', err)
+    }
+  }
 
   // Handle context menu
   const handleContextMenu = (e: React.MouseEvent, group: Group) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setContextMenu({ x: e.clientX, y: e.clientY, group });
-  };
+    e.preventDefault()
+    e.stopPropagation()
+    setContextMenu({ x: e.clientX, y: e.clientY, group })
+  }
 
   // Open edit dialog
   const openEditDialog = (group: Group) => {
-    setContextMenu(null);
-    setEditingGroup(group);
-    setEditGroupName(group.name);
-    setEditGroupColor(group.color || GROUP_COLORS[0].value);
-  };
+    setContextMenu(null)
+    setEditingGroup(group)
+    setEditGroupName(group.name)
+    setEditGroupColor(group.color || GROUP_COLORS[0].value)
+  }
 
   // Handle update group
   const handleUpdateGroup = async () => {
-    if (!editingGroup || !editGroupName.trim()) return;
+    if (!editingGroup || !editGroupName.trim())
+      return
 
-    setIsUpdatingGroup(true);
+    setIsUpdatingGroup(true)
     try {
       await updateGroup(editingGroup.id, {
         name: editGroupName.trim(),
         color: editGroupColor,
-      });
-      setEditingGroup(null);
-    } catch (err) {
-      console.error("Failed to update group:", err);
-    } finally {
-      setIsUpdatingGroup(false);
+      })
+      setEditingGroup(null)
     }
-  };
+    catch (err) {
+      console.error('Failed to update group:', err)
+    }
+    finally {
+      setIsUpdatingGroup(false)
+    }
+  }
 
   // Handle creating new list
   const handleCreateList = async (groupId: string) => {
-    if (!newListName.trim()) return;
+    if (!newListName.trim())
+      return
 
-    setIsCreatingList(true);
+    setIsCreatingList(true)
     try {
       await createList({
         group_id: groupId,
         name: newListName.trim(),
-      });
-      setNewListName("");
-      setShowNewListInput(null);
-    } catch (err) {
-      console.error("Failed to create list:", err);
-    } finally {
-      setIsCreatingList(false);
+      })
+      setNewListName('')
+      setShowNewListInput(null)
     }
-  };
+    catch (err) {
+      console.error('Failed to create list:', err)
+    }
+    finally {
+      setIsCreatingList(false)
+    }
+  }
 
   // Handle list context menu
   const handleListContextMenu = (e: React.MouseEvent, list: ListType) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setListContextMenu({ x: e.clientX, y: e.clientY, list });
-  };
+    e.preventDefault()
+    e.stopPropagation()
+    setListContextMenu({ x: e.clientX, y: e.clientY, list })
+  }
 
   // Open edit list dialog
   const openEditListDialog = (list: ListType) => {
-    setListContextMenu(null);
-    setEditingList(list);
-    setEditListName(list.name);
-  };
+    setListContextMenu(null)
+    setEditingList(list)
+    setEditListName(list.name)
+  }
 
   // Handle update list
   const handleUpdateList = async () => {
-    if (!editingList || !editListName.trim()) return;
+    if (!editingList || !editListName.trim())
+      return
 
-    setIsUpdatingList(true);
+    setIsUpdatingList(true)
     try {
       await updateList(editingList.id, {
         name: editListName.trim(),
-      });
-      setEditingList(null);
-    } catch (err) {
-      console.error("Failed to update list:", err);
-    } finally {
-      setIsUpdatingList(false);
+      })
+      setEditingList(null)
     }
-  };
+    catch (err) {
+      console.error('Failed to update list:', err)
+    }
+    finally {
+      setIsUpdatingList(false)
+    }
+  }
 
   // Handle deleting a list
   const handleDeleteList = async (listId: string) => {
-    setListContextMenu(null);
-    if (!confirm(t("confirmDialogs.deleteList"))) return;
+    setListContextMenu(null)
+    if (!confirm(t('confirmDialogs.deleteList')))
+      return
 
     try {
-      await deleteList(listId);
+      await deleteList(listId)
       if (selectedListId === listId) {
-        setSelectedListId(null);
+        setSelectedListId(null)
       }
-    } catch (err) {
-      console.error("Failed to delete list:", err);
     }
-  };
+    catch (err) {
+      console.error('Failed to delete list:', err)
+    }
+  }
 
   // Create new task
   const handleCreateTask = async () => {
-    if (!selectedListId || !newTaskName.trim()) return;
+    if (!selectedListId || !newTaskName.trim())
+      return
 
-    setIsCreatingTask(true);
+    setIsCreatingTask(true)
     try {
       await createTask({
         list_id: selectedListId,
         name: newTaskName.trim(),
-      });
-      setNewTaskName("");
-      setShowNewTaskInput(false);
-    } catch (err) {
-      console.error("Failed to create task:", err);
-    } finally {
-      setIsCreatingTask(false);
+      })
+      setNewTaskName('')
+      setShowNewTaskInput(false)
     }
-  };
+    catch (err) {
+      console.error('Failed to create task:', err)
+    }
+    finally {
+      setIsCreatingTask(false)
+    }
+  }
 
   // Start editing a task
   const startEditTask = (taskId: string, taskName: string) => {
-    setEditingTaskId(taskId);
-    setEditingTaskName(taskName);
-  };
+    setEditingTaskId(taskId)
+    setEditingTaskName(taskName)
+  }
 
   // Save edited task
   const saveEditTask = async () => {
     if (!editingTaskId || !editingTaskName.trim()) {
-      setEditingTaskId(null);
-      setEditingTaskName("");
-      return;
+      setEditingTaskId(null)
+      setEditingTaskName('')
+      return
     }
 
     try {
-      await updateTask(editingTaskId, { name: editingTaskName.trim() });
-    } catch (err) {
-      console.error("Failed to update task:", err);
-    } finally {
-      setEditingTaskId(null);
-      setEditingTaskName("");
+      await updateTask(editingTaskId, { name: editingTaskName.trim() })
     }
-  };
+    catch (err) {
+      console.error('Failed to update task:', err)
+    }
+    finally {
+      setEditingTaskId(null)
+      setEditingTaskName('')
+    }
+  }
 
   // Cancel editing a task
   const cancelEditTask = () => {
-    setEditingTaskId(null);
-    setEditingTaskName("");
-  };
+    setEditingTaskId(null)
+    setEditingTaskName('')
+  }
 
   // Start adding subtask to a task
   const startAddSubtask = (taskId: string) => {
-    setAddingSubtaskTo(taskId);
-    setNewSubtaskName("");
+    setAddingSubtaskTo(taskId)
+    setNewSubtaskName('')
     // Expand parent task
     if (!expandedTasks.has(taskId)) {
-      setExpandedTasks(new Set(expandedTasks).add(taskId));
+      setExpandedTasks(new Set(expandedTasks).add(taskId))
     }
-    setTaskContextMenu(null);
-  };
+    setTaskContextMenu(null)
+  }
 
   // Handle adding subtask
   const handleAddSubtask = async (parentId: string) => {
-    if (!newSubtaskName.trim()) return;
-    const parentTask = tasks.find((t) => t.id === parentId);
-    if (!parentTask) return;
+    if (!newSubtaskName.trim())
+      return
+    const parentTask = tasks.find(t => t.id === parentId)
+    if (!parentTask)
+      return
 
-    setIsCreatingTask(true);
+    setIsCreatingTask(true)
     try {
       await createTask({
         list_id: parentTask.list_id,
         name: newSubtaskName.trim(),
         parent_id: parentId,
-      });
-      setNewSubtaskName("");
-      setAddingSubtaskTo(null);
+      })
+      setNewSubtaskName('')
+      setAddingSubtaskTo(null)
       // Expand parent task to show new subtask
       if (!expandedTasks.has(parentId)) {
-        setExpandedTasks(new Set(expandedTasks).add(parentId));
+        setExpandedTasks(new Set(expandedTasks).add(parentId))
       }
-    } catch (err) {
-      console.error("Failed to create subtask:", err);
-    } finally {
-      setIsCreatingTask(false);
     }
-  };
+    catch (err) {
+      console.error('Failed to create subtask:', err)
+    }
+    finally {
+      setIsCreatingTask(false)
+    }
+  }
 
   // Cancel adding subtask
   const cancelAddSubtask = () => {
-    setNewSubtaskName("");
-    setAddingSubtaskTo(null);
-  };
+    setNewSubtaskName('')
+    setAddingSubtaskTo(null)
+  }
 
   // Handle delete task
   const handleDeleteTask = async (taskId: string) => {
-    if (!confirm(t("confirmDialogs.deleteTask"))) return;
+    if (!confirm(t('confirmDialogs.deleteTask')))
+      return
     try {
-      await deleteTask(taskId);
-      setTaskContextMenu(null);
-    } catch (err) {
-      console.error("Failed to delete task:", err);
+      await deleteTask(taskId)
+      setTaskContextMenu(null)
     }
-  };
+    catch (err) {
+      console.error('Failed to delete task:', err)
+    }
+  }
 
   // Handle move task to different list
   const handleMoveToList = async (task: TaskWithSubtasks, targetListId: string) => {
     try {
-      await updateTask(task.id, { list_id: targetListId });
-      setTaskContextMenu(null);
+      await updateTask(task.id, { list_id: targetListId })
+      setTaskContextMenu(null)
       // If the moved task is currently selected, deselect it
       if (selectedTaskId === task.id) {
-        setSelectedTaskId(null);
+        setSelectedTaskId(null)
       }
-    } catch (err) {
-      console.error("Failed to move task:", err);
-      alert(t("errors.moveTaskFailed"));
     }
-  };
+    catch (err) {
+      console.error('Failed to move task:', err)
+      alert(t('errors.moveTaskFailed'))
+    }
+  }
 
   // Toggle task completion
   const toggleTaskComplete = async (taskId: string, currentCompleted: boolean) => {
     try {
-      await updateTask(taskId, { completed: !currentCompleted });
-    } catch (err) {
-      console.error("Failed to toggle task completion:", err);
+      await updateTask(taskId, { completed: !currentCompleted })
     }
-  };
+    catch (err) {
+      console.error('Failed to toggle task completion:', err)
+    }
+  }
 
   // Toggle task star
   const toggleTaskStar = async (taskId: string, currentStarred: boolean) => {
     try {
-      await updateTask(taskId, { starred: !currentStarred });
-    } catch (err) {
-      console.error("Failed to toggle task star:", err);
+      await updateTask(taskId, { starred: !currentStarred })
     }
-  };
+    catch (err) {
+      console.error('Failed to toggle task star:', err)
+    }
+  }
 
   // Multi-select handlers
   const handleToggleSelect = (taskId: string) => {
     setSelectedTaskIds((prev) => {
-      const next = new Set(prev);
+      const next = new Set(prev)
       if (next.has(taskId)) {
-        next.delete(taskId);
-      } else {
-        next.add(taskId);
+        next.delete(taskId)
       }
-      return next;
-    });
-  };
+      else {
+        next.add(taskId)
+      }
+      return next
+    })
+  }
 
   const handleSelectAll = () => {
-    const allTaskIds = getDisplayTasks().map(t => t.id);
-    setSelectedTaskIds(new Set(allTaskIds));
-  };
+    const allTaskIds = getDisplayTasks().map(t => t.id)
+    setSelectedTaskIds(new Set(allTaskIds))
+  }
 
   const handleDeselectAll = () => {
-    setSelectedTaskIds(new Set());
-  };
+    setSelectedTaskIds(new Set())
+  }
 
   const handleExitSelectionMode = () => {
-    setIsSelectionMode(false);
-    setSelectedTaskIds(new Set());
-  };
+    setIsSelectionMode(false)
+    setSelectedTaskIds(new Set())
+  }
 
   // Bulk operation handlers
   const handleBulkComplete = async (completed: boolean) => {
-    const taskIds = Array.from(selectedTaskIds);
+    const taskIds = Array.from(selectedTaskIds)
     try {
-      await Promise.all(taskIds.map(id => updateTask(id, { completed })));
-      setSelectedTaskIds(new Set());
-    } catch (err) {
-      console.error("Failed to bulk complete tasks:", err);
+      await Promise.all(taskIds.map(id => updateTask(id, { completed })))
+      setSelectedTaskIds(new Set())
     }
-  };
+    catch (err) {
+      console.error('Failed to bulk complete tasks:', err)
+    }
+  }
 
   const handleBulkStar = async (starred: boolean) => {
-    const taskIds = Array.from(selectedTaskIds);
+    const taskIds = Array.from(selectedTaskIds)
     try {
-      await Promise.all(taskIds.map(id => updateTask(id, { starred })));
-      setSelectedTaskIds(new Set());
-    } catch (err) {
-      console.error("Failed to bulk star tasks:", err);
+      await Promise.all(taskIds.map(id => updateTask(id, { starred })))
+      setSelectedTaskIds(new Set())
     }
-  };
+    catch (err) {
+      console.error('Failed to bulk star tasks:', err)
+    }
+  }
 
   const handleBulkDelete = async () => {
-    const taskIds = Array.from(selectedTaskIds);
-    setIsBulkDeleteDialogOpen(false);
+    const taskIds = Array.from(selectedTaskIds)
+    setIsBulkDeleteDialogOpen(false)
     try {
-      await Promise.all(taskIds.map(id => deleteTask(id)));
-      setSelectedTaskIds(new Set());
-      setIsSelectionMode(false);
-    } catch (err) {
-      console.error("Failed to bulk delete tasks:", err);
+      await Promise.all(taskIds.map(id => deleteTask(id)))
+      setSelectedTaskIds(new Set())
+      setIsSelectionMode(false)
     }
-  };
+    catch (err) {
+      console.error('Failed to bulk delete tasks:', err)
+    }
+  }
 
   const handleBulkSetDate = async () => {
-    const taskIds = Array.from(selectedTaskIds);
-    const dateStr = bulkDateValue ? getLocalDateString(bulkDateValue) : null;
-    setIsBulkDateDialogOpen(false);
+    const taskIds = Array.from(selectedTaskIds)
+    const dateStr = bulkDateValue ? getLocalDateString(bulkDateValue) : null
+    setIsBulkDateDialogOpen(false)
     try {
-      await Promise.all(taskIds.map(id => updateTask(id, { due_date: dateStr })));
-      setBulkDateValue(undefined);
-      setSelectedTaskIds(new Set());
-    } catch (err) {
-      console.error("Failed to bulk set date:", err);
+      await Promise.all(taskIds.map(id => updateTask(id, { due_date: dateStr })))
+      setBulkDateValue(undefined)
+      setSelectedTaskIds(new Set())
     }
-  };
+    catch (err) {
+      console.error('Failed to bulk set date:', err)
+    }
+  }
 
-  const selectedCount = selectedTaskIds.size;
+  const selectedCount = selectedTaskIds.size
 
   // Open move list dialog
   const openMoveListDialog = (list: ListType) => {
-    setListContextMenu(null);
-    setMovingList(list);
-    setTargetGroupId(list.group_id);
-  };
+    setListContextMenu(null)
+    setMovingList(list)
+    setTargetGroupId(list.group_id)
+  }
 
   // Handle move list to different group
   const handleMoveList = async () => {
     if (!movingList || !targetGroupId || targetGroupId === movingList.group_id) {
-      setMovingList(null);
-      return;
+      setMovingList(null)
+      return
     }
 
-    setIsMovingList(true);
+    setIsMovingList(true)
     try {
-      await moveList(movingList.id, targetGroupId);
-      setMovingList(null);
-    } catch (err) {
-      console.error("Failed to move list:", err);
-    } finally {
-      setIsMovingList(false);
+      await moveList(movingList.id, targetGroupId)
+      setMovingList(null)
     }
-  };
+    catch (err) {
+      console.error('Failed to move list:', err)
+    }
+    finally {
+      setIsMovingList(false)
+    }
+  }
 
   // Close context menu on click outside
   React.useEffect(() => {
     const handleClick = () => {
-      setContextMenu(null);
-      setListContextMenu(null);
-      setTaskContextMenu(null);
-    };
-    if (contextMenu || listContextMenu || taskContextMenu) {
-      document.addEventListener("click", handleClick);
-      return () => document.removeEventListener("click", handleClick);
+      setContextMenu(null)
+      setListContextMenu(null)
+      setTaskContextMenu(null)
     }
-  }, [contextMenu, listContextMenu, taskContextMenu]);
+    if (contextMenu || listContextMenu || taskContextMenu) {
+      document.addEventListener('click', handleClick)
+      return () => document.removeEventListener('click', handleClick)
+    }
+  }, [contextMenu, listContextMenu, taskContextMenu])
 
   // Keyboard shortcut for search (Ctrl+K / Cmd+K) and new task (Ctrl+N / Cmd+N)
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        setShowSearch(true);
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setShowSearch(true)
       }
-      if ((e.metaKey || e.ctrlKey) && e.key === "n") {
-        e.preventDefault();
+      if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
+        e.preventDefault()
         if (!selectedListId) {
-          alert(t("errors.selectListFirst"));
-          return;
+          alert(t('errors.selectListFirst'))
+          return
         }
-        setShowNewTaskInput(true);
+        setShowNewTaskInput(true)
       }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [selectedListId]);
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [selectedListId])
 
   // Tauri menu event listeners
   React.useEffect(() => {
     // Only run in Tauri environment
-    if (typeof window !== "undefined" && "__TAURI__" in window) {
-      import("@tauri-apps/api/event").then(({ listen }) => {
-        const unlistenNewTask = listen("menu-new-task", () => {
+    if (typeof window !== 'undefined' && '__TAURI__' in window) {
+      import('@tauri-apps/api/event').then(({ listen }) => {
+        const unlistenNewTask = listen('menu-new-task', () => {
           if (!selectedListId) {
-            alert(t("errors.selectListFirst"));
-            return;
+            alert(t('errors.selectListFirst'))
+            return
           }
-          setShowNewTaskInput(true);
-        });
+          setShowNewTaskInput(true)
+        })
 
-        const unlistenSearch = listen("menu-search", () => {
-          setShowSearch(true);
-        });
+        const unlistenSearch = listen('menu-search', () => {
+          setShowSearch(true)
+        })
 
-        const unlistenPreferences = listen("menu-preferences", () => {
+        const unlistenPreferences = listen('menu-preferences', () => {
           // Could open settings/preferences dialog
-          console.log("Preferences menu clicked");
-        });
+          console.log('Preferences menu clicked')
+        })
 
-        const unlistenAbout = listen("menu-about", () => {
-          alert(`${t("about.title")}\n${t("about.description")}\n\n${t("about.builtWith")}`);
-        });
+        const unlistenAbout = listen('menu-about', () => {
+          alert(`${t('about.title')}\n${t('about.description')}\n\n${t('about.builtWith')}`)
+        })
 
         // Deep link listener
-        const unlistenDeepLink = listen<{ urls: string[] }>("deep-link-received", (event) => {
-          const urls = event.payload.urls;
-          console.log("Deep link received:", urls);
+        const unlistenDeepLink = listen<{ urls: string[] }>('deep-link-received', (event) => {
+          const urls = event.payload.urls
+          console.log('Deep link received:', urls)
 
           if (urls && urls.length > 0) {
-            const url = urls[0];
+            const url = urls[0]
 
             // Parse the deep link URL: puratodo://task/123 or puratodo://list/456
-            const pathMatch = url.match(/^puratodo:\/\/(task|list)\/(.+)$/);
+            const pathMatch = url.match(/^puratodo:\/\/(task|list)\/(.+)$/)
             if (pathMatch) {
-              const [, type, id] = pathMatch;
+              const [, type, id] = pathMatch
 
-              if (type === "task") {
+              if (type === 'task') {
                 // Find the task and select it
-                const task = tasks.find(t => t.id === id);
+                const task = tasks.find(t => t.id === id)
                 if (task) {
                   // Navigate to the task's list first
-                  setSelectedListId(task.list_id);
+                  setSelectedListId(task.list_id)
                   // Then select the task to show detail panel
-                  setSelectedTaskId(id);
+                  setSelectedTaskId(id)
                 }
-              } else if (type === "list") {
+              }
+              else if (type === 'list') {
                 // Navigate to the list
-                setSelectedListId(id);
+                setSelectedListId(id)
                 // Clear task selection
-                setSelectedTaskId(null);
+                setSelectedTaskId(null)
               }
             }
           }
-        });
+        })
 
         return () => {
-          unlistenNewTask.then((fn) => fn());
-          unlistenSearch.then((fn) => fn());
-          unlistenPreferences.then((fn) => fn());
-          unlistenAbout.then((fn) => fn());
-          unlistenDeepLink.then((fn) => fn());
-        };
-      });
+          unlistenNewTask.then(fn => fn())
+          unlistenSearch.then(fn => fn())
+          unlistenPreferences.then(fn => fn())
+          unlistenAbout.then(fn => fn())
+          unlistenDeepLink.then(fn => fn())
+        }
+      })
     }
-  }, [selectedListId]);
+  }, [selectedListId])
 
   // Fetch all tasks when search dialog opens
   React.useEffect(() => {
     if (showSearch && tasks.length === 0) {
-      void fetchTasks();
+      void fetchTasks()
     }
-  }, [showSearch, tasks.length, fetchTasks]);
+  }, [showSearch, tasks.length, fetchTasks])
 
   // Search tasks across all lists
   const searchTasks = (query: string): Task[] => {
-    if (!query.trim()) return [];
-    const lowerQuery = query.toLowerCase();
-    return tasks.filter((task) =>
-      task.name.toLowerCase().includes(lowerQuery)
-    );
-  };
+    if (!query.trim())
+      return []
+    const lowerQuery = query.toLowerCase()
+    return tasks.filter(task =>
+      task.name.toLowerCase().includes(lowerQuery),
+    )
+  }
 
   // Handle logout
   const handleLogout = async () => {
-    setIsLoggingOut(true);
-    await logout();
-  };
+    setIsLoggingOut(true)
+    await logout()
+  }
 
   const handleAccountChanged = async () => {
-    clear();
-    setSelectedListId(null);
-    await fetchAll();
-  };
+    clear()
+    setSelectedListId(null)
+    await fetchAll()
+  }
 
   // Get selected list
-  const selectedList = selectedListId ? lists.find((l) => l.id === selectedListId) : null;
+  const selectedList = selectedListId ? lists.find(l => l.id === selectedListId) : null
 
   // Build nested task tree from flat task list
   const buildTaskTree = (rootTasks: Task[]): TaskWithSubtasks[] => {
-    const taskMap = new Map<string, TaskWithSubtasks>();
+    const taskMap = new Map<string, TaskWithSubtasks>()
 
     // First pass: create all task objects from the global tasks array
-    tasks.forEach(task => {
-      taskMap.set(task.id, { ...task, subtasks: [] });
-    });
+    tasks.forEach((task) => {
+      taskMap.set(task.id, { ...task, subtasks: [] })
+    })
 
     // Second pass: build tree structure
-    tasks.forEach(task => {
-      const taskWithSubtasks = taskMap.get(task.id)!;
+    tasks.forEach((task) => {
+      const taskWithSubtasks = taskMap.get(task.id)!
       if (task.parent_id) {
-        const parent = taskMap.get(task.parent_id);
+        const parent = taskMap.get(task.parent_id)
         if (parent) {
           if (!parent.subtasks) {
-            parent.subtasks = [];
+            parent.subtasks = []
           }
-          parent.subtasks.push(taskWithSubtasks);
+          parent.subtasks.push(taskWithSubtasks)
         }
       }
-    });
+    })
 
     // Get only the specified root tasks with their subtasks
     const result = rootTasks
       .map(task => taskMap.get(task.id))
-      .filter((task): task is TaskWithSubtasks => task !== undefined);
+      .filter((task): task is TaskWithSubtasks => task !== undefined)
 
     // Sort subtasks recursively
     const sortSubtasks = (taskList: TaskWithSubtasks[]) => {
-      taskList.forEach(task => {
+      taskList.forEach((task) => {
         if (task.subtasks && task.subtasks.length > 0) {
-          task.subtasks.sort((a, b) => a.sort_order - b.sort_order);
-          sortSubtasks(task.subtasks);
+          task.subtasks.sort((a, b) => a.sort_order - b.sort_order)
+          sortSubtasks(task.subtasks)
         }
-      });
-    };
+      })
+    }
 
-    sortSubtasks(result);
-    return result;
-  };
+    sortSubtasks(result)
+    return result
+  }
 
   // Get today's tasks (due_date or plan_date = today)
   const getTodayTasks = (): Task[] => {
-    const today = getLocalDateString(new Date()); // YYYY-MM-DD
-    return tasks.filter((task) =>
-      !task.parent_id && (task.due_date === today || task.plan_date === today)
-    ).sort((a, b) => a.sort_order - b.sort_order);
-  };
+    const today = getLocalDateString(new Date()) // YYYY-MM-DD
+    return tasks.filter(task =>
+      !task.parent_id && (task.due_date === today || task.plan_date === today),
+    ).sort((a, b) => a.sort_order - b.sort_order)
+  }
 
   // Get starred tasks
   const getStarredTasks = (): Task[] => {
-    return tasks.filter((task) =>
-      !task.parent_id && task.starred
-    ).sort((a, b) => a.sort_order - b.sort_order);
-  };
+    return tasks.filter(task =>
+      !task.parent_id && task.starred,
+    ).sort((a, b) => a.sort_order - b.sort_order)
+  }
 
   // Get overdue tasks (due_date in the past and not completed)
   const getOverdueTasks = (): Task[] => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayStr = getLocalDateString(today);
-    return tasks.filter((task) =>
-      !task.parent_id && !task.completed && task.due_date && task.due_date < todayStr
-    ).sort((a, b) => (a.due_date || '').localeCompare(b.due_date || ''));
-  };
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const todayStr = getLocalDateString(today)
+    return tasks.filter(task =>
+      !task.parent_id && !task.completed && task.due_date && task.due_date < todayStr,
+    ).sort((a, b) => (a.due_date || '').localeCompare(b.due_date || ''))
+  }
 
   // Get next 7 days tasks (due_date within next 7 days and not completed)
   const getNext7DaysTasks = (): Task[] => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayStr = getLocalDateString(today);
-    const next7Days = new Date(today);
-    next7Days.setDate(next7Days.getDate() + 7);
-    const next7DaysStr = getLocalDateString(next7Days);
-    return tasks.filter((task) =>
-      !task.parent_id && !task.completed && task.due_date && task.due_date >= todayStr && task.due_date <= next7DaysStr
-    ).sort((a, b) => (a.due_date || '').localeCompare(b.due_date || ''));
-  };
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const todayStr = getLocalDateString(today)
+    const next7Days = new Date(today)
+    next7Days.setDate(next7Days.getDate() + 7)
+    const next7DaysStr = getLocalDateString(next7Days)
+    return tasks.filter(task =>
+      !task.parent_id && !task.completed && task.due_date && task.due_date >= todayStr && task.due_date <= next7DaysStr,
+    ).sort((a, b) => (a.due_date || '').localeCompare(b.due_date || ''))
+  }
 
   // Get tasks with no date (no due_date and no plan_date, not completed)
   const getNoDateTasks = (): Task[] => {
-    return tasks.filter((task) =>
-      !task.parent_id && !task.completed && !task.due_date && !task.plan_date
-    ).sort((a, b) => a.sort_order - b.sort_order);
-  };
+    return tasks.filter(task =>
+      !task.parent_id && !task.completed && !task.due_date && !task.plan_date,
+    ).sort((a, b) => a.sort_order - b.sort_order)
+  }
 
   // Get display tasks based on current view
   const getDisplayTasks = (): TaskWithSubtasks[] => {
-    let tasks: Task[];
+    let tasks: Task[]
     if (currentView === 'today') {
-      tasks = getTodayTasks();
-    } else if (currentView === 'starred') {
-      tasks = getStarredTasks();
-    } else if (currentView === 'overdue') {
-      tasks = getOverdueTasks();
-    } else if (currentView === 'next7days') {
-      tasks = getNext7DaysTasks();
-    } else if (currentView === 'nodate') {
-      tasks = getNoDateTasks();
-    } else if (selectedListId) {
-      tasks = getRootTasks(selectedListId);
-    } else {
-      tasks = [];
+      tasks = getTodayTasks()
+    }
+    else if (currentView === 'starred') {
+      tasks = getStarredTasks()
+    }
+    else if (currentView === 'overdue') {
+      tasks = getOverdueTasks()
+    }
+    else if (currentView === 'next7days') {
+      tasks = getNext7DaysTasks()
+    }
+    else if (currentView === 'nodate') {
+      tasks = getNoDateTasks()
+    }
+    else if (selectedListId) {
+      tasks = getRootTasks(selectedListId)
+    }
+    else {
+      tasks = []
     }
 
     // Apply filters if any are active
-    const hasActiveFilters =
-      filterValues.status !== 'all' ||
-      filterValues.star !== 'all' ||
-      filterValues.date !== 'all';
+    const hasActiveFilters
+      = filterValues.status !== 'all'
+        || filterValues.star !== 'all'
+        || filterValues.date !== 'all'
 
     if (hasActiveFilters) {
-      tasks = filterTasksByFilterValue(tasks, filterValues);
+      tasks = filterTasksByFilterValue(tasks, filterValues)
     }
 
     // Build tree structure for all tasks
-    return buildTaskTree(tasks);
-  };
+    return buildTaskTree(tasks)
+  }
 
   // Get header title based on current view
   const getHeaderTitle = (): string => {
     if (currentView === 'today') {
-      return t('sidebar.today');
-    } else if (currentView === 'starred') {
-      return t('sidebar.starred');
-    } else if (currentView === 'overdue') {
-      return t('sidebar.overdue');
-    } else if (currentView === 'next7days') {
-      return t('sidebar.next7Days');
-    } else if (currentView === 'nodate') {
-      return t('sidebar.noDate');
-    } else if (currentView === 'calendar') {
-      return t('sidebar.calendar');
-    } else if (selectedList) {
-      return selectedList.name;
+      return t('sidebar.today')
     }
-    return t('sidebar.today');
-  };
+    else if (currentView === 'starred') {
+      return t('sidebar.starred')
+    }
+    else if (currentView === 'overdue') {
+      return t('sidebar.overdue')
+    }
+    else if (currentView === 'next7days') {
+      return t('sidebar.next7Days')
+    }
+    else if (currentView === 'nodate') {
+      return t('sidebar.noDate')
+    }
+    else if (currentView === 'calendar') {
+      return t('sidebar.calendar')
+    }
+    else if (selectedList) {
+      return selectedList.name
+    }
+    return t('sidebar.today')
+  }
 
   // Get move targets for tasks (all lists except current)
   const getMoveTargets = (): InboxMoveTarget[] => {
-    if (!selectedList) return [];
+    if (!selectedList)
+      return []
     return lists
-      .filter((list) => list.id !== selectedList.id)
+      .filter(list => list.id !== selectedList.id)
       .map((list) => {
-        const group = groups.find((g) => g.id === list.group_id);
+        const group = groups.find(g => g.id === list.group_id)
         return {
           listId: list.id,
           listName: list.name,
-          listIcon: list.icon || "📋",
-          groupName: group?.name || "",
-        };
-      });
-  };
+          listIcon: list.icon || '📋',
+          groupName: group?.name || '',
+        }
+      })
+  }
 
   // Fetch tasks when view changes
   React.useEffect(() => {
-    if (currentView === 'list' && !selectedListId) return;
+    if (currentView === 'list' && !selectedListId)
+      return
 
-    let isCancelled = false;
-    setIsLoadingTasks(true);
+    let isCancelled = false
+    setIsLoadingTasks(true)
 
     void fetchTasks()
       .catch((err) => {
-        console.error("Failed to fetch tasks:", err);
+        console.error('Failed to fetch tasks:', err)
       })
       .finally(() => {
         if (!isCancelled) {
-          setIsLoadingTasks(false);
+          setIsLoadingTasks(false)
         }
-      });
+      })
 
     return () => {
-      isCancelled = true;
-    };
-  }, [currentView, selectedListId, fetchTasks]);
+      isCancelled = true
+    }
+  }, [currentView, selectedListId, fetchTasks])
 
   React.useEffect(() => {
-    if (!selectedListId) return;
+    if (!selectedListId)
+      return
 
-    let isCancelled = false;
-    setIsLoadingTasks(true);
+    let isCancelled = false
+    setIsLoadingTasks(true)
 
     void fetchTasks()
       .catch((err) => {
-        console.error("Failed to fetch tasks:", err);
+        console.error('Failed to fetch tasks:', err)
       })
       .finally(() => {
         if (!isCancelled) {
-          setIsLoadingTasks(false);
+          setIsLoadingTasks(false)
         }
-      });
+      })
 
     return () => {
-      isCancelled = true;
-    };
-  }, [selectedListId, fetchTasks]);
+      isCancelled = true
+    }
+  }, [selectedListId, fetchTasks])
 
   // Configure sensors for @dnd-kit
   const groupSensors = useSensors(
@@ -1003,8 +1053,8 @@ export function DashboardPage() {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+    }),
+  )
 
   const listSensors = useSensors(
     useSensor(PointerSensor, {
@@ -1012,60 +1062,60 @@ export function DashboardPage() {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+    }),
+  )
 
   // Group drag handlers
   const handleGroupDragStart = (event: DragStartEvent) => {
-    setActiveGroupId(event.active.id);
-  };
+    setActiveGroupId(event.active.id)
+  }
 
   const handleGroupDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveGroupId(null);
+    const { active, over } = event
+    setActiveGroupId(null)
 
     if (over && active.id !== over.id) {
-      const fromIndex = groups.findIndex((g) => g.id === active.id);
-      const toIndex = groups.findIndex((g) => g.id === over.id);
+      const fromIndex = groups.findIndex(g => g.id === active.id)
+      const toIndex = groups.findIndex(g => g.id === over.id)
       if (fromIndex !== -1 && toIndex !== -1) {
-        const nextGroups = arrayMove(groups, fromIndex, toIndex);
-        void reorderGroups(nextGroups.map((g) => g.id));
+        const nextGroups = arrayMove(groups, fromIndex, toIndex)
+        void reorderGroups(nextGroups.map(g => g.id))
       }
     }
-  };
+  }
 
   // List drag handlers
   const handleListDragStart = (event: DragStartEvent, _groupId: string) => {
-    setActiveListId(event.active.id);
-  };
+    setActiveListId(event.active.id)
+  }
 
   const handleListDragEnd = (event: DragEndEvent, groupId: string) => {
-    const { active, over } = event;
-    setActiveListId(null);
+    const { active, over } = event
+    setActiveListId(null)
 
     if (over && active.id !== over.id) {
-      const groupLists = lists.filter((l) => l.group_id === groupId);
-      const fromIndex = groupLists.findIndex((l) => l.id === active.id);
-      const toIndex = groupLists.findIndex((l) => l.id === over.id);
+      const groupLists = lists.filter(l => l.group_id === groupId)
+      const fromIndex = groupLists.findIndex(l => l.id === active.id)
+      const toIndex = groupLists.findIndex(l => l.id === over.id)
       if (fromIndex !== -1 && toIndex !== -1) {
-        const nextLists = arrayMove(groupLists, fromIndex, toIndex);
-        void reorderLists(nextLists.map((l) => l.id));
+        const nextLists = arrayMove(groupLists, fromIndex, toIndex)
+        void reorderLists(nextLists.map(l => l.id))
       }
     }
-  };
+  }
 
   // Handle task reordering from TaskList component
   const handleReorder = async (listId: string, orderedIds: string[], parentId?: string) => {
-    await reorderTasks(orderedIds);
-  };
+    await reorderTasks(orderedIds)
+  }
 
   // Sortable Group Item component
   interface SortableGroupItemProps {
-    group: Group;
-    isExpanded: boolean;
-    onToggleExpand: () => void;
-    onContextMenu: (e: React.MouseEvent, group: Group) => void;
-    onDelete: (groupId: string, e?: React.MouseEvent) => void;
+    group: Group
+    isExpanded: boolean
+    onToggleExpand: () => void
+    onContextMenu: (e: React.MouseEvent, group: Group) => void
+    onDelete: (groupId: string, e?: React.MouseEvent) => void
   }
 
   function SortableGroupItem({ group, isExpanded, onToggleExpand, onContextMenu, onDelete }: SortableGroupItemProps) {
@@ -1076,49 +1126,49 @@ export function DashboardPage() {
       transform,
       transition,
       isDragging,
-    } = useSortable({ id: group.id });
+    } = useSortable({ id: group.id })
 
     const style: React.CSSProperties = {
       transform: CSS.Transform.toString(transform),
       transition,
       opacity: isDragging ? 0.5 : 1,
       zIndex: isDragging ? 50 : undefined,
-    };
+    }
 
     return (
-      <div ref={setNodeRef} style={style} className={isDragging ? "z-50" : ""}>
+      <div ref={setNodeRef} style={style} className={isDragging ? 'z-50' : ''}>
         <div
           className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors group select-none ${
-            isDragging ? "bg-stone-100 dark:bg-stone-800" : ""
+            isDragging ? 'bg-stone-100 dark:bg-stone-800' : ''
           }`}
           onClick={onToggleExpand}
-          onContextMenu={(e) => onContextMenu(e, group)}
+          onContextMenu={e => onContextMenu(e, group)}
         >
           {/* Drag Handle */}
           <DragHandle attributes={attributes} listeners={listeners} iconSize="sm" />
           <ChevronDown
-            className={`w-4 h-4 transition-transform ${isExpanded ? "" : "-rotate-90"}`}
+            className={`w-4 h-4 transition-transform ${isExpanded ? '' : '-rotate-90'}`}
           />
           <Folder className="w-5 h-5" style={{ color: group.color ?? undefined }} />
           <span className="flex-1 text-left truncate">{group.name}</span>
           <button
-            onClick={(e) => onDelete(group.id, e)}
+            onClick={e => onDelete(group.id, e)}
             className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-stone-300 dark:hover:bg-stone-600 text-stone-400 hover:text-red-500"
           >
             <X className="w-3 h-3" />
           </button>
         </div>
       </div>
-    );
+    )
   }
 
   // Sortable List Item component
   interface SortableListItemProps {
-    list: ListType;
-    isSelected: boolean;
-    onSelect: (listId: string, groupId: string) => void;
-    onContextMenu: (e: React.MouseEvent, list: ListType) => void;
-    groupId: string;
+    list: ListType
+    isSelected: boolean
+    onSelect: (listId: string, groupId: string) => void
+    onContextMenu: (e: React.MouseEvent, list: ListType) => void
+    groupId: string
   }
 
   function SortableListItem({ list, isSelected, onSelect, onContextMenu, groupId }: SortableListItemProps) {
@@ -1129,27 +1179,27 @@ export function DashboardPage() {
       transform,
       transition,
       isDragging,
-    } = useSortable({ id: list.id });
+    } = useSortable({ id: list.id })
 
     const style: React.CSSProperties = {
       transform: CSS.Transform.toString(transform),
       transition,
       opacity: isDragging ? 0.5 : 1,
       zIndex: isDragging ? 50 : undefined,
-    };
+    }
 
     return (
-      <div ref={setNodeRef} style={style} className={isDragging ? "z-50" : ""}>
+      <div ref={setNodeRef} style={style} className={isDragging ? 'z-50' : ''}>
         <div
           className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors select-none group ${
-            isDragging ? "bg-stone-100 dark:bg-stone-800" : ""
+            isDragging ? 'bg-stone-100 dark:bg-stone-800' : ''
           } ${
             isSelected
-              ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
-              : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
+              ? 'bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200'
+              : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'
           }`}
           onClick={() => onSelect(list.id, groupId)}
-          onContextMenu={(e) => onContextMenu(e, list)}
+          onContextMenu={e => onContextMenu(e, list)}
         >
           {/* Drag Handle */}
           <DragHandle attributes={attributes} listeners={listeners} iconSize="sm" />
@@ -1157,7 +1207,7 @@ export function DashboardPage() {
           <span className="truncate flex-1">{list.name}</span>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -1168,398 +1218,404 @@ export function DashboardPage() {
           <SheetContent side="left" className="p-0 w-64" showCloseButton={false}>
             {/* Sidebar Content */}
             <div className="h-full bg-stone-50 dark:bg-stone-900 flex flex-col">
-        {/* Logo */}
-        <div className="p-4 border-b border-stone-200 dark:border-stone-700">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-stone-800 to-stone-600 dark:from-stone-100 dark:to-stone-300 flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4 text-white dark:text-stone-900" />
-            </div>
-            <span className="text-lg font-semibold text-stone-900 dark:text-stone-100">PuraToDo</span>
-          </div>
-        </div>
-
-        {/* Quick Add */}
-        <div className="p-4">
-          <button
-            onClick={() => {
-              if (!selectedListId) {
-                alert(t("errors.selectListFirst"));
-                return;
-              }
-              setShowNewTaskInput(true);
-            }}
-            className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg bg-stone-900 dark:bg-stone-700 text-white dark:text-stone-100 text-sm font-medium hover:bg-stone-800 dark:hover:bg-stone-600 transition-all shadow-lg shadow-stone-900/20 dark:shadow-stone-900/40"
-          >
-            <Plus className="w-4 h-4" />
-            <span>{t("sidebar.addTask")}</span>
-          </button>
-        </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 px-3 overflow-y-auto">
-          {/* Smart Views section */}
-          <div>
-            <h3 className="px-3 py-2 text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
-              {t("sidebar.smartViews")}
-            </h3>
-            <div className="space-y-1">
-              <button
-                onClick={() => {
-                  setCurrentView('today');
-                  setSelectedListId(null);
-                }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                  currentView === 'today'
-                    ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
-                    : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
-                }`}
-              >
-                <CheckCircle2 className="w-5 h-5" />
-                <span>{t("sidebar.today")}</span>
-              </button>
-              <button
-                onClick={() => {
-                  setCurrentView('starred');
-                  setSelectedListId(null);
-                }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                  currentView === 'starred'
-                    ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
-                    : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
-                }`}
-              >
-                <Star className="w-5 h-5" />
-                <span>{t("sidebar.starred")}</span>
-              </button>
-              <button
-                onClick={() => {
-                  setCurrentView('overdue');
-                  setSelectedListId(null);
-                }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                  currentView === 'overdue'
-                    ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
-                    : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
-                }`}
-              >
-                <AlertTriangle className="w-5 h-5" />
-                <span>{t("sidebar.overdue")}</span>
-              </button>
-              <button
-                onClick={() => {
-                  setCurrentView('next7days');
-                  setSelectedListId(null);
-                }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                  currentView === 'next7days'
-                    ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
-                    : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
-                }`}
-              >
-                <CalendarDays className="w-5 h-5" />
-                <span>{t("sidebar.next7Days")}</span>
-              </button>
-              <button
-                onClick={() => {
-                  setCurrentView('nodate');
-                  setSelectedListId(null);
-                }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                  currentView === 'nodate'
-                    ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
-                    : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
-                }`}
-              >
-                <Circle className="w-5 h-5" />
-                <span>{t("sidebar.noDate")}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Calendar */}
-          <div className="mt-6">
-            <button
-              onClick={() => {
-                setCurrentView('calendar');
-                setSelectedListId(null);
-              }}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                currentView === 'calendar'
-                  ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
-                  : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
-              }`}
-            >
-              <Calendar className="w-5 h-5" />
-              <span>{t("sidebar.calendar")}</span>
-            </button>
-          </div>
-
-          {/* Groups section */}
-          <div className="mt-6">
-            <div className="flex items-center justify-between px-3 mb-2">
-              <h3 className="text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
-                {t("sidebar.groups")}
-              </h3>
-              <button
-                onClick={() => setShowNewGroupInput(true)}
-                className="p-1 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
-              >
-                <Plus className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* New group input */}
-            {showNewGroupInput && (
-              <div className="px-3 py-2 mb-2 bg-white dark:bg-stone-800 rounded-lg border border-stone-200 dark:border-stone-600">
-                <input
-                  type="text"
-                  value={newGroupName}
-                  onChange={(e) => setNewGroupName(e.target.value)}
-                  placeholder={t("sidebar.groupNamePlaceholder")}
-                  className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-stone-900 dark:text-stone-100 placeholder-stone-400"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleCreateGroup();
-                    if (e.key === "Escape") {
-                      setShowNewGroupInput(false);
-                      setNewGroupName("");
-                    }
-                  }}
-                />
-                <div className="flex items-center gap-1 mt-2">
-                  {GROUP_COLORS.map((color) => (
-                    <button
-                      key={color.value}
-                      onClick={() => setNewGroupColor(color.value)}
-                      className={`w-5 h-5 rounded-full transition-transform ${
-                        newGroupColor === color.value ? "ring-2 ring-offset-1 scale-110" : ""
-                      }`}
-                      style={{ backgroundColor: color.value }}
-                    />
-                  ))}
+              {/* Logo */}
+              <div className="p-4 border-b border-stone-200 dark:border-stone-700">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-stone-800 to-stone-600 dark:from-stone-100 dark:to-stone-300 flex items-center justify-center">
+                    <CheckCircle2 className="w-4 h-4 text-white dark:text-stone-900" />
+                  </div>
+                  <span className="text-lg font-semibold text-stone-900 dark:text-stone-100">PuraToDo</span>
                 </div>
-                <div className="flex items-center justify-end gap-2 mt-2">
+              </div>
+
+              {/* Quick Add */}
+              <div className="p-4">
+                <button
+                  onClick={() => {
+                    if (!selectedListId) {
+                      alert(t('errors.selectListFirst'))
+                      return
+                    }
+                    setShowNewTaskInput(true)
+                  }}
+                  className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg bg-stone-900 dark:bg-stone-700 text-white dark:text-stone-100 text-sm font-medium hover:bg-stone-800 dark:hover:bg-stone-600 transition-all shadow-lg shadow-stone-900/20 dark:shadow-stone-900/40"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>{t('sidebar.addTask')}</span>
+                </button>
+              </div>
+
+              {/* Navigation */}
+              <nav className="flex-1 px-3 overflow-y-auto">
+                {/* Smart Views section */}
+                <div>
+                  <h3 className="px-3 py-2 text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
+                    {t('sidebar.smartViews')}
+                  </h3>
+                  <div className="space-y-1">
+                    <button
+                      onClick={() => {
+                        setCurrentView('today')
+                        setSelectedListId(null)
+                      }}
+                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                        currentView === 'today'
+                          ? 'bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200'
+                          : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'
+                      }`}
+                    >
+                      <CheckCircle2 className="w-5 h-5" />
+                      <span>{t('sidebar.today')}</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setCurrentView('starred')
+                        setSelectedListId(null)
+                      }}
+                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                        currentView === 'starred'
+                          ? 'bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200'
+                          : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'
+                      }`}
+                    >
+                      <Star className="w-5 h-5" />
+                      <span>{t('sidebar.starred')}</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setCurrentView('overdue')
+                        setSelectedListId(null)
+                      }}
+                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                        currentView === 'overdue'
+                          ? 'bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200'
+                          : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'
+                      }`}
+                    >
+                      <AlertTriangle className="w-5 h-5" />
+                      <span>{t('sidebar.overdue')}</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setCurrentView('next7days')
+                        setSelectedListId(null)
+                      }}
+                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                        currentView === 'next7days'
+                          ? 'bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200'
+                          : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'
+                      }`}
+                    >
+                      <CalendarDays className="w-5 h-5" />
+                      <span>{t('sidebar.next7Days')}</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setCurrentView('nodate')
+                        setSelectedListId(null)
+                      }}
+                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                        currentView === 'nodate'
+                          ? 'bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200'
+                          : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'
+                      }`}
+                    >
+                      <Circle className="w-5 h-5" />
+                      <span>{t('sidebar.noDate')}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Calendar */}
+                <div className="mt-6">
                   <button
                     onClick={() => {
-                      setShowNewGroupInput(false);
-                      setNewGroupName("");
+                      setCurrentView('calendar')
+                      setSelectedListId(null)
                     }}
-                    className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                      currentView === 'calendar'
+                        ? 'bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200'
+                        : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'
+                    }`}
                   >
-                    <X className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={handleCreateGroup}
-                    disabled={isCreatingGroup || !newGroupName.trim()}
-                    className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-green-500 disabled:opacity-50"
-                  >
-                    <Check className="w-4 h-4" />
+                    <Calendar className="w-5 h-5" />
+                    <span>{t('sidebar.calendar')}</span>
                   </button>
                 </div>
-              </div>
-            )}
 
-            {/* Loading state */}
-            {isLoading && groups.length === 0 && (
-              <div className="space-y-2 px-3 py-2">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Skeleton className="w-4 h-4 rounded" />
-                      <Skeleton className="flex-1 h-4" />
+                {/* Groups section */}
+                <div className="mt-6">
+                  <div className="flex items-center justify-between px-3 mb-2">
+                    <h3 className="text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
+                      {t('sidebar.groups')}
+                    </h3>
+                    <button
+                      onClick={() => setShowNewGroupInput(true)}
+                      className="p-1 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* New group input */}
+                  {showNewGroupInput && (
+                    <div className="px-3 py-2 mb-2 bg-white dark:bg-stone-800 rounded-lg border border-stone-200 dark:border-stone-600">
+                      <input
+                        type="text"
+                        value={newGroupName}
+                        onChange={e => setNewGroupName(e.target.value)}
+                        placeholder={t('sidebar.groupNamePlaceholder')}
+                        className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-stone-900 dark:text-stone-100 placeholder-stone-400"
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter')
+                            handleCreateGroup()
+                          if (e.key === 'Escape') {
+                            setShowNewGroupInput(false)
+                            setNewGroupName('')
+                          }
+                        }}
+                      />
+                      <div className="flex items-center gap-1 mt-2">
+                        {GROUP_COLORS.map(color => (
+                          <button
+                            key={color.value}
+                            onClick={() => setNewGroupColor(color.value)}
+                            className={`w-5 h-5 rounded-full transition-transform ${
+                              newGroupColor === color.value ? 'ring-2 ring-offset-1 scale-110' : ''
+                            }`}
+                            style={{ backgroundColor: color.value }}
+                          />
+                        ))}
+                      </div>
+                      <div className="flex items-center justify-end gap-2 mt-2">
+                        <button
+                          onClick={() => {
+                            setShowNewGroupInput(false)
+                            setNewGroupName('')
+                          }}
+                          className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={handleCreateGroup}
+                          disabled={isCreatingGroup || !newGroupName.trim()}
+                          className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-green-500 disabled:opacity-50"
+                        >
+                          <Check className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
-                    <div className="ml-6 space-y-1">
-                      <Skeleton className="h-3 w-24" />
-                      <Skeleton className="h-3 w-20" />
+                  )}
+
+                  {/* Loading state */}
+                  {isLoading && groups.length === 0 && (
+                    <div className="space-y-2 px-3 py-2">
+                      {[...Array.from({ length: 3 })].map((_, i) => (
+                        <div key={i} className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Skeleton className="w-4 h-4 rounded" />
+                            <Skeleton className="flex-1 h-4" />
+                          </div>
+                          <div className="ml-6 space-y-1">
+                            <Skeleton className="h-3 w-24" />
+                            <Skeleton className="h-3 w-20" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Error state */}
+                  {error && (
+                    <div className="px-3 py-4 text-sm text-red-500 dark:text-red-400">{error}</div>
+                  )}
+
+                  {/* Groups list */}
+                  <DndContext
+                    sensors={groupSensors}
+                    collisionDetection={closestCenter}
+                    onDragStart={handleGroupDragStart}
+                    onDragEnd={handleGroupDragEnd}
+                  >
+                    <SortableContext
+                      items={groups.map(g => g.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <div className="space-y-1">
+                        {groups.map((group) => {
+                          const groupLists = getListsForGroup(group.id)
+                          const isExpanded = expandedGroups.has(group.id)
+
+                          return (
+                            <div key={group.id}>
+                              <SortableGroupItem
+                                group={group}
+                                isExpanded={isExpanded}
+                                onToggleExpand={() => toggleGroup(group.id)}
+                                onContextMenu={handleContextMenu}
+                                onDelete={handleDeleteGroup}
+                              />
+
+                              {/* Lists under group */}
+                              {isExpanded && (
+                                <DndContext
+                                  sensors={listSensors}
+                                  collisionDetection={closestCenter}
+                                  onDragStart={e => handleListDragStart(e, group.id)}
+                                  onDragEnd={e => handleListDragEnd(e, group.id)}
+                                >
+                                  <SortableContext
+                                    items={groupLists.map(l => l.id)}
+                                    strategy={verticalListSortingStrategy}
+                                  >
+                                    <div className="ml-6 mt-1 space-y-1">
+                                      {groupLists.length === 0 && !showNewListInput && (
+                                        <div className="px-3 py-3 text-center">
+                                          <p className="text-xs text-stone-400 dark:text-stone-500 mb-2">
+                                            {t('listPanel.noListsYet')}
+                                          </p>
+                                        </div>
+                                      )}
+                                      {groupLists.map(list => (
+                                        <SortableListItem
+                                          key={list.id}
+                                          list={list}
+                                          groupId={group.id}
+                                          isSelected={selectedListId === list.id}
+                                          onSelect={(listId) => {
+                                            setSelectedListId(listId)
+                                            setCurrentView('list')
+                                          }}
+                                          onContextMenu={handleListContextMenu}
+                                        />
+                                      ))}
+
+                                      {/* New list input */}
+                                      {showNewListInput === group.id
+                                        ? (
+                                            <div className="px-3 py-2 bg-white dark:bg-stone-800 rounded-lg border border-stone-200 dark:border-stone-600">
+                                              <input
+                                                type="text"
+                                                value={newListName}
+                                                onChange={e => setNewListName(e.target.value)}
+                                                placeholder={t('listPanel.listNamePlaceholder')}
+                                                className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-stone-900 dark:text-stone-100 placeholder-stone-400"
+                                                autoFocus
+                                                onKeyDown={(e) => {
+                                                  if (e.key === 'Enter')
+                                                    handleCreateList(group.id)
+                                                  if (e.key === 'Escape') {
+                                                    setShowNewListInput(null)
+                                                    setNewListName('')
+                                                  }
+                                                }}
+                                              />
+                                              <div className="flex items-center justify-end gap-2 mt-2">
+                                                <button
+                                                  onClick={() => {
+                                                    setShowNewListInput(null)
+                                                    setNewListName('')
+                                                  }}
+                                                  className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
+                                                >
+                                                  <X className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                  onClick={() => handleCreateList(group.id)}
+                                                  disabled={isCreatingList || !newListName.trim()}
+                                                  className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-green-500 disabled:opacity-50"
+                                                >
+                                                  <Check className="w-4 h-4" />
+                                                </button>
+                                              </div>
+                                            </div>
+                                          )
+                                        : (
+                                            <button
+                                              onClick={() => setShowNewListInput(group.id)}
+                                              className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-stone-400 dark:text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
+                                            >
+                                              <Plus className="w-4 h-4" />
+                                              <span>{t('listPanel.addList')}</span>
+                                            </button>
+                                          )}
+                                    </div>
+                                  </SortableContext>
+                                </DndContext>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </SortableContext>
+                  </DndContext>
+
+                  {/* Empty state */}
+                  {!isLoading && groups.length === 0 && !showNewGroupInput && (
+                    <div className="px-3 py-4 text-sm text-stone-400 dark:text-stone-500">
+                      {t('sidebar.noGroups')}
+                    </div>
+                  )}
+                </div>
+              </nav>
+
+              {/* User section */}
+              <div className="p-4 border-t border-stone-200 dark:border-stone-700">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-stone-700 to-stone-500 flex items-center justify-center text-white dark:text-stone-100 text-sm font-medium">
+                      {user?.email?.[0]?.toUpperCase() || 'U'}
+                    </div>
+                    <div className="text-sm">
+                      <p className="font-medium text-stone-900 dark:text-stone-100 truncate max-w-24">
+                        {user?.name || user?.email?.split('@')[0] || 'User'}
+                      </p>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-
-            {/* Error state */}
-            {error && (
-              <div className="px-3 py-4 text-sm text-red-500 dark:text-red-400">{error}</div>
-            )}
-
-            {/* Groups list */}
-            <DndContext
-              sensors={groupSensors}
-              collisionDetection={closestCenter}
-              onDragStart={handleGroupDragStart}
-              onDragEnd={handleGroupDragEnd}
-            >
-              <SortableContext
-                items={groups.map((g) => g.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                <div className="space-y-1">
-                  {groups.map((group) => {
-                    const groupLists = getListsForGroup(group.id);
-                    const isExpanded = expandedGroups.has(group.id);
-
-                    return (
-                      <div key={group.id}>
-                        <SortableGroupItem
-                          group={group}
-                          isExpanded={isExpanded}
-                          onToggleExpand={() => toggleGroup(group.id)}
-                          onContextMenu={handleContextMenu}
-                          onDelete={handleDeleteGroup}
-                        />
-
-                        {/* Lists under group */}
-                        {isExpanded && (
-                          <DndContext
-                            sensors={listSensors}
-                            collisionDetection={closestCenter}
-                            onDragStart={(e) => handleListDragStart(e, group.id)}
-                            onDragEnd={(e) => handleListDragEnd(e, group.id)}
-                          >
-                            <SortableContext
-                              items={groupLists.map((l) => l.id)}
-                              strategy={verticalListSortingStrategy}
-                            >
-                              <div className="ml-6 mt-1 space-y-1">
-                                {groupLists.length === 0 && !showNewListInput && (
-                                  <div className="px-3 py-3 text-center">
-                                    <p className="text-xs text-stone-400 dark:text-stone-500 mb-2">
-                                      {t("listPanel.noListsYet")}
-                                    </p>
-                                  </div>
-                                )}
-                                {groupLists.map((list) => (
-                                  <SortableListItem
-                                    key={list.id}
-                                    list={list}
-                                    groupId={group.id}
-                                    isSelected={selectedListId === list.id}
-                                    onSelect={(listId) => {
-                                      setSelectedListId(listId);
-                                      setCurrentView('list');
-                                    }}
-                                    onContextMenu={handleListContextMenu}
-                                  />
-                                ))}
-
-                                {/* New list input */}
-                                {showNewListInput === group.id ? (
-                                  <div className="px-3 py-2 bg-white dark:bg-stone-800 rounded-lg border border-stone-200 dark:border-stone-600">
-                                    <input
-                                      type="text"
-                                      value={newListName}
-                                      onChange={(e) => setNewListName(e.target.value)}
-                                      placeholder={t("listPanel.listNamePlaceholder")}
-                                      className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-stone-900 dark:text-stone-100 placeholder-stone-400"
-                                      autoFocus
-                                      onKeyDown={(e) => {
-                                        if (e.key === "Enter") handleCreateList(group.id);
-                                        if (e.key === "Escape") {
-                                          setShowNewListInput(null);
-                                          setNewListName("");
-                                        }
-                                      }}
-                                    />
-                                    <div className="flex items-center justify-end gap-2 mt-2">
-                                      <button
-                                        onClick={() => {
-                                          setShowNewListInput(null);
-                                          setNewListName("");
-                                        }}
-                                        className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
-                                      >
-                                        <X className="w-4 h-4" />
-                                      </button>
-                                      <button
-                                        onClick={() => handleCreateList(group.id)}
-                                        disabled={isCreatingList || !newListName.trim()}
-                                        className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-green-500 disabled:opacity-50"
-                                      >
-                                        <Check className="w-4 h-4" />
-                                      </button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <button
-                                    onClick={() => setShowNewListInput(group.id)}
-                                    className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-stone-400 dark:text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
-                                  >
-                                    <Plus className="w-4 h-4" />
-                                    <span>{t("listPanel.addList")}</span>
-                                  </button>
-                                )}
-                              </div>
-                            </SortableContext>
-                          </DndContext>
-                        )}
-                      </div>
-                    );
-                  })}
+                  <div className="flex items-center gap-1">
+                    <AccountSettingsDialog
+                      onAccountChanged={handleAccountChanged}
+                      trigger={(
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
+                          title={t('account.accountSettings')}
+                        >
+                          <Users className="w-4 h-4" />
+                        </Button>
+                      )}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+                      className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
+                      title={resolvedTheme === 'dark' ? t('account.switchToLightMode') : t('account.switchToDarkMode')}
+                    >
+                      {resolvedTheme === 'dark'
+                        ? (
+                            <Sun className="w-4 h-4" />
+                          )
+                        : (
+                            <Moon className="w-4 h-4" />
+                          )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleLogout}
+                      disabled={isLoggingOut}
+                      className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
+                    >
+                      <LogOut className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
-              </SortableContext>
-            </DndContext>
-
-              {/* Empty state */}
-              {!isLoading && groups.length === 0 && !showNewGroupInput && (
-                <div className="px-3 py-4 text-sm text-stone-400 dark:text-stone-500">
-                  {t("sidebar.noGroups")}
-                </div>
-              )}
-            </div>
-        </nav>
-
-        {/* User section */}
-        <div className="p-4 border-t border-stone-200 dark:border-stone-700">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-stone-700 to-stone-500 flex items-center justify-center text-white dark:text-stone-100 text-sm font-medium">
-                {user?.email?.[0]?.toUpperCase() || "U"}
               </div>
-              <div className="text-sm">
-                <p className="font-medium text-stone-900 dark:text-stone-100 truncate max-w-24">
-                  {user?.name || user?.email?.split("@")[0] || "User"}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-1">
-              <AccountSettingsDialog
-                onAccountChanged={handleAccountChanged}
-                trigger={(
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
-                    title={t("account.accountSettings")}
-                  >
-                    <Users className="w-4 h-4" />
-                  </Button>
-                )}
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
-                title={resolvedTheme === "dark" ? t("account.switchToLightMode") : t("account.switchToDarkMode")}
-              >
-                {resolvedTheme === "dark" ? (
-                  <Sun className="w-4 h-4" />
-                ) : (
-                  <Moon className="w-4 h-4" />
-                )}
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleLogout}
-                disabled={isLoggingOut}
-                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
-              >
-                <LogOut className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
             </div>
           </SheetContent>
         </Sheet>
@@ -1568,400 +1624,406 @@ export function DashboardPage() {
       {/* Desktop Sidebar - fixed (sm and above) */}
       {!showSidebarSheet && (
         <aside className="w-64 bg-stone-50 dark:bg-stone-900 border-r border-stone-200 dark:border-stone-700 flex flex-col">
-        {/* Logo */}
-        <div className="p-4 border-b border-stone-200 dark:border-stone-700">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-stone-800 to-stone-600 dark:from-stone-100 dark:to-stone-300 flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4 text-white dark:text-stone-900" />
-            </div>
-            <span className="text-lg font-semibold text-stone-900 dark:text-stone-100">PuraToDo</span>
-          </div>
-        </div>
-
-        {/* Quick Add */}
-        <div className="p-4">
-          <button
-            onClick={() => {
-              if (!selectedListId) {
-                alert(t("errors.selectListFirst"));
-                return;
-              }
-              setShowNewTaskInput(true);
-            }}
-            className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg bg-stone-900 dark:bg-stone-700 text-white dark:text-stone-100 text-sm font-medium hover:bg-stone-800 dark:hover:bg-stone-600 transition-all shadow-lg shadow-stone-900/20 dark:shadow-stone-900/40"
-          >
-            <Plus className="w-4 h-4" />
-            <span>{t("sidebar.addTask")}</span>
-          </button>
-        </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 px-3 overflow-y-auto">
-          {/* Smart Views section */}
-          <div>
-            <h3 className="px-3 py-2 text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
-              {t("sidebar.smartViews")}
-            </h3>
-            <div className="space-y-1">
-              <button
-                onClick={() => {
-                  setCurrentView('today');
-                  setSelectedListId(null);
-                }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                  currentView === 'today'
-                    ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
-                    : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
-                }`}
-              >
-                <CheckCircle2 className="w-5 h-5" />
-                <span>{t("sidebar.today")}</span>
-              </button>
-              <button
-                onClick={() => {
-                  setCurrentView('starred');
-                  setSelectedListId(null);
-                }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                  currentView === 'starred'
-                    ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
-                    : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
-                }`}
-              >
-                <Star className="w-5 h-5" />
-                <span>{t("sidebar.starred")}</span>
-              </button>
-              <button
-                onClick={() => {
-                  setCurrentView('overdue');
-                  setSelectedListId(null);
-                }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                  currentView === 'overdue'
-                    ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
-                    : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
-                }`}
-              >
-                <AlertTriangle className="w-5 h-5" />
-                <span>{t("sidebar.overdue")}</span>
-              </button>
-              <button
-                onClick={() => {
-                  setCurrentView('next7days');
-                  setSelectedListId(null);
-                }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                  currentView === 'next7days'
-                    ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
-                    : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
-                }`}
-              >
-                <CalendarDays className="w-5 h-5" />
-                <span>{t("sidebar.next7Days")}</span>
-              </button>
-              <button
-                onClick={() => {
-                  setCurrentView('nodate');
-                  setSelectedListId(null);
-                }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                  currentView === 'nodate'
-                    ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
-                    : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
-                }`}
-              >
-                <Circle className="w-5 h-5" />
-                <span>{t("sidebar.noDate")}</span>
-              </button>
+          {/* Logo */}
+          <div className="p-4 border-b border-stone-200 dark:border-stone-700">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-stone-800 to-stone-600 dark:from-stone-100 dark:to-stone-300 flex items-center justify-center">
+                <CheckCircle2 className="w-4 h-4 text-white dark:text-stone-900" />
+              </div>
+              <span className="text-lg font-semibold text-stone-900 dark:text-stone-100">PuraToDo</span>
             </div>
           </div>
 
-          {/* Calendar */}
-          <div className="mt-6">
+          {/* Quick Add */}
+          <div className="p-4">
             <button
               onClick={() => {
-                setCurrentView('calendar');
-                setSelectedListId(null);
+                if (!selectedListId) {
+                  alert(t('errors.selectListFirst'))
+                  return
+                }
+                setShowNewTaskInput(true)
               }}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                currentView === 'calendar'
-                  ? "bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200"
-                  : "text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
-              }`}
+              className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg bg-stone-900 dark:bg-stone-700 text-white dark:text-stone-100 text-sm font-medium hover:bg-stone-800 dark:hover:bg-stone-600 transition-all shadow-lg shadow-stone-900/20 dark:shadow-stone-900/40"
             >
-              <Calendar className="w-5 h-5" />
-              <span>{t("sidebar.calendar")}</span>
+              <Plus className="w-4 h-4" />
+              <span>{t('sidebar.addTask')}</span>
             </button>
           </div>
 
-          {/* Groups section */}
-          <div className="mt-6">
-            <div className="flex items-center justify-between px-3 mb-2">
-              <h3 className="text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
-                {t("sidebar.groups")}
+          {/* Navigation */}
+          <nav className="flex-1 px-3 overflow-y-auto">
+            {/* Smart Views section */}
+            <div>
+              <h3 className="px-3 py-2 text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
+                {t('sidebar.smartViews')}
               </h3>
+              <div className="space-y-1">
+                <button
+                  onClick={() => {
+                    setCurrentView('today')
+                    setSelectedListId(null)
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                    currentView === 'today'
+                      ? 'bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200'
+                      : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'
+                  }`}
+                >
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span>{t('sidebar.today')}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setCurrentView('starred')
+                    setSelectedListId(null)
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                    currentView === 'starred'
+                      ? 'bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200'
+                      : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'
+                  }`}
+                >
+                  <Star className="w-5 h-5" />
+                  <span>{t('sidebar.starred')}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setCurrentView('overdue')
+                    setSelectedListId(null)
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                    currentView === 'overdue'
+                      ? 'bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200'
+                      : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'
+                  }`}
+                >
+                  <AlertTriangle className="w-5 h-5" />
+                  <span>{t('sidebar.overdue')}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setCurrentView('next7days')
+                    setSelectedListId(null)
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                    currentView === 'next7days'
+                      ? 'bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200'
+                      : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'
+                  }`}
+                >
+                  <CalendarDays className="w-5 h-5" />
+                  <span>{t('sidebar.next7Days')}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setCurrentView('nodate')
+                    setSelectedListId(null)
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                    currentView === 'nodate'
+                      ? 'bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200'
+                      : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'
+                  }`}
+                >
+                  <Circle className="w-5 h-5" />
+                  <span>{t('sidebar.noDate')}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Calendar */}
+            <div className="mt-6">
               <button
-                onClick={() => setShowNewGroupInput(true)}
-                className="p-1 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
+                onClick={() => {
+                  setCurrentView('calendar')
+                  setSelectedListId(null)
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  currentView === 'calendar'
+                    ? 'bg-stone-100 dark:bg-stone-800/30 text-stone-800 dark:text-stone-200'
+                    : 'text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'
+                }`}
               >
-                <Plus className="w-4 h-4" />
+                <Calendar className="w-5 h-5" />
+                <span>{t('sidebar.calendar')}</span>
               </button>
             </div>
 
-            {/* New group input */}
-            {showNewGroupInput && (
-              <div className="px-3 py-2 mb-2 bg-white dark:bg-stone-800 rounded-lg border border-stone-200 dark:border-stone-600">
-                <input
-                  type="text"
-                  value={newGroupName}
-                  onChange={(e) => setNewGroupName(e.target.value)}
-                  placeholder={t("sidebar.groupNamePlaceholder")}
-                  className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-stone-900 dark:text-stone-100 placeholder-stone-400"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleCreateGroup();
-                    if (e.key === "Escape") {
-                      setShowNewGroupInput(false);
-                      setNewGroupName("");
-                    }
-                  }}
-                />
-                <div className="flex items-center gap-1 mt-2">
-                  {GROUP_COLORS.map((color) => (
+            {/* Groups section */}
+            <div className="mt-6">
+              <div className="flex items-center justify-between px-3 mb-2">
+                <h3 className="text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
+                  {t('sidebar.groups')}
+                </h3>
+                <button
+                  onClick={() => setShowNewGroupInput(true)}
+                  className="p-1 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* New group input */}
+              {showNewGroupInput && (
+                <div className="px-3 py-2 mb-2 bg-white dark:bg-stone-800 rounded-lg border border-stone-200 dark:border-stone-600">
+                  <input
+                    type="text"
+                    value={newGroupName}
+                    onChange={e => setNewGroupName(e.target.value)}
+                    placeholder={t('sidebar.groupNamePlaceholder')}
+                    className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-stone-900 dark:text-stone-100 placeholder-stone-400"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter')
+                        handleCreateGroup()
+                      if (e.key === 'Escape') {
+                        setShowNewGroupInput(false)
+                        setNewGroupName('')
+                      }
+                    }}
+                  />
+                  <div className="flex items-center gap-1 mt-2">
+                    {GROUP_COLORS.map(color => (
+                      <button
+                        key={color.value}
+                        onClick={() => setNewGroupColor(color.value)}
+                        className={`w-5 h-5 rounded-full transition-transform ${
+                          newGroupColor === color.value ? 'ring-2 ring-offset-1 scale-110' : ''
+                        }`}
+                        style={{ backgroundColor: color.value }}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-end gap-2 mt-2">
                     <button
-                      key={color.value}
-                      onClick={() => setNewGroupColor(color.value)}
-                      className={`w-5 h-5 rounded-full transition-transform ${
-                        newGroupColor === color.value ? "ring-2 ring-offset-1 scale-110" : ""
-                      }`}
-                      style={{ backgroundColor: color.value }}
-                    />
+                      onClick={() => {
+                        setShowNewGroupInput(false)
+                        setNewGroupName('')
+                      }}
+                      className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={handleCreateGroup}
+                      disabled={isCreatingGroup || !newGroupName.trim()}
+                      className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-green-500 disabled:opacity-50"
+                    >
+                      <Check className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Loading state */}
+              {isLoading && groups.length === 0 && (
+                <div className="space-y-2 px-3 py-2">
+                  {[...Array.from({ length: 3 })].map((_, i) => (
+                    <div key={i} className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Skeleton className="w-4 h-4 rounded" />
+                        <Skeleton className="flex-1 h-4" />
+                      </div>
+                      <div className="ml-6 space-y-1">
+                        <Skeleton className="h-3 w-24" />
+                        <Skeleton className="h-3 w-20" />
+                      </div>
+                    </div>
                   ))}
                 </div>
-                <div className="flex items-center justify-end gap-2 mt-2">
-                  <button
-                    onClick={() => {
-                      setShowNewGroupInput(false);
-                      setNewGroupName("");
-                    }}
-                    className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={handleCreateGroup}
-                    disabled={isCreatingGroup || !newGroupName.trim()}
-                    className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-green-500 disabled:opacity-50"
-                  >
-                    <Check className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            )}
+              )}
 
-            {/* Loading state */}
-            {isLoading && groups.length === 0 && (
-              <div className="space-y-2 px-3 py-2">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Skeleton className="w-4 h-4 rounded" />
-                      <Skeleton className="flex-1 h-4" />
-                    </div>
-                    <div className="ml-6 space-y-1">
-                      <Skeleton className="h-3 w-24" />
-                      <Skeleton className="h-3 w-20" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+              {/* Error state */}
+              {error && (
+                <div className="px-3 py-4 text-sm text-red-500 dark:text-red-400">{error}</div>
+              )}
 
-            {/* Error state */}
-            {error && (
-              <div className="px-3 py-4 text-sm text-red-500 dark:text-red-400">{error}</div>
-            )}
-
-            {/* Groups list */}
-            <DndContext
-              sensors={groupSensors}
-              collisionDetection={closestCenter}
-              onDragStart={handleGroupDragStart}
-              onDragEnd={handleGroupDragEnd}
-            >
-              <SortableContext
-                items={groups.map((g) => g.id)}
-                strategy={verticalListSortingStrategy}
+              {/* Groups list */}
+              <DndContext
+                sensors={groupSensors}
+                collisionDetection={closestCenter}
+                onDragStart={handleGroupDragStart}
+                onDragEnd={handleGroupDragEnd}
               >
-                <div className="space-y-1">
-                  {groups.map((group) => {
-                    const groupLists = getListsForGroup(group.id);
-                    const isExpanded = expandedGroups.has(group.id);
+                <SortableContext
+                  items={groups.map(g => g.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-1">
+                    {groups.map((group) => {
+                      const groupLists = getListsForGroup(group.id)
+                      const isExpanded = expandedGroups.has(group.id)
 
-                    return (
-                      <div key={group.id}>
-                        <SortableGroupItem
-                          group={group}
-                          isExpanded={isExpanded}
-                          onToggleExpand={() => toggleGroup(group.id)}
-                          onContextMenu={handleContextMenu}
-                          onDelete={handleDeleteGroup}
-                        />
+                      return (
+                        <div key={group.id}>
+                          <SortableGroupItem
+                            group={group}
+                            isExpanded={isExpanded}
+                            onToggleExpand={() => toggleGroup(group.id)}
+                            onContextMenu={handleContextMenu}
+                            onDelete={handleDeleteGroup}
+                          />
 
-                        {/* Lists under group */}
-                        {isExpanded && (
-                          <DndContext
-                            sensors={listSensors}
-                            collisionDetection={closestCenter}
-                            onDragStart={(e) => handleListDragStart(e, group.id)}
-                            onDragEnd={(e) => handleListDragEnd(e, group.id)}
-                          >
-                            <SortableContext
-                              items={groupLists.map((l) => l.id)}
-                              strategy={verticalListSortingStrategy}
+                          {/* Lists under group */}
+                          {isExpanded && (
+                            <DndContext
+                              sensors={listSensors}
+                              collisionDetection={closestCenter}
+                              onDragStart={e => handleListDragStart(e, group.id)}
+                              onDragEnd={e => handleListDragEnd(e, group.id)}
                             >
-                              <div className="ml-6 mt-1 space-y-1">
-                                {groupLists.length === 0 && !showNewListInput && (
-                                  <div className="px-3 py-3 text-center">
-                                    <p className="text-xs text-stone-400 dark:text-stone-500 mb-2">
-                                      {t("listPanel.noListsYet")}
-                                    </p>
-                                  </div>
-                                )}
-                                {groupLists.map((list) => (
-                                  <SortableListItem
-                                    key={list.id}
-                                    list={list}
-                                    groupId={group.id}
-                                    isSelected={selectedListId === list.id}
-                                    onSelect={(listId) => {
-                                      setSelectedListId(listId);
-                                      setCurrentView('list');
-                                      setSidebarOpen(false); // Close mobile sidebar on selection
-                                    }}
-                                    onContextMenu={handleListContextMenu}
-                                  />
-                                ))}
-
-                                {/* New list input */}
-                                {showNewListInput === group.id ? (
-                                  <div className="px-3 py-2 bg-white dark:bg-stone-800 rounded-lg border border-stone-200 dark:border-stone-600">
-                                    <input
-                                      type="text"
-                                      value={newListName}
-                                      onChange={(e) => setNewListName(e.target.value)}
-                                      placeholder={t("listPanel.listNamePlaceholder")}
-                                      className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-stone-900 dark:text-stone-100 placeholder-stone-400"
-                                      autoFocus
-                                      onKeyDown={(e) => {
-                                        if (e.key === "Enter") handleCreateList(group.id);
-                                        if (e.key === "Escape") {
-                                          setShowNewListInput(null);
-                                          setNewListName("");
-                                        }
-                                      }}
-                                    />
-                                    <div className="flex items-center justify-end gap-2 mt-2">
-                                      <button
-                                        onClick={() => {
-                                          setShowNewListInput(null);
-                                          setNewListName("");
-                                        }}
-                                        className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
-                                      >
-                                        <X className="w-4 h-4" />
-                                      </button>
-                                      <button
-                                        onClick={() => handleCreateList(group.id)}
-                                        disabled={isCreatingList || !newListName.trim()}
-                                        className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-green-500 disabled:opacity-50"
-                                      >
-                                        <Check className="w-4 h-4" />
-                                      </button>
+                              <SortableContext
+                                items={groupLists.map(l => l.id)}
+                                strategy={verticalListSortingStrategy}
+                              >
+                                <div className="ml-6 mt-1 space-y-1">
+                                  {groupLists.length === 0 && !showNewListInput && (
+                                    <div className="px-3 py-3 text-center">
+                                      <p className="text-xs text-stone-400 dark:text-stone-500 mb-2">
+                                        {t('listPanel.noListsYet')}
+                                      </p>
                                     </div>
-                                  </div>
-                                ) : (
-                                  <button
-                                    onClick={() => setShowNewListInput(group.id)}
-                                    className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-stone-400 dark:text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
-                                  >
-                                    <Plus className="w-4 h-4" />
-                                    <span>{t("listPanel.addList")}</span>
-                                  </button>
-                                )}
-                              </div>
-                            </SortableContext>
-                          </DndContext>
-                        )}
+                                  )}
+                                  {groupLists.map(list => (
+                                    <SortableListItem
+                                      key={list.id}
+                                      list={list}
+                                      groupId={group.id}
+                                      isSelected={selectedListId === list.id}
+                                      onSelect={(listId) => {
+                                        setSelectedListId(listId)
+                                        setCurrentView('list')
+                                        setSidebarOpen(false) // Close mobile sidebar on selection
+                                      }}
+                                      onContextMenu={handleListContextMenu}
+                                    />
+                                  ))}
+
+                                  {/* New list input */}
+                                  {showNewListInput === group.id
+                                    ? (
+                                        <div className="px-3 py-2 bg-white dark:bg-stone-800 rounded-lg border border-stone-200 dark:border-stone-600">
+                                          <input
+                                            type="text"
+                                            value={newListName}
+                                            onChange={e => setNewListName(e.target.value)}
+                                            placeholder={t('listPanel.listNamePlaceholder')}
+                                            className="w-full px-2 py-1 text-sm bg-transparent border-none outline-none text-stone-900 dark:text-stone-100 placeholder-stone-400"
+                                            autoFocus
+                                            onKeyDown={(e) => {
+                                              if (e.key === 'Enter')
+                                                handleCreateList(group.id)
+                                              if (e.key === 'Escape') {
+                                                setShowNewListInput(null)
+                                                setNewListName('')
+                                              }
+                                            }}
+                                          />
+                                          <div className="flex items-center justify-end gap-2 mt-2">
+                                            <button
+                                              onClick={() => {
+                                                setShowNewListInput(null)
+                                                setNewListName('')
+                                              }}
+                                              className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-400"
+                                            >
+                                              <X className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                              onClick={() => handleCreateList(group.id)}
+                                              disabled={isCreatingList || !newListName.trim()}
+                                              className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-700 text-green-500 disabled:opacity-50"
+                                            >
+                                              <Check className="w-4 h-4" />
+                                            </button>
+                                          </div>
+                                        </div>
+                                      )
+                                    : (
+                                        <button
+                                          onClick={() => setShowNewListInput(group.id)}
+                                          className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-stone-400 dark:text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
+                                        >
+                                          <Plus className="w-4 h-4" />
+                                          <span>{t('listPanel.addList')}</span>
+                                        </button>
+                                      )}
+                                </div>
+                              </SortableContext>
+                            </DndContext>
+                          )}
+                        </div>
+                      )
+                    })}
+
+                    {/* Empty state */}
+                    {!isLoading && groups.length === 0 && !showNewGroupInput && (
+                      <div className="px-3 py-4 text-sm text-stone-400 dark:text-stone-500">
+                        {t('sidebar.noGroups')}
                       </div>
-                    );
-                  })}
+                    )}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            </div>
+          </nav>
 
-                  {/* Empty state */}
-                  {!isLoading && groups.length === 0 && !showNewGroupInput && (
-                    <div className="px-3 py-4 text-sm text-stone-400 dark:text-stone-500">
-                      {t("sidebar.noGroups")}
-                    </div>
-                  )}
+          {/* User section */}
+          <div className="p-4 border-t border-stone-200 dark:border-stone-700">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-stone-700 to-stone-500 flex items-center justify-center text-white dark:text-stone-100 text-sm font-medium">
+                  {user?.email?.[0]?.toUpperCase() || 'U'}
                 </div>
-              </SortableContext>
-            </DndContext>
-          </div>
-        </nav>
-
-        {/* User section */}
-        <div className="p-4 border-t border-stone-200 dark:border-stone-700">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-stone-700 to-stone-500 flex items-center justify-center text-white dark:text-stone-100 text-sm font-medium">
-                {user?.email?.[0]?.toUpperCase() || "U"}
+                <div className="text-sm">
+                  <p className="font-medium text-stone-900 dark:text-stone-100 truncate max-w-24">
+                    {user?.name || user?.email?.split('@')[0] || 'User'}
+                  </p>
+                </div>
               </div>
-              <div className="text-sm">
-                <p className="font-medium text-stone-900 dark:text-stone-100 truncate max-w-24">
-                  {user?.name || user?.email?.split("@")[0] || "User"}
-                </p>
+              <div className="flex items-center gap-1">
+                <AccountSettingsDialog
+                  onAccountChanged={handleAccountChanged}
+                  trigger={(
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
+                      title={t('account.accountSettings')}
+                    >
+                      <Users className="w-4 h-4" />
+                    </Button>
+                  )}
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+                  className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
+                  title={resolvedTheme === 'dark' ? t('account.switchToLightMode') : t('account.switchToDarkMode')}
+                >
+                  {resolvedTheme === 'dark'
+                    ? (
+                        <Sun className="w-4 h-4" />
+                      )
+                    : (
+                        <Moon className="w-4 h-4" />
+                      )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                  className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
+                >
+                  <LogOut className="w-4 h-4" />
+                </Button>
               </div>
             </div>
-            <div className="flex items-center gap-1">
-              <AccountSettingsDialog
-                onAccountChanged={handleAccountChanged}
-                trigger={(
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
-                    title={t("account.accountSettings")}
-                  >
-                    <Users className="w-4 h-4" />
-                  </Button>
-                )}
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
-                title={resolvedTheme === "dark" ? t("account.switchToLightMode") : t("account.switchToDarkMode")}
-              >
-                {resolvedTheme === "dark" ? (
-                  <Sun className="w-4 h-4" />
-                ) : (
-                  <Moon className="w-4 h-4" />
-                )}
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleLogout}
-                disabled={isLoggingOut}
-                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
-              >
-                <LogOut className="w-4 h-4" />
-              </Button>
-            </div>
           </div>
-        </div>
-      </aside>
+        </aside>
       )}
 
       {/* Main content */}
@@ -1989,50 +2051,52 @@ export function DashboardPage() {
               value={filterValues}
               onChange={setFilterValues}
               labels={{
-                filter: t("filter.filter"),
-                status: t("filter.status"),
-                star: t("filter.star"),
-                date: t("filter.date"),
-                statusAll: t("filter.all"),
-                statusIncomplete: t("filter.incomplete"),
-                statusCompleted: t("filter.completed"),
-                starAll: t("filter.all"),
-                starred: t("filter.starred"),
-                unstarred: t("filter.unstarred"),
-                dateAll: t("filter.all"),
-                overdue: t("filter.overdue"),
-                today: t("filter.today"),
-                next7Days: t("filter.upcoming"),
-                noDate: t("filter.noDueDate"),
-                clearFilters: t("taskPanel.clearFilters"),
+                filter: t('filter.filter'),
+                status: t('filter.status'),
+                star: t('filter.star'),
+                date: t('filter.date'),
+                statusAll: t('filter.all'),
+                statusIncomplete: t('filter.incomplete'),
+                statusCompleted: t('filter.completed'),
+                starAll: t('filter.all'),
+                starred: t('filter.starred'),
+                unstarred: t('filter.unstarred'),
+                dateAll: t('filter.all'),
+                overdue: t('filter.overdue'),
+                today: t('filter.today'),
+                next7Days: t('filter.upcoming'),
+                noDate: t('filter.noDueDate'),
+                clearFilters: t('taskPanel.clearFilters'),
               }}
             />
             {/* Select mode button */}
-            {isSelectionMode ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleExitSelectionMode}
-                className="text-blue-600 dark:text-blue-400"
-              >
-                {t("taskPanel.selectedCount", { count: selectedCount })}
-              </Button>
-            ) : (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsSelectionMode(true)}
-              >
-                {t("taskPanel.select")}
-              </Button>
-            )}
+            {isSelectionMode
+              ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleExitSelectionMode}
+                    className="text-blue-600 dark:text-blue-400"
+                  >
+                    {t('taskPanel.selectedCount', { count: selectedCount })}
+                  </Button>
+                )
+              : (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsSelectionMode(true)}
+                  >
+                    {t('taskPanel.select')}
+                  </Button>
+                )}
             <AccountSwitcher onAccountChanged={handleAccountChanged} />
             <button
               onClick={() => setShowSearch(true)}
               className="flex items-center gap-2 px-3 py-1.5 text-sm text-stone-500 dark:text-stone-400 bg-stone-100 dark:bg-stone-800 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
             >
               <Search className="w-4 h-4" />
-              <span className="hidden sm:inline">{t("search.search")}</span>
+              <span className="hidden sm:inline">{t('search.search')}</span>
               <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-xs bg-stone-200 dark:bg-stone-700 rounded">
                 ⌘K
               </kbd>
@@ -2054,16 +2118,16 @@ export function DashboardPage() {
             onSetDate={() => setIsBulkDateDialogOpen(true)}
             onCancel={handleExitSelectionMode}
             labels={{
-              tasksSelected: t("taskPanel.tasksSelected"),
-              selectAll: t("taskPanel.selectAll"),
-              deselect: t("taskPanel.deselect"),
-              complete: t("taskPanel.complete"),
-              incomplete: t("taskPanel.incomplete"),
-              star: t("taskPanel.star"),
-              unstar: t("taskPanel.unstar"),
-              delete: t("taskPanel.delete"),
-              setDate: t("taskPanel.setDate"),
-              cancel: t("taskPanel.cancel"),
+              tasksSelected: t('taskPanel.tasksSelected'),
+              selectAll: t('taskPanel.selectAll'),
+              deselect: t('taskPanel.deselect'),
+              complete: t('taskPanel.complete'),
+              incomplete: t('taskPanel.incomplete'),
+              star: t('taskPanel.star'),
+              unstar: t('taskPanel.unstar'),
+              delete: t('taskPanel.delete'),
+              setDate: t('taskPanel.setDate'),
+              cancel: t('taskPanel.cancel'),
             }}
           />
         )}
@@ -2074,51 +2138,54 @@ export function DashboardPage() {
             {/* New task input */}
             {selectedList && (
               <div className="mb-4">
-                {showNewTaskInput ? (
-                  <div className="flex items-center gap-2 px-4 py-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800">
-                    <div className="w-5 h-5 rounded-full border border-stone-300 dark:border-stone-600" />
-                    <input
-                      type="text"
-                      value={newTaskName}
-                      onChange={(e) => setNewTaskName(e.target.value)}
-                      placeholder={t("taskPanel.taskNamePlaceholder")}
-                      className="flex-1 bg-transparent border-none outline-none text-stone-800 dark:text-stone-100 placeholder-stone-400"
-                      autoFocus
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") handleCreateTask();
-                        if (e.key === "Escape") {
-                          setShowNewTaskInput(false);
-                          setNewTaskName("");
-                        }
-                      }}
-                      disabled={isCreatingTask}
-                    />
-                    <button
-                      onClick={handleCreateTask}
-                      disabled={isCreatingTask || !newTaskName.trim()}
-                      className="p-1.5 rounded-lg bg-stone-900 dark:bg-stone-700 text-white dark:text-stone-100 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-800 dark:hover:bg-stone-600"
-                    >
-                      <Check className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowNewTaskInput(false);
-                        setNewTaskName("");
-                      }}
-                      className="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-700"
-                    >
-                      <X className="w-4 h-4 text-stone-500" />
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setShowNewTaskInput(true)}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-stone-300 dark:border-stone-600 text-stone-400 hover:border-stone-400 hover:text-stone-600 dark:hover:border-stone-500 dark:hover:text-stone-300 transition-colors"
-                  >
-                    <Plus className="w-5 h-5" />
-                    <span>{t("taskPanel.addTaskHint")}</span>
-                  </button>
-                )}
+                {showNewTaskInput
+                  ? (
+                      <div className="flex items-center gap-2 px-4 py-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800">
+                        <div className="w-5 h-5 rounded-full border border-stone-300 dark:border-stone-600" />
+                        <input
+                          type="text"
+                          value={newTaskName}
+                          onChange={e => setNewTaskName(e.target.value)}
+                          placeholder={t('taskPanel.taskNamePlaceholder')}
+                          className="flex-1 bg-transparent border-none outline-none text-stone-800 dark:text-stone-100 placeholder-stone-400"
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter')
+                              handleCreateTask()
+                            if (e.key === 'Escape') {
+                              setShowNewTaskInput(false)
+                              setNewTaskName('')
+                            }
+                          }}
+                          disabled={isCreatingTask}
+                        />
+                        <button
+                          onClick={handleCreateTask}
+                          disabled={isCreatingTask || !newTaskName.trim()}
+                          className="p-1.5 rounded-lg bg-stone-900 dark:bg-stone-700 text-white dark:text-stone-100 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-800 dark:hover:bg-stone-600"
+                        >
+                          <Check className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShowNewTaskInput(false)
+                            setNewTaskName('')
+                          }}
+                          className="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-700"
+                        >
+                          <X className="w-4 h-4 text-stone-500" />
+                        </button>
+                      </div>
+                    )
+                  : (
+                      <button
+                        onClick={() => setShowNewTaskInput(true)}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-stone-300 dark:border-stone-600 text-stone-400 hover:border-stone-400 hover:text-stone-600 dark:hover:border-stone-500 dark:hover:text-stone-300 transition-colors"
+                      >
+                        <Plus className="w-5 h-5" />
+                        <span>{t('taskPanel.addTaskHint')}</span>
+                      </button>
+                    )}
               </div>
             )}
 
@@ -2126,147 +2193,148 @@ export function DashboardPage() {
               <CalendarPanel
                 selectedTaskId={selectedTaskId}
                 onTaskSelect={(taskId) => {
-                  setSelectedTaskId(taskId);
+                  setSelectedTaskId(taskId)
                   if (isXs || isSm || isMd) {
-                    setMobileDetailOpen(true);
+                    setMobileDetailOpen(true)
                   }
                 }}
               />
             ) : (
               <>
                 {/* Add Subtask Input - appears when user clicks "Add Subtask" */}
-            {addingSubtaskTo && (
-              <div className="flex items-center gap-2 px-4 py-3 mb-4 ml-6 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800">
-                <div className="w-5 h-5 rounded-full border border-stone-300 dark:border-stone-600" />
-                <input
-                  type="text"
-                  value={newSubtaskName}
-                  onChange={(e) => setNewSubtaskName(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleAddSubtask(addingSubtaskTo);
-                    } else if (e.key === "Escape") {
-                      setNewSubtaskName("");
-                      setAddingSubtaskTo(null);
-                    }
-                  }}
-                  placeholder={t("taskPanel.subtaskNamePlaceholder")}
-                  className="flex-1 bg-transparent outline-none text-stone-900 dark:text-stone-100 placeholder:text-stone-400"
-                  autoFocus
-                  disabled={isCreatingTask}
-                />
-                <button
-                  onClick={() => handleAddSubtask(addingSubtaskTo)}
-                  disabled={isCreatingTask || !newSubtaskName.trim()}
-                  className="px-3 py-1.5 text-sm font-medium rounded-lg bg-stone-900 dark:bg-stone-700 text-white hover:bg-stone-800 dark:hover:bg-stone-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {t("taskPanel.add")}
-                </button>
-                <button
-                  onClick={() => {
-                    setNewSubtaskName("");
-                    setAddingSubtaskTo(null);
-                  }}
-                  className="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-700"
-                >
-                  <X className="w-4 h-4 text-stone-500" />
-                </button>
-              </div>
-            )}
-
-            {(() => {
-              const displayTasks = getDisplayTasks();
-              const showAddTask = currentView === 'list' && selectedList;
-
-              // Show skeleton loading state
-              if (isLoadingTasks) {
-                return (
-                  <div className="space-y-3">
-                    {[...Array(5)].map((_, i) => (
-                      <div key={i} className="flex items-center gap-3 p-3 rounded-lg border border-stone-200 dark:border-stone-700">
-                        <Skeleton className="w-5 h-5 rounded-full" />
-                        <Skeleton className="flex-1 h-4" />
-                        <Skeleton className="w-16 h-3" />
-                      </div>
-                    ))}
-                  </div>
-                );
-              }
-
-              if (displayTasks.length > 0) {
-                const listId = selectedList?.id ?? '';
-                return (
-                  <TaskList
-                    tasks={displayTasks}
-                    expandedTasks={expandedTasks}
-                    onToggleExpand={toggleTaskExpand}
-                    onToggleComplete={(task) => toggleTaskComplete(task.id, task.completed)}
-                    onToggleStar={(task) => toggleTaskStar(task.id, task.starred)}
-                    onEdit={(task) => startEditTask(task.id, task.name)}
-                    onDelete={(task) => handleDeleteTask(task.id)}
-                    onAddSubtask={(task) => startAddSubtask(task.id)}
-                    onOpenDetail={(task) => {
-                      setSelectedTaskId(task.id);
-                      if (!showDetailPanel) {
-                        setMobileDetailOpen(true);
-                      }
-                    }}
-                    editingTaskId={editingTaskId}
-                    editName={editingTaskName}
-                    onEditNameChange={setEditingTaskName}
-                    onSaveEdit={saveEditTask}
-                    onCancelEdit={cancelEditTask}
-                    canMoveFromInbox={currentView === 'list'}
-                    moveTargets={getMoveTargets()}
-                    onMoveToList={handleMoveToList}
-                    disableSorting={currentView !== 'list'}
-                    allowSubtaskActions={currentView === 'list'}
-                    onReorder={handleReorder}
-                    listId={listId}
-                    isSelectionMode={isSelectionMode}
-                    selectedTaskIds={selectedTaskIds}
-                    onToggleSelect={handleToggleSelect}
-                  />
-                );
-              }
-
-              // Empty state based on view
-              return (
-                <div className="text-center py-16">
-                  <div className="w-16 h-16 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle2 className="w-8 h-8 text-stone-400 dark:text-stone-500" />
-                  </div>
-                  <h2 className="text-lg font-medium text-stone-900 dark:text-stone-100 mb-2">
-                    {isLoadingTasks
-                      ? t("emptyStates.loadingTasks")
-                      : currentView === 'today'
-                      ? t("emptyStates.noTasksForToday")
-                      : currentView === 'starred'
-                      ? t("emptyStates.noStarredTasks")
-                      : selectedList
-                      ? t("emptyStates.noTasksInList").replace("{name}", selectedList.name)
-                      : t("emptyStates.noTasksYet")}
-                  </h2>
-                  <p className="text-stone-500 dark:text-stone-400 mb-6">
-                    {currentView === 'today'
-                      ? t("emptyStates.todayHint")
-                      : currentView === 'starred'
-                      ? t("emptyStates.starredHint")
-                      : t("emptyStates.getStarted")}
-                  </p>
-                  {showAddTask && (
-                    <Button
-                      onClick={() => setShowNewTaskInput(true)}
-                      className="gap-2"
+                {addingSubtaskTo && (
+                  <div className="flex items-center gap-2 px-4 py-3 mb-4 ml-6 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800">
+                    <div className="w-5 h-5 rounded-full border border-stone-300 dark:border-stone-600" />
+                    <input
+                      type="text"
+                      value={newSubtaskName}
+                      onChange={e => setNewSubtaskName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          handleAddSubtask(addingSubtaskTo)
+                        }
+                        else if (e.key === 'Escape') {
+                          setNewSubtaskName('')
+                          setAddingSubtaskTo(null)
+                        }
+                      }}
+                      placeholder={t('taskPanel.subtaskNamePlaceholder')}
+                      className="flex-1 bg-transparent outline-none text-stone-900 dark:text-stone-100 placeholder:text-stone-400"
+                      autoFocus
+                      disabled={isCreatingTask}
+                    />
+                    <button
+                      onClick={() => handleAddSubtask(addingSubtaskTo)}
+                      disabled={isCreatingTask || !newSubtaskName.trim()}
+                      className="px-3 py-1.5 text-sm font-medium rounded-lg bg-stone-900 dark:bg-stone-700 text-white hover:bg-stone-800 dark:hover:bg-stone-600 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <Plus className="w-4 h-4" />
-                      <span>{t("taskPanel.createTask")}</span>
-                    </Button>
-                  )}
-                </div>
-              );
-            })()}
+                      {t('taskPanel.add')}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setNewSubtaskName('')
+                        setAddingSubtaskTo(null)
+                      }}
+                      className="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-700"
+                    >
+                      <X className="w-4 h-4 text-stone-500" />
+                    </button>
+                  </div>
+                )}
+
+                {(() => {
+                  const displayTasks = getDisplayTasks()
+                  const showAddTask = currentView === 'list' && selectedList
+
+                  // Show skeleton loading state
+                  if (isLoadingTasks) {
+                    return (
+                      <div className="space-y-3">
+                        {[...Array.from({ length: 5 })].map((_, i) => (
+                          <div key={i} className="flex items-center gap-3 p-3 rounded-lg border border-stone-200 dark:border-stone-700">
+                            <Skeleton className="w-5 h-5 rounded-full" />
+                            <Skeleton className="flex-1 h-4" />
+                            <Skeleton className="w-16 h-3" />
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  }
+
+                  if (displayTasks.length > 0) {
+                    const listId = selectedList?.id ?? ''
+                    return (
+                      <TaskList
+                        tasks={displayTasks}
+                        expandedTasks={expandedTasks}
+                        onToggleExpand={toggleTaskExpand}
+                        onToggleComplete={task => toggleTaskComplete(task.id, task.completed)}
+                        onToggleStar={task => toggleTaskStar(task.id, task.starred)}
+                        onEdit={task => startEditTask(task.id, task.name)}
+                        onDelete={task => handleDeleteTask(task.id)}
+                        onAddSubtask={task => startAddSubtask(task.id)}
+                        onOpenDetail={(task) => {
+                          setSelectedTaskId(task.id)
+                          if (!showDetailPanel) {
+                            setMobileDetailOpen(true)
+                          }
+                        }}
+                        editingTaskId={editingTaskId}
+                        editName={editingTaskName}
+                        onEditNameChange={setEditingTaskName}
+                        onSaveEdit={saveEditTask}
+                        onCancelEdit={cancelEditTask}
+                        canMoveFromInbox={currentView === 'list'}
+                        moveTargets={getMoveTargets()}
+                        onMoveToList={handleMoveToList}
+                        disableSorting={currentView !== 'list'}
+                        allowSubtaskActions={currentView === 'list'}
+                        onReorder={handleReorder}
+                        listId={listId}
+                        isSelectionMode={isSelectionMode}
+                        selectedTaskIds={selectedTaskIds}
+                        onToggleSelect={handleToggleSelect}
+                      />
+                    )
+                  }
+
+                  // Empty state based on view
+                  return (
+                    <div className="text-center py-16">
+                      <div className="w-16 h-16 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center mx-auto mb-4">
+                        <CheckCircle2 className="w-8 h-8 text-stone-400 dark:text-stone-500" />
+                      </div>
+                      <h2 className="text-lg font-medium text-stone-900 dark:text-stone-100 mb-2">
+                        {isLoadingTasks
+                          ? t('emptyStates.loadingTasks')
+                          : currentView === 'today'
+                            ? t('emptyStates.noTasksForToday')
+                            : currentView === 'starred'
+                              ? t('emptyStates.noStarredTasks')
+                              : selectedList
+                                ? t('emptyStates.noTasksInList').replace('{name}', selectedList.name)
+                                : t('emptyStates.noTasksYet')}
+                      </h2>
+                      <p className="text-stone-500 dark:text-stone-400 mb-6">
+                        {currentView === 'today'
+                          ? t('emptyStates.todayHint')
+                          : currentView === 'starred'
+                            ? t('emptyStates.starredHint')
+                            : t('emptyStates.getStarted')}
+                      </p>
+                      {showAddTask && (
+                        <Button
+                          onClick={() => setShowNewTaskInput(true)}
+                          className="gap-2"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>{t('taskPanel.createTask')}</span>
+                        </Button>
+                      )}
+                    </div>
+                  )
+                })()}
               </>
             )}
           </div>
@@ -2290,8 +2358,9 @@ export function DashboardPage() {
           taskId={selectedTaskId}
           open={mobileDetailOpen}
           onOpenChange={(open) => {
-            setMobileDetailOpen(open);
-            if (!open) setSelectedTaskId(null);
+            setMobileDetailOpen(open)
+            if (!open)
+              setSelectedTaskId(null)
           }}
           onTaskUpdated={() => void fetchTasks()}
         />
@@ -2302,21 +2371,21 @@ export function DashboardPage() {
         <div
           className="fixed z-50 min-w-32 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-lg shadow-lg py-1"
           style={{ left: contextMenu.x, top: contextMenu.y }}
-          onClick={(e) => e.stopPropagation()}
+          onClick={e => e.stopPropagation()}
         >
           <button
             onClick={() => openEditDialog(contextMenu.group)}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Pencil className="w-4 h-4" />
-            <span>{t("common.edit")}</span>
+            <span>{t('common.edit')}</span>
           </button>
           <button
             onClick={() => handleDeleteGroup(contextMenu.group.id)}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Trash2 className="w-4 h-4" />
-            <span>{t("common.delete")}</span>
+            <span>{t('common.delete')}</span>
           </button>
         </div>
       )}
@@ -2326,28 +2395,28 @@ export function DashboardPage() {
         <div
           className="fixed z-50 min-w-32 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-lg shadow-lg py-1"
           style={{ left: listContextMenu.x, top: listContextMenu.y }}
-          onClick={(e) => e.stopPropagation()}
+          onClick={e => e.stopPropagation()}
         >
           <button
             onClick={() => openEditListDialog(listContextMenu.list)}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Pencil className="w-4 h-4" />
-            <span>{t("common.edit")}</span>
+            <span>{t('common.edit')}</span>
           </button>
           <button
             onClick={() => openMoveListDialog(listContextMenu.list)}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Move className="w-4 h-4" />
-            <span>{t("common.move")}</span>
+            <span>{t('common.move')}</span>
           </button>
           <button
             onClick={() => handleDeleteList(listContextMenu.list.id)}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Trash2 className="w-4 h-4" />
-            <span>{t("common.delete")}</span>
+            <span>{t('common.delete')}</span>
           </button>
         </div>
       )}
@@ -2357,69 +2426,70 @@ export function DashboardPage() {
         <div
           className="fixed z-50 min-w-32 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-lg shadow-lg py-1"
           style={{ left: taskContextMenu.x, top: taskContextMenu.y }}
-          onClick={(e) => e.stopPropagation()}
+          onClick={e => e.stopPropagation()}
         >
           <button
             onClick={() => {
-              startEditTask(taskContextMenu.taskId, taskContextMenu.taskName);
-              setTaskContextMenu(null);
+              startEditTask(taskContextMenu.taskId, taskContextMenu.taskName)
+              setTaskContextMenu(null)
             }}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Pencil className="w-4 h-4" />
-            <span>{t("common.edit")}</span>
+            <span>{t('common.edit')}</span>
           </button>
           <button
             onClick={() => startAddSubtask(taskContextMenu.taskId)}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Plus className="w-4 h-4" />
-            <span>{t("taskPanel.addSubtask")}</span>
+            <span>{t('taskPanel.addSubtask')}</span>
           </button>
           <button
             onClick={() => handleDeleteTask(taskContextMenu.taskId)}
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Trash2 className="w-4 h-4" />
-            <span>{t("common.delete")}</span>
+            <span>{t('common.delete')}</span>
           </button>
         </div>
       )}
 
       {/* Edit Group Dialog */}
-      <Dialog open={!!editingGroup} onOpenChange={(open) => !open && setEditingGroup(null)}>
+      <Dialog open={!!editingGroup} onOpenChange={open => !open && setEditingGroup(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{t("group.editGroup")}</DialogTitle>
+            <DialogTitle>{t('group.editGroup')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
-                {t("group.groupName")}
+                {t('group.groupName')}
               </label>
               <input
                 type="text"
                 value={editGroupName}
-                onChange={(e) => setEditGroupName(e.target.value)}
-                placeholder={t("sidebar.groupNamePlaceholder")}
+                onChange={e => setEditGroupName(e.target.value)}
+                placeholder={t('sidebar.groupNamePlaceholder')}
                 className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400"
                 autoFocus
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") handleUpdateGroup();
+                  if (e.key === 'Enter')
+                    handleUpdateGroup()
                 }}
               />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
-                {t("group.color")}
+                {t('group.color')}
               </label>
               <div className="flex items-center gap-2">
-                {GROUP_COLORS.map((color) => (
+                {GROUP_COLORS.map(color => (
                   <button
                     key={color.value}
                     onClick={() => setEditGroupColor(color.value)}
                     className={`w-6 h-6 rounded-full transition-transform ${
-                      editGroupColor === color.value ? "ring-2 ring-offset-2 ring-stone-500 scale-110" : ""
+                      editGroupColor === color.value ? 'ring-2 ring-offset-2 ring-stone-500 scale-110' : ''
                     }`}
                     style={{ backgroundColor: color.value }}
                   />
@@ -2432,38 +2502,39 @@ export function DashboardPage() {
               variant="ghost"
               onClick={() => setEditingGroup(null)}
             >
-              {t("common.cancel")}
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={handleUpdateGroup}
               disabled={isUpdatingGroup || !editGroupName.trim()}
             >
-              {isUpdatingGroup ? t("common.saving") : t("common.saveChanges")}
+              {isUpdatingGroup ? t('common.saving') : t('common.saveChanges')}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Edit List Dialog */}
-      <Dialog open={!!editingList} onOpenChange={(open) => !open && setEditingList(null)}>
+      <Dialog open={!!editingList} onOpenChange={open => !open && setEditingList(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{t("listPanel.editList")}</DialogTitle>
+            <DialogTitle>{t('listPanel.editList')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
-                {t("listPanel.listName")}
+                {t('listPanel.listName')}
               </label>
               <input
                 type="text"
                 value={editListName}
-                onChange={(e) => setEditListName(e.target.value)}
-                placeholder={t("listPanel.listNamePlaceholder")}
+                onChange={e => setEditListName(e.target.value)}
+                placeholder={t('listPanel.listNamePlaceholder')}
                 className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400"
                 autoFocus
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") handleUpdateList();
+                  if (e.key === 'Enter')
+                    handleUpdateList()
                 }}
               />
             </div>
@@ -2473,38 +2544,38 @@ export function DashboardPage() {
               variant="ghost"
               onClick={() => setEditingList(null)}
             >
-              {t("common.cancel")}
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={handleUpdateList}
               disabled={isUpdatingList || !editListName.trim()}
             >
-              {isUpdatingList ? t("common.saving") : t("common.saveChanges")}
+              {isUpdatingList ? t('common.saving') : t('common.saveChanges')}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Move List Dialog */}
-      <Dialog open={!!movingList} onOpenChange={(open) => !open && setMovingList(null)}>
+      <Dialog open={!!movingList} onOpenChange={open => !open && setMovingList(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{t("listPanel.moveList")}</DialogTitle>
+            <DialogTitle>{t('listPanel.moveList')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <p className="text-sm text-stone-600 dark:text-stone-400">
-              {t("listPanel.moveListDescription", { name: movingList?.name })}
+              {t('listPanel.moveListDescription', { name: movingList?.name })}
             </p>
             <div className="space-y-2">
               <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
-                {t("listPanel.targetGroup")}
+                {t('listPanel.targetGroup')}
               </label>
               <select
                 value={targetGroupId}
-                onChange={(e) => setTargetGroupId(e.target.value)}
+                onChange={e => setTargetGroupId(e.target.value)}
                 className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-stone-400"
               >
-                {groups.map((group) => (
+                {groups.map(group => (
                   <option key={group.id} value={group.id}>
                     {group.name}
                   </option>
@@ -2523,7 +2594,7 @@ export function DashboardPage() {
               onClick={handleMoveList}
               disabled={isMovingList || !targetGroupId || targetGroupId === movingList?.group_id}
             >
-              {isMovingList ? t("common.moving") : t("common.moveList")}
+              {isMovingList ? t('common.moving') : t('common.moveList')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -2533,7 +2604,7 @@ export function DashboardPage() {
       <Dialog open={showSearch} onOpenChange={setShowSearch}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>{t("search.searchTasks")}</DialogTitle>
+            <DialogTitle>{t('search.searchTasks')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="relative">
@@ -2541,8 +2612,8 @@ export function DashboardPage() {
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t("search.searchPlaceholder")}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder={t('search.searchPlaceholder')}
                 className="w-full pl-10 pr-4 py-3 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400"
                 autoFocus
               />
@@ -2553,26 +2624,26 @@ export function DashboardPage() {
                 searchTasks(searchQuery).length > 0 ? (
                   <div className="space-y-2">
                     {searchTasks(searchQuery).map((task) => {
-                      const taskList = lists.find((l) => l.id === task.list_id);
+                      const taskList = lists.find(l => l.id === task.list_id)
                       const taskGroup = taskList
-                        ? groups.find((g) => g.id === taskList.group_id)
-                        : null;
+                        ? groups.find(g => g.id === taskList.group_id)
+                        : null
                       return (
                         <button
                           key={task.id}
                           onClick={() => {
                             // Navigate to the task's list and close search
-                            setSelectedListId(task.list_id);
-                            setShowSearch(false);
-                            setSearchQuery("");
+                            setSelectedListId(task.list_id)
+                            setShowSearch(false)
+                            setSearchQuery('')
                           }}
                           className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors text-left"
                         >
                           <div
                             className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 ${
                               task.completed
-                                ? "border-green-500 bg-green-500 text-white"
-                                : "border-stone-300 dark:border-stone-600"
+                                ? 'border-green-500 bg-green-500 text-white'
+                                : 'border-stone-300 dark:border-stone-600'
                             }`}
                           >
                             {task.completed && <Check className="w-3 h-3" />}
@@ -2581,14 +2652,17 @@ export function DashboardPage() {
                             <div
                               className={`text-sm truncate ${
                                 task.completed
-                                  ? "line-through text-stone-400"
-                                  : "text-stone-900 dark:text-stone-100"
+                                  ? 'line-through text-stone-400'
+                                  : 'text-stone-900 dark:text-stone-100'
                               }`}
                             >
                               {task.name}
                             </div>
                             <div className="text-xs text-stone-400 truncate">
-                              {taskGroup?.name} / {taskList?.name}
+                              {taskGroup?.name}
+                              {' '}
+                              /
+                              {taskList?.name}
                             </div>
                           </div>
                           {task.starred && (
@@ -2598,27 +2672,27 @@ export function DashboardPage() {
                             />
                           )}
                         </button>
-                      );
+                      )
                     })}
                   </div>
                 ) : (
                   <div className="text-center py-8 text-stone-500 dark:text-stone-400">
                     <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                    <p>{t("search.noResultsForQuery", { query: searchQuery })}</p>
+                    <p>{t('search.noResultsForQuery', { query: searchQuery })}</p>
                   </div>
                 )
               ) : (
                 <div className="text-center py-8 text-stone-500 dark:text-stone-400">
                   <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p>{t("search.typeToSearch")}</p>
-                  <p className="text-xs mt-1">{t("search.searchAcrossAllLists")}</p>
+                  <p>{t('search.typeToSearch')}</p>
+                  <p className="text-xs mt-1">{t('search.searchAcrossAllLists')}</p>
                 </div>
               )}
             </div>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setShowSearch(false)}>
-              {t("common.close")}
+              {t('common.close')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -2628,33 +2702,36 @@ export function DashboardPage() {
       <Dialog open={isBulkDateDialogOpen} onOpenChange={setIsBulkDateDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{t("taskPanel.setDueDate")}</DialogTitle>
+            <DialogTitle>{t('taskPanel.setDueDate')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-stone-500 dark:text-stone-400">
-              {t("taskPanel.setDueDateDescription", { count: selectedCount })}
+              {t('taskPanel.setDueDateDescription', { count: selectedCount })}
             </p>
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
-                {t("taskDetail.dueDate")}
+                {t('taskDetail.dueDate')}
               </label>
               <input
                 type="date"
                 value={bulkDateValue ? getLocalDateString(bulkDateValue) : ''}
-                onChange={(e) => setBulkDateValue(e.target.value ? new Date(e.target.value) : undefined)}
+                onChange={e => setBulkDateValue(e.target.value ? new Date(e.target.value) : undefined)}
                 className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-stone-400"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => {
-              setIsBulkDateDialogOpen(false);
-              setBulkDateValue(undefined);
-            }}>
-              {t("common.cancel")}
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setIsBulkDateDialogOpen(false)
+                setBulkDateValue(undefined)
+              }}
+            >
+              {t('common.cancel')}
             </Button>
             <Button onClick={handleBulkSetDate}>
-              {t("taskPanel.setDate")}
+              {t('taskPanel.setDate')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -2664,29 +2741,29 @@ export function DashboardPage() {
       <Dialog open={isBulkDeleteDialogOpen} onOpenChange={setIsBulkDeleteDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{t("taskPanel.deleteTasks")}</DialogTitle>
+            <DialogTitle>{t('taskPanel.deleteTasks')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-stone-500 dark:text-stone-400">
-              {t("taskPanel.deleteTasksConfirmation", { count: selectedCount })}
+              {t('taskPanel.deleteTasksConfirmation', { count: selectedCount })}
             </p>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setIsBulkDeleteDialogOpen(false)}>
-              {t("common.cancel")}
+              {t('common.cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={handleBulkDelete}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
-              {t("common.delete")}
+              {t('common.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }
 
-export default DashboardPage;
+export default DashboardPage

@@ -1,94 +1,94 @@
-import React from "react";
-import { Button } from "@puratodo/ui";
+import { Button } from '@puratodo/ui'
 import {
+  Calendar,
   CheckCircle,
   Circle,
   Star as StarIcon,
   Trash2,
-  Calendar,
   X,
-} from "lucide-react";
+} from 'lucide-react'
+import * as React from 'react'
 
 export interface TaskBulkActionsProps {
   /**
    * Number of selected tasks
    */
-  selectedCount: number;
+  selectedCount: number
 
   /**
    * Callback when "Select All" is clicked
    */
-  onSelectAll: () => void;
+  onSelectAll: () => void
 
   /**
    * Callback when "Deselect" is clicked
    */
-  onDeselectAll: () => void;
+  onDeselectAll: () => void
 
   /**
    * Callback when "Complete" is clicked
    */
-  onComplete: () => void;
+  onComplete: () => void
 
   /**
    * Callback when "Incomplete" is clicked
    */
-  onIncomplete: () => void;
+  onIncomplete: () => void
 
   /**
    * Callback when "Star" is clicked
    */
-  onStar: () => void;
+  onStar: () => void
 
   /**
    * Callback when "Unstar" is clicked
    */
-  onUnstar: () => void;
+  onUnstar: () => void
 
   /**
    * Callback when "Delete" is clicked
    */
-  onDelete: () => void;
+  onDelete: () => void
 
   /**
    * Callback when "Set Date" is clicked
    */
-  onSetDate: () => void;
+  onSetDate: () => void
 
   /**
    * Callback when "Cancel" is clicked (exits selection mode)
    */
-  onCancel: () => void;
+  onCancel: () => void
 
   /**
    * Translation labels for i18n
    */
   labels?: {
-    tasksSelected?: string;
-    selectAll?: string;
-    deselect?: string;
-    complete?: string;
-    incomplete?: string;
-    star?: string;
-    unstar?: string;
-    delete?: string;
-    setDate?: string;
-    cancel?: string;
-  };
+    tasksSelected?: string
+    selectAll?: string
+    deselect?: string
+    complete?: string
+    incomplete?: string
+    star?: string
+    unstar?: string
+    delete?: string
+    setDate?: string
+    cancel?: string
+  }
 }
 
 const defaultLabels = {
-  tasksSelected: "tasks selected",
-  selectAll: "Select All",
-  deselect: "Deselect",
-  complete: "Complete",
-  incomplete: "Incomplete",
-  star: "Star",
-  unstar: "Unstar",
-  delete: "Delete",
-  setDate: "Set Date",
-  cancel: "Cancel",
-};
+  tasksSelected: 'tasks selected',
+  selectAll: 'Select All',
+  deselect: 'Deselect',
+  complete: 'Complete',
+  incomplete: 'Incomplete',
+  star: 'Star',
+  unstar: 'Unstar',
+  delete: 'Delete',
+  setDate: 'Set Date',
+  cancel: 'Cancel',
+}
 
 export function TaskBulkActions({
   selectedCount,
@@ -103,13 +103,15 @@ export function TaskBulkActions({
   onCancel,
   labels: userLabels,
 }: TaskBulkActionsProps) {
-  const labels = { ...defaultLabels, ...userLabels };
+  const labels = { ...defaultLabels, ...userLabels }
 
   return (
     <div className="flex items-center justify-between px-6 py-3 bg-blue-50 dark:bg-blue-900/20 border-t border-b border-blue-200 dark:border-blue-800">
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-          {selectedCount} {labels.tasksSelected}
+          {selectedCount}
+          {' '}
+          {labels.tasksSelected}
         </span>
         <Button variant="ghost" size="sm" onClick={onSelectAll}>
           {labels.selectAll}
@@ -182,5 +184,5 @@ export function TaskBulkActions({
         </Button>
       </div>
     </div>
-  );
+  )
 }

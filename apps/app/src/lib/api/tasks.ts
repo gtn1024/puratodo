@@ -1,45 +1,45 @@
-import { api } from "./client";
-import type { Task, TaskSearchResult, ApiResponse } from "@puratodo/api-types";
+import type { ApiResponse, Task, TaskSearchResult } from '@puratodo/api-types'
+import { api } from './client'
 
-export type { Task, TaskSearchResult };
+export type { Task, TaskSearchResult }
 
 // Client-specific input types
 export interface CreateTaskInput {
-  list_id: string;
-  name: string;
-  parent_id?: string | null;
+  list_id: string
+  name: string
+  parent_id?: string | null
 }
 
 export interface UpdateTaskInput {
-  list_id?: string;
-  name?: string;
-  completed?: boolean;
-  starred?: boolean;
-  due_date?: string | null;
-  plan_date?: string | null;
-  comment?: string | null;
-  duration_minutes?: number | null;
-  sort_order?: number;
+  list_id?: string
+  name?: string
+  completed?: boolean
+  starred?: boolean
+  due_date?: string | null
+  plan_date?: string | null
+  comment?: string | null
+  duration_minutes?: number | null
+  sort_order?: number
 }
 
 export const tasksApi = {
   async list(): Promise<Task[]> {
-    const response = await api.get<ApiResponse<Task[]>>("/api/v1/tasks");
-    return response.data ?? [];
+    const response = await api.get<ApiResponse<Task[]>>('/api/v1/tasks')
+    return response.data ?? []
   },
 
   async create(input: CreateTaskInput): Promise<Task> {
-    const response = await api.post<ApiResponse<Task>>("/api/v1/tasks", input);
-    return response.data!;
+    const response = await api.post<ApiResponse<Task>>('/api/v1/tasks', input)
+    return response.data!
   },
 
   async update(id: string, input: UpdateTaskInput): Promise<Task> {
-    const response = await api.patch<ApiResponse<Task>>(`/api/v1/tasks/${id}`, input);
-    return response.data!;
+    const response = await api.patch<ApiResponse<Task>>(`/api/v1/tasks/${id}`, input)
+    return response.data!
   },
 
   async delete(id: string): Promise<void> {
-    await api.delete(`/api/v1/tasks/${id}`);
+    await api.delete(`/api/v1/tasks/${id}`)
   },
 
   /**
@@ -52,21 +52,21 @@ export const tasksApi = {
   async getTasksInDateRange(
     startDate: string,
     endDate: string,
-    listId?: string
+    listId?: string,
   ): Promise<TaskSearchResult[]> {
     const params = new URLSearchParams({
       startDate,
       endDate,
-    });
+    })
 
     if (listId) {
-      params.append("listId", listId);
+      params.append('listId', listId)
     }
 
     const response = await api.get<ApiResponse<TaskSearchResult[]>>(
-      `/api/v1/tasks/date-range?${params.toString()}`
-    );
-    return response.data ?? [];
+      `/api/v1/tasks/date-range?${params.toString()}`,
+    )
+    return response.data ?? []
   },
 
   /**
@@ -75,15 +75,15 @@ export const tasksApi = {
    * @returns Array of unscheduled tasks with list/group context
    */
   async getUnscheduledTasks(listId?: string): Promise<TaskSearchResult[]> {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams()
 
     if (listId) {
-      params.append("listId", listId);
+      params.append('listId', listId)
     }
 
     const response = await api.get<ApiResponse<TaskSearchResult[]>>(
-      `/api/v1/tasks/unscheduled?${params.toString()}`
-    );
-    return response.data ?? [];
+      `/api/v1/tasks/unscheduled?${params.toString()}`,
+    )
+    return response.data ?? []
   },
-};
+}

@@ -1,8 +1,8 @@
-import { AdapterProvider } from "@puratodo/task-ui";
-import { RestTaskAdapter } from "./RestTaskAdapter";
-import { RestListAdapter } from "./RestListAdapter";
-import { RestGroupAdapter } from "./RestGroupAdapter";
-import type { ReactNode } from "react";
+import type { ReactNode } from 'react'
+import { AdapterProvider } from '@puratodo/task-ui'
+import { RestGroupAdapter } from './RestGroupAdapter'
+import { RestListAdapter } from './RestListAdapter'
+import { RestTaskAdapter } from './RestTaskAdapter'
 
 /**
  * RestAdapterProvider - Provides REST API adapters to the app
@@ -17,5 +17,5 @@ export function RestAdapterProvider({ children }: { children: ReactNode }) {
     >
       {children}
     </AdapterProvider>
-  );
+  )
 }
