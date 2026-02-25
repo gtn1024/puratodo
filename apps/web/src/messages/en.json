@@ -171,6 +171,8 @@
     "dueDate": "Due Date",
     "planDate": "Plan Date",
     "comment": "Comment",
+    "url": "URL",
+    "openUrl": "Open URL",
     "duration": "Duration (minutes)",
     "clear": "Clear",
     "selectDueDate": "Select due date",
@@ -209,6 +211,7 @@
       "taskName": "Task Name",
       "enterTaskName": "Enter task name",
       "durationExample": "e.g., 30",
+      "urlPlaceholder": "https://example.com",
       "addNotes": "Add notes or comments..."
     }
   },

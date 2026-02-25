@@ -171,6 +171,8 @@
     "dueDate": "截止日期",
     "planDate": "计划日期",
     "comment": "备注",
+    "url": "链接",
+    "openUrl": "打开链接",
     "duration": "时长（分钟）",
     "clear": "清除",
     "selectDueDate": "选择截止日期",
@@ -209,6 +211,7 @@
       "taskName": "任务名称",
       "enterTaskName": "输入任务名称",
       "durationExample": "例如，30",
+      "urlPlaceholder": "https://example.com",
       "addNotes": "添加备注或评论..."
     }
   },

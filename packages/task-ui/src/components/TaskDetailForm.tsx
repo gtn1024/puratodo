@@ -12,7 +12,7 @@ import {
   Textarea,
 } from '@puratodo/ui'
 import { format } from 'date-fns'
-import { CalendarIcon, Clock, FileText, Loader2, X } from 'lucide-react'
+import { CalendarIcon, Clock, ExternalLink, FileText, Link, Loader2, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 export type RecurrenceFrequency = '' | 'daily' | 'weekly' | 'monthly' | 'custom'
@@ -37,6 +37,7 @@ export interface TaskDetailFormProps {
   onCancel: () => void
   onClearDueDate?: () => void
   onClearPlanDate?: () => void
+  onOpenUrl?: (url: string) => void
 
   // Recurrence fields
   recurrence: RecurrenceEditorValue
@@ -56,6 +57,9 @@ export interface TaskDetailFormProps {
     planDate: string
     duration: string
     durationPlaceholder: string
+    url: string
+    urlPlaceholder: string
+    openUrl: string
     comment: string
     commentPlaceholder: string
     selectDueDate: string
@@ -89,6 +93,7 @@ export interface TaskUpdatePayload {
   due_date: string | null
   plan_date: string | null
   comment: string | null
+  url: string | null
   duration_minutes: number | null
   recurrence_frequency: string | null
   recurrence_interval: number | null
@@ -159,10 +164,12 @@ export function TaskDetailForm({
   labels,
   RecurrenceEditor,
   ReminderEditor,
+  onOpenUrl,
 }: TaskDetailFormProps) {
   const [name, setName] = useState('')
   const [dueDate, setDueDate] = useState<Date | undefined>()
   const [planDate, setPlanDate] = useState<Date | undefined>()
+  const [url, setUrl] = useState('')
   const [comment, setComment] = useState('')
   const [durationMinutes, setDurationMinutes] = useState<string>('')
   const [isSaving, setIsSaving] = useState(false)
@@ -173,6 +180,7 @@ export function TaskDetailForm({
       setName(task.name)
       setDueDate(task.due_date ? new Date(task.due_date) : undefined)
       setPlanDate(task.plan_date ? new Date(task.plan_date) : undefined)
+      setUrl(task.url || '')
       setComment(task.comment || '')
       setDurationMinutes(task.duration_minutes?.toString() || '')
     }
@@ -232,6 +240,7 @@ export function TaskDetailForm({
       name: name.trim(),
       due_date: dueDate ? toLocalDateString(dueDate) : null,
       plan_date: planDate ? toLocalDateString(planDate) : null,
+      url: url.trim() || null,
       comment: comment.trim() || null,
       duration_minutes: durationMinutes ? Number.parseInt(durationMinutes, 10) : null,
       ...recurrencePayload,
@@ -383,6 +392,38 @@ export function TaskDetailForm({
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDurationMinutes(e.target.value)}
           placeholder={labels.durationPlaceholder}
         />
+      </div>
+
+      {/* URL */}
+      <div className="space-y-2">
+        <Label
+          htmlFor="url"
+          className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300"
+        >
+          <Link className="h-4 w-4 text-stone-500 dark:text-stone-400" />
+          {labels.url}
+        </Label>
+        <div className="flex gap-2">
+          <Input
+            id="url"
+            type="url"
+            value={url}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)}
+            placeholder={labels.urlPlaceholder}
+            className="flex-1"
+          />
+          {url && (
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={() => onOpenUrl?.(url)}
+              title={labels.openUrl}
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Recurrence Editor (injected) */}

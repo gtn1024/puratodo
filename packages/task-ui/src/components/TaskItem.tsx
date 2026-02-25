@@ -8,6 +8,7 @@ import {
   CheckSquare,
   ChevronDown,
   ChevronRight,
+  ExternalLink,
   GripVertical,
   MoreHorizontal,
   Plus,
@@ -41,6 +42,7 @@ export interface TaskItemProps {
   onDelete: (task: TaskWithSubtasks) => void
   onAddSubtask: (task: TaskWithSubtasks) => void
   onOpenDetail: (task: TaskWithSubtasks) => void
+  onOpenUrl?: (task: TaskWithSubtasks) => void
   editingTaskId: string | null
   editName: string
   onEditNameChange: (name: string) => void
@@ -63,6 +65,7 @@ export interface TaskItemProps {
     addSubtask?: string
     moveTo?: string
     delete?: string
+    openUrl?: string
   }
 }
 
@@ -72,6 +75,7 @@ const defaultLabels = {
   addSubtask: 'Add Subtask',
   moveTo: 'Move to...',
   delete: 'Delete',
+  openUrl: 'Open URL',
 }
 
 export function TaskItem({
@@ -85,6 +89,7 @@ export function TaskItem({
   onDelete,
   onAddSubtask,
   onOpenDetail,
+  onOpenUrl,
   editingTaskId,
   editName,
   onEditNameChange,
@@ -238,6 +243,20 @@ export function TaskItem({
             />
             <span className="max-w-[7rem] truncate">{contextMeta.groupName}</span>
           </span>
+        )}
+
+        {/* URL Button */}
+        {task.url && onOpenUrl && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onOpenUrl(task)
+            }}
+            className="opacity-0 group-hover:opacity-100 transition-opacity text-stone-400 hover:text-blue-500"
+            title={labels.openUrl}
+          >
+            <ExternalLink className="h-4 w-4" />
+          </button>
         )}
 
         {/* Star Button */}

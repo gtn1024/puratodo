@@ -84,6 +84,7 @@ export interface Database {
           due_date: string | null
           plan_date: string | null
           comment: string | null
+          url: string | null
           duration_minutes: number | null
           recurrence_frequency: string | null
           recurrence_interval: number | null
@@ -110,6 +111,7 @@ export interface Database {
           due_date?: string | null
           plan_date?: string | null
           comment?: string | null
+          url?: string | null
           duration_minutes?: number | null
           recurrence_frequency?: string | null
           recurrence_interval?: number | null
@@ -136,6 +138,7 @@ export interface Database {
           due_date?: string | null
           plan_date?: string | null
           comment?: string | null
+          url?: string | null
           duration_minutes?: number | null
           recurrence_frequency?: string | null
           recurrence_interval?: number | null

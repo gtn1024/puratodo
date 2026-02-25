@@ -123,6 +123,7 @@ export function TaskDetailSheet({
           onRecurrenceScopeChange={setRecurrenceScope}
           remindAt={remindAt}
           onRemindAtChange={setRemindAt}
+          onOpenUrl={(url) => window.open(url, '_blank', 'noopener,noreferrer')}
           labels={{
             taskName: t('taskDetail.fields.taskName'),
             taskNamePlaceholder: t('taskDetail.fields.enterTaskName'),
@@ -130,6 +131,9 @@ export function TaskDetailSheet({
             planDate: t('taskDetail.planDate'),
             duration: t('taskDetail.duration'),
             durationPlaceholder: t('taskDetail.fields.durationExample'),
+            url: t('taskDetail.url'),
+            urlPlaceholder: t('taskDetail.fields.urlPlaceholder'),
+            openUrl: t('taskDetail.openUrl'),
             comment: t('taskDetail.comment'),
             commentPlaceholder: t('taskDetail.fields.addNotes'),
             selectDueDate: t('taskDetail.selectDueDate'),

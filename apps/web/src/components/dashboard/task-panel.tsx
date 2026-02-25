@@ -1014,6 +1014,11 @@ export function TaskPanel({ ref, list, selectedTaskId, allLists, allGroups, isIn
                   onDelete={openDeleteDialog}
                   onAddSubtask={startAddSubtask}
                   onOpenDetail={handleOpenDetail}
+                  onOpenUrl={(task) => {
+                    if (task.url) {
+                      window.open(task.url, '_blank', 'noopener,noreferrer')
+                    }
+                  }}
                   editingTaskId={editingTaskId}
                   editName={editName}
                   onEditNameChange={setEditName}
@@ -1035,6 +1040,7 @@ export function TaskPanel({ ref, list, selectedTaskId, allLists, allGroups, isIn
                     addSubtask: t('taskPanel.addSubtask'),
                     moveTo: t('common.move'),
                     delete: t('common.delete'),
+                    openUrl: t('taskDetail.openUrl'),
                   }}
                 />
               )}

@@ -109,6 +109,7 @@ export interface TaskListProps {
   onDelete: (task: TaskWithSubtasks) => void
   onAddSubtask: (task: TaskWithSubtasks) => void
   onOpenDetail: (task: TaskWithSubtasks) => void
+  onOpenUrl?: (task: TaskWithSubtasks) => void
   editingTaskId: string | null
   editName: string
   onEditNameChange: (name: string) => void
@@ -140,6 +141,7 @@ export function TaskList({
   onDelete,
   onAddSubtask,
   onOpenDetail,
+  onOpenUrl,
   editingTaskId,
   editName,
   onEditNameChange,
@@ -235,6 +237,7 @@ export function TaskList({
             onDelete={onDelete}
             onAddSubtask={onAddSubtask}
             onOpenDetail={onOpenDetail}
+            onOpenUrl={onOpenUrl}
             editingTaskId={editingTaskId}
             editName={editName}
             onEditNameChange={onEditNameChange}
@@ -272,6 +275,7 @@ export function TaskList({
             onDelete={onDelete}
             onAddSubtask={onAddSubtask}
             onOpenDetail={onOpenDetail}
+            onOpenUrl={onOpenUrl}
             editingTaskId={editingTaskId}
             editName={editName}
             onEditNameChange={onEditNameChange}
@@ -332,6 +336,7 @@ export function TaskList({
               onDelete={onDelete}
               onAddSubtask={onAddSubtask}
               onOpenDetail={onOpenDetail}
+              onOpenUrl={onOpenUrl}
               editingTaskId={editingTaskId}
               editName={editName}
               onEditNameChange={onEditNameChange}
