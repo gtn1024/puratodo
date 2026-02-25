@@ -3,7 +3,7 @@
 import type { Task } from '@/actions/tasks'
 import type { RecurrenceEditorValue, RecurrenceFrequency, RecurrenceUpdateScope } from '@/components/dashboard/recurrence-fields'
 import { format } from 'date-fns'
-import { CalendarIcon, Clock, FileText, Loader2, X } from 'lucide-react'
+import { CalendarIcon, Clock, ExternalLink, FileText, Link, Loader2, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { getTaskById, updateTask } from '@/actions/tasks'
 import {
@@ -73,6 +73,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
   const [dueDate, setDueDate] = useState<Date | undefined>()
   const [planDate, setPlanDate] = useState<Date | undefined>()
   const [comment, setComment] = useState('')
+  const [url, setUrl] = useState('')
   const [durationMinutes, setDurationMinutes] = useState<string>('')
   const [recurrence, setRecurrence] = useState<RecurrenceEditorValue>({
     frequency: '',
@@ -106,6 +107,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
         setDueDate(result.due_date ? new Date(result.due_date) : undefined)
         setPlanDate(result.plan_date ? new Date(result.plan_date) : undefined)
         setComment(result.comment || '')
+        setUrl(result.url || '')
         setDurationMinutes(result.duration_minutes?.toString() || '')
         setRecurrence(createRecurrenceEditorValue(result))
         setRecurrenceScope('single')
@@ -181,6 +183,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
       due_date: dueDate ? toLocalDateString(dueDate) : null,
       plan_date: planDate ? toLocalDateString(planDate) : null,
       comment: comment.trim() || null,
+      url: url.trim() || null,
       duration_minutes: durationMinutes ? Number.parseInt(durationMinutes, 10) : null,
       ...recurrencePayload,
       recurrence_update_scope: recurrenceScope,
@@ -374,6 +377,35 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
               onChange={e => setDurationMinutes(e.target.value)}
               placeholder={t('taskDetail.fields.durationExample')}
             />
+          </div>
+
+          {/* URL */}
+          <div className="space-y-2">
+            <Label htmlFor="url" className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
+              <Link className="h-4 w-4 text-stone-500 dark:text-stone-400" />
+              {t('taskDetail.url')}
+            </Label>
+            <div className="flex gap-2">
+              <Input
+                id="url"
+                type="url"
+                value={url}
+                onChange={e => setUrl(e.target.value)}
+                placeholder={t('taskDetail.fields.urlPlaceholder')}
+                className="flex-1"
+              />
+              {url && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => window.open(url, '_blank', 'noopener,noreferrer')}
+                  title={t('taskDetail.openUrl')}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* Recurrence */}
