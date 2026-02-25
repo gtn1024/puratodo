@@ -3,13 +3,13 @@
  * Provides a fallback for environments where service workers are not available.
  */
 
-export type NotificationPermissionState = "granted" | "denied" | "default" | "unsupported";
+export type NotificationPermissionState = 'granted' | 'denied' | 'default' | 'unsupported'
 
 /**
  * Check if browser notifications are supported
  */
 export function isNotificationSupported(): boolean {
-  return typeof window !== "undefined" && "Notification" in window;
+  return typeof window !== 'undefined' && 'Notification' in window
 }
 
 /**
@@ -17,9 +17,9 @@ export function isNotificationSupported(): boolean {
  */
 export function getNotificationPermission(): NotificationPermissionState {
   if (!isNotificationSupported()) {
-    return "unsupported";
+    return 'unsupported'
   }
-  return Notification.permission as NotificationPermissionState;
+  return Notification.permission as NotificationPermissionState
 }
 
 /**
@@ -28,15 +28,16 @@ export function getNotificationPermission(): NotificationPermissionState {
  */
 export async function requestNotificationPermission(): Promise<NotificationPermissionState> {
   if (!isNotificationSupported()) {
-    return "unsupported";
+    return 'unsupported'
   }
 
   try {
-    const permission = await Notification.requestPermission();
-    return permission as NotificationPermissionState;
-  } catch (error) {
-    console.error("Error requesting notification permission:", error);
-    return "denied";
+    const permission = await Notification.requestPermission()
+    return permission as NotificationPermissionState
+  }
+  catch (error) {
+    console.error('Error requesting notification permission:', error)
+    return 'denied'
   }
 }
 
@@ -45,29 +46,30 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
  */
 export function showNotification(
   title: string,
-  options?: NotificationOptions
+  options?: NotificationOptions,
 ): Notification | null {
-  if (!isNotificationSupported() || Notification.permission !== "granted") {
-    return null;
+  if (!isNotificationSupported() || Notification.permission !== 'granted') {
+    return null
   }
 
   try {
     const notification = new Notification(title, {
-      icon: "/favicon.ico",
-      badge: "/favicon.ico",
+      icon: '/favicon.ico',
+      badge: '/favicon.ico',
       requireInteraction: false,
       ...options,
-    });
+    })
 
     notification.onclick = () => {
-      window.focus();
-      notification.close();
-    };
+      window.focus()
+      notification.close()
+    }
 
-    return notification;
-  } catch (error) {
-    console.error("Error showing notification:", error);
-    return null;
+    return notification
+  }
+  catch (error) {
+    console.error('Error showing notification:', error)
+    return null
   }
 }
 
@@ -76,24 +78,25 @@ export function showNotification(
  */
 export function showTaskReminder(
   taskName: string,
-  options?: { dueDate?: string; planDate?: string; taskId?: string }
+  options?: { dueDate?: string, planDate?: string, taskId?: string },
 ): Notification | null {
-  let body = `Reminder: ${taskName}`;
+  let body = `Reminder: ${taskName}`
 
   if (options?.dueDate) {
-    body += ` - Due: ${options.dueDate}`;
-  } else if (options?.planDate) {
-    body += ` - Planned: ${options.planDate}`;
+    body += ` - Due: ${options.dueDate}`
+  }
+  else if (options?.planDate) {
+    body += ` - Planned: ${options.planDate}`
   }
 
-  return showNotification("PuraToDo", {
+  return showNotification('PuraToDo', {
     body,
     tag: options?.taskId ? `task-reminder-${options.taskId}` : undefined,
-  });
+  })
 }
 
 // Store scheduled timeouts for cleanup
-const scheduledTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
+const scheduledTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
 /**
  * Schedule a notification at a specific time
@@ -103,38 +106,38 @@ export function scheduleNotification(
   id: string,
   title: string,
   scheduledTime: Date,
-  options?: NotificationOptions
+  options?: NotificationOptions,
 ): () => void {
   // Clear any existing scheduled notification with the same ID
-  clearScheduledNotification(id);
+  clearScheduledNotification(id)
 
-  const now = new Date();
-  const delay = scheduledTime.getTime() - now.getTime();
+  const now = new Date()
+  const delay = scheduledTime.getTime() - now.getTime()
 
   if (delay <= 0) {
     // Time has passed, show notification immediately
-    showNotification(title, options);
-    return () => {};
+    showNotification(title, options)
+    return () => {}
   }
 
   const timeoutId = setTimeout(() => {
-    showNotification(title, options);
-    scheduledTimeouts.delete(id);
-  }, delay);
+    showNotification(title, options)
+    scheduledTimeouts.delete(id)
+  }, delay)
 
-  scheduledTimeouts.set(id, timeoutId);
+  scheduledTimeouts.set(id, timeoutId)
 
-  return () => clearScheduledNotification(id);
+  return () => clearScheduledNotification(id)
 }
 
 /**
  * Clear a scheduled notification
  */
 export function clearScheduledNotification(id: string): void {
-  const timeoutId = scheduledTimeouts.get(id);
+  const timeoutId = scheduledTimeouts.get(id)
   if (timeoutId) {
-    clearTimeout(timeoutId);
-    scheduledTimeouts.delete(id);
+    clearTimeout(timeoutId)
+    scheduledTimeouts.delete(id)
   }
 }
 
@@ -143,9 +146,9 @@ export function clearScheduledNotification(id: string): void {
  */
 export function clearAllScheduledNotifications(): void {
   scheduledTimeouts.forEach((timeoutId) => {
-    clearTimeout(timeoutId);
-  });
-  scheduledTimeouts.clear();
+    clearTimeout(timeoutId)
+  })
+  scheduledTimeouts.clear()
 }
 
 /**
@@ -155,57 +158,61 @@ export function scheduleTaskReminder(
   taskId: string,
   taskName: string,
   remindAt: Date,
-  options?: { dueDate?: string; planDate?: string }
+  options?: { dueDate?: string, planDate?: string },
 ): () => void {
   const body = `Reminder: ${taskName}${
-    options?.dueDate ? ` - Due: ${options.dueDate}` : ""
-  }${options?.planDate ? ` - Planned: ${options.planDate}` : ""}`;
+    options?.dueDate ? ` - Due: ${options.dueDate}` : ''
+  }${options?.planDate ? ` - Planned: ${options.planDate}` : ''}`
 
-  return scheduleNotification(`task-${taskId}`, "PuraToDo Reminder", remindAt, {
+  return scheduleNotification(`task-${taskId}`, 'PuraToDo Reminder', remindAt, {
     body,
     tag: `task-reminder-${taskId}`,
-  });
+  })
 }
 
 /**
  * Parse a date string or Date object to a local datetime string for input[type="datetime-local"]
  */
 export function toLocalDateTimeString(date: Date | string | null): string {
-  if (!date) return "";
+  if (!date)
+    return ''
 
-  const d = typeof date === "string" ? new Date(date) : date;
+  const d = typeof date === 'string' ? new Date(date) : date
 
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  const hours = String(d.getHours()).padStart(2, "0");
-  const minutes = String(d.getMinutes()).padStart(2, "0");
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  const hours = String(d.getHours()).padStart(2, '0')
+  const minutes = String(d.getMinutes()).padStart(2, '0')
 
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
+  return `${year}-${month}-${day}T${hours}:${minutes}`
 }
 
 /**
  * Parse a datetime-local input value to an ISO string for storage
  */
 export function fromLocalDateTimeString(value: string): string | null {
-  if (!value) return null;
-  const date = new Date(value);
-  if (isNaN(date.getTime())) return null;
-  return date.toISOString();
+  if (!value)
+    return null
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime()))
+    return null
+  return date.toISOString()
 }
 
 /**
  * Format a reminder time for display
  */
 export function formatReminderTime(date: Date | string | null): string {
-  if (!date) return "";
+  if (!date)
+    return ''
 
-  const d = typeof date === "string" ? new Date(date) : date;
+  const d = typeof date === 'string' ? new Date(date) : date
 
   return d.toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  })
 }

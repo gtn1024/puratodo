@@ -628,7 +628,7 @@ async function maybeGenerateNextOccurrence(
   let nextPlanDate = currentTask.plan_date
     ? computeNextDate(currentTask.plan_date, config)
     : null;
-  let nextDueDate = currentTask.due_date
+  const nextDueDate = currentTask.due_date
     ? computeNextDate(currentTask.due_date, config)
     : null;
 

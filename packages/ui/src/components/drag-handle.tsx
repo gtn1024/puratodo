@@ -1,23 +1,23 @@
-"use client";
+'use client'
 
-import { GripVertical } from "lucide-react";
-import type { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
-import type { DraggableAttributes } from "@dnd-kit/core";
+import type { DraggableAttributes } from '@dnd-kit/core'
+import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities'
+import { GripVertical } from 'lucide-react'
 
 interface DragHandleProps {
-  attributes?: DraggableAttributes;
-  listeners?: SyntheticListenerMap | undefined;
-  className?: string;
-  iconSize?: "sm" | "md";
+  attributes?: DraggableAttributes
+  listeners?: SyntheticListenerMap | undefined
+  className?: string
+  iconSize?: 'sm' | 'md'
 }
 
 export function DragHandle({
   attributes,
   listeners,
-  className = "",
-  iconSize = "md",
+  className = '',
+  iconSize = 'md',
 }: DragHandleProps) {
-  const sizeClasses = iconSize === "sm" ? "h-3.5 w-3.5" : "h-4 w-4";
+  const sizeClasses = iconSize === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4'
 
   return (
     <button
@@ -27,5 +27,5 @@ export function DragHandle({
     >
       <GripVertical className={sizeClasses} />
     </button>
-  );
+  )
 }

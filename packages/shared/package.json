@@ -5,7 +5,6 @@
   "types": "./src/index.ts",
   "scripts": {
     "build": "tsc",
-    "lint": "eslint src/",
     "clean": "rm -rf dist node_modules"
   },
   "dependencies": {
