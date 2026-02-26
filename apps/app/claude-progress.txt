@@ -2695,3 +2695,62 @@ Released version 0.3.2 of the PuraToDo Tauri app:
 - Address any reported issues
 - Plan next version features
 
+---
+
+## Session 43: Tauri Auto Update Integration
+**Date:** 2026-02-26
+
+### What was done
+Implemented in-app updater integration for the Tauri app:
+
+1. **Updater Dependencies and Permissions**
+   - Added `@tauri-apps/plugin-updater` to `apps/app/package.json`
+   - Added `tauri-plugin-updater = "2"` to `apps/app/src-tauri/Cargo.toml`
+   - Added `updater:default` permission to `apps/app/src-tauri/capabilities/default.json`
+   - Registered updater plugin in Rust builder (`tauri_plugin_updater::Builder::new().build()`)
+
+2. **Tauri Updater Configuration**
+   - Enabled updater artifact generation via `bundle.createUpdaterArtifacts: true`
+   - Configured updater endpoint to GitHub latest JSON:
+     - `https://github.com/gtn1024/puratodo/releases/latest/download/latest.json`
+   - Added updater public key to `plugins.updater.pubkey`
+   - Set Windows install mode to `passive`
+
+3. **Frontend Update Flow**
+   - Added `src/lib/updater.ts` with shared update logic:
+     - silent startup check
+     - manual check handler
+     - user confirm before install
+     - download and install call
+     - error handling
+   - Wired startup auto-check in `DashboardPage`
+   - Added desktop menu event handling for manual checks
+   - Added new menu item in Rust: `Check for Updates`
+
+4. **Localization**
+   - Added updater strings to `src/messages/en.json` and `src/messages/zh.json`
+   - States covered: available, current version, prompt, release notes, downloading, installed, no update, failed
+
+5. **Release Workflow**
+   - Updated `.github/workflows/release-app.yml` to pass:
+     - `TAURI_SIGNING_PRIVATE_KEY`
+     - `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`
+   - This enables signed updater metadata/artifacts during release builds
+
+### Build/Test Status
+- ✅ `pnpm install` completed successfully.
+- ✅ `pnpm --filter @puratodo/app tauri build` completed successfully with updater signing env.
+- ✅ Updater signature artifact generated:
+  - `apps/app/src-tauri/target/release/bundle/macos/PuraToDo.app.tar.gz.sig`
+- ⚠️ Manual end-to-end updater validation against a published release is still pending (install old version -> update to new version).
+
+### Notes
+- A new updater keypair (password-protected) was generated during this session.
+- Public key is configured in `tauri.conf.json`.
+- Private key must be stored in GitHub Actions secrets as `TAURI_SIGNING_PRIVATE_KEY`.
+- Key password must be stored as `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`.
+
+### Next Steps
+1. Run dependency install and Tauri production build locally.
+2. Add signing key secrets in GitHub repository settings.
+3. Create a new release tag and verify in-app update from previous installed version.

@@ -394,6 +394,16 @@
     "description": "A task management app with infinite subtask nesting.",
     "builtWith": "Built with Tauri 2.0, React, and Supabase."
   },
+  "updater": {
+    "available": "A new version is available:",
+    "currentVersion": "Current version:",
+    "installPrompt": "Do you want to download and install this update now?",
+    "releaseNotes": "Release notes:",
+    "downloading": "Downloading and installing update...",
+    "installed": "Update installed. Please restart the app to apply changes.",
+    "noUpdate": "You are already on the latest version.",
+    "failed": "Failed to check for updates. Please try again later."
+  },
   "emptyStates": {
     "noTaskSelected": "No Task Selected",
     "clickTaskToView": "Click on a task to view and edit its details here",

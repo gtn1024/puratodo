@@ -394,6 +394,16 @@
     "description": "支持无限层级子任务的任务管理应用。",
     "builtWith": "使用 Tauri 2.0、React 和 Supabase 构建。"
   },
+  "updater": {
+    "available": "发现新版本：",
+    "currentVersion": "当前版本：",
+    "installPrompt": "要立即下载并安装更新吗？",
+    "releaseNotes": "更新说明：",
+    "downloading": "正在下载并安装更新...",
+    "installed": "更新已安装。请重启应用以应用更改。",
+    "noUpdate": "当前已是最新版本。",
+    "failed": "检查更新失败，请稍后重试。"
+  },
   "emptyStates": {
     "noTaskSelected": "未选择任务",
     "clickTaskToView": "点击任务以在此处查看和编辑其详细信息",

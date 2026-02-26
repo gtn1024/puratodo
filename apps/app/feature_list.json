@@ -1,7 +1,7 @@
 {
   "project": "PuraToDo App (Tauri)",
   "description": "Cross-platform desktop/mobile app built with Tauri 2.0 - connects to web app's API. Feature list aligned with web app (~80 items).",
-  "totalItems": 100,
+  "totalItems": 101,
   "features": [
     {
       "id": 1,
@@ -1230,6 +1230,21 @@
         "Ensure date cells have minimum height on mobile",
         "Test layout at different breakpoints",
         "Verify smooth transitions between breakpoints"
+      ],
+      "passes": true
+    },
+    {
+      "id": 101,
+      "category": "Release & Distribution",
+      "description": "Implement in-app auto update (Tauri updater)",
+      "steps": [
+        "Add Tauri updater plugin to app dependencies and Rust backend",
+        "Configure updater endpoint and pubkey in tauri.conf.json",
+        "Enable updater permission in capabilities",
+        "Add menu action for Check for Updates",
+        "Implement startup auto-check and manual check flow in frontend",
+        "Show user-facing update states (available, downloading, installed, no update, failed)",
+        "Run npm run tauri build and verify updater integration compiles"
       ],
       "passes": true
     }

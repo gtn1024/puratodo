@@ -14,6 +14,7 @@ pub fn run() {
         .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(tauri::generate_handler![greet])
         .setup(|app| {
             // Register deep link schemes for desktop
@@ -33,6 +34,7 @@ pub fn run() {
             // Create menu items
             let new_task = MenuItem::with_id(app, "new_task", "New Task", true, None::<&str>)?;
             let search = MenuItem::with_id(app, "search", "Search", true, None::<&str>)?;
+            let check_updates = MenuItem::with_id(app, "check_updates", "Check for Updates", true, None::<&str>)?;
             let about = MenuItem::with_id(app, "about", "About PuraToDo", true, None::<&str>)?;
 
             // Build file menu
@@ -42,7 +44,7 @@ pub fn run() {
             let edit_menu = Submenu::with_items(app, "Edit", true, &[&search])?;
 
             // Build help menu
-            let help_menu = Submenu::with_items(app, "Help", true, &[&about])?;
+            let help_menu = Submenu::with_items(app, "Help", true, &[&check_updates, &about])?;
 
             // Build the menu bar
             let menu = Menu::with_items(app, &[&file_menu, &edit_menu, &help_menu])?;
@@ -67,6 +69,10 @@ pub fn run() {
                     "about" => {
                         // Emit event to frontend to show about dialog
                         let _ = app_handle.emit("menu-about", ());
+                    }
+                    "check_updates" => {
+                        // Emit event to frontend to run updater
+                        let _ = app_handle.emit("menu-check-updates", ());
                     }
                     _ => {}
                 }

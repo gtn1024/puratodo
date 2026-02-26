@@ -70,6 +70,7 @@ import { useBreakpoint } from '@/hooks/useBreakpoint'
 import { useTheme } from '@/hooks/useTheme'
 import { useI18n } from '@/i18n'
 import { requestNotificationPermission, scheduleTaskReminders } from '@/lib/notifications'
+import { checkForAppUpdates } from '@/lib/updater'
 import { useAuthStore } from '@/stores/authStore'
 import { useDataStore } from '@/stores/dataStore'
 
@@ -756,6 +757,10 @@ export function DashboardPage() {
           alert(`${t('about.title')}\n${t('about.description')}\n\n${t('about.builtWith')}`)
         })
 
+        const unlistenCheckUpdates = listen('menu-check-updates', () => {
+          void checkForAppUpdates({ manual: true, t })
+        })
+
         // Deep link listener
         const unlistenDeepLink = listen<{ urls: string[] }>('deep-link-received', (event) => {
           const urls = event.payload.urls
@@ -794,11 +799,19 @@ export function DashboardPage() {
           unlistenSearch.then(fn => fn())
           unlistenPreferences.then(fn => fn())
           unlistenAbout.then(fn => fn())
+          unlistenCheckUpdates.then(fn => fn())
           unlistenDeepLink.then(fn => fn())
         }
       })
     }
   }, [selectedListId])
+
+  // Silent update check on startup
+  React.useEffect(() => {
+    void checkForAppUpdates({ manual: false, t })
+    // Intentionally run once on app startup.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Fetch all tasks when search dialog opens
   React.useEffect(() => {
