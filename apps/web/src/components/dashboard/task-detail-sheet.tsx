@@ -123,7 +123,7 @@ export function TaskDetailSheet({
           onRecurrenceScopeChange={setRecurrenceScope}
           remindAt={remindAt}
           onRemindAtChange={setRemindAt}
-          onOpenUrl={(url) => window.open(url, '_blank', 'noopener,noreferrer')}
+          onOpenUrl={url => window.open(url, '_blank', 'noopener,noreferrer')}
           labels={{
             taskName: t('taskDetail.fields.taskName'),
             taskNamePlaceholder: t('taskDetail.fields.enterTaskName'),
