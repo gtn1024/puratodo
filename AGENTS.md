@@ -104,11 +104,12 @@ This project follows a "long-running agent" methodology with daily progress logg
 3. Run `./init.sh web` (or `./init.sh app` for Tauri) to start dev environment
 4. Implement the feature
 5. **Test with Playwright MCP** (the credentials of accounts in `.credentials.local`)
-6. Make sure project can be built successfully (`pnpm build:web` or `cd apps/app && npm run tauri build`)
-7. Update the feature_list.json - set `passes: true` for completed feature
-8. Update the corresponding claude-progress.txt (append new log for current session, what has done, what does not work, next steps)
-9. **Git commit** - Commit ONLY after testing passes (see "Testing" section below). Never commit untested code.
-10. Output `<promise>DONE</promise>` to signal completion
+6. **Run `pnpm lint`** and fix all errors before committing
+7. Make sure project can be built successfully (`pnpm build:web` or `cd apps/app && npm run tauri build`)
+8. Update the feature_list.json - set `passes: true` for completed feature
+9. Update the corresponding claude-progress.txt (append new log for current session, what has done, what does not work, next steps)
+10. **Git commit** - Commit ONLY after testing passes and lint is clean. Never commit untested code.
+11. Output `<promise>DONE</promise>` to signal completion
 
 ### Testing (REQUIRED before commit)
 
