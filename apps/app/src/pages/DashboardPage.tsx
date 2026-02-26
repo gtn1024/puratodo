@@ -13,7 +13,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { getLocalDateString } from '@puratodo/shared'
+import { getLocalDateString, parseLocalDateString } from '@puratodo/shared'
 import {
   filterTasksByFilterValue,
 
@@ -2715,7 +2715,7 @@ export function DashboardPage() {
               <input
                 type="date"
                 value={bulkDateValue ? getLocalDateString(bulkDateValue) : ''}
-                onChange={e => setBulkDateValue(e.target.value ? new Date(e.target.value) : undefined)}
+                onChange={e => setBulkDateValue(parseLocalDateString(e.target.value))}
                 className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-stone-400"
               />
             </div>

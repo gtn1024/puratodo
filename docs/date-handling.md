@@ -92,28 +92,26 @@ if (isToday(date)) {
 }
 ```
 
-#### Use `getLocalDateString()` for date inputs
+#### Use shared helpers for date inputs
 
 ```typescript
-import { getLocalDateString } from "@puratodo/shared";
+import { getLocalDateString, parseLocalDateString } from "@puratodo/shared";
 
 // React component with date input
 <input
   type="date"
   value={date ? getLocalDateString(date) : ''}
-  onChange={(e) => setDate(e.target.value ? new Date(e.target.value) : null)}
+  onChange={(e) => setDate(parseLocalDateString(e.target.value) ?? null)}
 />
 ```
 
 #### Create Date objects from YYYY-MM-DD strings
 
 ```typescript
-// When reading from database
-const date = new Date(task.due_date); // Works fine for YYYY-MM-DD format
+import { parseLocalDateString } from "@puratodo/shared";
 
-// Or use parseISO from date-fns
-import { parseISO } from 'date-fns';
-const date = parseISO(task.due_date);
+// When reading from database
+const date = parseLocalDateString(task.due_date);
 ```
 
 ---

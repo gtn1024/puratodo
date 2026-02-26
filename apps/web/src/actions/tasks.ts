@@ -927,8 +927,9 @@ export async function getTasksInDateRange(
     .from('tasks')
     .select('*')
     .eq('user_id', user.id)
-    .or(`plan_date.gte.${startDate},due_date.gte.${startDate}`)
-    .or(`plan_date.lte.${endDate},due_date.lte.${endDate}`)
+    .or(
+      `and(plan_date.gte.${startDate},plan_date.lte.${endDate}),and(due_date.gte.${startDate},due_date.lte.${endDate})`,
+    )
 
   if (listId) {
     query = query.eq('list_id', listId)

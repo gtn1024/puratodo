@@ -1,4 +1,4 @@
-import { getLocalDateString } from '@puratodo/shared'
+import { getLocalDateString, parseLocalDateString } from '@puratodo/shared'
 import { Button } from '@puratodo/ui'
 import { CalendarIcon, Clock, FileText, Loader2, Star, X } from 'lucide-react'
 import * as React from 'react'
@@ -37,8 +37,8 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
     const foundTask = tasks.find(t => t.id === taskId)
     if (foundTask) {
       setName(foundTask.name)
-      setDueDate(foundTask.due_date ? new Date(foundTask.due_date) : undefined)
-      setPlanDate(foundTask.plan_date ? new Date(foundTask.plan_date) : undefined)
+      setDueDate(parseLocalDateString(foundTask.due_date))
+      setPlanDate(parseLocalDateString(foundTask.plan_date))
       setComment(foundTask.comment || '')
       setDurationMinutes(foundTask.duration_minutes?.toString() || '')
       setIsLoaded(true)
@@ -217,7 +217,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
               type="date"
               value={dueDate ? getLocalDateString(dueDate) : ''}
               onChange={(e) => {
-                const newDate = e.target.value ? new Date(e.target.value) : undefined
+                const newDate = parseLocalDateString(e.target.value)
                 setDueDate(newDate)
               }}
               className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100"
@@ -247,7 +247,7 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
               type="date"
               value={planDate ? getLocalDateString(planDate) : ''}
               onChange={(e) => {
-                const newDate = e.target.value ? new Date(e.target.value) : undefined
+                const newDate = parseLocalDateString(e.target.value)
                 setPlanDate(newDate)
               }}
               className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100"

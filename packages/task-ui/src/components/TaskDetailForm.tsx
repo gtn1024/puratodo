@@ -1,6 +1,7 @@
 'use client'
 
 import type { TaskWithSubtasks } from '@puratodo/api-types'
+import { parseLocalDateString } from '@puratodo/shared'
 import {
   Button,
   Calendar,
@@ -133,9 +134,7 @@ export function createRecurrenceEditorValue(task: TaskWithSubtasks): RecurrenceE
       : task.recurrence_end_count
         ? 'afterCount'
         : 'never',
-    endDate: task.recurrence_end_date
-      ? new Date(task.recurrence_end_date)
-      : undefined,
+    endDate: parseLocalDateString(task.recurrence_end_date),
     endCount: task.recurrence_end_count?.toString() || '',
     rule: task.recurrence_rule || '',
     timezone: task.recurrence_timezone || (frequency ? fallbackTimezone : ''),
@@ -178,8 +177,8 @@ export function TaskDetailForm({
   useEffect(() => {
     if (task) {
       setName(task.name)
-      setDueDate(task.due_date ? new Date(task.due_date) : undefined)
-      setPlanDate(task.plan_date ? new Date(task.plan_date) : undefined)
+      setDueDate(parseLocalDateString(task.due_date))
+      setPlanDate(parseLocalDateString(task.plan_date))
       setUrl(task.url || '')
       setComment(task.comment || '')
       setDurationMinutes(task.duration_minutes?.toString() || '')

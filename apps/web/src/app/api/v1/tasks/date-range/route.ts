@@ -51,8 +51,9 @@ export async function GET(request: NextRequest) {
       .from('tasks')
       .select('*')
       .eq('user_id', auth.id)
-      .or(`plan_date.gte.${startDate},due_date.gte.${startDate}`)
-      .or(`plan_date.lte.${endDate},due_date.lte.${endDate}`)
+      .or(
+        `and(plan_date.gte.${startDate},plan_date.lte.${endDate}),and(due_date.gte.${startDate},due_date.lte.${endDate})`,
+      )
       .order('sort_order', { ascending: true })
 
     // Filter by list if provided

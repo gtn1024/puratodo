@@ -1,5 +1,6 @@
 'use client'
 
+import { parseLocalDateString } from '@puratodo/shared'
 import { cn, Dialog, DialogContent, Input } from '@puratodo/ui'
 import { format } from 'date-fns'
 import { Calendar, Check, Circle, Loader2, Search, Star } from 'lucide-react'
@@ -122,6 +123,11 @@ export function CommandPalette({
     [onSelect, onOpenChange],
   )
 
+  const getDueDateLabel = React.useCallback((dueDate: string | null) => {
+    const parsed = parseLocalDateString(dueDate)
+    return parsed ? format(parsed, 'MMM d') : null
+  }, [])
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={`sm:max-w-lg p-0 gap-0 ${className || ''}`}>
@@ -163,61 +169,64 @@ export function CommandPalette({
             </div>
           ) : (
             <ul className="py-1">
-              {results.map(result => (
-                <li
-                  key={result.id}
-                  onClick={() => handleSelect(result)}
-                  className="px-4 py-2 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer"
-                >
-                  <div className="flex items-center gap-2">
-                    {/* Completion status */}
-                    {result.completed
-                      ? (
-                          <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        )
-                      : (
-                          <Circle className="h-4 w-4 text-stone-300 dark:text-stone-600 flex-shrink-0" />
+              {results.map((result) => {
+                const dueDateLabel = getDueDateLabel(result.due_date)
+                return (
+                  <li
+                    key={result.id}
+                    onClick={() => handleSelect(result)}
+                    className="px-4 py-2 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      {/* Completion status */}
+                      {result.completed
+                        ? (
+                            <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                          )
+                        : (
+                            <Circle className="h-4 w-4 text-stone-300 dark:text-stone-600 flex-shrink-0" />
+                          )}
+
+                      {/* Task name */}
+                      <span
+                        className={cn(
+                          'flex-1 truncate text-sm',
+                          result.completed
+                            ? 'line-through text-stone-400'
+                            : 'text-stone-900 dark:text-stone-100',
                         )}
+                      >
+                        {result.name}
+                      </span>
 
-                    {/* Task name */}
-                    <span
-                      className={cn(
-                        'flex-1 truncate text-sm',
-                        result.completed
-                          ? 'line-through text-stone-400'
-                          : 'text-stone-900 dark:text-stone-100',
+                      {/* Star indicator */}
+                      {result.starred && (
+                        <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500 flex-shrink-0" />
                       )}
-                    >
-                      {result.name}
-                    </span>
 
-                    {/* Star indicator */}
-                    {result.starred && (
-                      <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500 flex-shrink-0" />
-                    )}
+                      {/* Due date */}
+                      {dueDateLabel && (
+                        <div className="flex items-center gap-1 text-xs text-stone-500">
+                          <Calendar className="h-3 w-3" />
+                          {dueDateLabel}
+                        </div>
+                      )}
+                    </div>
 
-                    {/* Due date */}
-                    {result.due_date && (
-                      <div className="flex items-center gap-1 text-xs text-stone-500">
-                        <Calendar className="h-3 w-3" />
-                        {format(new Date(result.due_date), 'MMM d')}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Location info */}
-                  <div className="flex items-center gap-1.5 text-xs text-stone-500 mt-0.5 pl-6">
-                    <span>{result.list_icon}</span>
-                    <span className="truncate">{result.list_name}</span>
-                    <span className="text-stone-300 dark:text-stone-600">/</span>
-                    <div
-                      className="w-2 h-2 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: result.group_color }}
-                    />
-                    <span className="truncate">{result.group_name}</span>
-                  </div>
-                </li>
-              ))}
+                    {/* Location info */}
+                    <div className="flex items-center gap-1.5 text-xs text-stone-500 mt-0.5 pl-6">
+                      <span>{result.list_icon}</span>
+                      <span className="truncate">{result.list_name}</span>
+                      <span className="text-stone-300 dark:text-stone-600">/</span>
+                      <div
+                        className="w-2 h-2 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: result.group_color }}
+                      />
+                      <span className="truncate">{result.group_name}</span>
+                    </div>
+                  </li>
+                )
+              })}
             </ul>
           )}
         </div>
