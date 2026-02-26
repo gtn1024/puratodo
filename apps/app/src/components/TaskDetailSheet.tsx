@@ -1,11 +1,6 @@
-import type { RecurrenceEditorValue, RecurrenceUpdateScope } from '@puratodo/task-ui'
-import {
-  createRecurrenceEditorValue,
-
-  TaskDetailForm,
-} from '@puratodo/task-ui'
+import type { RecurrenceEditorValue, RecurrenceUpdateScope, TaskUpdatePayload } from '@puratodo/task-ui'
+import { createRecurrenceEditorValue, TaskDetailDrawer } from '@puratodo/task-ui'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@puratodo/ui'
-import { FileText, Loader2 } from 'lucide-react'
 import * as React from 'react'
 import { useI18n } from '@/i18n'
 import { useDataStore } from '@/stores/dataStore'
@@ -62,7 +57,7 @@ function TaskDetailSheetContent({
     }
   }, [taskId, tasks])
 
-  const handleSave = async (updates: any) => {
+  const handleSave = async (updates: TaskUpdatePayload) => {
     if (!task)
       return
 
@@ -77,39 +72,17 @@ function TaskDetailSheetContent({
     }
   }
 
-  // Empty state - no task selected
-  if (!taskId) {
-    return (
-      <div className="h-full flex flex-col items-center justify-center p-8 text-center">
-        <div className="w-16 h-16 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center mb-4">
-          <FileText className="h-8 w-8 text-stone-400" />
-        </div>
-        <h3 className="text-lg font-medium text-stone-900 dark:text-stone-100 mb-2">
-          {t('taskSheet.noTaskSelected')}
-        </h3>
-        <p className="text-sm text-stone-500 dark:text-stone-400 max-w-xs">
-          {t('taskSheet.clickTaskToView')}
-        </p>
-      </div>
-    )
-  }
-
-  // Loading state
-  if (!task) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-stone-400" />
-      </div>
-    )
+  const handleOpenUrl = (url: string) => {
+    window.open(url, '_blank', 'noopener,noreferrer')
   }
 
   return (
-    <TaskDetailForm
+    <TaskDetailDrawer
       task={task}
+      isLoading={false}
       onSave={handleSave}
       onCancel={onClose}
-      onClearDueDate={() => {}}
-      onClearPlanDate={() => {}}
+      onOpenUrl={handleOpenUrl}
       recurrence={recurrence}
       onRecurrenceChange={setRecurrence}
       recurrenceScope={recurrenceScope}
@@ -117,11 +90,18 @@ function TaskDetailSheetContent({
       remindAt={remindAt}
       onRemindAtChange={setRemindAt}
       labels={{
+        // TaskDetailForm labels
         taskName: t('taskDetail.taskName'),
+        taskNamePlaceholder: t('taskDetail.enterTaskName'),
         dueDate: t('taskDetail.dueDate'),
         planDate: t('taskDetail.planDate'),
         duration: t('taskDetail.duration'),
+        durationPlaceholder: t('taskDetail.durationPlaceholder'),
+        url: t('taskDetail.url'),
+        urlPlaceholder: t('taskDetail.urlPlaceholder'),
+        openUrl: t('taskDetail.openUrl'),
         comment: t('taskDetail.notes'),
+        commentPlaceholder: t('taskDetail.notesPlaceholder'),
         selectDueDate: t('taskDetail.selectDueDate'),
         selectPlanDate: t('taskDetail.selectPlanDate'),
         clear: t('taskDetail.clear'),
@@ -129,6 +109,56 @@ function TaskDetailSheetContent({
         cancel: t('taskDetail.close'),
         loading: t('common.loading'),
         taskNotFound: t('errors.taskNotFound'),
+
+        // RecurrenceEditor labels
+        recurrence: t('taskDetail.recurrence'),
+        recurrenceNone: t('taskDetail.recurrenceNone'),
+        recurrenceDaily: t('taskDetail.recurrenceDaily'),
+        recurrenceWeekly: t('taskDetail.recurrenceWeekly'),
+        recurrenceMonthly: t('taskDetail.recurrenceMonthly'),
+        recurrenceCustom: t('taskDetail.recurrenceCustom'),
+        every: t('taskDetail.every'),
+        intervalUnitDays: t('taskDetail.intervalUnitDays'),
+        intervalUnitWeeks: t('taskDetail.intervalUnitWeeks'),
+        intervalUnitMonths: t('taskDetail.intervalUnitMonths'),
+        weekdays: t('taskDetail.weekdays'),
+        weekdaySun: t('taskDetail.weekdaySun'),
+        weekdayMon: t('taskDetail.weekdayMon'),
+        weekdayTue: t('taskDetail.weekdayTue'),
+        weekdayWed: t('taskDetail.weekdayWed'),
+        weekdayThu: t('taskDetail.weekdayThu'),
+        weekdayFri: t('taskDetail.weekdayFri'),
+        weekdaySat: t('taskDetail.weekdaySat'),
+        customRule: t('taskDetail.customRule'),
+        customRulePlaceholder: t('taskDetail.customRulePlaceholder'),
+        timezone: t('taskDetail.timezone'),
+        timezonePlaceholder: t('taskDetail.timezonePlaceholder'),
+        end: t('taskDetail.end'),
+        endNever: t('taskDetail.endNever'),
+        endOnDate: t('taskDetail.endOnDate'),
+        endAfterCount: t('taskDetail.endAfterCount'),
+        selectEndDate: t('taskDetail.selectEndDate'),
+        applyScope: t('taskDetail.applyScope'),
+        scopeSingle: t('taskDetail.scopeSingle'),
+        scopeFuture: t('taskDetail.scopeFuture'),
+
+        // ReminderEditor labels
+        reminderTitle: t('reminder.title'),
+        reminderClear: t('taskDetail.clear'),
+        reminderNotSupported: t('reminder.notSupported'),
+        reminderDenied: t('reminder.denied'),
+        reminderEnable: t('reminder.enable'),
+        reminderSelectPreset: t('reminder.selectPreset'),
+        reminderPresetsNone: t('reminder.presets.none'),
+        reminderPresetsAtTime: t('reminder.presets.atTime'),
+        reminderPresets5min: t('reminder.presets.5min'),
+        reminderPresets15min: t('reminder.presets.15min'),
+        reminderPresets30min: t('reminder.presets.30min'),
+        reminderPresets1hour: t('reminder.presets.1hour'),
+        reminderPresets1day: t('reminder.presets.1day'),
+        reminderPresetsCustom: t('reminder.presets.custom'),
+        reminderWillRemindAt: t('reminder.willRemindAt'),
+        reminderNoDateWarning: t('reminder.noDateWarning'),
       }}
     />
   )

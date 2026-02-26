@@ -1,6 +1,7 @@
-import { getLocalDateString, parseLocalDateString } from '@puratodo/shared'
+import type { RecurrenceEditorValue, RecurrenceUpdateScope, TaskUpdatePayload } from '@puratodo/task-ui'
+import { createRecurrenceEditorValue, TaskDetailDrawer } from '@puratodo/task-ui'
 import { Button } from '@puratodo/ui'
-import { CalendarIcon, Clock, FileText, Loader2, Star, X } from 'lucide-react'
+import { FileText, Loader2, Star, X } from 'lucide-react'
 import * as React from 'react'
 import { useI18n } from '@/i18n'
 import { useDataStore } from '@/stores/dataStore'
@@ -18,29 +19,35 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
   // Find the task from store
   const task = taskId ? tasks.find(t => t.id === taskId) : null
 
-  // Local state for editing
-  const [name, setName] = React.useState('')
-  const [dueDate, setDueDate] = React.useState<Date | undefined>()
-  const [planDate, setPlanDate] = React.useState<Date | undefined>()
-  const [comment, setComment] = React.useState('')
-  const [durationMinutes, setDurationMinutes] = React.useState<string>('')
-  const [isSaving, setIsSaving] = React.useState(false)
+  // Recurrence and reminder state
+  const defaultRecurrence: RecurrenceEditorValue = {
+    frequency: '',
+    interval: '',
+    weekdays: [],
+    endType: 'never',
+    endDate: undefined,
+    endCount: '',
+    rule: '',
+    timezone: '',
+  }
+  const [recurrence, setRecurrence] = React.useState<RecurrenceEditorValue>(defaultRecurrence)
+  const [recurrenceScope, setRecurrenceScope] = React.useState<RecurrenceUpdateScope>('single')
+  const [remindAt, setRemindAt] = React.useState<string | null>(null)
   const [isLoaded, setIsLoaded] = React.useState(false)
 
   // Load task data when taskId changes
   React.useEffect(() => {
     if (!taskId) {
       setIsLoaded(false)
+      setRecurrence(defaultRecurrence)
+      setRemindAt(null)
       return
     }
 
     const foundTask = tasks.find(t => t.id === taskId)
     if (foundTask) {
-      setName(foundTask.name)
-      setDueDate(parseLocalDateString(foundTask.due_date))
-      setPlanDate(parseLocalDateString(foundTask.plan_date))
-      setComment(foundTask.comment || '')
-      setDurationMinutes(foundTask.duration_minutes?.toString() || '')
+      setRecurrence(createRecurrenceEditorValue(foundTask))
+      setRemindAt(foundTask.remind_at || null)
       setIsLoaded(true)
     }
     else {
@@ -48,31 +55,23 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
     }
   }, [taskId, tasks])
 
-  const handleSave = async () => {
-    if (!task || !name.trim())
+  const handleSave = async (updates: TaskUpdatePayload) => {
+    if (!task)
       return
 
-    setIsSaving(true)
     try {
-      await updateTask(task.id, {
-        name: name.trim(),
-        due_date: dueDate ? getLocalDateString(dueDate) : null,
-        plan_date: planDate ? getLocalDateString(planDate) : null,
-        comment: comment.trim() || null,
-        duration_minutes: durationMinutes ? Number.parseInt(durationMinutes, 10) : null,
-      })
+      await updateTask(task.id, updates)
       onTaskUpdated()
     }
     catch (err) {
       console.error('Failed to save task:', err)
-    }
-    finally {
-      setIsSaving(false)
+      throw err
     }
   }
 
-  const clearDueDate = () => setDueDate(undefined)
-  const clearPlanDate = () => setPlanDate(undefined)
+  const handleOpenUrl = (url: string) => {
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
 
   const toggleStarred = async () => {
     if (!task)
@@ -143,23 +142,9 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-6 space-y-6">
-          {/* Task Name */}
-          <div className="space-y-2">
-            <label className="font-medium text-stone-700 dark:text-stone-300">
-              {t('taskDetail.taskName')}
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder={t('taskDetail.enterTaskName')}
-              className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-400"
-            />
-          </div>
-
-          {/* Completed and Starred Status */}
-          <div className="flex items-center gap-4">
+        {/* Completed and Starred toggles - app-specific */}
+        <div className="px-6 pt-6">
+          <div className="flex items-center gap-4 pb-4 border-b border-stone-200 dark:border-stone-800">
             <div className="flex items-center gap-2">
               <div
                 className={`w-5 h-5 rounded-full border flex items-center justify-center cursor-pointer hover:border-green-500 ${
@@ -193,127 +178,93 @@ export function TaskDetailPanel({ taskId, onTaskUpdated, onClose }: TaskDetailPa
               </span>
             </div>
           </div>
-
-          {/* Due Date */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
-                <CalendarIcon className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-                {t('taskDetail.dueDate')}
-              </label>
-              {dueDate && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearDueDate}
-                  className="h-6 px-2 text-stone-500"
-                >
-                  <X className="h-3 w-3 mr-1" />
-                  {t('taskDetail.clear')}
-                </Button>
-              )}
-            </div>
-            <input
-              type="date"
-              value={dueDate ? getLocalDateString(dueDate) : ''}
-              onChange={(e) => {
-                const newDate = parseLocalDateString(e.target.value)
-                setDueDate(newDate)
-              }}
-              className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100"
-            />
-          </div>
-
-          {/* Plan Date */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
-                <CalendarIcon className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-                {t('taskDetail.planDate')}
-              </label>
-              {planDate && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearPlanDate}
-                  className="h-6 px-2 text-stone-500"
-                >
-                  <X className="h-3 w-3 mr-1" />
-                  {t('taskDetail.clear')}
-                </Button>
-              )}
-            </div>
-            <input
-              type="date"
-              value={planDate ? getLocalDateString(planDate) : ''}
-              onChange={(e) => {
-                const newDate = parseLocalDateString(e.target.value)
-                setPlanDate(newDate)
-              }}
-              className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100"
-            />
-          </div>
-
-          {/* Duration */}
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
-              <Clock className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-              {t('taskDetail.duration')}
-            </label>
-            <input
-              type="number"
-              min="0"
-              value={durationMinutes}
-              onChange={e => setDurationMinutes(e.target.value)}
-              placeholder={t('taskDetail.durationPlaceholder')}
-              className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100"
-            />
-          </div>
-
-          {/* Comment */}
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 font-medium text-stone-700 dark:text-stone-300">
-              <FileText className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-              {t('taskDetail.notes')}
-            </label>
-            <textarea
-              value={comment}
-              onChange={e => setComment(e.target.value)}
-              placeholder={t('taskDetail.notesPlaceholder')}
-              rows={4}
-              className="w-full px-3 py-2 border border-stone-300 dark:border-stone-600 rounded-lg bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 resize-none"
-            />
-          </div>
         </div>
-      </div>
 
-      {/* Footer */}
-      <div className="px-6 py-4 border-t border-stone-200 dark:border-stone-800">
-        <div className="flex gap-3">
-          <Button
-            className="flex-1"
-            onClick={handleSave}
-            disabled={isSaving || !name.trim()}
-          >
-            {isSaving
-              ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    {t('taskDetail.saving')}
-                  </>
-                )
-              : (
-                  t('taskDetail.save')
-                )}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={onClose}
-            disabled={isSaving}
-          >
-            {t('taskDetail.close')}
-          </Button>
-        </div>
+        {/* TaskDetailDrawer - shared component */}
+        <TaskDetailDrawer
+          task={task}
+          isLoading={false}
+          onSave={handleSave}
+          onCancel={onClose}
+          onOpenUrl={handleOpenUrl}
+          recurrence={recurrence}
+          onRecurrenceChange={setRecurrence}
+          recurrenceScope={recurrenceScope}
+          onRecurrenceScopeChange={setRecurrenceScope}
+          remindAt={remindAt}
+          onRemindAtChange={setRemindAt}
+          labels={{
+            // TaskDetailForm labels
+            taskName: t('taskDetail.taskName'),
+            taskNamePlaceholder: t('taskDetail.enterTaskName'),
+            dueDate: t('taskDetail.dueDate'),
+            planDate: t('taskDetail.planDate'),
+            duration: t('taskDetail.duration'),
+            durationPlaceholder: t('taskDetail.durationPlaceholder'),
+            url: t('taskDetail.url'),
+            urlPlaceholder: t('taskDetail.urlPlaceholder'),
+            openUrl: t('taskDetail.openUrl'),
+            comment: t('taskDetail.notes'),
+            commentPlaceholder: t('taskDetail.notesPlaceholder'),
+            selectDueDate: t('taskDetail.selectDueDate'),
+            selectPlanDate: t('taskDetail.selectPlanDate'),
+            clear: t('taskDetail.clear'),
+            save: t('taskDetail.save'),
+            cancel: t('taskDetail.close'),
+            loading: t('common.loading'),
+            taskNotFound: t('errors.taskNotFound'),
+
+            // RecurrenceEditor labels
+            recurrence: t('taskDetail.recurrence'),
+            recurrenceNone: t('taskDetail.recurrenceNone'),
+            recurrenceDaily: t('taskDetail.recurrenceDaily'),
+            recurrenceWeekly: t('taskDetail.recurrenceWeekly'),
+            recurrenceMonthly: t('taskDetail.recurrenceMonthly'),
+            recurrenceCustom: t('taskDetail.recurrenceCustom'),
+            every: t('taskDetail.every'),
+            intervalUnitDays: t('taskDetail.intervalUnitDays'),
+            intervalUnitWeeks: t('taskDetail.intervalUnitWeeks'),
+            intervalUnitMonths: t('taskDetail.intervalUnitMonths'),
+            weekdays: t('taskDetail.weekdays'),
+            weekdaySun: t('taskDetail.weekdaySun'),
+            weekdayMon: t('taskDetail.weekdayMon'),
+            weekdayTue: t('taskDetail.weekdayTue'),
+            weekdayWed: t('taskDetail.weekdayWed'),
+            weekdayThu: t('taskDetail.weekdayThu'),
+            weekdayFri: t('taskDetail.weekdayFri'),
+            weekdaySat: t('taskDetail.weekdaySat'),
+            customRule: t('taskDetail.customRule'),
+            customRulePlaceholder: t('taskDetail.customRulePlaceholder'),
+            timezone: t('taskDetail.timezone'),
+            timezonePlaceholder: t('taskDetail.timezonePlaceholder'),
+            end: t('taskDetail.end'),
+            endNever: t('taskDetail.endNever'),
+            endOnDate: t('taskDetail.endOnDate'),
+            endAfterCount: t('taskDetail.endAfterCount'),
+            selectEndDate: t('taskDetail.selectEndDate'),
+            applyScope: t('taskDetail.applyScope'),
+            scopeSingle: t('taskDetail.scopeSingle'),
+            scopeFuture: t('taskDetail.scopeFuture'),
+
+            // ReminderEditor labels
+            reminderTitle: t('reminder.title'),
+            reminderClear: t('taskDetail.clear'),
+            reminderNotSupported: t('reminder.notSupported'),
+            reminderDenied: t('reminder.denied'),
+            reminderEnable: t('reminder.enable'),
+            reminderSelectPreset: t('reminder.selectPreset'),
+            reminderPresetsNone: t('reminder.presets.none'),
+            reminderPresetsAtTime: t('reminder.presets.atTime'),
+            reminderPresets5min: t('reminder.presets.5min'),
+            reminderPresets15min: t('reminder.presets.15min'),
+            reminderPresets30min: t('reminder.presets.30min'),
+            reminderPresets1hour: t('reminder.presets.1hour'),
+            reminderPresets1day: t('reminder.presets.1day'),
+            reminderPresetsCustom: t('reminder.presets.custom'),
+            reminderWillRemindAt: t('reminder.willRemindAt'),
+            reminderNoDateWarning: t('reminder.noDateWarning'),
+          }}
+        />
       </div>
     </div>
   )

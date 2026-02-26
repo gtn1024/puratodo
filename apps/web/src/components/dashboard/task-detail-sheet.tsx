@@ -1,20 +1,10 @@
 'use client'
 
-import type { TaskUpdatePayload } from '@puratodo/task-ui'
+import type { TaskUpdatePayload, RecurrenceEditorValue, RecurrenceUpdateScope } from '@puratodo/task-ui'
 import type { Task } from '@/actions/tasks'
-import type { RecurrenceEditorValue, RecurrenceUpdateScope } from '@/components/dashboard/recurrence-fields'
-import {
-  createRecurrenceEditorValue,
-  TaskDetailForm,
-} from '@puratodo/task-ui'
+import { createRecurrenceEditorValue, TaskDetailDrawer } from '@puratodo/task-ui'
 import { useEffect, useState } from 'react'
 import { getTaskById, updateTask } from '@/actions/tasks'
-import {
-
-  RecurrenceFields,
-
-} from '@/components/dashboard/recurrence-fields'
-import { ReminderFields } from '@/components/dashboard/reminder-fields'
 import {
   Sheet,
   SheetContent,
@@ -51,8 +41,7 @@ export function TaskDetailSheet({
     rule: '',
     timezone: '',
   })
-  const [recurrenceScope, setRecurrenceScope]
-    = useState<RecurrenceUpdateScope>('single')
+  const [recurrenceScope, setRecurrenceScope] = useState<RecurrenceUpdateScope>('single')
   const [remindAt, setRemindAt] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -112,7 +101,7 @@ export function TaskDetailSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <TaskDetailForm
+        <TaskDetailDrawer
           task={task}
           isLoading={isLoading}
           onSave={handleSave}
@@ -125,6 +114,7 @@ export function TaskDetailSheet({
           onRemindAtChange={setRemindAt}
           onOpenUrl={url => window.open(url, '_blank', 'noopener,noreferrer')}
           labels={{
+            // TaskDetailForm labels
             taskName: t('taskDetail.fields.taskName'),
             taskNamePlaceholder: t('taskDetail.fields.enterTaskName'),
             dueDate: t('taskDetail.dueDate'),
@@ -143,9 +133,57 @@ export function TaskDetailSheet({
             cancel: t('common.cancel'),
             loading: t('common.loading'),
             taskNotFound: t('taskPanel.emptyStates.taskNotFound'),
+
+            // RecurrenceEditor labels
+            recurrence: t('taskDetail.recurrence'),
+            recurrenceNone: t('taskDetail.recurrenceNone'),
+            recurrenceDaily: t('taskDetail.recurrenceDaily'),
+            recurrenceWeekly: t('taskDetail.recurrenceWeekly'),
+            recurrenceMonthly: t('taskDetail.recurrenceMonthly'),
+            recurrenceCustom: t('taskDetail.recurrenceCustom'),
+            every: t('taskDetail.every'),
+            intervalUnitDays: t('taskDetail.intervalUnitDays'),
+            intervalUnitWeeks: t('taskDetail.intervalUnitWeeks'),
+            intervalUnitMonths: t('taskDetail.intervalUnitMonths'),
+            weekdays: t('taskDetail.weekdays'),
+            weekdaySun: t('taskDetail.weekdaySun'),
+            weekdayMon: t('taskDetail.weekdayMon'),
+            weekdayTue: t('taskDetail.weekdayTue'),
+            weekdayWed: t('taskDetail.weekdayWed'),
+            weekdayThu: t('taskDetail.weekdayThu'),
+            weekdayFri: t('taskDetail.weekdayFri'),
+            weekdaySat: t('taskDetail.weekdaySat'),
+            customRule: t('taskDetail.customRule'),
+            customRulePlaceholder: t('taskDetail.customRulePlaceholder'),
+            timezone: t('taskDetail.timezone'),
+            timezonePlaceholder: t('taskDetail.timezonePlaceholder'),
+            end: t('taskDetail.end'),
+            endNever: t('taskDetail.endNever'),
+            endOnDate: t('taskDetail.endOnDate'),
+            endAfterCount: t('taskDetail.endAfterCount'),
+            selectEndDate: t('taskDetail.selectEndDate'),
+            applyScope: t('taskDetail.applyScope'),
+            scopeSingle: t('taskDetail.scopeSingle'),
+            scopeFuture: t('taskDetail.scopeFuture'),
+
+            // ReminderEditor labels
+            reminderTitle: t('reminder.title'),
+            reminderClear: t('taskDetail.clear'),
+            reminderNotSupported: t('reminder.notSupported'),
+            reminderDenied: t('reminder.denied'),
+            reminderEnable: t('reminder.enable'),
+            reminderSelectPreset: t('reminder.selectPreset'),
+            reminderPresetsNone: t('reminder.presets.none'),
+            reminderPresetsAtTime: t('reminder.presets.atTime'),
+            reminderPresets5min: t('reminder.presets.5min'),
+            reminderPresets15min: t('reminder.presets.15min'),
+            reminderPresets30min: t('reminder.presets.30min'),
+            reminderPresets1hour: t('reminder.presets.1hour'),
+            reminderPresets1day: t('reminder.presets.1day'),
+            reminderPresetsCustom: t('reminder.presets.custom'),
+            reminderWillRemindAt: t('reminder.willRemindAt'),
+            reminderNoDateWarning: t('reminder.noDateWarning'),
           }}
-          RecurrenceEditor={RecurrenceFields}
-          ReminderEditor={ReminderFields}
         />
       </SheetContent>
     </Sheet>
