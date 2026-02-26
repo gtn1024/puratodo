@@ -1,11 +1,11 @@
 'use client'
 
-import type { Task } from '@/actions/tasks'
-import { formatParsedTask, parseTaskInput, type ParsedTask } from '@/lib/nlp-parser'
+import type { ParsedTask } from '@/lib/nlp-parser'
 import { Calendar, Clock, ListPlus, Plus, Star } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/i18n'
+import { parseTaskInput } from '@/lib/nlp-parser'
 
 interface SmartTaskInputProps {
   onAddTask: (parsed: {
@@ -134,7 +134,12 @@ export function SmartTaskInput({ onAddTask, onCancel, isLoading, placeholder }: 
             {parsed.due_date && (
               <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs">
                 <Calendar className="h-3 w-3" />
-                <span>{t('taskDetail.dueDate')}: {parsed.due_date}</span>
+                <span>
+                  {t('taskDetail.dueDate')}
+                  :
+                  {' '}
+                  {parsed.due_date}
+                </span>
               </div>
             )}
 
@@ -142,7 +147,12 @@ export function SmartTaskInput({ onAddTask, onCancel, isLoading, placeholder }: 
             {parsed.plan_date && (
               <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs">
                 <Calendar className="h-3 w-3" />
-                <span>{t('taskDetail.planDate')}: {parsed.plan_date}</span>
+                <span>
+                  {t('taskDetail.planDate')}
+                  :
+                  {' '}
+                  {parsed.plan_date}
+                </span>
               </div>
             )}
 
@@ -150,7 +160,11 @@ export function SmartTaskInput({ onAddTask, onCancel, isLoading, placeholder }: 
             {parsed.duration_minutes && (
               <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs">
                 <Clock className="h-3 w-3" />
-                <span>{parsed.duration_minutes} {t('taskDetail.duration').toLowerCase()}</span>
+                <span>
+                  {parsed.duration_minutes}
+                  {' '}
+                  {t('taskDetail.duration').toLowerCase()}
+                </span>
               </div>
             )}
 
@@ -166,7 +180,12 @@ export function SmartTaskInput({ onAddTask, onCancel, isLoading, placeholder }: 
             {parsed.subtasks.length > 0 && (
               <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs">
                 <ListPlus className="h-3 w-3" />
-                <span>+{parsed.subtasks.length} {t('taskPanel.addSubtask').toLowerCase()}</span>
+                <span>
+                  +
+                  {parsed.subtasks.length}
+                  {' '}
+                  {t('taskPanel.addSubtask').toLowerCase()}
+                </span>
               </div>
             )}
           </div>
@@ -181,12 +200,27 @@ export function SmartTaskInput({ onAddTask, onCancel, isLoading, placeholder }: 
       {/* Examples (when input is empty) */}
       {!input && (
         <div className="mx-4 text-xs text-stone-400 dark:text-stone-500">
-          <span className="font-medium">{t('smartInput.examples')}:</span>
-          <span className="ml-1">"{t('smartInput.example1')}"</span>
+          <span className="font-medium">
+            {t('smartInput.examples')}
+            :
+          </span>
+          <span className="ml-1">
+            "
+            {t('smartInput.example1')}
+            "
+          </span>
           <span className="mx-1">•</span>
-          <span>"{t('smartInput.example2')}"</span>
+          <span>
+            "
+            {t('smartInput.example2')}
+            "
+          </span>
           <span className="mx-1">•</span>
-          <span>"{t('smartInput.example3')}"</span>
+          <span>
+            "
+            {t('smartInput.example3')}
+            "
+          </span>
         </div>
       )}
     </div>

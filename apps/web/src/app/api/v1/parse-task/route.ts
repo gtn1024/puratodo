@@ -1,5 +1,7 @@
-import { type NextRequest, NextResponse } from 'next/server'
-import { parseTaskInput, type ParsedTask } from '@/lib/nlp-parser'
+import type { NextRequest } from 'next/server'
+import type { ParsedTask } from '@/lib/nlp-parser'
+import { NextResponse } from 'next/server'
+import { parseTaskInput } from '@/lib/nlp-parser'
 import { createClient } from '@/lib/supabase/server'
 
 export interface ParseTaskResponse {

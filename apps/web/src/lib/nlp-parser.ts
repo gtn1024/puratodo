@@ -55,43 +55,43 @@ const EN_DATE_KEYWORDS: Record<string, () => string> = {
 
 // Date-related keywords (Chinese)
 const ZH_DATE_KEYWORDS: Record<string, () => string> = {
-  '今天': () => getLocalDateString(new Date()),
-  '明天': () => {
+  今天: () => getLocalDateString(new Date()),
+  明天: () => {
     const d = new Date()
     d.setDate(d.getDate() + 1)
     return getLocalDateString(d)
   },
-  '后天': () => {
+  后天: () => {
     const d = new Date()
     d.setDate(d.getDate() + 2)
     return getLocalDateString(d)
   },
-  '大后天': () => {
+  大后天: () => {
     const d = new Date()
     d.setDate(d.getDate() + 3)
     return getLocalDateString(d)
   },
-  '昨天': () => {
+  昨天: () => {
     const d = new Date()
     d.setDate(d.getDate() - 1)
     return getLocalDateString(d)
   },
-  '下周': () => {
+  下周: () => {
     const d = new Date()
     d.setDate(d.getDate() + 7)
     return getLocalDateString(d)
   },
-  '下周一': () => getNextWeekday(1),
-  '下周二': () => getNextWeekday(2),
-  '下周三': () => getNextWeekday(3),
-  '下周四': () => getNextWeekday(4),
-  '下周五': () => getNextWeekday(5),
-  '下周六': () => getNextWeekday(6),
-  '下周日': () => getNextWeekday(0),
-  '这周': () => getEndOfWeek(),
-  '本周': () => getEndOfWeek(),
-  '月底': () => getEndOfMonth(),
-  '月末': () => getEndOfMonth(),
+  下周一: () => getNextWeekday(1),
+  下周二: () => getNextWeekday(2),
+  下周三: () => getNextWeekday(3),
+  下周四: () => getNextWeekday(4),
+  下周五: () => getNextWeekday(5),
+  下周六: () => getNextWeekday(6),
+  下周日: () => getNextWeekday(0),
+  这周: () => getEndOfWeek(),
+  本周: () => getEndOfWeek(),
+  月底: () => getEndOfMonth(),
+  月末: () => getEndOfMonth(),
 }
 
 // Priority keywords (English)
@@ -122,7 +122,7 @@ const ZH_PRIORITY_KEYWORDS = [
 const EN_DURATION_PATTERNS: Array<{ pattern: RegExp, minutes: number }> = [
   { pattern: /(\d+)\s*(?:hour|hr|h)\b/i, minutes: 60 },
   { pattern: /(\d+)\s*(?:minute|min|m)\b/i, minutes: 1 },
-  { pattern: /(\d+\.?\d*)\s*(?:hour|hr)s?\b/i, minutes: 60 },
+  { pattern: /(\d+(?:\.\d*)?)\s*(?:hour|hr)s?\b/i, minutes: 60 },
   { pattern: /half\s*(?:an?\s*)?hour\b/i, minutes: 30 },
   { pattern: /(?:a|an)\s*hour\b/i, minutes: 60 },
   { pattern: /(?:a|an)\s*half\b/i, minutes: 30 },
@@ -221,25 +221,37 @@ function parseAbsoluteDate(text: string): { date: string, matchedText: string } 
 
   // Match "Jan 15", "January 15", "15 Jan", "15 January"
   const months: Record<string, number> = {
-    'jan': 1, 'january': 1,
-    'feb': 2, 'february': 2,
-    'mar': 3, 'march': 3,
-    'apr': 4, 'april': 4,
-    'may': 5,
-    'jun': 6, 'june': 6,
-    'jul': 7, 'july': 7,
-    'aug': 8, 'august': 8,
-    'sep': 9, 'sept': 9, 'september': 9,
-    'oct': 10, 'october': 10,
-    'nov': 11, 'november': 11,
-    'dec': 12, 'december': 12,
+    jan: 1,
+    january: 1,
+    feb: 2,
+    february: 2,
+    mar: 3,
+    march: 3,
+    apr: 4,
+    april: 4,
+    may: 5,
+    jun: 6,
+    june: 6,
+    jul: 7,
+    july: 7,
+    aug: 8,
+    august: 8,
+    sep: 9,
+    sept: 9,
+    september: 9,
+    oct: 10,
+    october: 10,
+    nov: 11,
+    november: 11,
+    dec: 12,
+    december: 12,
   }
 
   // "Jan 15" or "January 15th"
   const monthDayMatch = text.match(/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec|january|february|march|april|june|july|august|september|october|november|december)\s+(\d{1,2})(?:st|nd|rd|th)?\b/i)
   if (monthDayMatch) {
     const month = months[monthDayMatch[1].toLowerCase()]
-    const day = parseInt(monthDayMatch[2], 10)
+    const day = Number.parseInt(monthDayMatch[2], 10)
     const year = new Date().getFullYear()
     const date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
     return { date, matchedText: monthDayMatch[0] }
@@ -248,7 +260,7 @@ function parseAbsoluteDate(text: string): { date: string, matchedText: string } 
   // "15 Jan" or "15th January"
   const dayMonthMatch = text.match(/\b(\d{1,2})(?:st|nd|rd|th)?\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec|january|february|march|april|june|july|august|september|october|november|december)\b/i)
   if (dayMonthMatch) {
-    const day = parseInt(dayMonthMatch[1], 10)
+    const day = Number.parseInt(dayMonthMatch[1], 10)
     const month = months[dayMonthMatch[2].toLowerCase()]
     const year = new Date().getFullYear()
     const date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
@@ -264,13 +276,15 @@ function parseDuration(text: string, patterns: Array<{ pattern: RegExp, minutes:
     if (match) {
       if (match[1] && match[2]) {
         // Handle 1h30m format
-        const hours = parseInt(match[1], 10)
-        const mins = parseInt(match[2], 10)
+        const hours = Number.parseInt(match[1], 10)
+        const mins = Number.parseInt(match[2], 10)
         return { minutes: hours * 60 + mins, matchedText: match[0] }
-      } else if (match[1]) {
-        const value = parseFloat(match[1])
+      }
+      else if (match[1]) {
+        const value = Number.parseFloat(match[1])
         return { minutes: Math.round(value * multiplier), matchedText: match[0] }
-      } else {
+      }
+      else {
         return { minutes: multiplier, matchedText: match[0] }
       }
     }
@@ -314,19 +328,19 @@ function parseSubtasks(text: string): { subtasks: string[], cleanedText: string 
   // - "task and subtask1"
 
   // Check for "+" separators
-  const plusMatch = text.match(/\s*\+\s*(.+)$/)
+  const plusMatch = text.match(/\s*\+\s*(\S.*)$/)
   if (plusMatch) {
     const items = plusMatch[1].split(/\s*\+\s*/)
     subtasks.push(...items.filter(item => item.trim().length > 0))
-    cleanedText = text.replace(/\s*\+\s*.+$/, '')
+    cleanedText = text.replace(/\s*\+\s*(?:\S.*|[\t\v\f \xA0\u1680\u2000-\u200A\u202F\u205F\u3000\uFEFF])$/, '')
   }
 
   // Check for "with X and Y" pattern
-  const withMatch = cleanedText.match(/\s+with\s+(.+)$/i)
+  const withMatch = cleanedText.match(/\s+with\s+(\S.*)$/i)
   if (withMatch) {
     const items = withMatch[1].split(/\s+and\s+/i)
     subtasks.push(...items.filter(item => item.trim().length > 0))
-    cleanedText = cleanedText.replace(/\s+with\s+.+$/i, '')
+    cleanedText = cleanedText.replace(/\s+with\s+(?:\S.*|[\t\v\f \xA0\u1680\u2000-\u200A\u202F\u205F\u3000\uFEFF])$/i, '')
   }
 
   return { subtasks, cleanedText }
@@ -424,10 +438,12 @@ export function parseTaskInput(input: string): ParsedTask {
     if (isDueContext) {
       due_date = date
       detectedHints.push(`due: ${date}`)
-    } else if (isPlanContext) {
+    }
+    else if (isPlanContext) {
       plan_date = date
       detectedHints.push(`plan: ${date}`)
-    } else {
+    }
+    else {
       // Default: ambiguous dates go to plan_date for "do on X" semantics
       // If it's a deadline-like phrase (by, due, before), it goes to due_date
       // Otherwise, plan_date is more natural for scheduling
@@ -459,7 +475,8 @@ export function parseTaskInput(input: string): ParsedTask {
   // Adjust confidence based on what was detected
   if (detectedHints.length === 0) {
     confidence = 'high' // No parsing needed, simple task
-  } else if (detectedHints.length > 2) {
+  }
+  else if (detectedHints.length > 2) {
     confidence = 'medium' // Multiple hints, might need verification
   }
 

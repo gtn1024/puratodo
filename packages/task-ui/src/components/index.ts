@@ -34,7 +34,7 @@ export type {
 export { TaskBulkActions } from './TaskBulkActions'
 export type { TaskBulkActionsProps } from './TaskBulkActions'
 
-export { TaskDetailDrawer, createRecurrenceEditorValue } from './TaskDetailDrawer'
+export { createRecurrenceEditorValue, TaskDetailDrawer } from './TaskDetailDrawer'
 export type {
   TaskDetailDrawerLabels,
   TaskDetailDrawerProps,

@@ -476,75 +476,75 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                           </>
                         )
                       : selectedSmartView === 'starred'
-                      ? (
-                          <>
-                            <div className="w-8 h-8 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
-                              <Star className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-                            </div>
-                            <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                              {t('dashboard.smartViews.starred')}
-                            </h1>
-                          </>
-                        )
-                      : selectedSmartView === 'overdue'
                         ? (
                             <>
-                              <div className="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
-                                <AlertTriangle className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+                              <div className="w-8 h-8 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+                                <Star className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
                               </div>
                               <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                                {t('dashboard.smartViews.overdue')}
+                                {t('dashboard.smartViews.starred')}
                               </h1>
                             </>
                           )
-                        : selectedSmartView === 'next7days'
+                        : selectedSmartView === 'overdue'
                           ? (
                               <>
-                                <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
-                                  <CalendarDays className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                                <div className="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
+                                  <AlertTriangle className="h-4 w-4 text-rose-600 dark:text-rose-400" />
                                 </div>
                                 <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                                  {t('dashboard.smartViews.next7Days')}
+                                  {t('dashboard.smartViews.overdue')}
                                 </h1>
                               </>
                             )
-                          : selectedSmartView === 'nodate'
+                          : selectedSmartView === 'next7days'
                             ? (
                                 <>
-                                  <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                                    <Circle className="h-4 w-4 text-slate-600 dark:text-slate-300" />
+                                  <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                                    <CalendarDays className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                                   </div>
                                   <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                                    {t('dashboard.smartViews.noDate')}
+                                    {t('dashboard.smartViews.next7Days')}
                                   </h1>
                                 </>
                               )
-                            : selectedList
+                            : selectedSmartView === 'nodate'
                               ? (
                                   <>
-                                    <span className="text-xl">{selectedList.icon || '📋'}</span>
+                                    <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                                      <Circle className="h-4 w-4 text-slate-600 dark:text-slate-300" />
+                                    </div>
                                     <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                                      {selectedList.name}
+                                      {t('dashboard.smartViews.noDate')}
                                     </h1>
                                   </>
                                 )
-                              : selectedGroup
+                              : selectedList
                                 ? (
                                     <>
-                                      <div
-                                        className="w-3 h-3 rounded-full"
-                                        style={{ backgroundColor: selectedGroup.color || '#6b7280' }}
-                                      />
+                                      <span className="text-xl">{selectedList.icon || '📋'}</span>
                                       <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                                        {selectedGroup.name}
+                                        {selectedList.name}
                                       </h1>
                                     </>
                                   )
-                                : (
-                                    <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                                      Dashboard
-                                    </h1>
-                                  )}
+                                : selectedGroup
+                                  ? (
+                                      <>
+                                        <div
+                                          className="w-3 h-3 rounded-full"
+                                          style={{ backgroundColor: selectedGroup.color || '#6b7280' }}
+                                        />
+                                        <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
+                                          {selectedGroup.name}
+                                        </h1>
+                                      </>
+                                    )
+                                  : (
+                                      <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
+                                        Dashboard
+                                      </h1>
+                                    )}
             </div>
             <div className="flex items-center gap-1">
               <Button
@@ -621,37 +621,37 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                           <ReviewPanel onTaskClick={handleTaskSelect} />
                         )
                       : selectedList
-                      ? (
-                          <TaskPanel
-                            ref={taskPanelRef}
-                            list={selectedList}
-                            selectedTaskId={selectedTaskId}
-                            allLists={lists}
-                            allGroups={initialGroups.map(group => ({ id: group.id, name: group.name }))}
-                            isInboxMode={false}
-                            onTaskSelect={handleTaskSelect}
-                          />
-                        )
-                      : selectedSmartView
                         ? (
                             <TaskPanel
                               ref={taskPanelRef}
-                              list={null}
+                              list={selectedList}
                               selectedTaskId={selectedTaskId}
-                              smartView={selectedSmartView}
+                              allLists={lists}
+                              allGroups={initialGroups.map(group => ({ id: group.id, name: group.name }))}
+                              isInboxMode={false}
                               onTaskSelect={handleTaskSelect}
                             />
                           )
-                        : (
-                            <ListPanel
-                              ref={listPanelRef}
-                              group={selectedGroup}
-                              lists={groupLists}
-                              allGroups={initialGroups}
-                              onListsChange={handleListsChange}
-                              onListSelect={handleListSelect}
-                            />
-                          )}
+                        : selectedSmartView
+                          ? (
+                              <TaskPanel
+                                ref={taskPanelRef}
+                                list={null}
+                                selectedTaskId={selectedTaskId}
+                                smartView={selectedSmartView}
+                                onTaskSelect={handleTaskSelect}
+                              />
+                            )
+                          : (
+                              <ListPanel
+                                ref={listPanelRef}
+                                group={selectedGroup}
+                                lists={groupLists}
+                                allGroups={initialGroups}
+                                onListsChange={handleListsChange}
+                                onListSelect={handleListSelect}
+                              />
+                            )}
             </div>
           </main>
 

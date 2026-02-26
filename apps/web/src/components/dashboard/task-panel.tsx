@@ -31,6 +31,7 @@ import {
   reorderTasks,
   updateTask,
 } from '@/actions/tasks'
+import { SmartTaskInput } from '@/components/dashboard/smart-task-input'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import {
@@ -40,7 +41,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { SmartTaskInput } from '@/components/dashboard/smart-task-input'
 import { useRealtime } from '@/hooks/use-realtime'
 import { useI18n } from '@/i18n'
 import { TaskPanelSkeleton } from './skeletons'

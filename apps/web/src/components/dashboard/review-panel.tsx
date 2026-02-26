@@ -1,12 +1,12 @@
 'use client'
 
-import { BarChart3, BarChartHorizontal, Calendar, CheckCircle2, Clock, Copy, Download, Star, TrendingUp } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import type { ReviewMetrics } from '@/actions/reviews'
+import { BarChart3, BarChartHorizontal, Calendar, CheckCircle2, Clock, Copy, Star, TrendingUp } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { getMonthlyReview, getWeeklyReview } from '@/actions/reviews'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useI18n } from '@/i18n'
 import { cn } from '@/lib/utils'
 
@@ -198,7 +198,7 @@ export function ReviewPanel({ onTaskClick }: ReviewPanelProps) {
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {/* Period Toggle */}
-        <Tabs value={periodType} onValueChange={(v) => setPeriodType(v as 'weekly' | 'monthly')}>
+        <Tabs value={periodType} onValueChange={v => setPeriodType(v as 'weekly' | 'monthly')}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="weekly">{t('review.weekly')}</TabsTrigger>
             <TabsTrigger value="monthly">{t('review.monthly')}</TabsTrigger>
@@ -392,7 +392,7 @@ export function ReviewPanel({ onTaskClick }: ReviewPanelProps) {
             </CardHeader>
             <CardContent className="pt-0 px-3 pb-3">
               <div className="space-y-1.5 max-h-64 overflow-y-auto">
-                {metrics.all_tasks.map((task) => (
+                {metrics.all_tasks.map(task => (
                   <div
                     key={task.id}
                     className={cn(

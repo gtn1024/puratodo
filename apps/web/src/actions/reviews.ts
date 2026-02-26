@@ -256,8 +256,9 @@ function buildReviewMetrics(
   }
 
   // Fill in all dates in range (including days with no completions)
-  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-    const dateStr = getLocalDateString(d)
+  let currentDate = new Date(start)
+  while (currentDate <= end) {
+    const dateStr = getLocalDateString(currentDate)
     const dayTasks = tasksByDate.get(dateStr) || []
 
     by_day.push({
@@ -270,6 +271,9 @@ function buildReviewMetrics(
       starred_count: dayTasks.filter(t => t.starred).length,
       tasks: dayTasks,
     })
+
+    currentDate = new Date(currentDate)
+    currentDate.setDate(currentDate.getDate() + 1)
   }
 
   // By list breakdown
