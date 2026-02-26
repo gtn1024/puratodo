@@ -346,5 +346,14 @@
   "placeholders": {
     "interval": "1",
     "endCount": "10"
+  },
+  "smartInput": {
+    "placeholder": "输入任务...（试试「明天开会 2小时 !」）",
+    "detected": "识别到：",
+    "hint": "按回车创建，或创建后编辑任务详情",
+    "examples": "试试",
+    "example1": "明天开会 2小时",
+    "example2": "周五买牛奶 !",
+    "example3": "下周交报告 30分钟"
   }
 }

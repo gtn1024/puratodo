@@ -346,5 +346,14 @@
   "placeholders": {
     "interval": "1",
     "endCount": "10"
+  },
+  "smartInput": {
+    "placeholder": "Type a task... (try 'Meeting tomorrow 2h !')",
+    "detected": "Detected:",
+    "hint": "Press Enter to create, or edit the task after creation",
+    "examples": "Try",
+    "example1": "Meeting tomorrow 2h",
+    "example2": "Buy milk Friday !",
+    "example3": "Report due next week 30min"
   }
 }

@@ -895,7 +895,7 @@
         "5. Test: Common Chinese/English phrases parse into expected task fields",
         "6. Test: Ambiguous inputs return safe suggestions instead of silent wrong writes"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 73,

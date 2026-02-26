@@ -23,6 +23,40 @@ All tables include user_id for RLS policies and query optimization.
 
 ---
 
+### 2026-02-26
+
+#### 完成
+- Feature #72: 自然语言任务创建（Natural Language Task Creation）
+  - 创建 `src/lib/nlp-parser.ts`：规则解析器，支持中英文
+    - 日期解析：今天/明天/yesterday/tomorrow/next week/下周一/X月X日等
+    - 时长解析：2h/30min/2小时/半小时等
+    - 优先级：!/!!/important/urgent/重要/紧急
+    - 子任务：+subtask1 +subtask2 语法
+    - 截止/计划日期上下文识别（by/due/之前/截止 → due_date）
+  - 更新 `src/actions/tasks.ts`：
+    - `createTask` 增加 options 参数支持 due_date/plan_date/duration_minutes/starred
+    - `createInboxTask` 同步更新
+  - 创建 `src/components/dashboard/smart-task-input.tsx`：
+    - 实时解析用户输入
+    - 显示解析预览（检测到的日期、时长、优先级、子任务）
+    - 支持回车创建或 Esc 取消
+  - 创建 `src/app/api/v1/parse-task/route.ts`：
+    - POST API 端点用于解析任务文本
+    - 支持未来 LLM 回退扩展
+  - 更新 OpenAPI 文档添加 ParsedTask schema 和 /parse-task 端点
+  - 添加中英文翻译：`smartInput.placeholder/detected/hint/examples`
+  - 修改文件：
+    - `src/components/dashboard/task-panel.tsx`：集成 SmartTaskInput 组件
+    - `src/messages/en.json` 和 `src/messages/zh.json`：添加翻译
+    - `src/app/api/openapi/route.ts`：更新 API 文档
+  - 构建验证通过：`pnpm build:web`
+  - 说明：规则解析器支持常见中英文短语，LLM 回退可后续扩展
+
+#### 下一步
+- Feature #73: Auto-generate weekly/monthly review reports from completed work
+
+---
+
 ### 2026-02-21
 
 #### 完成
@@ -45,7 +79,6 @@ All tables include user_id for RLS policies and query optimization.
     - 构建验证通过：`pnpm build:web`
 
 #### 下一步
-- Feature #72: Natural language task creation with date and intent parsing
 - Feature #73: Auto-generate weekly/monthly review reports from completed work
 
 ---

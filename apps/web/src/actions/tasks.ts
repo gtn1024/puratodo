@@ -96,6 +96,12 @@ export async function createTask(
   listId: string,
   name: string,
   parentId?: string,
+  options?: {
+    due_date?: string | null
+    plan_date?: string | null
+    duration_minutes?: number | null
+    starred?: boolean
+  },
 ): Promise<{ success: boolean, error?: string }> {
   const supabase = await createClient()
   const {
@@ -129,7 +135,10 @@ export async function createTask(
     parent_id: parentId || null,
     name,
     completed: false,
-    starred: false,
+    starred: options?.starred ?? false,
+    due_date: options?.due_date ?? null,
+    plan_date: options?.plan_date ?? null,
+    duration_minutes: options?.duration_minutes ?? null,
     sort_order: maxOrder + 1,
   })
 
@@ -277,6 +286,12 @@ export async function getInboxTasksWithSubtasks(): Promise<Task[]> {
 export async function createInboxTask(
   name: string,
   parentId?: string,
+  options?: {
+    due_date?: string | null
+    plan_date?: string | null
+    duration_minutes?: number | null
+    starred?: boolean
+  },
 ): Promise<{ success: boolean, error?: string }> {
   const supabase = await createClient()
   const {
@@ -306,7 +321,7 @@ export async function createInboxTask(
     }
   }
 
-  return createTask(inboxList.id, name, parentId)
+  return createTask(inboxList.id, name, parentId, options)
 }
 
 export async function updateInboxTask(

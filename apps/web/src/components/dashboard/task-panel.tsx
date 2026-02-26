@@ -5,10 +5,8 @@ import type { List } from '@/actions/lists'
 import type { Task, TaskSearchResult } from '@/actions/tasks'
 import { getLocalDateString } from '@puratodo/shared'
 import {
-
   TaskFilters as SharedTaskFilters,
   TaskBulkActions,
-
   TaskList,
 } from '@puratodo/task-ui'
 import {
@@ -31,7 +29,6 @@ import {
   getTasksWithSubtasks,
   moveInboxTaskToList,
   reorderTasks,
-
   updateTask,
 } from '@/actions/tasks'
 import { Button } from '@/components/ui/button'
@@ -43,7 +40,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-
+import { SmartTaskInput } from '@/components/dashboard/smart-task-input'
 import { useRealtime } from '@/hooks/use-realtime'
 import { useI18n } from '@/i18n'
 import { TaskPanelSkeleton } from './skeletons'
@@ -83,7 +80,6 @@ export interface TaskPanelRef {
 export function TaskPanel({ ref, list, selectedTaskId, allLists, allGroups, isInboxMode, smartView, onTaskSelect }: TaskPanelProps & { ref?: React.RefObject<TaskPanelRef | null> }) {
   const { t } = useI18n()
   const [tasks, setTasks] = useState<Task[]>([])
-  const [newTaskName, setNewTaskName] = useState('')
   const [isAdding, setIsAdding] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingTasks, setIsLoadingTasks] = useState(true)
@@ -105,7 +101,6 @@ export function TaskPanel({ ref, list, selectedTaskId, allLists, allGroups, isIn
   const [isSelectionMode, setIsSelectionMode] = useState(false)
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set())
 
-  const newTaskInputRef = useRef<HTMLInputElement>(null)
   const smartViewPollingInFlightRef = useRef(false)
   const isSmartViewMode = Boolean(smartView)
   const isDateDrivenSmartView = smartView === 'overdue' || smartView === 'next7days'
@@ -188,10 +183,6 @@ export function TaskPanel({ ref, list, selectedTaskId, allLists, allGroups, isIn
       if (!canCreateTasks)
         return
       setIsAdding(true)
-      // Focus the input after a brief delay to ensure it's rendered
-      setTimeout(() => {
-        newTaskInputRef.current?.focus()
-      }, 50)
     },
   }), [canCreateTasks])
 
@@ -200,7 +191,6 @@ export function TaskPanel({ ref, list, selectedTaskId, allLists, allGroups, isIn
       setIsLoadingTasks(true)
       setIsAdding(false)
       setAddingSubtaskTo(null)
-      setNewTaskName('')
       setNewSubtaskName('')
       await reloadTasks()
       setIsLoadingTasks(false)
@@ -295,13 +285,36 @@ export function TaskPanel({ ref, list, selectedTaskId, allLists, allGroups, isIn
     }
   }, [isSmartViewMode, reloadTasks])
 
-  const handleAddTask = async () => {
-    if (!canCreateTasks || !list || !newTaskName.trim())
+  const handleAddTask = async (parsed: {
+    name: string
+    due_date?: string | null
+    plan_date?: string | null
+    duration_minutes?: number | null
+    starred?: boolean
+    subtasks?: string[]
+  }) => {
+    if (!canCreateTasks || !list || !parsed.name.trim())
       return
     setIsLoading(true)
-    const result = await createTask(list.id, newTaskName.trim())
+    const result = await createTask(list.id, parsed.name.trim(), undefined, {
+      due_date: parsed.due_date,
+      plan_date: parsed.plan_date,
+      duration_minutes: parsed.duration_minutes,
+      starred: parsed.starred,
+    })
+
     if (result.success) {
-      setNewTaskName('')
+      // Create subtasks if any
+      if (parsed.subtasks && parsed.subtasks.length > 0) {
+        // Get the newly created task to find its ID
+        const updatedTasks = await getTasksWithSubtasks(list.id)
+        const newTask = updatedTasks.find(t => t.name === parsed.name.trim())
+        if (newTask) {
+          for (const subtaskName of parsed.subtasks) {
+            await createTask(list.id, subtaskName.trim(), newTask.id)
+          }
+        }
+      }
       setIsAdding(false)
       await reloadTasks()
     }
@@ -439,16 +452,6 @@ export function TaskPanel({ ref, list, selectedTaskId, allLists, allGroups, isIn
   const handleReorder = async (listId: string, orderedIds: string[], parentId?: string) => {
     await reorderTasks(listId, orderedIds, parentId)
     await reloadTasks()
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleAddTask()
-    }
-    else if (e.key === 'Escape') {
-      setNewTaskName('')
-      setIsAdding(false)
-    }
   }
 
   const handleSubtaskKeyDown = (e: React.KeyboardEvent, parentId: string) => {
@@ -888,38 +891,15 @@ export function TaskPanel({ ref, list, selectedTaskId, allLists, allGroups, isIn
 
       {/* Task List */}
       <div className="p-4">
-        {/* Add Task Input */}
+        {/* Smart Task Input */}
         {canCreateTasks && isAdding && (
-          <div className="flex items-center gap-3 px-4 py-3 mb-2 rounded-lg border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/50">
-            <Circle className="h-5 w-5 text-stone-300" />
-            <input
-              ref={newTaskInputRef}
-              type="text"
-              value={newTaskName}
-              onChange={e => setNewTaskName(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={t('taskPanel.placeholders.taskName')}
-              className="flex-1 bg-transparent outline-none text-stone-900 dark:text-stone-100 placeholder:text-stone-400"
-              autoFocus
-              disabled={isLoading}
+          <div className="mb-4">
+            <SmartTaskInput
+              onAddTask={handleAddTask}
+              onCancel={() => setIsAdding(false)}
+              isLoading={isLoading}
+              placeholder={t('smartInput.placeholder')}
             />
-            <Button
-              size="sm"
-              onClick={handleAddTask}
-              disabled={isLoading || !newTaskName.trim()}
-            >
-              {t('common.add')}
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => {
-                setNewTaskName('')
-                setIsAdding(false)
-              }}
-            >
-              {t('common.cancel')}
-            </Button>
           </div>
         )}
 

@@ -156,6 +156,28 @@ const openApiSpec = {
           total_pages: { type: 'integer' },
         },
       },
+      ParsedTask: {
+        type: 'object',
+        properties: {
+          title: { type: 'string', description: 'Clean task name' },
+          due_date: { type: 'string', format: 'date', nullable: true },
+          plan_date: { type: 'string', format: 'date', nullable: true },
+          duration_minutes: { type: 'integer', nullable: true },
+          starred: { type: 'boolean' },
+          subtasks: {
+            type: 'array',
+            items: { type: 'string' },
+          },
+          confidence: {
+            type: 'string',
+            enum: ['high', 'medium', 'low'],
+          },
+          detectedHints: {
+            type: 'array',
+            items: { type: 'string' },
+          },
+        },
+      },
     },
   },
   paths: {
@@ -1047,6 +1069,51 @@ const openApiSpec = {
                 },
               },
             },
+          },
+        },
+      },
+    },
+    '/parse-task': {
+      post: {
+        summary: 'Parse natural language task input',
+        description: 'Parse free-text task input and extract structured fields like dates, duration, priority, and subtasks.',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['input'],
+                properties: {
+                  input: {
+                    type: 'string',
+                    description: 'Free-text task input to parse (e.g., "Meeting tomorrow 2h !")',
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Parsed task data',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    data: { $ref: '#/components/schemas/ParsedTask' },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Invalid input',
+          },
+          401: {
+            description: 'Unauthorized',
           },
         },
       },
