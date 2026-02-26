@@ -181,7 +181,10 @@ function getEndOfMonth(): string {
 
 function parseRelativeDate(text: string, keywords: Record<string, () => string>): { date: string, matchedKeyword: string } | null {
   const lowerText = text.toLowerCase()
-  for (const [keyword, getDate] of Object.entries(keywords)) {
+  // Sort keywords by length (longest first) to match longer phrases before shorter ones
+  // e.g., "大后天" (3 chars) should match before "后天" (2 chars)
+  const sortedKeywords = Object.entries(keywords).sort((a, b) => b[0].length - a[0].length)
+  for (const [keyword, getDate] of sortedKeywords) {
     if (lowerText.includes(keyword.toLowerCase())) {
       return { date: getDate(), matchedKeyword: keyword }
     }
