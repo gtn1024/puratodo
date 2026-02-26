@@ -326,6 +326,7 @@
       "today": "今天",
       "calendar": "日历",
       "inbox": "收件箱",
+      "review": "回顾",
       "starred": "已星标",
       "overdue": "已过期",
       "next7Days": "未来 7 天",
@@ -355,5 +356,38 @@
     "example1": "明天开会 2小时",
     "example2": "周五买牛奶 !",
     "example3": "下周交报告 30分钟"
+  },
+  "review": {
+    "title": "回顾",
+    "weekly": "周回顾",
+    "monthly": "月回顾",
+    "period": "时间范围",
+    "tasksCompleted": "已完成任务",
+    "starred": "已星标",
+    "totalDuration": "总时长",
+    "avgDaily": "日均",
+    "hours": "小时",
+    "minutes": "分钟",
+    "noTasks": "此期间没有完成任务",
+    "startTracking": "开始完成任务，在这里查看你的进度！",
+    "byDay": "按天",
+    "byList": "按列表",
+    "byGroup": "按分组",
+    "allTasks": "所有已完成任务",
+    "noDuration": "未设置时长",
+    "exportMarkdown": "导出 Markdown",
+    "copied": "已复制到剪贴板！",
+    "summary": {
+      "header": "效率总结",
+      "youCompleted": "你完成了",
+      "tasksThisWeek": "个本周任务",
+      "tasksThisMonth": "个本月任务",
+      "greatWork": "做得好！",
+      "keepItUp": "继续保持！",
+      "mostProductiveDay": "最高效的一天",
+      "mostProductiveList": "最高效的列表",
+      "with": "完成了",
+      "tasks": "个任务"
+    }
   }
 }

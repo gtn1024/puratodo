@@ -26,6 +26,47 @@ All tables include user_id for RLS policies and query optimization.
 ### 2026-02-26
 
 #### 完成
+- Feature #73: 周期回顾报告（Weekly/Monthly Review Reports）
+  - 创建 `src/actions/reviews.ts`：完成聚合查询与指标计算
+    - `getCompletedTasksInDateRange`：按日期范围获取已完成任务
+    - `getWeeklyReview`：生成周回顾指标（默认最近 7 天）
+    - `getMonthlyReview`：生成月回顾指标（默认最近 30 天）
+    - 指标包括：总完成数、星标数、总时长、日均完成数
+    - 按天/列表/分组细分数据
+  - 创建 `src/components/dashboard/review-panel.tsx`：回顾面板组件
+    - 周/月切换 Tab（Tabs 组件）
+    - 日期范围显示
+    - 四个统计卡片（已完成、星标、总时长、日均）
+    - 效率总结卡片（最高效的一天、最高效的列表）
+    - 按天柱状图（每日完成数可视化）
+    - 按列表统计列表
+    - 所有已完成任务列表
+    - 导出 Markdown 按钮（复制到剪贴板）
+  - 更新 Sidebar 组件：
+    - 添加 Review 入口（emerald 高亮）
+    - 新增 `showReviewView` 和 `onReviewSelect` props
+  - 更新 DashboardContent：
+    - 新增 `showReviewView` 状态和 `handleReviewSelect` 处理函数
+    - 集成 ReviewPanel 渲染
+    - Header 显示 Review 标题和图标
+  - 中英文翻译：`review.*` 翻译键
+  - 添加 shadcn/ui Tabs 组件
+  - 构建验证通过：`pnpm build`
+  - Playwright 测试验证：
+    - Review 入口可点击
+    - 周回顾视图正确显示统计数据
+    - 按天/按列表分组正常
+    - Tab 切换正常
+    - 导出按钮可用
+
+#### 下一步
+- 所有已规划功能已完成
+
+---
+
+### 2026-02-26 (Earlier)
+
+#### 完成
 - Feature #72: 自然语言任务创建（Natural Language Task Creation）
   - 创建 `src/lib/nlp-parser.ts`：规则解析器，支持中英文
     - 日期解析：今天/明天/yesterday/tomorrow/next week/下周一/X月X日等

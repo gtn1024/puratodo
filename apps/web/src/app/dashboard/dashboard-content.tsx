@@ -3,12 +3,13 @@
 import type { Group } from '@/actions/groups'
 import type { List } from '@/actions/lists'
 import type { KeyboardShortcut } from '@/hooks/use-keyboard-shortcuts'
-import { AlertTriangle, CalendarDays, Calendar as CalendarIcon, Circle, Inbox, Menu, Search, Star, Sun } from 'lucide-react'
+import { AlertTriangle, BarChart3, CalendarDays, Calendar as CalendarIcon, Circle, Inbox, Menu, Search, Star, Sun } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { getLists, getOrCreateInboxList } from '@/actions/lists'
 import { CalendarPanel } from '@/components/dashboard/calendar-panel'
 import { ListPanel } from '@/components/dashboard/list-panel'
 import { ReminderScheduler } from '@/components/dashboard/reminder-scheduler'
+import { ReviewPanel } from '@/components/dashboard/review-panel'
 import { Sidebar } from '@/components/dashboard/sidebar'
 import { TaskPanelSkeleton } from '@/components/dashboard/skeletons'
 import { TaskDetailPanel } from '@/components/dashboard/task-detail-panel'
@@ -56,6 +57,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
   const [showTodayView, setShowTodayView] = useState(false)
   const [showCalendarView, setShowCalendarView] = useState(false)
   const [showInboxView, setShowInboxView] = useState(false)
+  const [showReviewView, setShowReviewView] = useState(false)
   const [selectedSmartView, setSelectedSmartView] = useState<SmartViewType | null>(null)
   const [inboxListId, setInboxListId] = useState<string | null>(
     allLists.find(list => list.name === 'Inbox')?.id || null,
@@ -98,6 +100,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     setShowTodayView(false) // Exit today view when selecting list
     setShowCalendarView(false) // Exit calendar view when selecting list
     setShowInboxView(false) // Exit inbox view when selecting list
+    setShowReviewView(false) // Exit review view when selecting list
     setSelectedSmartView(null) // Exit smart view when selecting list
     setMobileMenuOpen(false) // Close mobile menu on selection
   }
@@ -112,6 +115,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     setShowTodayView(false) // Exit today view when selecting group
     setShowCalendarView(false) // Exit calendar view when selecting group
     setShowInboxView(false) // Exit inbox view when selecting group
+    setShowReviewView(false) // Exit review view when selecting group
     setSelectedSmartView(null) // Exit smart view when selecting group
     setMobileMenuOpen(false) // Close mobile menu on selection
   }
@@ -120,6 +124,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     setShowTodayView(true)
     setShowCalendarView(false)
     setShowInboxView(false)
+    setShowReviewView(false)
     setSelectedGroupId(null)
     setSelectedListId(null)
     setSelectedTaskId(null)
@@ -131,6 +136,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     setShowTodayView(false)
     setShowCalendarView(true)
     setShowInboxView(false)
+    setShowReviewView(false)
     setSelectedGroupId(null)
     setSelectedListId(null)
     setSelectedTaskId(null)
@@ -142,6 +148,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     setShowTodayView(false)
     setShowCalendarView(false)
     setShowInboxView(true)
+    setShowReviewView(false)
     setSelectedGroupId(null)
     setSelectedListId(null)
     setSelectedTaskId(null)
@@ -170,10 +177,23 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     setShowTodayView(false)
     setShowCalendarView(false)
     setShowInboxView(false)
+    setShowReviewView(false)
     setSelectedGroupId(null)
     setSelectedListId(null)
     setSelectedTaskId(null)
     setSelectedSmartView(view)
+    setMobileMenuOpen(false)
+  }
+
+  const handleReviewSelect = () => {
+    setShowTodayView(false)
+    setShowCalendarView(false)
+    setShowInboxView(false)
+    setShowReviewView(true)
+    setSelectedGroupId(null)
+    setSelectedListId(null)
+    setSelectedTaskId(null)
+    setSelectedSmartView(null)
     setMobileMenuOpen(false)
   }
 
@@ -184,6 +204,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
     setShowTodayView(false)
     setShowCalendarView(false)
     setShowInboxView(false)
+    setShowReviewView(false)
     setSelectedSmartView(null)
     setMobileMenuOpen(false)
     pendingCreateListGroupIdRef.current = groupId
@@ -350,12 +371,14 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
           showTodayView={showTodayView}
           showCalendarView={showCalendarView}
           showInboxView={showInboxView}
+          showReviewView={showReviewView}
           selectedSmartView={selectedSmartView}
           onGroupSelect={handleGroupSelect}
           onListSelect={handleListSelect}
           onTodaySelect={handleTodaySelect}
           onCalendarSelect={handleCalendarSelect}
           onInboxSelect={handleInboxSelect}
+          onReviewSelect={handleReviewSelect}
           onSmartViewSelect={handleSmartViewSelect}
           onDataChange={handleListsChange}
           onAddListRequest={handleSidebarAddList}
@@ -377,12 +400,14 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
             showTodayView={showTodayView}
             showCalendarView={showCalendarView}
             showInboxView={showInboxView}
+            showReviewView={showReviewView}
             selectedSmartView={selectedSmartView}
             onGroupSelect={handleGroupSelect}
             onListSelect={handleListSelect}
             onTodaySelect={handleTodaySelect}
             onCalendarSelect={handleCalendarSelect}
             onInboxSelect={handleInboxSelect}
+            onReviewSelect={handleReviewSelect}
             onSmartViewSelect={handleSmartViewSelect}
             onDataChange={handleListsChange}
             onAddListRequest={handleSidebarAddList}
@@ -439,7 +464,18 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                           </h1>
                         </>
                       )
-                    : selectedSmartView === 'starred'
+                    : showReviewView
+                      ? (
+                          <>
+                            <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                              <BarChart3 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                            </div>
+                            <h1 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
+                              {t('review.title')}
+                            </h1>
+                          </>
+                        )
+                      : selectedSmartView === 'starred'
                       ? (
                           <>
                             <div className="w-8 h-8 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
@@ -580,7 +616,11 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
                                 </div>
                               )
                       )
-                    : selectedList
+                    : showReviewView
+                      ? (
+                          <ReviewPanel onTaskClick={handleTaskSelect} />
+                        )
+                      : selectedList
                       ? (
                           <TaskPanel
                             ref={taskPanelRef}

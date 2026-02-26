@@ -22,6 +22,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import {
   AlertTriangle,
+  BarChart3,
   Calendar,
   CalendarDays,
   ChevronDown,
@@ -66,12 +67,14 @@ interface SidebarProps {
   showTodayView: boolean
   showCalendarView: boolean
   showInboxView: boolean
+  showReviewView: boolean
   selectedSmartView: 'starred' | 'overdue' | 'next7days' | 'nodate' | null
   onGroupSelect: (groupId: string | null) => void
   onListSelect: (listId: string | null, groupId: string) => void
   onTodaySelect: () => void
   onCalendarSelect: () => void
   onInboxSelect: () => void
+  onReviewSelect: () => void
   onSmartViewSelect: (view: 'starred' | 'overdue' | 'next7days' | 'nodate') => void
   onDataChange: () => void
   onAddListRequest: (groupId: string) => void
@@ -356,12 +359,14 @@ export function Sidebar({
   showTodayView,
   showCalendarView,
   showInboxView,
+  showReviewView,
   selectedSmartView,
   onGroupSelect,
   onListSelect,
   onTodaySelect,
   onCalendarSelect,
   onInboxSelect,
+  onReviewSelect,
   onSmartViewSelect,
   onDataChange,
   onAddListRequest,
@@ -543,6 +548,17 @@ export function Sidebar({
           >
             <Inbox className={`h-4 w-4 ${showInboxView ? 'text-sky-500' : ''}`} />
             <span className="text-sm font-medium">{t('sidebar.inbox')}</span>
+          </button>
+          <button
+            onClick={onReviewSelect}
+            className={`mt-1 w-full flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
+              showReviewView
+                ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
+                : 'hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300'
+            }`}
+          >
+            <BarChart3 className={`h-4 w-4 ${showReviewView ? 'text-emerald-500' : ''}`} />
+            <span className="text-sm font-medium">{t('review.title')}</span>
           </button>
         </div>
 

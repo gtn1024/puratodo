@@ -326,6 +326,7 @@
       "today": "Today",
       "calendar": "Calendar",
       "inbox": "Inbox",
+      "review": "Review",
       "starred": "Starred",
       "overdue": "Overdue",
       "next7Days": "Next 7 Days",
@@ -355,5 +356,38 @@
     "example1": "Meeting tomorrow 2h",
     "example2": "Buy milk Friday !",
     "example3": "Report due next week 30min"
+  },
+  "review": {
+    "title": "Review",
+    "weekly": "Weekly Review",
+    "monthly": "Monthly Review",
+    "period": "Period",
+    "tasksCompleted": "Tasks Completed",
+    "starred": "Starred",
+    "totalDuration": "Total Duration",
+    "avgDaily": "Avg. Daily",
+    "hours": "h",
+    "minutes": "min",
+    "noTasks": "No tasks completed in this period",
+    "startTracking": "Start completing tasks to see your progress here!",
+    "byDay": "By Day",
+    "byList": "By List",
+    "byGroup": "By Group",
+    "allTasks": "All Completed Tasks",
+    "noDuration": "No duration set",
+    "exportMarkdown": "Export Markdown",
+    "copied": "Copied to clipboard!",
+    "summary": {
+      "header": "Productivity Summary",
+      "youCompleted": "You completed",
+      "tasksThisWeek": "tasks this week",
+      "tasksThisMonth": "tasks this month",
+      "greatWork": "Great work!",
+      "keepItUp": "Keep it up!",
+      "mostProductiveDay": "Most productive day",
+      "mostProductiveList": "Most productive list",
+      "with": "with",
+      "tasks": "tasks"
+    }
   }
 }
