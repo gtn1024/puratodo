@@ -3,7 +3,7 @@
 import type { ReviewMetrics } from '@/actions/reviews'
 import { BarChart3, BarChartHorizontal, Calendar, CheckCircle2, Clock, Copy, Star, TrendingUp } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { getMonthlyReview, getWeeklyReview } from '@/actions/reviews'
+import { getDailyReview, getMonthlyReview, getWeeklyReview } from '@/actions/reviews'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -33,7 +33,7 @@ function formatDate(dateStr: string): string {
 
 export function ReviewPanel({ onTaskClick }: ReviewPanelProps) {
   const { t } = useI18n()
-  const [periodType, setPeriodType] = useState<'weekly' | 'monthly'>('weekly')
+  const [periodType, setPeriodType] = useState<'daily' | 'weekly' | 'monthly'>('daily')
   const [metrics, setMetrics] = useState<ReviewMetrics | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [copied, setCopied] = useState(false)
@@ -42,9 +42,11 @@ export function ReviewPanel({ onTaskClick }: ReviewPanelProps) {
     async function loadMetrics() {
       setIsLoading(true)
       try {
-        const data = periodType === 'weekly'
-          ? await getWeeklyReview()
-          : await getMonthlyReview()
+        const data = periodType === 'daily'
+          ? await getDailyReview()
+          : periodType === 'weekly'
+            ? await getWeeklyReview()
+            : await getMonthlyReview()
         setMetrics(data)
       }
       catch (error) {
@@ -61,19 +63,28 @@ export function ReviewPanel({ onTaskClick }: ReviewPanelProps) {
     if (!metrics)
       return
 
+    const periodTitle = periodType === 'daily'
+      ? t('review.daily')
+      : periodType === 'weekly'
+        ? t('review.weekly')
+        : t('review.monthly')
+
     const lines = [
-      `# ${periodType === 'weekly' ? t('review.weekly') : t('review.monthly')}`,
+      `# ${periodTitle}`,
       '',
-      `**${t('review.period')}:** ${formatDate(metrics.period_start)} - ${formatDate(metrics.period_end)}`,
+      `**${t('review.period')}:** ${formatDate(metrics.period_start)}${periodType !== 'daily' ? ` - ${formatDate(metrics.period_end)}` : ''}`,
       '',
       '## Summary',
       '',
       `- **${t('review.tasksCompleted')}:** ${metrics.total_completed}`,
       `- **${t('review.starred')}:** ${metrics.total_starred}`,
       `- **${t('review.totalDuration')}:** ${formatDuration(metrics.total_duration_minutes, t)}`,
-      `- **${t('review.avgDaily')}:** ${metrics.avg_daily_completed}`,
-      '',
     ]
+
+    if (periodType !== 'daily') {
+      lines.push(`- **${t('review.avgDaily')}:** ${metrics.avg_daily_completed}`)
+    }
+    lines.push('')
 
     if (metrics.by_day.length > 0) {
       lines.push('## By Day', '')
@@ -198,8 +209,9 @@ export function ReviewPanel({ onTaskClick }: ReviewPanelProps) {
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {/* Period Toggle */}
-        <Tabs value={periodType} onValueChange={v => setPeriodType(v as 'weekly' | 'monthly')}>
-          <TabsList className="grid w-full grid-cols-2">
+        <Tabs value={periodType} onValueChange={v => setPeriodType(v as 'daily' | 'weekly' | 'monthly')}>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="daily">{t('review.daily')}</TabsTrigger>
             <TabsTrigger value="weekly">{t('review.weekly')}</TabsTrigger>
             <TabsTrigger value="monthly">{t('review.monthly')}</TabsTrigger>
           </TabsList>
@@ -210,15 +222,23 @@ export function ReviewPanel({ onTaskClick }: ReviewPanelProps) {
           <Calendar className="h-4 w-4" />
           <span>
             {formatDate(metrics.period_start)}
-            {' '}
-            -
-            {' '}
-            {formatDate(metrics.period_end)}
+            {periodType !== 'daily' && (
+              <>
+                {' '}
+                -
+                {' '}
+                {formatDate(metrics.period_end)}
+              </>
+            )}
           </span>
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className={cn(
+          'grid gap-3',
+          periodType === 'daily' ? 'grid-cols-3' : 'grid-cols-2 md:grid-cols-4',
+        )}
+        >
           <Card>
             <CardHeader className="pb-2 pt-3 px-3">
               <CardDescription className="text-xs">{t('review.tasksCompleted')}</CardDescription>
@@ -242,12 +262,14 @@ export function ReviewPanel({ onTaskClick }: ReviewPanelProps) {
               </CardTitle>
             </CardHeader>
           </Card>
-          <Card>
-            <CardHeader className="pb-2 pt-3 px-3">
-              <CardDescription className="text-xs">{t('review.avgDaily')}</CardDescription>
-              <CardTitle className="text-2xl">{metrics.avg_daily_completed}</CardTitle>
-            </CardHeader>
-          </Card>
+          {periodType !== 'daily' && (
+            <Card>
+              <CardHeader className="pb-2 pt-3 px-3">
+                <CardDescription className="text-xs">{t('review.avgDaily')}</CardDescription>
+                <CardTitle className="text-2xl">{metrics.avg_daily_completed}</CardTitle>
+              </CardHeader>
+            </Card>
+          )}
         </div>
 
         {/* Highlights */}
@@ -265,11 +287,15 @@ export function ReviewPanel({ onTaskClick }: ReviewPanelProps) {
                 {' '}
                 <strong>{metrics.total_completed}</strong>
                 {' '}
-                {periodType === 'weekly' ? t('review.summary.tasksThisWeek') : t('review.summary.tasksThisMonth')}
+                {periodType === 'daily'
+                  ? t('review.summary.tasksToday')
+                  : periodType === 'weekly'
+                    ? t('review.summary.tasksThisWeek')
+                    : t('review.summary.tasksThisMonth')}
                 {' '}
                 {t('review.summary.keepItUp')}
               </p>
-              {mostProductiveDay && mostProductiveDay.total_completed > 0 && (
+              {periodType !== 'daily' && mostProductiveDay && mostProductiveDay.total_completed > 0 && (
                 <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-2">
                   📅
                   {' '}
@@ -309,8 +335,8 @@ export function ReviewPanel({ onTaskClick }: ReviewPanelProps) {
           </Card>
         )}
 
-        {/* By Day Chart */}
-        {metrics.by_day.length > 0 && (
+        {/* By Day Chart - only show for weekly/monthly */}
+        {periodType !== 'daily' && metrics.by_day.length > 0 && (
           <Card>
             <CardHeader className="pb-2 pt-3 px-3">
               <CardTitle className="text-sm flex items-center gap-2">

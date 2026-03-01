@@ -58,7 +58,7 @@ export interface GroupMetrics {
 export interface ReviewMetrics {
   period_start: string
   period_end: string
-  period_type: 'weekly' | 'monthly'
+  period_type: 'daily' | 'weekly' | 'monthly'
   // Overall stats
   total_completed: number
   total_starred: number
@@ -164,6 +164,29 @@ async function attachCompletedTaskContext(
 }
 
 /**
+ * Generate daily review metrics
+ */
+export async function getDailyReview(
+  reviewDate?: string,
+): Promise<ReviewMetrics> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return createEmptyReviewMetrics('', '', 'daily')
+  }
+
+  // Use provided date or today
+  const date = reviewDate || getLocalDateString(new Date())
+
+  const tasks = await getCompletedTasksInDateRange(date, date)
+
+  return buildReviewMetrics(tasks, date, date, 'daily')
+}
+
+/**
  * Generate weekly review metrics
  */
 export async function getWeeklyReview(
@@ -226,7 +249,7 @@ function buildReviewMetrics(
   tasks: CompletedTask[],
   startDate: string,
   endDate: string,
-  periodType: 'weekly' | 'monthly',
+  periodType: 'daily' | 'weekly' | 'monthly',
 ): ReviewMetrics {
   // Overall stats
   const total_completed = tasks.length
@@ -360,7 +383,7 @@ function buildReviewMetrics(
 function createEmptyReviewMetrics(
   startDate: string,
   endDate: string,
-  periodType: 'weekly' | 'monthly',
+  periodType: 'daily' | 'weekly' | 'monthly',
 ): ReviewMetrics {
   return {
     period_start: startDate,

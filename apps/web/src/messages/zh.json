@@ -359,6 +359,7 @@
   },
   "review": {
     "title": "回顾",
+    "daily": "日回顾",
     "weekly": "周回顾",
     "monthly": "月回顾",
     "period": "时间范围",
@@ -380,6 +381,7 @@
     "summary": {
       "header": "效率总结",
       "youCompleted": "你完成了",
+      "tasksToday": "个今日任务",
       "tasksThisWeek": "个本周任务",
       "tasksThisMonth": "个本月任务",
       "greatWork": "做得好！",

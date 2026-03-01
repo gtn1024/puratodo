@@ -359,6 +359,7 @@
   },
   "review": {
     "title": "Review",
+    "daily": "Daily Review",
     "weekly": "Weekly Review",
     "monthly": "Monthly Review",
     "period": "Period",
@@ -380,6 +381,7 @@
     "summary": {
       "header": "Productivity Summary",
       "youCompleted": "You completed",
+      "tasksToday": "tasks today",
       "tasksThisWeek": "tasks this week",
       "tasksThisMonth": "tasks this month",
       "greatWork": "Great work!",
