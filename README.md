@@ -198,3 +198,22 @@ users (Supabase Auth)
 ## Acknowledgment
 
 This project was written with assistance from AI/LLMs.
+
+## MCP Integration
+
+PuraToDo supports the Model Context Protocol (MCP) for integration with Claude Desktop and other AI assistants.
+
+### Features
+
+- **View Tasks**: Access today's tasks, overdue items, starred tasks, and more
+- **Manage Tasks**: Create, update, complete, and delete tasks through natural language
+- **Search**: Find tasks by name or keyword
+- **Prompts**: Use pre-built prompts for common workflows
+
+### Quick Setup
+
+1. Navigate to **Settings** → **API Tokens** in your PuraToDo dashboard
+2. Create a new token with the required scopes
+3. Add the token to your Claude Desktop configuration
+
+For detailed setup instructions, see the [MCP Setup Guide](apps/web/docs/mcp-setup.md).

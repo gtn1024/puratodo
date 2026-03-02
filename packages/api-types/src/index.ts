@@ -155,6 +155,44 @@ export interface Database {
           updated_at?: string
         }
       }
+      api_tokens: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          token_hash: string
+          prefix: string
+          scopes: string[]
+          created_at: string
+          last_used_at: string | null
+          expires_at: string | null
+          revoked_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          token_hash: string
+          prefix: string
+          scopes?: string[]
+          created_at?: string
+          last_used_at?: string | null
+          expires_at?: string | null
+          revoked_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          token_hash?: string
+          prefix?: string
+          scopes?: string[]
+          created_at?: string
+          last_used_at?: string | null
+          expires_at?: string | null
+          revoked_at?: string | null
+        }
+      }
     }
     Views: {
       [_ in never]: never;
@@ -179,6 +217,7 @@ export type UpdateTables<T extends keyof Database['public']['Tables']>
 export type Group = Tables<'groups'>
 export type List = Tables<'lists'>
 export type Task = Tables<'tasks'>
+export type ApiToken = Tables<'api_tokens'>
 // Extended Task type with nested subtasks (client-side computed)
 export type TaskWithSubtasks = Task & {
   subtasks?: TaskWithSubtasks[]
@@ -195,10 +234,12 @@ export type TaskSearchResult = Task & {
 export type GroupInsert = InsertTables<'groups'>
 export type ListInsert = InsertTables<'lists'>
 export type TaskInsert = InsertTables<'tasks'>
+export type ApiTokenInsert = InsertTables<'api_tokens'>
 
 export type GroupUpdate = UpdateTables<'groups'>
 export type ListUpdate = UpdateTables<'lists'>
 export type TaskUpdate = UpdateTables<'tasks'>
+export type ApiTokenUpdate = UpdateTables<'api_tokens'>
 
 // API Types
 export interface ApiResponse<T = unknown> {

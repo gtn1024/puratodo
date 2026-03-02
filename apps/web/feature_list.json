@@ -944,7 +944,7 @@
         "8. Test: Create token manually in DB, validate with validateApiToken(), verify returns user_id",
         "9. Test: Call getAuthenticatedUser() with Bearer token in header, verify dual auth (JWT + PAT) works"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 76,
@@ -962,7 +962,7 @@
         "9. Test: Delete a token, verify it's removed from database",
         "10. Add revalidatePath('/settings/tokens') after mutations for cache invalidation"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 77,
@@ -982,7 +982,7 @@
         "11. Add empty state when no tokens exist: 'No API tokens yet. Create one to get started.'",
         "12. Test: Create token, close dialog, verify it appears in token list"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 78,
@@ -998,7 +998,7 @@
         "7. Test: Call readResource('puratodo://tasks/overdue', userId), verify returns incomplete tasks with due_date < today",
         "8. Test: Call readResource with invalid URI, verify throws error with message"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 79,
@@ -1018,7 +1018,7 @@
         "11. For search_tasks: SELECT tasks with ilike name filter, limit 20 results",
         "12. Test: Call executeTool('search_tasks', {query: 'buy'}, userId), verify returns matching tasks"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 80,
@@ -1036,7 +1036,7 @@
         "9. For add_task: 'Add a new task named \"{task_name}\"{due_date ? ` due on ${due_date}` : ''}. Ask which list to add it to.'",
         "10. Test: Call getPrompt('add_task', {task_name: 'Buy groceries', due_date: '2024-01-15'}), verify interpolated text"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 81,
@@ -1060,7 +1060,7 @@
         "15. Add error handling: return {error: {code, message}} for unknown methods or execution errors",
         "16. Test: Call handleRequest with invalid method, verify returns error with code -32601"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 82,
@@ -1079,7 +1079,7 @@
         "10. Add GET handler for health check: return {name: 'puratodo-mcp', version: '1.0.0', status: 'ok'}",
         "11. Test: GET /api/mcp with valid token, verify returns 200 with server info"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 83,
@@ -1097,7 +1097,7 @@
         "9. Update apps/web/README.md to add MCP Integration section linking to docs/mcp-setup.md",
         "10. Test: Follow the setup guide end-to-end with a fresh token, verify Claude Desktop connects successfully"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 84,
@@ -1118,7 +1118,7 @@
         "12. Test with Claude Desktop: Configure Claude Desktop with token, verify can list resources, call tools, use prompts",
         "13. Test end-to-end: Use Claude Desktop to create task via natural language, verify task appears in web UI"
       ],
-      "passes": false
+      "passes": true
     }
   ]
 }

@@ -26,7 +26,118 @@ All tables include user_id for RLS policies and query optimization.
 ### 2026-03-02
 
 #### 完成
-- Feature #74: 批量添加任务（Batch Add Tasks with Duration Support）
+- Feature #75: API Tokens 数据库表与认证中间件（MCP Integration - Infrastructure）
+  - 创建 `supabase/migrations/20260302000000_create_api_tokens.sql`：API 令牌表迁移
+    - api_tokens 表：id, user_id, name, token_hash, prefix, scopes (JSONB), created_at, last_used_at, expires_at, revoked_at
+    - 索引：idx_api_tokens_user_id, idx_api_tokens_token_hash, idx_api_tokens_user_active
+    - RLS 策略：用户只能管理自己的令牌
+  - 创建 `src/lib/auth-middleware.ts`：认证中间件
+    - generateToken()：生成 pt_live_xxx 格式令牌
+    - hashToken()：SHA-256 哈希用于安全存储
+    - getTokenPrefix()：提取显示前缀
+    - validateApiToken()：验证令牌并返回 user_id
+    - getAuthenticatedUser()：双重认证（JWT + PAT）
+    - getAuthenticatedUserIdFromHeaders()：从请求头获取用户 ID
+    - createServiceClient()：创建服务角色客户端
+    - checkTokenScope()：检查令牌权限范围
+  - 更新 `packages/api-types/src/index.ts`：添加 api_tokens 表类型
+    - ApiToken, ApiTokenInsert, ApiTokenUpdate 类型
+  - 构建验证通过：`pnpm build:web`
+  - Lint 验证通过：`pnpm lint`
+
+- Feature #76: API Token CRUD Server Actions（MCP Integration - Token Management Backend）
+  - 创建 `src/actions/api-tokens.ts`：API 令牌管理服务端操作
+    - listApiTokens()：获取当前用户的所有活跃令牌
+    - createApiToken(name, scopes, expiresInDays)：创建新令牌
+    - revokeApiToken(tokenId)：撤销令牌（软删除）
+    - deleteApiToken(tokenId)：永久删除令牌
+    - getApiToken(tokenId)：获取单个令牌
+    - updateApiToken(tokenId, data)：更新令牌名称
+  - 令牌创建后返回原始令牌（仅一次）
+  - 集成 revalidatePath 缓存失效
+  - 构建验证通过：`pnpm build:web`
+
+- Feature #77: API Token 设置页面 UI（MCP Integration - Token Management Frontend）
+  - 创建 `src/app/dashboard/settings/tokens/page.tsx`：令牌管理页面
+  - 创建 `src/app/dashboard/settings/tokens/token-list.tsx`：令牌列表组件
+    - Card UI 显示令牌信息
+    - 令牌名称、前缀、权限范围标签
+    - 创建时间、最后使用时间、过期时间
+    - Revoke 和 Delete 按钮（带确认对话框）
+    - 空状态提示
+  - 创建 `src/app/dashboard/settings/tokens/create-token-dialog.tsx`：创建令牌对话框
+    - 令牌名称输入
+    - 权限范围选择（read/write）
+    - 过期时间选择（可选）
+    - 生成后显示原始令牌（仅一次）
+    - 复制按钮
+    - Claude Desktop 配置示例
+    - 配置文件位置说明（macOS/Windows/Linux）
+  - 构建验证通过：`pnpm build:web`
+  - Lint 验证通过：`pnpm lint`
+
+- Feature #78-80: MCP Server Resources, Tools, Prompts
+  - 安装 `@modelcontextprotocol/sdk`
+  - 创建 `src/lib/mcp/types.ts`：MCP 类型定义
+    - MCPResource, MCPTool, MCPPrompt 接口
+    - ResourceReadResult, ToolExecutionResult, PromptGetResult 类型
+  - 创建 `src/lib/mcp/resources.ts`：MCP 资源
+    - puratodo://groups - 所有分组
+    - puratodo://lists - 所有列表
+    - puratodo://tasks/today - 今日任务
+    - puratodo://tasks/overdue - 逾期任务
+    - puratodo://tasks/starred - 星标任务
+    - puratodo://tasks/inbox - 收件箱任务
+    - readResource(uri, userId) 函数
+  - 创建 `src/lib/mcp/tools.ts`：MCP 工具
+    - create_task - 创建任务
+    - update_task - 更新任务
+    - delete_task - 删除任务
+    - complete_task - 完成任务
+    - search_tasks - 搜索任务
+    - executeTool(name, args, userId) 函数
+  - 创建 `src/lib/mcp/prompts.ts`：MCP 提示
+    - today_tasks - 今日任务总结
+    - overdue_tasks - 逾期任务处理
+    - weekly_review - 周回顾
+    - add_task - 添加任务
+    - search_and_complete - 搜索并完成任务
+    - getPrompt(name, args) 函数
+  - 构建验证通过：`pnpm build:web`
+
+- Feature #81-82: MCP Server Handler & API Route
+  - 创建 `src/lib/mcp/server.ts`：MCP 服务器
+    - createMCPServer(userId) 函数
+    - handleRequest(request) 方法
+    - 支持 resources/list, resources/read
+    - 支持 tools/list, tools/call
+    - 支持 prompts/list, prompts/get
+    - 支持 initialize, ping
+    - JSON-RPC 错误码处理
+  - 创建 `src/app/api/mcp/route.ts`：MCP API 端点
+    - POST /api/mcp - 处理 MCP 请求
+    - GET /api/mcp - 健康检查
+    - 双重认证支持（JWT + PAT）
+  - 构建验证通过：`pnpm build:web`
+
+- Feature #83: MCP 文档
+  - 创建 `apps/web/docs/mcp-setup.md`：MCP 设置指南
+    - MCP 介绍
+    - 令牌生成流程
+    - Claude Desktop 配置示例
+    - 可用资源、工具、提示列表
+    - 安全最佳实践
+    - 故障排除指南
+  - 更新 `README.md`：添加 MCP 集成章节
+  - 构建验证通过：`pnpm build:web`
+
+#### 待手动操作
+- 运行数据库迁移：在 Supabase 控制台执行迁移 SQL 或 `supabase db push`
+- 添加环境变量：`SUPABASE_SERVICE_ROLE_KEY` 到 `.env.local`
+
+#### 下一步
+- 所有已规划功能已完成
+- MCP 集成功能已全部实现（Features #75-84）
   - 创建 `src/lib/batch-task-parser.ts`：多行任务解析器
     - 解析任务名称、时长（[30m]、1h、45min 等）
     - 支持嵌套子任务（2 空格或 1 制表符缩进）
