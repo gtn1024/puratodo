@@ -23,6 +23,62 @@ All tables include user_id for RLS policies and query optimization.
 
 ---
 
+### 2026-03-02
+
+#### 完成
+- Feature #74: 批量添加任务（Batch Add Tasks with Duration Support）
+  - 创建 `src/lib/batch-task-parser.ts`：多行任务解析器
+    - 解析任务名称、时长（[30m]、1h、45min 等）
+    - 支持嵌套子任务（2 空格或 1 制表符缩进）
+    - 支持项目符号（-、*、•）
+    - 时长格式：30m、45min、1h、1.5h、90min → 转换为分钟数
+    - 验证嵌套层级（层级不能跳跃）
+    - 构建任务树结构用于预览
+  - 创建 `src/components/ui/alert.tsx`：Alert 组件
+  - 创建 `src/components/dashboard/batch-add-dialog.tsx`：批量添加对话框
+    - 多行文本输入
+    - 实时解析和预览
+    - 任务树预览（显示嵌套结构）
+    - 错误高亮和提示
+    - 填充示例按钮
+    - 格式帮助说明
+  - 更新 `src/actions/tasks.ts`：添加 `batchCreateTasks` 函数
+    - 批量创建任务，处理父子关系
+    - 自动管理 sort_order
+    - 事务性处理（全部成功或全部失败）
+  - 更新 `src/components/dashboard/task-panel.tsx`：集成批量添加功能
+    - 添加"批量添加任务"按钮
+    - 集成 BatchAddTasksDialog 组件
+  - 中英文翻译：`batchAdd.*` 翻译键
+  - 修复 lint 错误：修复 regex 回溯问题，使用字符串解析代替正则
+  - 构建验证通过：`pnpm build:web`
+  - Lint 验证通过：`pnpm lint`
+
+#### 技术细节
+- 使用字符串解析代替复杂的正则表达式，避免 ReDoS 漏洞
+- 支持的时长格式：
+  - 方括号：[30m]、[1h]、[1.5h]
+  - 圆括号：(30m)、(1h)
+  - 直接：30m、45min、1h、90min
+- 嵌套规则：2 空格或 1 制表符 = 1 级缩进
+- 预览模式显示任务树结构，包括时长标注
+
+#### E2E 测试
+- 单元测试：解析器逻辑（4个测试场景全部通过）
+  - 时长解析：[30m], (1h), 45min 等格式正确转换
+  - 嵌套检测：2空格或1制表符正确识别
+  - 边界情况：空行、项目符号、无效格式正确处理
+  - 错误处理：无效时长被忽略，不中断解析
+- 组件测试：UI组件集成正确
+- 构建验证：`pnpm build` 成功
+- Lint 检查：`pnpm lint` 通过
+- 测试结果：已记录在 `test-results-batch-add.md`
+
+#### 下一步
+- 所有已规划功能已完成
+
+---
+
 ### 2026-02-26
 
 #### 完成

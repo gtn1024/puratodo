@@ -204,6 +204,124 @@ export async function deleteTask(
   return { success: true }
 }
 
+export interface ParsedTask {
+  name: string
+  durationMinutes: number | null
+  level: number
+  lineNumber: number
+  hasError: boolean
+  errorMessage?: string
+}
+
+interface TaskWithParent extends ParsedTask {
+  parentId?: string
+}
+
+export async function batchCreateTasks(
+  listId: string,
+  tasks: ParsedTask[],
+): Promise<{ success: boolean, error?: string, createdCount?: number }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Not authenticated' }
+  }
+
+  if (tasks.length === 0) {
+    return { success: false, error: 'No tasks to create' }
+  }
+
+  try {
+    // Build task tree structure to handle parent-child relationships
+    const taskTree: TaskWithParent[] = tasks.map(task => ({ ...task }))
+    const idMap = new Map<number, string>() // Maps level+lineNumber to task ID
+    let createdCount = 0
+
+    // Get max sort_order for root tasks
+    const { data: existingRootTasks } = await supabase
+      .from('tasks')
+      .select('sort_order')
+      .eq('list_id', listId)
+      .eq('user_id', user.id)
+      .is('parent_id', null)
+      .order('sort_order', { ascending: false })
+      .limit(1)
+
+    let rootSortOrder = (existingRootTasks?.[0]?.sort_order ?? -1) + 1
+
+    // Track parent IDs by level
+    const parentStack: string[] = []
+
+    for (const task of taskTree) {
+      // Adjust parent stack based on task level
+      while (parentStack.length > task.level) {
+        parentStack.pop()
+      }
+
+      const parentId = parentStack.length > 0 ? parentStack[parentStack.length - 1] : undefined
+
+      // Get max sort_order for this parent
+      let maxOrder = -1
+      if (parentId) {
+        const { data: existingSubtasks } = await supabase
+          .from('tasks')
+          .select('sort_order')
+          .eq('list_id', listId)
+          .eq('user_id', user.id)
+          .eq('parent_id', parentId)
+          .order('sort_order', { ascending: false })
+          .limit(1)
+
+        maxOrder = existingSubtasks?.[0]?.sort_order ?? -1
+      }
+      else {
+        // Use the root sort order counter
+        maxOrder = rootSortOrder - 1
+        rootSortOrder++
+      }
+
+      // Create the task
+      const { data: newTask, error } = await supabase
+        .from('tasks')
+        .insert({
+          user_id: user.id,
+          list_id: listId,
+          parent_id: parentId || null,
+          name: task.name,
+          completed: false,
+          starred: false,
+          duration_minutes: task.durationMinutes,
+          sort_order: maxOrder + 1,
+        })
+        .select('id')
+        .single()
+
+      if (error) {
+        return { success: false, error: error.message }
+      }
+
+      if (newTask?.id) {
+        createdCount++
+        // Add this task to parent stack if it could have children
+        parentStack.push(newTask.id)
+        idMap.set(task.level * 1000 + task.lineNumber, newTask.id)
+      }
+    }
+
+    revalidatePath('/dashboard')
+    return { success: true, createdCount }
+  }
+  catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
+}
+
 export async function bulkUpdateTasks(
   taskIds: string[],
   data: TaskUpdatePayload,

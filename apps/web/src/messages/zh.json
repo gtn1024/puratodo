@@ -391,5 +391,28 @@
       "with": "完成了",
       "tasks": "个任务"
     }
+  },
+  "batchAdd": {
+    "title": "批量添加任务",
+    "description": "一次添加多个任务，支持时长和嵌套子任务",
+    "inputLabel": "任务（每行一个）",
+    "placeholder": "任务名称 [时长]\n  子任务 1\n  子任务 2 [45分钟]",
+    "fillExample": "填充示例",
+    "tasksCount": "{count} 个任务",
+    "errorsCount": "{count} 个错误",
+    "preview": "预览",
+    "showPreview": "显示预览",
+    "hidePreview": "隐藏预览",
+    "noTasks": "没有要预览的任务",
+    "parseErrors": "解析错误",
+    "moreErrors": "还有 {count} 个错误...",
+    "creating": "创建中...",
+    "create": "创建 {count} 个任务",
+    "help": {
+      "title": "格式帮助",
+      "nesting": "使用 2 个空格或 1 个制表符缩进来创建子任务",
+      "duration": "在方括号中添加时长：[30m]、[1h]、[1.5h]、[90min]",
+      "bullets": "使用 -、*、• 作为项目符号（可选）"
+    }
   }
 }

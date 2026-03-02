@@ -927,7 +927,7 @@
         "9. Test: Invalid duration formats show helpful error messages",
         "10. Test: Large batch (20+ tasks) completes within reasonable time"
       ],
-      "passes": false
+      "passes": true
     }
   ]
 }

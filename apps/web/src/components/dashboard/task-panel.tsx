@@ -2,7 +2,7 @@
 
 import type { InboxMoveTarget, TaskContextMeta, TaskFiltersValue } from '@puratodo/task-ui'
 import type { List } from '@/actions/lists'
-import type { Task, TaskSearchResult } from '@/actions/tasks'
+import type { ParsedTask, Task, TaskSearchResult } from '@/actions/tasks'
 import { getLocalDateString } from '@puratodo/shared'
 import {
   TaskFilters as SharedTaskFilters,
@@ -14,10 +14,12 @@ import {
   CheckSquare,
   Circle,
   Filter,
+  List as ListIcon,
   Plus,
 } from 'lucide-react'
 import { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import {
+  batchCreateTasks,
   bulkDeleteTasks,
   bulkUpdateTasks,
   createTask,
@@ -31,6 +33,7 @@ import {
   reorderTasks,
   updateTask,
 } from '@/actions/tasks'
+import { BatchAddTasksDialog } from '@/components/dashboard/batch-add-dialog'
 import { SmartTaskInput } from '@/components/dashboard/smart-task-input'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
@@ -100,6 +103,9 @@ export function TaskPanel({ ref, list, selectedTaskId, allLists, allGroups, isIn
   // Multi-select state
   const [isSelectionMode, setIsSelectionMode] = useState(false)
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set())
+
+  // Batch add dialog state
+  const [isBatchAddOpen, setIsBatchAddOpen] = useState(false)
 
   const smartViewPollingInFlightRef = useRef(false)
   const isSmartViewMode = Boolean(smartView)
@@ -316,6 +322,17 @@ export function TaskPanel({ ref, list, selectedTaskId, allLists, allGroups, isIn
         }
       }
       setIsAdding(false)
+      await reloadTasks()
+    }
+    setIsLoading(false)
+  }
+
+  const handleBatchCreateTasks = async (tasks: ParsedTask[]) => {
+    if (!canCreateTasks || !list || tasks.length === 0)
+      return
+    setIsLoading(true)
+    const result = await batchCreateTasks(list.id, tasks)
+    if (result.success) {
       await reloadTasks()
     }
     setIsLoading(false)
@@ -848,15 +865,26 @@ export function TaskPanel({ ref, list, selectedTaskId, allLists, allGroups, isIn
           />
 
           {canCreateTasks && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsAdding(true)}
-              disabled={isAdding}
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              {t('taskPanel.addTask')}
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsBatchAddOpen(true)}
+                disabled={isLoading}
+              >
+                <ListIcon className="h-4 w-4 mr-1" />
+                {t('batchAdd.title')}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsAdding(true)}
+                disabled={isAdding}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                {t('taskPanel.addTask')}
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -1112,6 +1140,14 @@ export function TaskPanel({ ref, list, selectedTaskId, allLists, allGroups, isIn
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Batch Add Tasks Dialog */}
+      <BatchAddTasksDialog
+        open={isBatchAddOpen}
+        onOpenChange={setIsBatchAddOpen}
+        onCreateTasks={handleBatchCreateTasks}
+        isLoading={isLoading}
+      />
     </div>
   )
 }

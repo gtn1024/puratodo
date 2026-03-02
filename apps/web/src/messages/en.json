@@ -391,5 +391,28 @@
       "with": "with",
       "tasks": "tasks"
     }
+  },
+  "batchAdd": {
+    "title": "Batch Add Tasks",
+    "description": "Add multiple tasks at once with durations and nested subtasks",
+    "inputLabel": "Tasks (one per line)",
+    "placeholder": "Task name [duration]\n  Subtask 1\n  Subtask 2 [45m]",
+    "fillExample": "Fill Example",
+    "tasksCount": "{count} task(s)",
+    "errorsCount": "{count} error(s)",
+    "preview": "Preview",
+    "showPreview": "Show Preview",
+    "hidePreview": "Hide Preview",
+    "noTasks": "No tasks to preview",
+    "parseErrors": "Parse Errors",
+    "moreErrors": "+{count} more errors...",
+    "creating": "Creating...",
+    "create": "Create {count} Task(s)",
+    "help": {
+      "title": "Formatting Help",
+      "nesting": "Indent with 2 spaces or 1 tab to create subtasks",
+      "duration": "Add duration in brackets: [30m], [1h], [1.5h], [90min]",
+      "bullets": "Use -, *, • as bullet points (optional)"
+    }
   }
 }
