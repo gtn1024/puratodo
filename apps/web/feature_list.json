@@ -928,6 +928,197 @@
         "10. Test: Large batch (20+ tasks) completes within reasonable time"
       ],
       "passes": true
+    },
+    {
+      "id": 75,
+      "category": "MCP Integration - Infrastructure",
+      "description": "Create API tokens database table and authentication middleware",
+      "steps": [
+        "1. Create Supabase migration file: apps/web/supabase/migrations/[timestamp]_create_api_tokens.sql",
+        "2. Add api_tokens table with fields: id, user_id, name, token_hash, prefix, scopes (JSONB), created_at, last_used_at, expires_at, revoked_at",
+        "3. Create indexes on user_id and token_hash for performance",
+        "4. Enable RLS and add policies: users can only view/insert/update/delete their own tokens",
+        "5. Run pnpm db:push to apply migration to Supabase",
+        "6. Create apps/web/src/lib/auth-middleware.ts with hashToken(), generateToken(), validateApiToken(), getAuthenticatedUser() functions",
+        "7. Add SUPABASE_SERVICE_ROLE_KEY to apps/web/.env.local (needed for token validation)",
+        "8. Test: Create token manually in DB, validate with validateApiToken(), verify returns user_id",
+        "9. Test: Call getAuthenticatedUser() with Bearer token in header, verify dual auth (JWT + PAT) works"
+      ],
+      "passes": false
+    },
+    {
+      "id": 76,
+      "category": "MCP Integration - Token Management Backend",
+      "description": "Implement server actions for API token CRUD operations",
+      "steps": [
+        "1. Create apps/web/src/actions/api-tokens.ts with 'use server' directive",
+        "2. Implement createApiToken(formData) - generate token, hash it, store in DB, return raw token once",
+        "3. Test: Call createApiToken with name and scopes, verify token returned in format pt_live_xxx",
+        "4. Implement listApiTokens() - fetch all non-revoked tokens for current user (show prefix, not full token)",
+        "5. Test: Call listApiTokens(), verify returns array with prefix, scopes, created_at, last_used_at",
+        "6. Implement revokeApiToken(tokenId) - set revoked_at timestamp (soft delete)",
+        "7. Test: Revoke a token, verify it no longer appears in listApiTokens()",
+        "8. Implement deleteApiToken(tokenId) - hard delete from database",
+        "9. Test: Delete a token, verify it's removed from database",
+        "10. Add revalidatePath('/settings/tokens') after mutations for cache invalidation"
+      ],
+      "passes": false
+    },
+    {
+      "id": 77,
+      "category": "MCP Integration - Token Management Frontend",
+      "description": "Create settings page UI for API token management",
+      "steps": [
+        "1. Create apps/web/src/app/(dashboard)/settings/tokens/page.tsx - server component that calls listApiTokens()",
+        "2. Test: Navigate to /settings/tokens, verify page loads and shows token list",
+        "3. Create apps/web/src/app/(dashboard)/settings/tokens/token-list.tsx - client component displaying tokens with Card UI",
+        "4. Show token name, prefix (pt_live_ab...), scopes (badges), created_at, last_used_at",
+        "5. Add Revoke and Delete buttons with confirmation dialogs",
+        "6. Test: Click Revoke, confirm, verify token is revoked and disappears from list",
+        "7. Create apps/web/src/app/(dashboard)/settings/tokens/create-token-dialog.tsx - Dialog with name input and scope checkboxes",
+        "8. Test: Open dialog, enter name 'Claude Desktop', select read+write scopes, click Generate",
+        "9. Show generated token ONCE with copy button and MCP config example in dialog",
+        "10. Test: Copy token to clipboard, verify it matches pt_live_xxx format",
+        "11. Add empty state when no tokens exist: 'No API tokens yet. Create one to get started.'",
+        "12. Test: Create token, close dialog, verify it appears in token list"
+      ],
+      "passes": false
+    },
+    {
+      "id": 78,
+      "category": "MCP Integration - Server Resources",
+      "description": "Implement MCP resources for read-only data access",
+      "steps": [
+        "1. Install MCP SDK: pnpm --filter @puratodo/web add @modelcontextprotocol/sdk",
+        "2. Create apps/web/src/lib/mcp/types.ts - define MCPResource, MCPTool, MCPPrompt interfaces",
+        "3. Create apps/web/src/lib/mcp/resources.ts - export resources array with URIs: puratodo://groups, puratodo://lists, puratodo://tasks/today, puratodo://tasks/overdue, puratodo://tasks/starred",
+        "4. Implement readResource(uri, userId) function - parse URI, query Supabase with user_id filter, return JSON data",
+        "5. Test: Call readResource('puratodo://groups', userId), verify returns user's groups array",
+        "6. Test: Call readResource('puratodo://tasks/today', userId), verify returns only tasks with plan_date = today",
+        "7. Test: Call readResource('puratodo://tasks/overdue', userId), verify returns incomplete tasks with due_date < today",
+        "8. Test: Call readResource with invalid URI, verify throws error with message"
+      ],
+      "passes": false
+    },
+    {
+      "id": 79,
+      "category": "MCP Integration - Server Tools",
+      "description": "Implement MCP tools for task mutations",
+      "steps": [
+        "1. Create apps/web/src/lib/mcp/tools.ts - export tools array with inputSchema for: create_task, update_task, delete_task, complete_task, search_tasks",
+        "2. Implement executeTool(name, args, userId) function - switch on tool name, execute Supabase operations with user_id check",
+        "3. For create_task: Insert into tasks table with user_id, list_id, name, optional parent_id/due_date/plan_date/comment/duration/starred",
+        "4. Test: Call executeTool('create_task', {list_id, name: 'Test'}, userId), verify task created and returned",
+        "5. For update_task: Update task fields (name, completed, starred, due_date, plan_date, comment) where id=task_id AND user_id=userId",
+        "6. Test: Call executeTool('update_task', {task_id, completed: true}, userId), verify task marked complete",
+        "7. For delete_task: Delete task where id=task_id AND user_id=userId",
+        "8. Test: Call executeTool('delete_task', {task_id}, userId), verify task deleted",
+        "9. For complete_task: Update task set completed=true where id=task_id AND user_id=userId",
+        "10. Test: Call executeTool('complete_task', {task_id}, userId), verify task completed",
+        "11. For search_tasks: SELECT tasks with ilike name filter, limit 20 results",
+        "12. Test: Call executeTool('search_tasks', {query: 'buy'}, userId), verify returns matching tasks"
+      ],
+      "passes": false
+    },
+    {
+      "id": 80,
+      "category": "MCP Integration - Server Prompts",
+      "description": "Implement MCP prompts for quick actions",
+      "steps": [
+        "1. Create apps/web/src/lib/mcp/prompts.ts - export prompts array with: today_tasks, overdue_tasks, weekly_review, add_task",
+        "2. Implement getPrompt(name, args) function - return prompt text string based on name and arguments",
+        "3. For today_tasks: 'Show me all tasks planned for today, grouped by list. Highlight any overdue items.'",
+        "4. Test: Call getPrompt('today_tasks'), verify returns expected prompt text",
+        "5. For overdue_tasks: 'Show me all overdue tasks, sorted by due date. Suggest which ones to tackle first.'",
+        "6. Test: Call getPrompt('overdue_tasks'), verify returns expected prompt text",
+        "7. For weekly_review: 'Show me tasks for this week: today, upcoming, and overdue. Give me a summary.'",
+        "8. Test: Call getPrompt('weekly_review'), verify returns expected prompt text",
+        "9. For add_task: 'Add a new task named \"{task_name}\"{due_date ? ` due on ${due_date}` : ''}. Ask which list to add it to.'",
+        "10. Test: Call getPrompt('add_task', {task_name: 'Buy groceries', due_date: '2024-01-15'}), verify interpolated text"
+      ],
+      "passes": false
+    },
+    {
+      "id": 81,
+      "category": "MCP Integration - Server Handler",
+      "description": "Create stateless MCP server handler for Vercel deployment",
+      "steps": [
+        "1. Create apps/web/src/lib/mcp/server.ts - export createMCPServer(userId) function",
+        "2. Implement handleRequest(request) method - parse {method, params}, route to appropriate handler",
+        "3. Map method 'resources/list' → return {resources} array",
+        "4. Test: Call handleRequest({method: 'resources/list'}), verify returns resources array",
+        "5. Map method 'resources/read' → call readResource(params.uri, userId), return {contents: [{uri, mimeType, text}]}",
+        "6. Test: Call handleRequest({method: 'resources/read', params: {uri: 'puratodo://groups'}}), verify returns contents",
+        "7. Map method 'tools/list' → return {tools} array",
+        "8. Test: Call handleRequest({method: 'tools/list'}), verify returns tools array with inputSchema",
+        "9. Map method 'tools/call' → call executeTool(params.name, params.arguments, userId), return {content: [{type, text}]}",
+        "10. Test: Call handleRequest({method: 'tools/call', params: {name: 'search_tasks', arguments: {query: 'test'}}}), verify returns results",
+        "11. Map method 'prompts/list' → return {prompts} array",
+        "12. Test: Call handleRequest({method: 'prompts/list'}), verify returns prompts array",
+        "13. Map method 'prompts/get' → call getPrompt(params.name, params.arguments), return {description, messages}",
+        "14. Test: Call handleRequest({method: 'prompts/get', params: {name: 'today_tasks'}}), verify returns messages array",
+        "15. Add error handling: return {error: {code, message}} for unknown methods or execution errors",
+        "16. Test: Call handleRequest with invalid method, verify returns error with code -32601"
+      ],
+      "passes": false
+    },
+    {
+      "id": 82,
+      "category": "MCP Integration - API Route",
+      "description": "Create HTTP endpoint for MCP server (Vercel-compatible stateless)",
+      "steps": [
+        "1. Create apps/web/src/app/api/mcp/route.ts with POST handler",
+        "2. Call getAuthenticatedUser(req) to validate JWT or PAT token, return 401 if unauthorized",
+        "3. Parse request body as JSON: {method, params}",
+        "4. Create server instance: createMCPServer(userId)",
+        "5. Call server.handleRequest(body) and return NextResponse.json(response)",
+        "6. Add error handling: catch exceptions, return 500 with error message",
+        "7. Test: POST to /api/mcp without token, verify returns 401 Unauthorized",
+        "8. Test: POST to /api/mcp with PAT token, method: 'resources/list', verify returns 200 with resources",
+        "9. Test: POST to /api/mcp with invalid method, verify returns 200 with error object",
+        "10. Add GET handler for health check: return {name: 'puratodo-mcp', version: '1.0.0', status: 'ok'}",
+        "11. Test: GET /api/mcp with valid token, verify returns 200 with server info"
+      ],
+      "passes": false
+    },
+    {
+      "id": 83,
+      "category": "MCP Integration - Documentation",
+      "description": "Create MCP setup guide and update README",
+      "steps": [
+        "1. Create apps/web/docs/mcp-setup.md with sections: What is MCP?, Setup Steps, Available Features, Security, Troubleshooting",
+        "2. Document token generation flow: Settings → API Tokens → Generate Token → Copy token",
+        "3. Add Claude Desktop configuration example with JSON for claude_desktop_config.json",
+        "4. List all available resources with descriptions (groups, lists, today, overdue, starred)",
+        "5. List all available tools with parameter descriptions (create_task, update_task, etc.)",
+        "6. List all available prompts with use cases (today_tasks, weekly_review, etc.)",
+        "7. Add security best practices: token hashing, revocation, scope limitations",
+        "8. Add troubleshooting section: MCP not connecting, permission errors, token issues",
+        "9. Update apps/web/README.md to add MCP Integration section linking to docs/mcp-setup.md",
+        "10. Test: Follow the setup guide end-to-end with a fresh token, verify Claude Desktop connects successfully"
+      ],
+      "passes": false
+    },
+    {
+      "id": 84,
+      "category": "MCP Integration - Testing",
+      "description": "Comprehensive testing of MCP integration",
+      "steps": [
+        "1. Test token creation: Generate token with read+write scopes, verify stored in DB with hashed value",
+        "2. Test token validation: Call validateApiToken with valid/invalid/revoked tokens, verify correct results",
+        "3. Test dual auth: Access /api/mcp with JWT session cookie, verify works; access with PAT token, verify works",
+        "4. Test resources: Read each resource URI (groups, lists, today, overdue, starred), verify returns correct data",
+        "5. Test tools - create_task: Create task via MCP, verify appears in web UI and database",
+        "6. Test tools - update_task: Update task name/completed/starred via MCP, verify changes persist",
+        "7. Test tools - delete_task: Delete task via MCP, verify removed from database",
+        "8. Test tools - search_tasks: Search with query, verify returns matching tasks only",
+        "9. Test prompts: Call each prompt (today_tasks, overdue_tasks, weekly_review, add_task), verify returns helpful text",
+        "10. Test token revocation: Revoke token, verify MCP endpoint returns 401 with revoked token",
+        "11. Test error handling: Send malformed requests to /api/mcp, verify returns appropriate error codes",
+        "12. Test with Claude Desktop: Configure Claude Desktop with token, verify can list resources, call tools, use prompts",
+        "13. Test end-to-end: Use Claude Desktop to create task via natural language, verify task appears in web UI"
+      ],
+      "passes": false
     }
   ]
 }
