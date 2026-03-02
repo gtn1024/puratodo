@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS public.api_tokens (
 CREATE INDEX IF NOT EXISTS idx_api_tokens_user_id ON public.api_tokens(user_id);
 CREATE INDEX IF NOT EXISTS idx_api_tokens_token_hash ON public.api_tokens(token_hash);
 CREATE INDEX IF NOT EXISTS idx_api_tokens_user_active ON public.api_tokens(user_id)
-    WHERE revoked_at IS NULL AND (expires_at IS NULL OR expires_at > NOW());
+    WHERE revoked_at IS NULL;
 
 -- Enable RLS
 ALTER TABLE public.api_tokens ENABLE ROW LEVEL SECURITY;
