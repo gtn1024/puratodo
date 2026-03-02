@@ -2,6 +2,34 @@ import type { MCPTool, ToolExecutionResult } from './types'
 import { getLocalDateString } from '@puratodo/shared'
 import { createServiceClient } from '@/lib/auth-middleware'
 
+// Type for task record from database
+interface TaskRecord {
+  id: string
+  user_id: string
+  list_id: string
+  parent_id: string | null
+  name: string
+  completed: boolean
+  starred: boolean
+  due_date: string | null
+  plan_date: string | null
+  comment: string | null
+  duration_minutes: number | null
+  sort_order: number
+  created_at: string
+  updated_at: string
+  lists?: {
+    id: string
+    name: string
+    icon: string | null
+  }
+}
+
+// Type for task with nested subtasks
+interface TaskWithSubtasks extends TaskRecord {
+  subtasks: TaskWithSubtasks[]
+}
+
 /**
  * Available MCP Tools
  *
@@ -237,6 +265,30 @@ export async function executeTool(
         const normalizedLimit = Math.max(1, Math.min(Math.floor(requestedLimit), 200))
         const today = getLocalDateString(new Date())
 
+        // Helper function to build nested task tree
+        function buildTaskTree(tasks: TaskRecord[]): TaskWithSubtasks[] {
+          const taskMap = new Map<string, TaskWithSubtasks>()
+          const rootTasks: TaskWithSubtasks[] = []
+
+          // First pass: create map and add subtasks array
+          for (const task of tasks) {
+            taskMap.set(task.id, { ...task, subtasks: [] })
+          }
+
+          // Second pass: build tree structure
+          for (const task of tasks) {
+            const taskWithSubtasks = taskMap.get(task.id)!
+            if (task.parent_id && taskMap.has(task.parent_id)) {
+              taskMap.get(task.parent_id)!.subtasks.push(taskWithSubtasks)
+            }
+            else {
+              rootTasks.push(taskWithSubtasks)
+            }
+          }
+
+          return rootTasks
+        }
+
         let query = supabase
           .from('tasks')
           .select(`
@@ -249,6 +301,7 @@ export async function executeTool(
           `)
           .eq('user_id', userId)
 
+        // When include_subtasks is false, only get root tasks
         if (!include_subtasks) {
           query = query.is('parent_id', null)
         }
@@ -304,8 +357,11 @@ export async function executeTool(
           }
         }
 
+        // Build nested structure if subtasks are included
+        const result = include_subtasks ? buildTaskTree(data || []) : (data || [])
+
         return {
-          content: [{ type: 'text', text: JSON.stringify(data || [], null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         }
       }
 
