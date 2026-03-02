@@ -810,7 +810,6 @@ export function DashboardPage() {
   React.useEffect(() => {
     void checkForAppUpdates({ manual: false, t })
     // Intentionally run once on app startup.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Fetch all tasks when search dialog opens
