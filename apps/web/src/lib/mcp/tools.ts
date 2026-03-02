@@ -1,4 +1,5 @@
 import type { MCPTool, ToolExecutionResult } from './types'
+import { getLocalDateString } from '@puratodo/shared'
 import { createServiceClient } from '@/lib/auth-middleware'
 
 /**
@@ -8,6 +9,36 @@ import { createServiceClient } from '@/lib/auth-middleware'
  * such as creating, updating, deleting, and completing tasks.
  */
 export const tools: MCPTool[] = [
+  {
+    name: 'list_tasks',
+    description: 'List tasks with optional filters (today, overdue, starred, inbox, or all)',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        view: {
+          type: 'string',
+          enum: ['today', 'overdue', 'starred', 'inbox', 'all'],
+          description: 'Task view filter (default: all)',
+        },
+        completed: {
+          type: 'boolean',
+          description: 'Optional completion status filter (ignored for overdue view)',
+        },
+        list_id: {
+          type: 'string',
+          description: 'Optional list ID to filter tasks',
+        },
+        include_subtasks: {
+          type: 'boolean',
+          description: 'Include subtasks when true (default: false)',
+        },
+        limit: {
+          type: 'number',
+          description: 'Maximum number of tasks to return (default: 50, max: 200)',
+        },
+      },
+    },
+  },
   {
     name: 'create_task',
     description: 'Create a new task in a specified list',
@@ -153,6 +184,131 @@ export async function executeTool(
 
   try {
     switch (name) {
+      case 'list_tasks': {
+        const { view = 'all', completed, list_id, include_subtasks = false, limit = 50 } = args
+        const validViews = new Set(['today', 'overdue', 'starred', 'inbox', 'all'])
+
+        if (typeof view !== 'string' || !validViews.has(view)) {
+          return {
+            content: [{
+              type: 'text',
+              text: 'Error: view must be one of today, overdue, starred, inbox, all',
+            }],
+            isError: true,
+          }
+        }
+
+        if (list_id !== undefined && typeof list_id !== 'string') {
+          return {
+            content: [{ type: 'text', text: 'Error: list_id must be a string' }],
+            isError: true,
+          }
+        }
+
+        if (include_subtasks !== undefined && typeof include_subtasks !== 'boolean') {
+          return {
+            content: [{ type: 'text', text: 'Error: include_subtasks must be a boolean' }],
+            isError: true,
+          }
+        }
+
+        if (completed !== undefined && typeof completed !== 'boolean') {
+          return {
+            content: [{ type: 'text', text: 'Error: completed must be a boolean' }],
+            isError: true,
+          }
+        }
+
+        if (limit !== undefined && typeof limit !== 'number') {
+          return {
+            content: [{ type: 'text', text: 'Error: limit must be a number' }],
+            isError: true,
+          }
+        }
+
+        const requestedLimit = typeof limit === 'number' ? limit : 50
+        if (!Number.isFinite(requestedLimit)) {
+          return {
+            content: [{ type: 'text', text: 'Error: limit must be a finite number' }],
+            isError: true,
+          }
+        }
+
+        const normalizedLimit = Math.max(1, Math.min(Math.floor(requestedLimit), 200))
+        const today = getLocalDateString(new Date())
+
+        let query = supabase
+          .from('tasks')
+          .select(`
+            *,
+            lists (
+              id,
+              name,
+              icon
+            )
+          `)
+          .eq('user_id', userId)
+
+        if (!include_subtasks) {
+          query = query.is('parent_id', null)
+        }
+
+        if (typeof list_id === 'string') {
+          query = query.eq('list_id', list_id)
+        }
+
+        switch (view) {
+          case 'today':
+            query = query.eq('plan_date', today).order('sort_order', { ascending: true })
+            break
+          case 'overdue':
+            query = query.eq('completed', false).lt('due_date', today).order('due_date', { ascending: true })
+            break
+          case 'starred':
+            query = query.eq('starred', true).order('created_at', { ascending: false })
+            break
+          case 'inbox': {
+            const { data: inboxList, error: inboxError } = await supabase
+              .from('lists')
+              .select('id')
+              .eq('user_id', userId)
+              .eq('name', 'Inbox')
+              .single()
+
+            if (inboxError || !inboxList) {
+              return {
+                content: [{ type: 'text', text: JSON.stringify([], null, 2) }],
+              }
+            }
+
+            query = query.eq('list_id', inboxList.id).order('created_at', { ascending: false })
+            break
+          }
+          case 'all':
+            query = query.order('updated_at', { ascending: false })
+            break
+          default:
+            break
+        }
+
+        if (view !== 'overdue' && typeof completed === 'boolean') {
+          query = query.eq('completed', completed)
+        }
+
+        const { data, error } = await query.limit(normalizedLimit)
+
+        if (error) {
+          return {
+            content: [{ type: 'text', text: `Error listing tasks: ${error.message}` }],
+            isError: true,
+          }
+        }
+
+        return {
+          content: [{ type: 'text', text: JSON.stringify(data || [], null, 2) }],
+        }
+      }
+
       case 'create_task': {
         const { list_id, name: taskName, parent_id, due_date, plan_date, comment, duration_minutes, starred } = args
 

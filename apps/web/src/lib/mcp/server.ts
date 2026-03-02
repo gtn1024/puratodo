@@ -225,7 +225,7 @@ export function getServerInfo() {
     status: 'ok',
     capabilities: {
       resources: ['groups', 'lists', 'tasks/today', 'tasks/overdue', 'tasks/starred', 'tasks/inbox'],
-      tools: ['create_task', 'update_task', 'delete_task', 'complete_task', 'search_tasks'],
+      tools: ['list_tasks', 'create_task', 'update_task', 'delete_task', 'complete_task', 'search_tasks'],
       prompts: ['today_tasks', 'overdue_tasks', 'weekly_review', 'add_task', 'search_and_complete'],
     },
   }

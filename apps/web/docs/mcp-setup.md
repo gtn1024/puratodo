@@ -78,6 +78,7 @@ If the connection is working, Claude will be able to access your PuraToDo data.
 
 | Tool | Description | Parameters |
 |------|-------------|------------|
+| `list_tasks` | List tasks with filters | `view` (`today`\|`overdue`\|`starred`\|`inbox`\|`all`), `completed`, `list_id`, `include_subtasks`, `limit` |
 | `create_task` | Create a new task | `list_id` (required), `name` (required), `due_date`, `plan_date`, `comment`, `duration_minutes`, `starred` |
 | `update_task` | Update an existing task | `task_id` (required), `name`, `completed`, `starred`, `due_date`, `plan_date`, `comment` |
 | `delete_task` | Delete a task permanently | `task_id` (required) |
