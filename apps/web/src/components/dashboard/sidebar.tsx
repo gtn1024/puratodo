@@ -31,6 +31,7 @@ import {
   Folder,
   GripVertical,
   Inbox,
+  LogOut,
   MoreHorizontal,
   Plus,
   Settings,
@@ -61,6 +62,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useI18n } from '@/i18n'
+import { createClient } from '@/lib/supabase/client'
 
 interface SidebarProps {
   initialGroups: Group[]
@@ -701,41 +703,57 @@ export function Sidebar({
 
         {/* User Section */}
         <div className="border-t border-stone-200 dark:border-stone-800 p-3">
-          <div className="flex items-center gap-3">
-            {/* Avatar */}
-            <div className="w-8 h-8 rounded-full bg-stone-200 dark:bg-stone-700 flex items-center justify-center overflow-hidden flex-shrink-0">
-              {userInfo.avatarUrl
-                ? (
-                    <Image
-                      src={userInfo.avatarUrl}
-                      alt={userInfo.displayName || userInfo.email || 'User'}
-                      width={32}
-                      height={32}
-                      className="object-cover"
-                    />
-                  )
-                : (
-                    <User className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-                  )}
-            </div>
-            {/* User Info */}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-stone-900 dark:text-stone-100 truncate">
-                {userInfo.displayName || 'User'}
-              </p>
-              <p className="text-xs text-stone-500 dark:text-stone-400 truncate">
-                {userInfo.email}
-              </p>
-            </div>
-            {/* Settings Link */}
-            <a
-              href="/dashboard/settings"
-              className="p-1.5 rounded-md hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 hover:text-stone-700 dark:hover:text-stone-300 transition-colors"
-              title={t('common.settings')}
-            >
-              <Settings className="h-4 w-4" />
-            </a>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="w-full flex items-center gap-3 rounded-md hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors p-1 -m-1">
+                {/* Avatar */}
+                <div className="w-8 h-8 rounded-full bg-stone-200 dark:bg-stone-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+                  {userInfo.avatarUrl
+                    ? (
+                        <Image
+                          src={userInfo.avatarUrl}
+                          alt={userInfo.displayName || userInfo.email || 'User'}
+                          width={32}
+                          height={32}
+                          className="object-cover"
+                        />
+                      )
+                    : (
+                        <User className="h-4 w-4 text-stone-500 dark:text-stone-400" />
+                      )}
+                </div>
+                {/* User Info */}
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="text-sm font-medium text-stone-900 dark:text-stone-100 truncate">
+                    {userInfo.displayName || 'User'}
+                  </p>
+                  <p className="text-xs text-stone-500 dark:text-stone-400 truncate">
+                    {userInfo.email}
+                  </p>
+                </div>
+                <ChevronDown className="h-4 w-4 text-stone-400" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem asChild>
+                <a href="/dashboard/settings" className="flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  {t('common.settings')}
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={async () => {
+                  const supabase = createClient()
+                  await supabase.auth.signOut()
+                  window.location.href = '/login'
+                }}
+                className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                {t('auth.logout')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </aside>
 
