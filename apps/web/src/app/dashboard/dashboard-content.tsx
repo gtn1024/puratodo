@@ -1,5 +1,6 @@
 'use client'
 
+import type { UserInfo } from './page'
 import type { Group } from '@/actions/groups'
 import type { List } from '@/actions/lists'
 import type { KeyboardShortcut } from '@/hooks/use-keyboard-shortcuts'
@@ -37,11 +38,12 @@ import { LogoutButton } from './logout-button'
 interface DashboardContentProps {
   initialGroups: Group[]
   allLists: List[]
+  userInfo: UserInfo
 }
 
 type SmartViewType = 'starred' | 'overdue' | 'next7days' | 'nodate'
 
-export function DashboardContent({ initialGroups, allLists }: DashboardContentProps) {
+export function DashboardContent({ initialGroups, allLists, userInfo }: DashboardContentProps) {
   const { t } = useI18n()
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(
     initialGroups.length > 0 ? initialGroups[0].id : null,
@@ -373,6 +375,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
           showInboxView={showInboxView}
           showReviewView={showReviewView}
           selectedSmartView={selectedSmartView}
+          userInfo={userInfo}
           onGroupSelect={handleGroupSelect}
           onListSelect={handleListSelect}
           onTodaySelect={handleTodaySelect}
@@ -402,6 +405,7 @@ export function DashboardContent({ initialGroups, allLists }: DashboardContentPr
             showInboxView={showInboxView}
             showReviewView={showReviewView}
             selectedSmartView={selectedSmartView}
+            userInfo={userInfo}
             onGroupSelect={handleGroupSelect}
             onListSelect={handleListSelect}
             onTodaySelect={handleTodaySelect}

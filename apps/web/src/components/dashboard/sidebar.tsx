@@ -33,9 +33,12 @@ import {
   Inbox,
   MoreHorizontal,
   Plus,
+  Settings,
   Star,
   Sun,
+  User,
 } from 'lucide-react'
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { createGroup, deleteGroup, reorderGroups, updateGroup } from '@/actions/groups'
 import { reorderLists } from '@/actions/lists'
@@ -69,6 +72,12 @@ interface SidebarProps {
   showInboxView: boolean
   showReviewView: boolean
   selectedSmartView: 'starred' | 'overdue' | 'next7days' | 'nodate' | null
+  userInfo: {
+    id: string
+    email?: string
+    displayName: string | null
+    avatarUrl: string | null
+  }
   onGroupSelect: (groupId: string | null) => void
   onListSelect: (listId: string | null, groupId: string) => void
   onTodaySelect: () => void
@@ -361,6 +370,7 @@ export function Sidebar({
   showInboxView,
   showReviewView,
   selectedSmartView,
+  userInfo,
   onGroupSelect,
   onListSelect,
   onTodaySelect,
@@ -687,6 +697,45 @@ export function Sidebar({
                   </SortableContext>
                 </DndContext>
               )}
+        </div>
+
+        {/* User Section */}
+        <div className="border-t border-stone-200 dark:border-stone-800 p-3">
+          <div className="flex items-center gap-3">
+            {/* Avatar */}
+            <div className="w-8 h-8 rounded-full bg-stone-200 dark:bg-stone-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+              {userInfo.avatarUrl
+                ? (
+                    <Image
+                      src={userInfo.avatarUrl}
+                      alt={userInfo.displayName || userInfo.email || 'User'}
+                      width={32}
+                      height={32}
+                      className="object-cover"
+                    />
+                  )
+                : (
+                    <User className="h-4 w-4 text-stone-500 dark:text-stone-400" />
+                  )}
+            </div>
+            {/* User Info */}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-stone-900 dark:text-stone-100 truncate">
+                {userInfo.displayName || 'User'}
+              </p>
+              <p className="text-xs text-stone-500 dark:text-stone-400 truncate">
+                {userInfo.email}
+              </p>
+            </div>
+            {/* Settings Link */}
+            <a
+              href="/dashboard/settings"
+              className="p-1.5 rounded-md hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 hover:text-stone-700 dark:hover:text-stone-300 transition-colors"
+              title={t('common.settings')}
+            >
+              <Settings className="h-4 w-4" />
+            </a>
+          </div>
         </div>
       </aside>
 

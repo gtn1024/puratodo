@@ -12,7 +12,8 @@
     "error": "Error",
     "success": "Success",
     "move": "Move",
-    "add": "Add"
+    "add": "Add",
+    "settings": "Settings"
   },
   "auth": {
     "login": "Sign In",
