@@ -60,7 +60,8 @@ export function TokenList({ initialTokens }: TokenListProps) {
 
   const handleTokenCreated = (token: Omit<ApiToken, 'token_hash'>) => {
     setTokens([token as ApiToken, ...tokens])
-    setCreateDialogOpen(false)
+    // Don't close the dialog here - let user copy the token first
+    // The dialog will be closed by user clicking "Done" or by the dialog's handleClose
   }
 
   const formatDate = (dateStr: string | null) => {
