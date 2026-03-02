@@ -302,7 +302,8 @@ export async function executeTool(
           .eq('user_id', userId)
 
         // When include_subtasks is false, only get root tasks
-        if (!include_subtasks) {
+        // Exception: for "today" view, subtasks can be independently planned
+        if (!include_subtasks && view !== 'today') {
           query = query.is('parent_id', null)
         }
 
