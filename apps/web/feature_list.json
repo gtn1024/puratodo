@@ -910,6 +910,24 @@
         "6. Test: Report generation handles empty periods gracefully with actionable prompts"
       ],
       "passes": true
+    },
+    {
+      "id": 74,
+      "category": "Productivity Core",
+      "description": "Batch add tasks/subtasks with duration support via multi-line input",
+      "steps": [
+        "1. Create batch add modal/panel with multi-line textarea input",
+        "2. Implement parser to extract: task name, duration (e.g., [30m], (45min), 1h), and nesting level from indentation/bullets",
+        "3. Support duration format parsing: 30m, 45min, 1h, 1.5h, 90min → convert to minutes",
+        "4. Add preview mode showing parsed structure before creation",
+        "5. Implement batch task creation API endpoint/server action",
+        "6. Add validation and error highlighting for unparseable lines",
+        "7. Test: Create multiple tasks with different durations in one submission",
+        "8. Test: Create nested subtasks via indentation (2 spaces or tab)",
+        "9. Test: Invalid duration formats show helpful error messages",
+        "10. Test: Large batch (20+ tasks) completes within reasonable time"
+      ],
+      "passes": false
     }
   ]
 }
