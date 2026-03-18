@@ -128,47 +128,46 @@ export function CreateTokenDialog({
 
         {createdToken
           ? (
-              <div className="space-y-4">
-                <div className="p-4 bg-muted rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <code className="text-sm font-mono break-all">{createdToken}</code>
-                    <Button variant="outline" size="sm" onClick={handleCopy} className="ml-2 shrink-0">
-                      {copied ? 'Copied!' : 'Copy'}
+              <div className="space-y-6">
+                <div className="p-4 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <code className="text-sm font-mono break-all flex-1 select-all">{createdToken}</code>
+                    <Button variant="secondary" size="sm" onClick={handleCopy} className="shrink-0">
+                      {copied ? '✓ Copied!' : 'Copy'}
                     </Button>
                   </div>
-                  <p className="text-xs text-destructive font-medium">
+                  <p className="text-xs text-amber-600 dark:text-amber-400 font-medium mt-3">
                     ⚠️ Copy this token now! It will not be shown again.
                   </p>
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Claude Desktop Configuration</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Add this to your Claude Desktop config file:
-                  </p>
-                  <div className="relative">
-                    <pre className="p-4 bg-muted rounded-lg text-xs overflow-x-auto">
-                      {mcpConfig}
-                    </pre>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-base">Claude Desktop Configuration</Label>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Add this to your Claude Desktop config file
+                      </p>
+                    </div>
                     <Button
-                      variant="outline"
+                      variant="secondary"
                       size="sm"
-                      className="absolute top-2 right-2"
-                      onClick={() => {
-                        navigator.clipboard.writeText(mcpConfig)
-                      }}
+                      onClick={() => navigator.clipboard.writeText(mcpConfig)}
                     >
                       Copy Config
                     </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Config file location:
-                  </p>
-                  <ul className="text-xs text-muted-foreground list-disc list-inside">
-                    <li>macOS: ~/Library/Application Support/Claude/claude_desktop_config.json</li>
-                    <li>Windows: %APPDATA%\Claude\claude_desktop_config.json</li>
-                    <li>Linux: ~/.config/Claude/claude_desktop_config.json</li>
-                  </ul>
+                  <pre className="p-4 bg-muted/50 border border-border rounded-lg text-xs overflow-x-auto">
+                    {mcpConfig}
+                  </pre>
+                  <div className="text-xs text-muted-foreground">
+                    <p className="font-medium mb-1">Config file locations:</p>
+                    <ul className="list-disc list-inside space-y-0.5">
+                      <li>macOS: ~/Library/Application Support/Claude/claude_desktop_config.json</li>
+                      <li>Windows: %APPDATA%\Claude\claude_desktop_config.json</li>
+                      <li>Linux: ~/.config/Claude/claude_desktop_config.json</li>
+                    </ul>
+                  </div>
                 </div>
               </div>
             )
