@@ -377,56 +377,8 @@ export async function executeTool(
           case 'all':
             query = query.order('updated_at', { ascending: false })
             break
-      case 'current_time': {
-        const { timezone = 'Asia/Shanghai' } = args
 
-        if (typeof timezone !== 'string') {
-          return {
-            content: [{ type: 'text', text: 'Error: timezone must be a string' }],
-            isError: true,
-          }
-        }
-
-        try {
-          const now = new Date()
-          const formatted = new Intl.DateTimeFormat('en-US', {
-            timeZone: timezone,
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false,
-            weekday: 'long',
-          }).format(now)
-
-          const dateStr = new Intl.DateTimeFormat('sv-SE', {
-            timeZone: timezone,
-          }).format(now)
-
-          return {
-            content: [{
-              type: 'text',
-              text: JSON.stringify({
-                timezone,
-                date: dateStr,
-                time: formatted,
-                iso: now.toISOString(),
-                unix: now.getTime(),
-              }, null, 2),
-            }],
-          }
-        }
-        catch (e) {
-          return {
-            content: [{ type: 'text', text: `Error: Invalid timezone "${timezone}". Use IANA identifiers like Asia/Shanghai, America/New_York, etc.` }],
-            isError: true,
-          }
-        }
-      }
-
-      default:
+          default:
             break
         }
 
@@ -710,6 +662,55 @@ export async function executeTool(
 
         return {
           content: [{ type: 'text', text: `Successfully reordered ${task_ids.length} tasks` }],
+        }
+      }
+
+      case 'current_time': {
+        const { timezone = 'Asia/Shanghai' } = args
+
+        if (typeof timezone !== 'string') {
+          return {
+            content: [{ type: 'text', text: 'Error: timezone must be a string' }],
+            isError: true,
+          }
+        }
+
+        try {
+          const now = new Date()
+          const formatted = new Intl.DateTimeFormat('en-US', {
+            timeZone: timezone,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false,
+            weekday: 'long',
+          }).format(now)
+
+          const dateStr = new Intl.DateTimeFormat('sv-SE', {
+            timeZone: timezone,
+          }).format(now)
+
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                timezone,
+                date: dateStr,
+                time: formatted,
+                iso: now.toISOString(),
+                unix: now.getTime(),
+              }, null, 2),
+            }],
+          }
+        }
+        catch (e) {
+          return {
+            content: [{ type: 'text', text: `Error: Invalid timezone "${timezone}". Use IANA identifiers like Asia/Shanghai, America/New_York, etc.` }],
+            isError: true,
+          }
         }
       }
 
