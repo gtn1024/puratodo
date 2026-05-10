@@ -176,6 +176,29 @@ export const tools: MCPTool[] = [
     },
   },
   {
+    name: 'reorder_tasks',
+    description: 'Reorder tasks within a list (and optionally within a parent task) by providing an ordered array of task IDs',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        list_id: {
+          type: 'string',
+          description: 'The ID of the list the tasks belong to',
+        },
+        task_ids: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Ordered array of task IDs (first = highest priority)',
+        },
+        parent_id: {
+          type: 'string',
+          description: 'Optional parent task ID when reordering subtasks',
+        },
+      },
+      required: ['list_id', 'task_ids'],
+    },
+  },
+  {
     name: 'search_tasks',
     description: 'Search for tasks by name',
     inputSchema: {
@@ -552,6 +575,79 @@ export async function executeTool(
 
         return {
           content: [{ type: 'text', text: JSON.stringify(data, null, 2) }],
+        }
+      }
+
+      case 'reorder_tasks': {
+        const { list_id, task_ids, parent_id } = args
+
+        if (!list_id || typeof list_id !== 'string') {
+          return {
+            content: [{ type: 'text', text: 'Error: list_id is required' }],
+            isError: true,
+          }
+        }
+
+        if (!Array.isArray(task_ids) || task_ids.length === 0) {
+          return {
+            content: [{ type: 'text', text: 'Error: task_ids must be a non-empty array' }],
+            isError: true,
+          }
+        }
+
+        for (const id of task_ids) {
+          if (typeof id !== 'string') {
+            return {
+              content: [{ type: 'text', text: 'Error: each task_id must be a string' }],
+              isError: true,
+            }
+          }
+        }
+
+        const listCheck = await supabase
+          .from('lists')
+          .select('id')
+          .eq('id', list_id)
+          .eq('user_id', userId)
+          .single()
+
+        if (listCheck.error || !listCheck.data) {
+          return {
+            content: [{ type: 'text', text: 'Error: List not found or access denied' }],
+            isError: true,
+          }
+        }
+
+        const updates = task_ids.map((id: string, index: number) => {
+          let q = supabase
+            .from('tasks')
+            .update({ sort_order: index })
+            .eq('id', id)
+            .eq('list_id', list_id)
+            .eq('user_id', userId)
+
+          if (parent_id && typeof parent_id === 'string') {
+            q = q.eq('parent_id', parent_id)
+          }
+          else {
+            q = q.is('parent_id', null)
+          }
+
+          return q
+        })
+
+        const results = await Promise.all(updates.map(q => q))
+        const errors = results.filter(r => r.error)
+
+        if (errors.length > 0) {
+          return {
+            content: [{ type: 'text', text: `Error reordering tasks: ${errors.map(e => e.error!.message).join(', ')}` }],
+            isError: true,
+          }
+        }
+
+        return {
+          content: [{ type: 'text', text: `Successfully reordered ${task_ids.length} tasks` }],
         }
       }
 
