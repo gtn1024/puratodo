@@ -1,11 +1,11 @@
 'use client'
 
-import type { UserInfo } from './page'
 import type { Group } from '@/actions/groups'
 import type { List } from '@/actions/lists'
 import type { KeyboardShortcut } from '@/hooks/use-keyboard-shortcuts'
 import { AlertTriangle, BarChart3, CalendarDays, Calendar as CalendarIcon, Circle, Inbox, Menu, Search, Star, Sun } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { getGroups } from '@/actions/groups'
 import { getLists, getOrCreateInboxList } from '@/actions/lists'
 import { CalendarPanel } from '@/components/dashboard/calendar-panel'
 import { ListPanel } from '@/components/dashboard/list-panel'
@@ -35,19 +35,22 @@ import { useRealtime } from '@/hooks/use-realtime'
 import { useI18n } from '@/i18n'
 import { LogoutButton } from './logout-button'
 
-interface DashboardContentProps {
-  initialGroups: Group[]
-  allLists: List[]
-  userInfo: UserInfo
+export interface UserInfo {
+  id: string
+  email: string | undefined
+  displayName: string | null
+  avatarUrl: string | null
 }
 
 type SmartViewType = 'starred' | 'overdue' | 'next7days' | 'nodate'
 
-export function DashboardContent({ initialGroups, allLists, userInfo }: DashboardContentProps) {
+export function DashboardContent() {
   const { t } = useI18n()
-  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(
-    initialGroups.length > 0 ? initialGroups[0].id : null,
-  )
+  const [initialGroups, setInitialGroups] = useState<Group[]>([])
+  const [allLists, setAllLists] = useState<List[]>([])
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null)
   const [selectedListId, setSelectedListId] = useState<string | null>(null)
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
   const [lists, setLists] = useState<List[]>(allLists)
@@ -61,11 +64,35 @@ export function DashboardContent({ initialGroups, allLists, userInfo }: Dashboar
   const [showInboxView, setShowInboxView] = useState(false)
   const [showReviewView, setShowReviewView] = useState(false)
   const [selectedSmartView, setSelectedSmartView] = useState<SmartViewType | null>(null)
-  const [inboxListId, setInboxListId] = useState<string | null>(
-    allLists.find(list => list.name === 'Inbox')?.id || null,
-  )
+  const [inboxListId, setInboxListId] = useState<string | null>(null)
   const [isLoadingInbox, setIsLoadingInbox] = useState(false)
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false)
+
+  useEffect(() => {
+    async function loadData() {
+      const [groupsData, listsData] = await Promise.all([getGroups(), getLists()])
+      setInitialGroups(groupsData)
+      setAllLists(listsData)
+      setLists(listsData)
+      setSelectedGroupId(groupsData.length > 0 ? groupsData[0].id : null)
+      setInboxListId(listsData.find(list => list.name === 'Inbox')?.id || null)
+
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setUserInfo({
+          id: user.id,
+          email: user.email,
+          displayName: user.user_metadata?.display_name || user.user_metadata?.full_name || null,
+          avatarUrl: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
+        })
+      }
+
+      setIsLoading(false)
+    }
+    loadData()
+  }, [])
 
   // Refs for triggering creation in child components
   const listPanelRef = useRef<{ triggerCreateList: () => void }>(null)
@@ -360,6 +387,12 @@ export function DashboardContent({ initialGroups, allLists, userInfo }: Dashboar
 
   return (
     <div className="flex h-screen bg-stone-50 dark:bg-stone-950">
+      {isLoading || !userInfo ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stone-900 dark:border-stone-100" />
+        </div>
+      ) : (
+      <>
       {/* Reminder scheduler - handles browser notifications */}
       <ReminderScheduler enabled={true} />
 
@@ -699,6 +732,8 @@ export function DashboardContent({ initialGroups, allLists, userInfo }: Dashboar
         onOpenChange={setSearchDialogOpen}
         onTaskSelect={handleSearchTaskSelect}
       />
+      </>
+      )}
     </div>
   )
 }
